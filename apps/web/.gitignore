@@ -2,3 +2,5 @@
 .open-next/
 .turbo/
 .wrangler/
+.env
+.env.local
