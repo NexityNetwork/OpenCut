@@ -1,8 +1,10 @@
+node_modules/
 .next/
 .open-next/
 .turbo/
 .wrangler/
+dist/
 .env
 .env.local
-node_modules/
-next-env.d.ts
+*.log
+.DS_Store
