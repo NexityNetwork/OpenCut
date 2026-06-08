@@ -266,26 +266,26 @@ export function VaultSection() {
 							{busy ? <Spinner className="size-4" /> : <ArrowUp className="size-4" />}
 						</button>
 					</div>
-					<div className="mt-4 hidden justify-center md:flex">
+					<div className="mt-3 flex items-center justify-between gap-3">
+						<div className="flex flex-wrap items-center gap-2">
+							{PLATFORMS.map((p) => (
+								<span
+									key={p.label}
+									title={p.label}
+									className="bg-muted/70 hover:bg-muted flex size-8 items-center justify-center rounded-full transition-colors"
+								>
+									<p.Icon className="block size-4" style={{ color: p.color }} />
+								</span>
+							))}
+						</div>
 						<button
 							type="button"
 							onClick={createBlankProject}
-							className="bg-card hover:bg-muted text-foreground inline-flex items-center gap-1.5 rounded-full border px-4 py-2 text-sm font-medium transition-colors"
+							className="bg-card hover:bg-muted text-foreground hidden shrink-0 items-center gap-1.5 rounded-full border px-4 py-2 text-sm font-medium transition-colors md:inline-flex"
 						>
 							<Plus className="size-4" />
 							New project
 						</button>
-					</div>
-					<div className="mt-3 flex flex-wrap items-center justify-center gap-2">
-						{PLATFORMS.map((p) => (
-							<span
-								key={p.label}
-								title={p.label}
-								className="bg-muted/70 hover:bg-muted flex size-8 items-center justify-center rounded-full transition-colors"
-							>
-								<p.Icon className="block size-4" style={{ color: p.color }} />
-							</span>
-						))}
 					</div>
 				</div>
 			</div>
