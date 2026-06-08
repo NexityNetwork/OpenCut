@@ -146,9 +146,12 @@ function ProjectsHeader() {
 		<header className="sticky top-0 z-20 flex h-16 items-center justify-between bg-background px-8 pt-2">
 			<Link
 				href="/"
-				className="text-foreground text-base font-semibold tracking-tight"
+				className="flex items-center text-lg font-bold tracking-tight"
 			>
-				Ultron <span className="text-muted-foreground font-normal">Monolith</span>
+				<span className="text-foreground">Ultron</span>
+				<span className="text-muted-foreground ml-1.5 font-medium">
+					Monolith
+				</span>
 			</Link>
 			<div className="flex items-center gap-2">
 				<div className="hidden h-10 items-center rounded-md border p-1 px-1.5 md:flex">
@@ -169,7 +172,9 @@ function ProjectsHeader() {
 						</Button>
 					))}
 				</div>
-				<NewProjectButton />
+				<div className="md:hidden">
+					<NewProjectButton />
+				</div>
 			</div>
 		</header>
 	);

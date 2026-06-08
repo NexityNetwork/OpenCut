@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 import {
 	ArrowUp,
+	Plus,
 	Video as VideoIcon,
 	Music2,
 	Image as ImageIcon,
@@ -198,6 +199,11 @@ export function VaultSection() {
 		}
 	};
 
+	const createBlankProject = async () => {
+		const id = await editor.project.createNewProject({ name: "New project" });
+		router.push(`/editor/${id}`);
+	};
+
 	const counts = useMemo(() => {
 		const c: Record<string, number> = { all: items.length };
 		for (const i of items) c[i.kind] = (c[i.kind] || 0) + 1;
@@ -258,6 +264,16 @@ export function VaultSection() {
 							)}
 						>
 							{busy ? <Spinner className="size-4" /> : <ArrowUp className="size-4" />}
+						</button>
+					</div>
+					<div className="mt-4 hidden justify-center md:flex">
+						<button
+							type="button"
+							onClick={createBlankProject}
+							className="bg-card hover:bg-muted text-foreground inline-flex items-center gap-1.5 rounded-full border px-4 py-2 text-sm font-medium transition-colors"
+						>
+							<Plus className="size-4" />
+							New project
 						</button>
 					</div>
 					<div className="mt-3 flex flex-wrap items-center justify-center gap-2">
