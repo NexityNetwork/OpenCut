@@ -8,3 +8,6 @@ dist/
 .env.local
 *.log
 .DS_Store
+
+# TypeScript incremental build info
+*.tsbuildinfo

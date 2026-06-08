@@ -191,6 +191,13 @@ export class ProjectManager {
 
 		try {
 			const scenes = this.editor.scenes.getScenes();
+			// A loaded project always has at least a main scene. An empty list here
+			// is a transient desync, never a user action — refuse to persist it so
+			// we never overwrite a good project with a blank timeline.
+			if (scenes.length === 0) {
+				console.warn("Skipped autosave: scene list was unexpectedly empty");
+				return;
+			}
 			const updatedProject = {
 				...this.active,
 				scenes,

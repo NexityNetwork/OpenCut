@@ -38,7 +38,7 @@ import { SelectionBox } from "@/selection/selection-box";
 import { useBoxSelect } from "@/selection/hooks/use-box-select";
 import { SnapIndicator } from "./snap-indicator";
 import type { SnapPoint } from "@/timeline/snapping";
-import type { TimelineTrack } from "@/timeline";
+import type { TimelineTrack, TScene } from "@/timeline";
 import {
 	TIMELINE_SCROLLBAR_SIZE_PX,
 	TIMELINE_CONTENT_TOP_PADDING_PX,
@@ -136,6 +136,44 @@ export function Timeline() {
 	);
 	const mainTrackId = scene?.tracks.main.id ?? null;
 	const seek = (time: MediaTime) => editor.playback.seek({ time });
+
+	// Desync diagnostic. Both historical timeline bugs (un-draggable playhead,
+	// blank timeline) reduce to the active scene going null/empty while content
+	// exists. Expose `window.__timelineDebug()` so a reproduction reports the
+	// exact state instead of guessing.
+	useEffect(() => {
+		const countElements = (sceneToCount: TScene | null) =>
+			sceneToCount
+				? [
+						...sceneToCount.tracks.overlay,
+						sceneToCount.tracks.main,
+						...sceneToCount.tracks.audio,
+					].reduce((total, track) => total + track.elements.length, 0)
+				: 0;
+		const collect = () => {
+			const allScenes = editor.scenes.getScenes();
+			const active = editor.scenes.getActiveSceneOrNull();
+			return {
+				activeSceneId: active?.id ?? null,
+				activeInList: active
+					? allScenes.some((s) => s.id === active.id)
+					: false,
+				activeElements: countElements(active),
+				totalDuration: editor.timeline.getTotalDuration(),
+				mediaCount: editor.media.getAssets().length,
+				scenes: allScenes.map((s) => ({
+					id: s.id,
+					isMain: s.isMain,
+					elements: countElements(s),
+				})),
+			};
+		};
+		const target = window as unknown as { __timelineDebug?: () => unknown };
+		target.__timelineDebug = collect;
+		return () => {
+			delete target.__timelineDebug;
+		};
+	}, [editor]);
 
 	const timelineRef = useRef<HTMLDivElement>(null);
 	const timelineHeaderRef = useRef<HTMLDivElement>(null);

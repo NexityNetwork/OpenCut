@@ -239,15 +239,33 @@ export class ScenesManager {
 		this.notify();
 	}
 
+	/**
+	 * Best-effort active-scene resolution. `this.active` is authoritative, but if
+	 * it has been left null while scenes still exist — a desync that historically
+	 * blanked the timeline, froze the playhead (duration collapses to 0), and
+	 * crashed the many render paths that call getActiveScene() — fall back to the
+	 * main scene. Pure read (never mutates) so it is safe to call during render.
+	 */
+	private resolveActiveScene(): TScene | null {
+		if (this.active) {
+			return this.active;
+		}
+		if (this.list.length === 0) {
+			return null;
+		}
+		return getMainScene({ scenes: this.list }) ?? this.list[0] ?? null;
+	}
+
 	getActiveScene(): TScene {
-		if (!this.active) {
+		const scene = this.resolveActiveScene();
+		if (!scene) {
 			throw new Error("No active scene.");
 		}
-		return this.active;
+		return scene;
 	}
 
 	getActiveSceneOrNull(): TScene | null {
-		return this.active;
+		return this.resolveActiveScene();
 	}
 
 	getScenes(): TScene[] {
@@ -262,10 +280,18 @@ export class ScenesManager {
 		activeSceneId?: string;
 	}): void {
 		this.list = scenes;
-		const nextActiveSceneId = activeSceneId ?? this.active?.id ?? null;
-		this.active = nextActiveSceneId
-			? (scenes.find((scene) => scene.id === nextActiveSceneId) ?? null)
+		const requestedSceneId = activeSceneId ?? this.active?.id ?? null;
+		const matchedScene = requestedSceneId
+			? (scenes.find((scene) => scene.id === requestedSceneId) ?? null)
 			: null;
+		// Never leave `active` null while scenes still exist — that desync blanks
+		// the editor and crashes getActiveScene() render paths. Fall back to the
+		// main scene (or first) instead.
+		this.active =
+			matchedScene ??
+			(scenes.length > 0
+				? (getMainScene({ scenes }) ?? scenes[0] ?? null)
+				: null);
 		this.notify();
 
 		const activeProject = this.editor.project.getActive();
@@ -294,17 +320,23 @@ export class ScenesManager {
 	}
 
 	updateSceneTracks({ tracks }: { tracks: SceneTracks }): void {
-		if (!this.active) return;
+		// Recover a dropped active scene rather than silently discarding the edit.
+		const base = this.active ?? this.resolveActiveScene();
+		if (!base) return;
 
 		const updatedScene: TScene = {
-			...this.active,
+			...base,
 			tracks,
 			updatedAt: new Date(),
 		};
 
-		this.list = this.list.map((s) =>
-			s.id === this.active?.id ? updatedScene : s,
-		);
+		// Keep `active` a member of `list` at all times. If the reference drifted
+		// out of the list, re-add it so the edit is never lost from persistence
+		// (a silently-dropped scene is exactly what gets autosaved as an empty
+		// timeline and survives reload).
+		this.list = this.list.some((s) => s.id === base.id)
+			? this.list.map((s) => (s.id === base.id ? updatedScene : s))
+			: [...this.list, updatedScene];
 		this.active = updatedScene;
 		this.notify();
 
