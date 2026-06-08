@@ -1,16 +1,19 @@
-import { env } from 'cloudflare:workers'
-import { drizzle } from 'drizzle-orm/d1'
+import { drizzle } from "drizzle-orm/postgres-js";
+import postgres from "postgres";
+import * as schema from "./schema";
+import { webEnv } from "@/env/web";
 
-import * as schema from './schema'
+let _db: ReturnType<typeof drizzle> | null = null;
 
-/**
- * Drizzle client bound to the Cloudflare D1 database (wrangler binding `DB`).
- *
- * Call this from a server handler or route loader only — never at module top
- * level and never from client code, since it depends on the Workers `env`.
- */
-export function getDb() {
-  return drizzle(env.DB, { schema })
+function getDb() {
+	if (!_db) {
+		const client = postgres(webEnv.DATABASE_URL);
+		_db = drizzle(client, { schema });
+	}
+
+	return _db;
 }
 
-export { schema }
+export const db = getDb();
+
+export * from "./schema";

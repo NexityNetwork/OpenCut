@@ -1,6 +1,3 @@
-import { clsx, type ClassValue } from "clsx"
-import { twMerge } from "tailwind-merge"
-
-export function cn(...inputs: ClassValue[]) {
-  return twMerge(clsx(inputs))
-}
+// shadcn/cult-ui components import `cn` from "@/lib/utils"; OpenCut's lives at
+// "@/utils/ui". Re-export so both alias paths resolve to the same helper.
+export { cn } from "@/utils/ui";

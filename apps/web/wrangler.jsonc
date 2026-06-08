@@ -1,21 +1,55 @@
 {
   "$schema": "node_modules/wrangler/config-schema.json",
   "name": "opencut-web",
-  "compatibility_date": "2025-09-02",
-  "compatibility_flags": ["nodejs_compat"],
-  "main": "@tanstack/react-start/server-entry",
+  "main": ".open-next/worker.js",
+  "compatibility_date": "2025-04-01",
+  "compatibility_flags": ["nodejs_compat", "global_fetch_strictly_public"],
+  "assets": {
+    "directory": ".open-next/assets",
+    "binding": "ASSETS"
+  },
+  "services": [
+    {
+      "binding": "WORKER_SELF_REFERENCE",
+      "service": "opencut-web"
+    }
+  ],
   "routes": [
     {
       "pattern": "edits.51ultron.com",
       "custom_domain": true
     }
   ],
+  "vars": {
+    "NEXT_PUBLIC_SITE_URL": "https://edits.51ultron.com",
+    "NEXT_PUBLIC_MARBLE_API_URL": "https://api.marblecms.com",
+    "DATABASE_URL": "postgresql://opencut:opencut@localhost:5432/opencut",
+    "BETTER_AUTH_SECRET": "Vq3pX7sR2kLmN9wZ4tB8yJ6cH1dF5gA0eU7iO2nQ3xS",
+    "UPSTASH_REDIS_REST_URL": "https://placeholder.example.com",
+    "UPSTASH_REDIS_REST_TOKEN": "placeholder",
+    "MARBLE_WORKSPACE_KEY": "placeholder",
+    "FREESOUND_CLIENT_ID": "placeholder",
+    "FREESOUND_API_KEY": "placeholder",
+    "AZURE_SPEECH_REGION": "eastus",
+    "AZURE_TENANT": "2d450839-fb78-4abe-ac55-7b89614c1eb3",
+    "AZURE_CLIENT_ID": "2226485b-2926-40a0-8538-2d10aad813b5",
+    "AZURE_SUBSCRIPTION": "235977a1-ec2b-40e3-ae09-fb72b7b43116",
+    "AZURE_RG": "ultron-reels-rg",
+    "AZURE_JOB": "ultron-reels-render-job",
+    "AZURE_OPENAI_ENDPOINT": "https://ultron-reels-aoai5e8d.openai.azure.com/",
+    "AZURE_OPENAI_DEPLOYMENT": "gpt-4.1-mini",
+    "YTDLP_URL": "https://ultron-ytdlp-cf.catalin-932.workers.dev",
+    "IG_FETCH_URL": "https://ultron-ytdlp.thankfulpond-16e98834.eastus.azurecontainerapps.io",
+    "APIFY_IG_REELS_ACTOR": "PCJOW9u5iF0aCbicy"
+  },
+  "r2_buckets": [
+    { "binding": "REELS_R2", "bucket_name": "ultron-reels" }
+  ],
   "d1_databases": [
     {
-      "binding": "DB",
-      "database_name": "opencut-web-db",
-      "database_id": "24ddb440-d156-4b84-8d16-b64e6b09e97e",
-      "migrations_dir": "src/db/migrations"
+      "binding": "VAULT_DB",
+      "database_name": "opencut-vault",
+      "database_id": "16afa4b2-a2ae-46d1-af4a-41e75836d95b"
     }
   ]
 }
