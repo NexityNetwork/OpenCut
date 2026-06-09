@@ -257,6 +257,7 @@ export function VaultSection() {
 	const isInitialized = useEditor((e) => e.project.getIsInitialized());
 	const { data: session } = useSession();
 	const userId = session?.user?.id;
+	const isOwner = session?.user?.email === OWNER_EMAIL;
 	const [owner, setOwner] = useState("");
 	const [items, setItems] = useState<VaultItem[]>([]);
 	const [loading, setLoading] = useState(true);
@@ -693,7 +694,7 @@ export function VaultSection() {
 				}}
 			>
 				{appView === "publish" ? (
-					<PublishPane items={visibleItems} owner={owner} />
+					<PublishPane items={visibleItems} owner={owner} isOwner={isOwner} />
 				) : (
 					<div className="px-8 pb-12">
 						<div className="flex justify-end pt-4">
@@ -1093,7 +1094,6 @@ function LibrarySidebar({
 }) {
 	const { data: session } = useSession();
 	const user = session?.user;
-	const isOwner = user?.email === OWNER_EMAIL;
 	const [moreOpen, setMoreOpen] = useState(false);
 
 	if (collapsed) {
@@ -1136,21 +1136,19 @@ function LibrarySidebar({
 				>
 					<LayoutGrid className="size-5" />
 				</button>
-				{isOwner && (
-					<button
-						type="button"
-						onClick={onSelectPublish}
-						aria-label="Publish"
-						className={cn(
-							"flex size-9 items-center justify-center rounded-md",
-							appView === "publish"
-								? "bg-muted text-foreground"
-								: "text-muted-foreground hover:text-foreground hover:bg-muted",
-						)}
-					>
-						<Rocket className="size-5" />
-					</button>
-				)}
+				<button
+					type="button"
+					onClick={onSelectPublish}
+					aria-label="Publish"
+					className={cn(
+						"flex size-9 items-center justify-center rounded-md",
+						appView === "publish"
+							? "bg-muted text-foreground"
+							: "text-muted-foreground hover:text-foreground hover:bg-muted",
+					)}
+				>
+					<Rocket className="size-5" />
+				</button>
 				<div className="mt-auto">
 					<Avatar name={user?.name} image={user?.image} size={8} />
 				</div>
@@ -1192,15 +1190,13 @@ function LibrarySidebar({
 					active={appView === "library"}
 					onClick={onSelectLibrary}
 				/>
-				{isOwner && (
-					<SidebarItem
-						icon={Rocket}
-						label="Publish"
-						badge="Beta"
-						active={appView === "publish"}
-						onClick={onSelectPublish}
-					/>
-				)}
+				<SidebarItem
+					icon={Rocket}
+					label="Publish"
+					badge="Beta"
+					active={appView === "publish"}
+					onClick={onSelectPublish}
+				/>
 				<button
 					type="button"
 					onClick={() => setMoreOpen((v) => !v)}
@@ -1589,6 +1585,19 @@ function pubPlatformIcon(p: string) {
 	if (k.includes("tik")) return <SiTiktok className="size-3.5" />;
 	return <Send className="size-3.5" />;
 }
+function pubPlatformIconLg(p: string) {
+	const k = (p || "").toLowerCase();
+	if (k.includes("you")) return <SiYoutube style={{ color: "#FF0000" }} className="size-[18px]" />;
+	if (k.includes("insta")) return <SiInstagram style={{ color: "#E4405F" }} className="size-[18px]" />;
+	if (k.includes("tik")) return <SiTiktok className="size-[18px]" />;
+	return <Send className="size-[18px]" />;
+}
+const PLATFORM_FILTERS = [
+	{ k: "all", label: "All" },
+	{ k: "youtube", label: "YouTube" },
+	{ k: "instagram", label: "Instagram" },
+	{ k: "tiktok", label: "TikTok" },
+];
 function pubWhen(ts?: number) {
 	if (!ts) return "";
 	try {
@@ -1635,8 +1644,64 @@ type Channel = {
 	status: string;
 };
 
-function ChannelsSection() {
-	const [channels, setChannels] = useState<Channel[] | null>(null);
+// Demo data for the non-owner preview — never the real account's queue.
+const DEMO_COUNTS: Record<string, number> = {
+	published: 128,
+	queued: 24,
+	uploading: 1,
+	failed: 0,
+};
+const DEMO_CHANNELS: Channel[] = [
+	{ id: "demo-yt", platform: "youtube", label: "your-channel", platform_handle: "@yourbrand", status: "active" },
+	{ id: "demo-ig", platform: "instagram", label: "your-ig", platform_handle: "@yourbrand", status: "active" },
+	{ id: "demo-tt", platform: "tiktok", label: "your-tiktok", platform_handle: "@yourbrand", status: "active" },
+];
+const DEMO_TITLES = [
+	"How I automate my whole content pipeline",
+	"3 tools that replaced my agency",
+	"POV: you shipped it in a weekend",
+	"The workflow nobody talks about",
+	"I tried this for 30 days — here's what happened",
+	"Stop doing this in 2026",
+];
+function demoQueueRows() {
+	const now = Date.now();
+	const plats = ["youtube", "instagram"];
+	const rows: {
+		id: string;
+		slug: string;
+		platform: string;
+		status: string;
+		scheduled_for?: number;
+		published_at?: number | null;
+		external_url?: string | null;
+	}[] = [];
+	for (let i = 0; i < 6; i++) {
+		rows.push({
+			id: `demo-up-${i}`,
+			slug: DEMO_TITLES[i % DEMO_TITLES.length],
+			platform: plats[i % 2],
+			status: "queued",
+			scheduled_for: now + (i + 1) * 6 * 3600_000,
+		});
+	}
+	for (let i = 0; i < 6; i++) {
+		rows.push({
+			id: `demo-rc-${i}`,
+			slug: DEMO_TITLES[(i + 3) % DEMO_TITLES.length],
+			platform: plats[i % 2],
+			status: "published",
+			published_at: now - (i + 1) * 9 * 3600_000,
+			external_url: "#",
+		});
+	}
+	return rows;
+}
+
+function ChannelsSection({ preview = false }: { preview?: boolean }) {
+	const [channels, setChannels] = useState<Channel[] | null>(
+		preview ? DEMO_CHANNELS : null,
+	);
 	const [pending, setPending] = useState<{
 		platform: string;
 		connection_id: string;
@@ -1644,6 +1709,7 @@ function ChannelsSection() {
 	} | null>(null);
 	const [busy, setBusy] = useState(false);
 	const load = () => {
+		if (preview) return;
 		fetch("/api/publish/channels")
 			.then((r) => (r.ok ? r.json() : null))
 			.then((d) => setChannels(d?.channels ?? []))
@@ -1651,6 +1717,7 @@ function ChannelsSection() {
 	};
 	useEffect(() => {
 		load();
+		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, []);
 
 	const connectYouTube = () => {
@@ -1712,40 +1779,42 @@ function ChannelsSection() {
 		<div className="mt-9">
 			<div className="mb-2 flex items-center justify-between">
 				<h2 className="text-sm font-semibold">Channels</h2>
-				<div className="flex items-center gap-1.5">
-					<button
-						type="button"
-						onClick={load}
-						className="text-muted-foreground hover:text-foreground text-xs"
-					>
-						Refresh
-					</button>
-					<DropdownMenu>
-						<DropdownMenuTrigger asChild>
-							<button
-								type="button"
-								disabled={busy}
-								className="border-border/60 hover:bg-muted/50 flex items-center gap-1.5 rounded-lg border px-2.5 py-1 text-xs font-medium"
-							>
-								<Plus className="size-3.5" /> Connect
-							</button>
-						</DropdownMenuTrigger>
-						<DropdownMenuContent align="end">
-							<DropdownMenuItem onClick={connectYouTube}>
-								<SiYoutube style={{ color: "#FF0000" }} /> YouTube
-							</DropdownMenuItem>
-							<DropdownMenuItem onClick={() => initiate("instagram")}>
-								<SiInstagram style={{ color: "#E4405F" }} /> Instagram
-							</DropdownMenuItem>
-							<DropdownMenuItem onClick={() => initiate("tiktok")}>
-								<SiTiktok /> TikTok
-							</DropdownMenuItem>
-						</DropdownMenuContent>
-					</DropdownMenu>
-				</div>
+				{!preview && (
+					<div className="flex items-center gap-2">
+						<button
+							type="button"
+							onClick={load}
+							className="text-[#8b8676] hover:text-[#f1ebdc] text-xs transition-colors"
+						>
+							Refresh
+						</button>
+						<DropdownMenu>
+							<DropdownMenuTrigger asChild>
+								<button
+									type="button"
+									disabled={busy}
+									className="flex items-center gap-1.5 rounded-full border border-white/[0.1] px-3 py-1 text-xs font-medium text-[#c7c0ae] transition-colors hover:bg-white/[0.05] hover:text-[#f1ebdc]"
+								>
+									<Plus className="size-3.5" /> Connect
+								</button>
+							</DropdownMenuTrigger>
+							<DropdownMenuContent align="end">
+								<DropdownMenuItem onClick={connectYouTube}>
+									<SiYoutube style={{ color: "#FF0000" }} /> YouTube
+								</DropdownMenuItem>
+								<DropdownMenuItem onClick={() => initiate("instagram")}>
+									<SiInstagram style={{ color: "#E4405F" }} /> Instagram
+								</DropdownMenuItem>
+								<DropdownMenuItem onClick={() => initiate("tiktok")}>
+									<SiTiktok /> TikTok
+								</DropdownMenuItem>
+							</DropdownMenuContent>
+						</DropdownMenu>
+					</div>
+				)}
 			</div>
 
-			{pending && (
+			{pending && !preview && (
 				<div className="mb-2 flex items-center justify-between gap-3 rounded-lg border border-amber-500/30 bg-amber-500/10 p-3 text-sm">
 					<span>
 						Approve <span className="capitalize">{pending.platform}</span> in the
@@ -1763,31 +1832,39 @@ function ChannelsSection() {
 			)}
 
 			{channels === null ? (
-				<div className="text-muted-foreground py-4 text-sm">Loading channels…</div>
+				<div className="text-sm text-[#8b8676]">Loading channels…</div>
 			) : channels.length === 0 ? (
-				<div className="text-muted-foreground border-border/60 rounded-xl border border-dashed py-6 text-center text-sm">
+				<div className="rounded-xl border border-dashed border-white/[0.08] py-6 text-center text-sm text-[#8b8676]">
 					No channels connected yet — use Connect.
 				</div>
 			) : (
-				<div className="flex flex-wrap gap-2">
+				<div className="divide-y divide-white/[0.06] overflow-hidden rounded-xl border border-white/[0.07]">
 					{channels.map((ch) => (
-						<div
-							key={ch.id}
-							className="border-border/60 bg-card/40 flex items-center gap-2 rounded-lg border px-3 py-2 text-sm"
-						>
-							{pubPlatformIcon(ch.platform)}
-							<span className="font-medium">{ch.label}</span>
-							{ch.platform_handle && (
-								<span className="text-muted-foreground text-xs">
-									{ch.platform_handle}
-								</span>
-							)}
-							<span
-								className={cn(
-									"size-1.5 rounded-full",
-									ch.status === "active" ? "bg-green-500" : "bg-muted-foreground/50",
+						<div key={ch.id} className="flex items-center gap-3 px-4 py-3">
+							<span className="flex size-9 shrink-0 items-center justify-center rounded-lg bg-white/[0.04]">
+								{pubPlatformIconLg(ch.platform)}
+							</span>
+							<div className="min-w-0 flex-1">
+								<div className="truncate text-sm font-medium text-[#f1ebdc]">
+									{ch.label}
+								</div>
+								{ch.platform_handle && (
+									<div className="truncate text-xs text-[#8b8676]">
+										{ch.platform_handle}
+									</div>
 								)}
-							/>
+							</div>
+							<span className="flex items-center gap-1.5 text-xs text-[#8b8676]">
+								<span
+									className={cn(
+										"size-1.5 rounded-full",
+										ch.status === "active"
+											? "bg-green-500"
+											: "bg-muted-foreground/50",
+									)}
+								/>
+								{ch.status === "active" ? "Active" : ch.status}
+							</span>
 						</div>
 					))}
 				</div>
@@ -2479,22 +2556,29 @@ function ReadOnlyPostModal({
 function PublishPane({
 	items,
 	owner,
+	isOwner,
 }: {
 	items: VaultItem[];
 	owner: string;
+	isOwner: boolean;
 }) {
-	const [online, setOnline] = useState<boolean | null>(null);
+	const preview = !isOwner;
 	const [status, setStatus] = useState<PubStatus | null>(null);
-	const [queue, setQueue] = useState<QueueRow[] | null>(null);
+	const [queue, setQueue] = useState<QueueRow[] | null>(
+		preview ? (demoQueueRows() as QueueRow[]) : null,
+	);
 	const [composing, setComposing] = useState(false);
 	const [detailId, setDetailId] = useState<string | null>(null);
+	const [pfilter, setPfilter] = useState("all");
 	const loadStatus = () => {
+		if (preview) return;
 		fetch("/api/publish/status")
 			.then((r) => (r.ok ? r.json() : null))
 			.then((d) => setStatus(d))
 			.catch(() => setStatus(null));
 	};
 	const loadQueue = () => {
+		if (preview) return;
 		fetch("/api/publish/queue?limit=200")
 			.then((r) => (r.ok ? r.json() : null))
 			.then((d) => setQueue(Array.isArray(d?.items) ? d.items : []))
@@ -2505,55 +2589,66 @@ function PublishPane({
 		loadQueue();
 	};
 	useEffect(() => {
-		fetch("/api/publish/health")
-			.then((r) => (r.ok ? r.json() : null))
-			.then((d) => setOnline(!!d?.ok))
-			.catch(() => setOnline(false));
+		if (preview) return;
 		loadStatus();
 		loadQueue();
+		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, []);
-	const c = status?.counts ?? {};
+
+	const requestAccess = () =>
+		toast.success("Access requested", {
+			description: "Publishing is in private beta — we'll reach out soon.",
+		});
+
+	const c = preview ? DEMO_COUNTS : status?.counts ?? {};
 	const stat = [
 		{ label: "Published", value: c.published, color: "text-green-500" },
-		{ label: "Queued", value: c.queued, color: "text-foreground" },
+		{ label: "Queued", value: c.queued, color: "text-[#f1ebdc]" },
 		{ label: "Uploading", value: c.uploading, color: "text-amber-400" },
 		{ label: "Failed", value: c.failed, color: "text-red-500" },
 	];
 	const rows = queue ?? [];
+	const matchP = (p: string) => pfilter === "all" || p === pfilter;
 	const upcoming = useMemo(
 		() =>
 			rows
-				.filter((r) => r.status === "queued")
+				.filter((r) => r.status === "queued" && matchP(r.platform))
 				.sort((a, b) => (a.scheduled_for || 0) - (b.scheduled_for || 0)),
-		[queue],
+		[queue, pfilter],
 	);
 	const recent = useMemo(
 		() =>
 			rows
-				.filter((r) => r.status !== "queued")
+				.filter((r) => r.status !== "queued" && matchP(r.platform))
 				.sort(
 					(a, b) =>
 						(b.published_at || b.scheduled_for || 0) -
 						(a.published_at || a.scheduled_for || 0),
 				),
-		[queue],
+		[queue, pfilter],
 	);
+	const onRow = (id: string) => (preview ? requestAccess() : setDetailId(id));
+
 	return (
 		<div className="mx-auto max-w-3xl px-8 py-10">
 			<div className="flex items-start justify-between gap-4">
-				<div>
+				<div className="flex items-center gap-2.5">
 					<h1 className="text-2xl font-semibold tracking-tight">Publishing</h1>
-					<p className="text-muted-foreground mt-1 flex items-center gap-1.5 text-sm">
-						<span
-							className={cn(
-								"size-1.5 rounded-full",
-								online ? "bg-green-500" : "bg-muted-foreground/50",
-							)}
-						/>
-						Engine {online == null ? "…" : online ? "online" : "offline"}
-					</p>
+					{preview && (
+						<button
+							type="button"
+							onClick={requestAccess}
+							className="rounded-full border border-white/[0.14] bg-white/[0.05] px-3 py-1 text-xs font-medium text-[#c7c0ae] transition-colors hover:bg-white/[0.1] hover:text-[#f1ebdc]"
+						>
+							Request access
+						</button>
+					)}
 				</div>
-				<Button onClick={() => setComposing(true)} className="shrink-0">
+				<Button
+					onClick={() => setComposing(true)}
+					disabled={preview}
+					className={cn("shrink-0", preview && "opacity-50")}
+				>
 					New post
 				</Button>
 			</div>
@@ -2562,9 +2657,9 @@ function PublishPane({
 				{stat.map((s) => (
 					<div
 						key={s.label}
-						className="border-border/60 bg-card/40 rounded-xl border p-4"
+						className="rounded-xl border border-white/[0.07] bg-white/[0.02] p-4"
 					>
-						<div className="text-muted-foreground text-xs">{s.label}</div>
+						<div className="text-xs text-[#8b8676]">{s.label}</div>
 						<div className={cn("mt-1.5 text-2xl font-semibold", s.color)}>
 							{s.value ?? 0}
 						</div>
@@ -2572,34 +2667,59 @@ function PublishPane({
 				))}
 			</div>
 
-			<ChannelsSection />
+			<ChannelsSection preview={preview} />
+
+			{/* Platform filter */}
+			<div className="mt-9 flex flex-wrap items-center gap-1.5">
+				{PLATFORM_FILTERS.map((f) => {
+					const on = pfilter === f.k;
+					return (
+						<button
+							key={f.k}
+							type="button"
+							onClick={() => setPfilter(f.k)}
+							className={cn(
+								"flex items-center gap-1.5 rounded-full border px-3 py-1.5 text-[13px] transition-colors",
+								on
+									? "border-white/25 bg-white/[0.08] text-[#f1ebdc]"
+									: "border-white/[0.08] text-[#c7c0ae] hover:bg-white/[0.04] hover:text-[#f1ebdc]",
+							)}
+						>
+							{f.k !== "all" && pubPlatformIcon(f.k)}
+							{f.label}
+						</button>
+					);
+				})}
+			</div>
 
 			{/* Upcoming */}
-			<div className="mt-9">
+			<div className="mt-5">
 				<h2 className="mb-2 text-sm font-semibold">Upcoming</h2>
 				{queue === null ? (
-					<div className="text-muted-foreground border-border/60 rounded-xl border border-dashed py-8 text-center text-sm">
+					<div className="rounded-xl border border-dashed border-white/[0.08] py-8 text-center text-sm text-[#8b8676]">
 						Loading…
 					</div>
 				) : upcoming.length === 0 ? (
-					<div className="text-muted-foreground border-border/60 rounded-xl border border-dashed py-8 text-center text-sm">
+					<div className="rounded-xl border border-dashed border-white/[0.08] py-8 text-center text-sm text-[#8b8676]">
 						Nothing scheduled.
 					</div>
 				) : (
-					<div className="border-border/60 divide-border/60 divide-y overflow-hidden rounded-xl border">
-						{upcoming.slice(0, 60).map((u) => (
+					<div className="divide-y divide-white/[0.06] overflow-hidden rounded-xl border border-white/[0.07]">
+						{upcoming.slice(0, 80).map((u) => (
 							<button
 								type="button"
 								key={u.id}
-								onClick={() => setDetailId(u.id)}
-								className="hover:bg-muted/30 flex w-full items-center gap-3 px-4 py-2.5 text-left"
+								onClick={() => onRow(u.id)}
+								className="flex w-full items-center gap-3 px-4 py-2.5 text-left transition-colors hover:bg-white/[0.03]"
 							>
 								{pubPlatformIcon(u.platform)}
-								<span className="flex-1 truncate font-mono text-xs">{u.slug}</span>
-								<span className="text-muted-foreground text-xs capitalize">
+								<span className="flex-1 truncate text-[13px] text-[#d7d0c0]">
+									{u.slug}
+								</span>
+								<span className="text-xs capitalize text-[#8b8676]">
 									{u.platform}
 								</span>
-								<span className="text-muted-foreground shrink-0 text-xs">
+								<span className="shrink-0 text-xs text-[#8b8676]">
 									{pubWhen(u.scheduled_for)}
 								</span>
 							</button>
@@ -2612,31 +2732,33 @@ function PublishPane({
 			<div className="mt-8">
 				<h2 className="mb-2 text-sm font-semibold">Recent</h2>
 				{queue === null ? (
-					<div className="text-muted-foreground border-border/60 rounded-xl border border-dashed py-8 text-center text-sm">
+					<div className="rounded-xl border border-dashed border-white/[0.08] py-8 text-center text-sm text-[#8b8676]">
 						Loading…
 					</div>
 				) : recent.length === 0 ? (
-					<div className="text-muted-foreground border-border/60 rounded-xl border border-dashed py-8 text-center text-sm">
+					<div className="rounded-xl border border-dashed border-white/[0.08] py-8 text-center text-sm text-[#8b8676]">
 						No posts yet.
 					</div>
 				) : (
-					<div className="border-border/60 divide-border/60 divide-y overflow-hidden rounded-xl border">
-						{recent.slice(0, 60).map((p) => (
+					<div className="divide-y divide-white/[0.06] overflow-hidden rounded-xl border border-white/[0.07]">
+						{recent.slice(0, 80).map((p) => (
 							<button
 								type="button"
 								key={p.id}
-								onClick={() => setDetailId(p.id)}
-								className="hover:bg-muted/30 flex w-full items-center gap-3 px-4 py-2.5 text-left"
+								onClick={() => onRow(p.id)}
+								className="flex w-full items-center gap-3 px-4 py-2.5 text-left transition-colors hover:bg-white/[0.03]"
 							>
 								{pubPlatformIcon(p.platform)}
-								<span className="flex-1 truncate font-mono text-xs">{p.slug}</span>
+								<span className="flex-1 truncate text-[13px] text-[#d7d0c0]">
+									{p.slug}
+								</span>
 								<span className={cn("text-xs capitalize", pubStatusColor(p.status))}>
 									{p.status}
 								</span>
 								{p.external_url ? (
-									<ArrowUpRight className="text-muted-foreground size-4 shrink-0" />
+									<ArrowUpRight className="size-4 shrink-0 text-[#8b8676]" />
 								) : (
-									<span className="text-muted-foreground/40 shrink-0 text-xs">
+									<span className="shrink-0 text-xs text-[#8b8676]/60">
 										{pubWhen(p.published_at || p.scheduled_for)}
 									</span>
 								)}
@@ -2646,7 +2768,7 @@ function PublishPane({
 				)}
 			</div>
 
-			{composing && (
+			{!preview && composing && (
 				<ComposePostModal
 					owner={owner}
 					items={items}
@@ -2654,7 +2776,7 @@ function PublishPane({
 					onPosted={reload}
 				/>
 			)}
-			{detailId && (
+			{!preview && detailId && (
 				<ReadOnlyPostModal
 					id={detailId}
 					onClose={() => setDetailId(null)}
