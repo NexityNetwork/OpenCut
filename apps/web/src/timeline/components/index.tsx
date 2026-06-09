@@ -85,6 +85,8 @@ import { useScrollPosition } from "@/timeline/hooks/use-scroll-position";
 import { useTimelinePlayhead } from "@/timeline/hooks/use-timeline-playhead";
 import { DragLine } from "./drag-line";
 import { invokeAction } from "@/actions";
+import { buildElementFromMedia } from "@/timeline/element-utils";
+import { TICKS_PER_SECOND } from "@/wasm";
 import { resolveTimelineElementIntersections } from "./selection-hit-testing";
 import { cn } from "@/utils/ui";
 
@@ -168,10 +170,22 @@ export function Timeline() {
 				})),
 			};
 		};
-		const target = window as unknown as { __timelineDebug?: () => unknown };
+		const target = window as unknown as {
+			__timelineDebug?: () => unknown;
+			__editor?: typeof editor;
+			__dbg?: Record<string, unknown>;
+		};
 		target.__timelineDebug = collect;
+		target.__editor = editor;
+		target.__dbg = {
+			buildElementFromMedia,
+			invokeAction,
+			TICKS_PER_SECOND,
+		};
 		return () => {
 			delete target.__timelineDebug;
+			delete target.__editor;
+			delete target.__dbg;
 		};
 	}, [editor]);
 
