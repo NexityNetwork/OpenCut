@@ -40,6 +40,12 @@ import {
 	AudioLines,
 	Hash,
 	Library as LibraryIcon,
+	Rocket,
+	Pin,
+	Link2,
+	Archive,
+	FolderInput,
+	ArrowUpRight,
 	X,
 } from "lucide-react";
 import {
@@ -196,9 +202,43 @@ export function VaultSection() {
 	const [collapsed, setCollapsed] = useState(false);
 	const [searchOpen, setSearchOpen] = useState(false);
 	const [appView, setAppView] = useState<"library" | "publish">("library");
+	const readSet = (k: string) => {
+		if (typeof window === "undefined") return new Set<string>();
+		try {
+			return new Set<string>(JSON.parse(localStorage.getItem(k) || "[]"));
+		} catch {
+			return new Set<string>();
+		}
+	};
+	const [pinned, setPinned] = useState<Set<string>>(() => readSet("vault-pinned"));
+	const [archived, setArchived] = useState<Set<string>>(() =>
+		readSet("vault-archived"),
+	);
+	useEffect(() => {
+		localStorage.setItem("vault-pinned", JSON.stringify([...pinned]));
+	}, [pinned]);
+	useEffect(() => {
+		localStorage.setItem("vault-archived", JSON.stringify([...archived]));
+	}, [archived]);
+	const togglePin = (id: string) =>
+		setPinned((s) => {
+			const n = new Set(s);
+			n.has(id) ? n.delete(id) : n.add(id);
+			return n;
+		});
+	const toggleArchive = (id: string) =>
+		setArchived((s) => {
+			const n = new Set(s);
+			n.has(id) ? n.delete(id) : n.add(id);
+			return n;
+		});
 	const sortOption = `${sortKey}-${sortOrder}` as TProjectSortOption;
-	const projects = useEditor((e) =>
+	const allProjects = useEditor((e) =>
 		e.project.getFilteredAndSortedProjects({ searchQuery, sortOption }),
+	);
+	const projects = useMemo(
+		() => allProjects.filter((p) => !archived.has(p.id)),
+		[allProjects, archived],
 	);
 	const isInitialized = useEditor((e) => e.project.getIsInitialized());
 	const { data: session } = useSession();
@@ -396,6 +436,15 @@ export function VaultSection() {
 		}
 	};
 
+	const copyLink = async (url: string) => {
+		try {
+			await navigator.clipboard.writeText(url);
+			toast.success("Link copied");
+		} catch {
+			toast.error("Couldn't copy link");
+		}
+	};
+
 	const togglePlay = (item: VaultItem) => {
 		if (!audioRef.current) audioRef.current = new Audio();
 		const a = audioRef.current;
@@ -441,24 +490,28 @@ export function VaultSection() {
 		router.push(`/editor/${id}`);
 	};
 
+	const visibleItems = useMemo(
+		() => items.filter((i) => !archived.has(i.id)),
+		[items, archived],
+	);
 	const counts = useMemo(() => {
 		const c: Record<string, number> = {
-			all: items.length + projects.length,
+			all: visibleItems.length + projects.length,
 			projects: projects.length,
 		};
-		for (const i of items) c[i.kind] = (c[i.kind] || 0) + 1;
+		for (const i of visibleItems) c[i.kind] = (c[i.kind] || 0) + 1;
 		return c;
-	}, [items, projects]);
+	}, [visibleItems, projects]);
 	const { categories, catCounts } = useMemo(() => {
 		const cc: Record<string, number> = {};
-		for (const i of items) {
+		for (const i of visibleItems) {
 			for (const t of i.tags ?? []) cc[t] = (cc[t] || 0) + 1;
 		}
 		return {
 			categories: Object.keys(cc).sort((a, b) => a.localeCompare(b)),
 			catCounts: cc,
 		};
-	}, [items]);
+	}, [visibleItems]);
 	// Fall back to "All" if the selected category was emptied out.
 	useEffect(() => {
 		if (
@@ -472,14 +525,14 @@ export function VaultSection() {
 	const shownVault = useMemo(() => {
 		if (activeTab === "projects") return [];
 		const cat = activeTab.startsWith("cat:") ? activeTab.slice(4) : null;
-		return items.filter(
+		return visibleItems.filter(
 			(i) =>
 				(cat
 					? (i.tags ?? []).includes(cat)
 					: activeTab === "all" || i.kind === activeTab) &&
 				(!q || i.name.toLowerCase().includes(q)),
 		);
-	}, [items, activeTab, q]);
+	}, [visibleItems, activeTab, q]);
 	const shownProjects =
 		activeTab === "all" || activeTab === "projects" ? projects : [];
 
@@ -512,34 +565,49 @@ export function VaultSection() {
 	];
 
 	// Recently touched: latest projects + vault items, merged by time.
-	const recents: {
-		key: string;
-		label: string;
-		Icon: typeof Tag;
-		onClick: () => void;
-	}[] = [
+	const recents: RecentItem[] = [
 		...projects.map((p) => ({
 			key: `p:${p.id}`,
+			id: p.id,
 			label: p.name,
 			Icon: Folder,
 			t: Number(new Date(p.updatedAt)) || 0,
+			pinned: pinned.has(p.id),
 			onClick: () => router.push(`/editor/${p.id}`),
+			onPin: () => togglePin(p.id),
+			onRename: () =>
+				setRenaming({ id: p.id, name: p.name, kind: "project" as const }),
+			onCopyLink: () => copyLink(`${location.origin}/editor/${p.id}`),
+			onArchive: () => toggleArchive(p.id),
+			onDelete: () => deleteProject(p),
 		})),
-		...items.map((i) => ({
+		...visibleItems.map((i) => ({
 			key: `v:${i.id}`,
+			id: i.id,
 			label: i.name,
 			Icon: kindIcon(i.kind),
 			t: i.createdAt || 0,
+			pinned: pinned.has(i.id),
 			onClick: () => {
 				setAppView("library");
 				if (i.kind === "audio") togglePlay(i);
 				else setLightbox(i);
 			},
+			onPin: () => togglePin(i.id),
+			onRename: () =>
+				setRenaming({ id: i.id, name: i.name, kind: "vault" as const }),
+			onCopyLink: () =>
+				copyLink(i.media[0] ? location.origin + fileUrl(i.media[0].key) : i.name),
+			onArchive: () => toggleArchive(i.id),
+			onDelete: () => remove(i),
+			tags: i.tags ?? [],
+			onToggleCategory: (c: string) => toggleCategory(i, c),
 		})),
 	]
-		.sort((a, b) => b.t - a.t)
-		.slice(0, 6)
-		.map((r) => ({ key: r.key, label: r.label, Icon: r.Icon, onClick: r.onClick }));
+		.sort(
+			(a, b) => (b.pinned ? 1 : 0) - (a.pinned ? 1 : 0) || b.t - a.t,
+		)
+		.slice(0, 8);
 
 	return (
 		<div className="text-foreground flex h-screen overflow-hidden bg-[#181614]">
@@ -560,6 +628,7 @@ export function VaultSection() {
 				onRenameCat={setRenamingCat}
 				onDeleteCat={deleteCategory}
 				recents={recents}
+				categories={categories}
 			/>
 			<main
 				className={cn(
@@ -851,6 +920,23 @@ type NavTab = {
 	cat: string;
 };
 
+type RecentItem = {
+	key: string;
+	id: string;
+	label: string;
+	Icon: typeof Tag;
+	t: number;
+	pinned: boolean;
+	onClick: () => void;
+	onPin: () => void;
+	onRename: () => void;
+	onCopyLink: () => void;
+	onArchive: () => void;
+	onDelete: () => void;
+	tags?: string[];
+	onToggleCategory?: (c: string) => void;
+};
+
 function SidebarItem({
 	icon: Icon,
 	label,
@@ -925,6 +1011,7 @@ function LibrarySidebar({
 	onRenameCat,
 	onDeleteCat,
 	recents,
+	categories,
 }: {
 	collapsed: boolean;
 	onToggleCollapse: () => void;
@@ -938,7 +1025,8 @@ function LibrarySidebar({
 	onNewProject: () => void;
 	onRenameCat: (c: string) => void;
 	onDeleteCat: (c: string) => void;
-	recents: { key: string; label: string; Icon: typeof Tag; onClick: () => void }[];
+	recents: RecentItem[];
+	categories: string[];
 }) {
 	const { data: session } = useSession();
 	const user = session?.user;
@@ -995,7 +1083,7 @@ function LibrarySidebar({
 							: "text-muted-foreground hover:text-foreground hover:bg-muted",
 					)}
 				>
-					<Send className="size-5" />
+					<Rocket className="size-5" />
 				</button>
 				<div className="mt-auto">
 					<Avatar name={user?.name} image={user?.image} size={8} />
@@ -1039,7 +1127,7 @@ function LibrarySidebar({
 					onClick={onSelectLibrary}
 				/>
 				<SidebarItem
-					icon={Send}
+					icon={Rocket}
 					label="Publish"
 					badge="Beta"
 					active={appView === "publish"}
@@ -1053,7 +1141,7 @@ function LibrarySidebar({
 					<ChevronDown
 						className={cn(
 							"size-[15px] shrink-0 transition-transform",
-							!moreOpen && "-rotate-90",
+							moreOpen && "rotate-180",
 						)}
 					/>
 					<span className="flex-1 text-left">More</span>
@@ -1087,13 +1175,17 @@ function LibrarySidebar({
 									active
 										? "bg-white/[0.07] text-[#f1ebdc]"
 										: "text-[#c7c0ae] hover:bg-white/[0.04] hover:text-[#f1ebdc]",
-									t.cat && "pr-7",
 								)}
 							>
 								<t.Icon className="size-[15px] shrink-0" strokeWidth={1.75} />
 								<span className="flex-1 truncate text-[13px]">{t.label}</span>
 								{t.count > 0 && (
-									<span className="text-[11px] tabular-nums text-[#8b8676]">
+									<span
+										className={cn(
+											"text-[11px] tabular-nums text-[#8b8676]",
+											t.cat && "transition-opacity group-hover/row:opacity-0",
+										)}
+									>
 										{t.count}
 									</span>
 								)}
@@ -1104,7 +1196,7 @@ function LibrarySidebar({
 										<button
 											type="button"
 											aria-label={`Manage "${t.cat}" category`}
-											className="text-muted-foreground hover:text-foreground hover:bg-muted absolute top-1/2 right-1 flex size-6 -translate-y-1/2 items-center justify-center rounded opacity-0 group-hover/row:opacity-100 data-[state=open]:opacity-100"
+											className="absolute top-1/2 right-1 flex size-6 -translate-y-1/2 items-center justify-center rounded text-[#8b8676] opacity-0 transition-opacity hover:bg-white/[0.06] hover:text-[#f1ebdc] group-hover/row:opacity-100 data-[state=open]:opacity-100"
 										>
 											<MoreHorizontal className="size-3.5" />
 										</button>
@@ -1133,16 +1225,83 @@ function LibrarySidebar({
 								Recents
 							</div>
 							{recents.map((r) => (
-								<button
-									key={r.key}
-									type="button"
-									onClick={r.onClick}
-									title={r.label}
-									className="flex w-full items-center gap-2.5 rounded-lg px-2 py-1 text-left text-[#c7c0ae] transition-colors hover:bg-white/[0.04] hover:text-[#f1ebdc]"
-								>
-									<r.Icon className="size-[15px] shrink-0" strokeWidth={1.75} />
-									<span className="flex-1 truncate text-[13px]">{r.label}</span>
-								</button>
+								<div key={r.key} className="group/row relative">
+									<button
+										type="button"
+										onClick={r.onClick}
+										title={r.label}
+										className="flex w-full items-center gap-2.5 rounded-lg px-2 py-1 pr-7 text-left text-[#c7c0ae] transition-colors hover:bg-white/[0.04] hover:text-[#f1ebdc]"
+									>
+										<r.Icon className="size-[15px] shrink-0" strokeWidth={1.75} />
+										<span className="flex-1 truncate text-[13px]">{r.label}</span>
+										{r.pinned && (
+											<Pin className="size-3 shrink-0 fill-current text-[#8b8676]" />
+										)}
+									</button>
+									<DropdownMenu>
+										<DropdownMenuTrigger asChild>
+											<button
+												type="button"
+												aria-label="Item options"
+												className="absolute top-1/2 right-1 flex size-6 -translate-y-1/2 items-center justify-center rounded text-[#8b8676] opacity-0 transition-opacity hover:bg-white/[0.06] hover:text-[#f1ebdc] group-hover/row:opacity-100 data-[state=open]:opacity-100"
+											>
+												<MoreHorizontal className="size-3.5" />
+											</button>
+										</DropdownMenuTrigger>
+										<DropdownMenuContent align="start" className="w-48">
+											<DropdownMenuItem onClick={r.onClick}>
+												<ArrowUpRight className="size-4" />
+												Open
+											</DropdownMenuItem>
+											<DropdownMenuItem onClick={r.onPin}>
+												<Pin className="size-4" />
+												{r.pinned ? "Unpin" : "Pin"}
+											</DropdownMenuItem>
+											<DropdownMenuItem onClick={r.onRename}>
+												<Pencil className="size-4" />
+												Rename
+											</DropdownMenuItem>
+											<DropdownMenuItem onClick={r.onCopyLink}>
+												<Link2 className="size-4" />
+												Copy link
+											</DropdownMenuItem>
+											{r.onToggleCategory && (
+												<DropdownMenuSub>
+													<DropdownMenuSubTrigger>
+														<FolderInput className="size-4" />
+														Move to group
+													</DropdownMenuSubTrigger>
+													<DropdownMenuSubContent className="max-h-72 overflow-y-auto">
+														{categories.length === 0 ? (
+															<DropdownMenuItem disabled>
+																No categories yet
+															</DropdownMenuItem>
+														) : (
+															categories.map((c) => (
+																<DropdownMenuCheckboxItem
+																	key={c}
+																	checked={(r.tags ?? []).includes(c)}
+																	onCheckedChange={() => r.onToggleCategory?.(c)}
+																>
+																	{c}
+																</DropdownMenuCheckboxItem>
+															))
+														)}
+													</DropdownMenuSubContent>
+												</DropdownMenuSub>
+											)}
+											<DropdownMenuItem onClick={r.onArchive}>
+												<Archive className="size-4" />
+												Archive
+											</DropdownMenuItem>
+											<DropdownMenuSeparator />
+											<DropdownMenuItem variant="destructive" onClick={r.onDelete}>
+												<Trash2 className="size-4" />
+												Delete
+											</DropdownMenuItem>
+										</DropdownMenuContent>
+									</DropdownMenu>
+								</div>
 							))}
 						</>
 					)}
