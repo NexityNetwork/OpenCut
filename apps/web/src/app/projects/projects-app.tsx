@@ -144,6 +144,12 @@ function ProjectsHeader() {
 				<div className="md:hidden">
 					<NewProjectButton />
 				</div>
+				<Link
+					href="/publish"
+					className="bg-card hover:bg-muted text-foreground hidden h-10 shrink-0 items-center rounded-md border px-3.5 text-sm font-medium transition-colors md:inline-flex"
+				>
+					Publish
+				</Link>
 				<AuthButton />
 			</div>
 		</header>
