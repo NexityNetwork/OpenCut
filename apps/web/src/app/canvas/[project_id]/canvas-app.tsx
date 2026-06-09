@@ -2,11 +2,12 @@
 
 // Canvas — the static multi-page design editor (Canva-style), separate from
 // the video editor. Reuses the editor core (project/scenes/media/renderer),
-// the assets + properties panels and the preview, but swaps the timeline for
-// a Pages bar and exports stills (PNG / JPG / multi-page PDF) instead of video.
+// the assets + properties panels and the preview. Pages are scenes: they
+// stack vertically like Canva — the active page is the live interactive
+// preview, the others are rendered snapshots you can click into.
 
 import { useParams, useRouter } from "next/navigation";
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { toast } from "sonner";
 import {
 	ResizablePanelGroup,
@@ -18,34 +19,36 @@ import {
 	PopoverContent,
 	PopoverTrigger,
 } from "@/components/ui/popover";
-import {
-	DropdownMenu,
-	DropdownMenuContent,
-	DropdownMenuItem,
-	DropdownMenuSeparator,
-	DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
 import { Button } from "@/components/ui/button";
 import { AssetsPanel } from "@/components/editor/panels/assets";
+import { useAssetsPanelStore } from "@/components/editor/panels/assets/assets-panel-store";
 import { PropertiesPanel } from "@/components/editor/panels/properties";
 import { PreviewPanel } from "@/preview/components";
 import { EditorProvider } from "@/components/providers/editor-provider";
 import { MigrationDialog } from "@/project/components/migration-dialog";
 import { MobileGate } from "@/components/editor/mobile-gate";
 import { useEditor } from "@/editor/use-editor";
+import { usePasteMedia } from "@/media/use-paste-media";
+import { processMediaAssets } from "@/media/processing";
+import { buildElementFromMedia } from "@/timeline/element-utils";
+import { DEFAULT_NEW_ELEMENT_DURATION } from "@/timeline/creation";
+import { mediaTimeFromSeconds } from "@/wasm";
+import { AddMediaAssetCommand } from "@/commands/media";
+import { InsertElementCommand } from "@/commands/timeline";
+import { BatchCommand } from "@/commands";
 import { cn } from "@/utils/ui";
 import { generateUUID } from "@/utils/id";
 import type { TScene, TimelineTrack } from "@/timeline/types";
 import {
 	exportPagesAsImages,
 	exportPagesAsPdf,
+	renderPageToCanvas,
 	type CanvasExportFormat,
 } from "@/canvas-editor/export";
 import {
 	ChevronLeft,
 	Copy,
 	Download,
-	MoreHorizontal,
 	Pencil,
 	Plus,
 	Trash2,
@@ -63,7 +66,6 @@ export default function CanvasEditor() {
 					<div className="min-h-0 min-w-0 flex-1">
 						<CanvasLayout />
 					</div>
-					<PagesBar />
 					<MigrationDialog />
 				</div>
 			</EditorProvider>
@@ -166,8 +168,7 @@ function DownloadButton() {
 		setProgress("Rendering…");
 		try {
 			const all = editor.scenes.getScenes();
-			const scenes =
-				scope === "all" ? all : [editor.scenes.getActiveScene()];
+			const scenes = scope === "all" ? all : [editor.scenes.getActiveScene()];
 			const onProgress = (done: number, total: number) =>
 				setProgress(total > 1 ? `Rendering ${done}/${total}…` : "Rendering…");
 			if (format === "pdf") {
@@ -282,13 +283,32 @@ function DownloadButton() {
 	);
 }
 
+const CANVAS_HIDDEN_TABS = ["sounds", "effects", "reels", "captions"] as const;
+
 function CanvasLayout() {
+	usePasteMedia();
+	const { activeTab, setActiveTab } = useAssetsPanelStore();
+
+	// Canvas works with Media / Text / Presets / Project — land on Media and
+	// keep the video-only tabs out of reach (they're CSS-hidden below too).
+	useEffect(() => {
+		if ((CANVAS_HIDDEN_TABS as readonly string[]).includes(activeTab)) {
+			setActiveTab("media");
+		}
+		// eslint-disable-next-line react-hooks/exhaustive-deps
+	}, []);
+
 	return (
 		<ResizablePanelGroup
 			direction="horizontal"
-			className="size-full gap-[0.19rem] px-3 pb-1"
+			className="size-full gap-[0.19rem] px-3 pb-3"
 		>
-			<ResizablePanel defaultSize={22} minSize={15} maxSize={40} className="min-w-0">
+			<ResizablePanel
+				defaultSize={22}
+				minSize={15}
+				maxSize={40}
+				className="min-w-0 [&_[aria-label=Captions]]:hidden [&_[aria-label=Effects]]:hidden [&_[aria-label=Generate]]:hidden [&_[aria-label=Sounds]]:hidden"
+			>
 				<AssetsPanel />
 			</ResizablePanel>
 
@@ -297,18 +317,19 @@ function CanvasLayout() {
 			<ResizablePanel
 				defaultSize={56}
 				minSize={30}
-				className="min-h-0 min-w-0 flex-1 [&_[data-preview-toolbar]]:hidden"
+				className="min-h-0 min-w-0 flex-1"
 			>
-				<PreviewPanel
-					overlayControls={[]}
-					overlayInstances={[]}
-					onOverlayVisibilityChange={() => {}}
-				/>
+				<PagesStage />
 			</ResizablePanel>
 
 			<ResizableHandle withHandle />
 
-			<ResizablePanel defaultSize={22} minSize={18} maxSize={40} className="min-w-0">
+			<ResizablePanel
+				defaultSize={22}
+				minSize={18}
+				maxSize={40}
+				className="min-w-0"
+			>
 				<PropertiesPanel />
 			</ResizablePanel>
 		</ResizablePanelGroup>
@@ -341,14 +362,79 @@ function clonePageScene(scene: TScene): TScene {
 	};
 }
 
-function PagesBar() {
+type Snap = { key: number; url: string };
+
+function PagesStage() {
 	const editor = useEditor();
 	const scenes = useEditor((e) => e.scenes.getScenes());
 	const active = useEditor((e) => e.scenes.getActiveSceneOrNull());
-	const hasProject = !!useEditor((e) => e.project.getActiveOrNull());
-	if (!hasProject) return null;
+	const project = useEditor((e) => e.project.getActiveOrNull());
+	const [snaps, setSnaps] = useState<Record<string, Snap>>({});
+	const snapsRef = useRef(snaps);
+	snapsRef.current = snaps;
+	const renderBusyRef = useRef(false);
+	const slotRefs = useRef<Record<string, HTMLDivElement | null>>({});
+	const [dragOver, setDragOver] = useState(false);
+
+	const sceneKey = (s: TScene) => Number(new Date(s.updatedAt)) || 0;
+
+	const snapshot = async (scene: TScene) => {
+		if (!project || renderBusyRef.current) return;
+		renderBusyRef.current = true;
+		try {
+			const canvas = await renderPageToCanvas({
+				project,
+				scene,
+				mediaAssets: editor.media.getAssets(),
+			});
+			const url = canvas.toDataURL("image/jpeg", 0.8);
+			setSnaps((s) => ({ ...s, [scene.id]: { key: sceneKey(scene), url } }));
+		} catch {
+			// non-fatal: slot falls back to a blank page
+		} finally {
+			renderBusyRef.current = false;
+		}
+	};
+
+	// Render snapshots for inactive pages that are missing or stale.
+	// biome-ignore lint/correctness/useExhaustiveDependencies: keyed cache guards re-runs
+	useEffect(() => {
+		if (!project) return;
+		let cancelled = false;
+		(async () => {
+			for (const s of scenes) {
+				if (cancelled || s.id === active?.id) continue;
+				if (snapsRef.current[s.id]?.key === sceneKey(s)) continue;
+				await snapshot(s);
+			}
+		})();
+		return () => {
+			cancelled = true;
+		};
+	}, [scenes, active?.id, project?.metadata.id]);
+
+	// Keep the active page in view when switching.
+	useEffect(() => {
+		if (!active) return;
+		slotRefs.current[active.id]?.scrollIntoView({
+			behavior: "smooth",
+			block: "nearest",
+		});
+	}, [active?.id]);
+
+	const selectPage = async (scene: TScene) => {
+		if (scene.id === active?.id) return;
+		// Capture the page we're leaving so its snapshot stays fresh.
+		if (active) await snapshot(active);
+		try {
+			await editor.scenes.switchToScene({ sceneId: scene.id });
+		} catch (e) {
+			toast.error(e instanceof Error ? e.message : "Couldn't switch page");
+		}
+	};
 
 	const addPage = async () => {
+		if (active) await snapshot(active);
 		try {
 			const id = await editor.scenes.createScene({
 				name: `Page ${scenes.length + 1}`,
@@ -360,13 +446,18 @@ function PagesBar() {
 		}
 	};
 
-	const duplicatePage = (scene: TScene) => {
+	const duplicatePage = async (scene: TScene) => {
+		if (active?.id === scene.id) await snapshot(scene);
 		const copy = clonePageScene(scene);
 		const index = scenes.findIndex((s) => s.id === scene.id);
 		const next = [...scenes];
 		next.splice(index + 1, 0, copy);
 		editor.scenes.setScenes({ scenes: next, activeSceneId: copy.id });
 		editor.save.markDirty({ force: true });
+		const src = snapsRef.current[scene.id];
+		if (src) {
+			setSnaps((s) => ({ ...s, [copy.id]: { key: sceneKey(copy), url: src.url } }));
+		}
 	};
 
 	const renamePage = async (scene: TScene) => {
@@ -378,83 +469,187 @@ function PagesBar() {
 	const deletePage = async (scene: TScene) => {
 		try {
 			await editor.scenes.deleteScene({ sceneId: scene.id });
+			setSnaps((s) => {
+				const { [scene.id]: _gone, ...rest } = s;
+				return rest;
+			});
 		} catch (e) {
 			toast.error(e instanceof Error ? e.message : "Couldn't delete page");
 		}
 	};
 
+	// Drop media files anywhere on the stage to add them to the active page.
+	const insertFiles = async (files: File[]) => {
+		const proj = editor.project.getActiveOrNull();
+		const media = files.filter((f) => /^(image|video|audio)\//.test(f.type));
+		if (!proj || media.length === 0) return;
+		const tid = toast.loading(
+			`Adding ${media.length} file${media.length === 1 ? "" : "s"}…`,
+		);
+		try {
+			const assets = await processMediaAssets({ files: media });
+			const startTime = editor.playback.getCurrentTime();
+			for (const asset of assets) {
+				const addMediaCmd = new AddMediaAssetCommand({
+					projectId: proj.metadata.id,
+					asset,
+				});
+				const duration =
+					asset.duration != null
+						? mediaTimeFromSeconds({ seconds: asset.duration })
+						: DEFAULT_NEW_ELEMENT_DURATION;
+				const element = buildElementFromMedia({
+					mediaId: addMediaCmd.getAssetId(),
+					mediaType: asset.type,
+					name: asset.name,
+					duration,
+					startTime,
+				});
+				const insertCmd = new InsertElementCommand({
+					element,
+					placement: {
+						mode: "auto",
+						trackType: asset.type === "audio" ? "audio" : "video",
+					},
+				});
+				editor.command.execute({
+					command: new BatchCommand([addMediaCmd, insertCmd]),
+				});
+			}
+			toast.success(`Added to ${active?.name ?? "page"}`, { id: tid });
+		} catch (e) {
+			toast.error(e instanceof Error ? e.message : "Couldn't add files", {
+				id: tid,
+			});
+		}
+	};
+
+	if (!project) {
+		return (
+			<div className="panel bg-background size-full rounded-sm border" />
+		);
+	}
+
+	const { width, height } = project.settings.canvasSize;
+	const aspect = `${width} / ${height}`;
+
 	return (
-		<div className="flex h-14 shrink-0 items-center gap-2 px-4">
-			<span className="text-muted-foreground mr-1 text-xs font-medium">
-				Pages
-			</span>
-			<div className="flex min-w-0 flex-1 items-center gap-1.5 overflow-x-auto py-1">
+		<div
+			className={cn(
+				"panel bg-background relative size-full overflow-y-auto rounded-sm border transition-shadow",
+				dragOver && "ring-primary/50 ring-2 ring-inset",
+			)}
+			onDragOver={(e) => {
+				if (e.dataTransfer.types.includes("Files")) {
+					e.preventDefault();
+					setDragOver(true);
+				}
+			}}
+			onDragLeave={(e) => {
+				if (e.currentTarget === e.target) setDragOver(false);
+			}}
+			onDrop={(e) => {
+				if (e.dataTransfer.types.includes("Files")) {
+					e.preventDefault();
+					setDragOver(false);
+					void insertFiles(Array.from(e.dataTransfer.files));
+				}
+			}}
+		>
+			<div className="mx-auto flex max-w-3xl flex-col gap-2 px-6 py-6">
 				{scenes.map((scene, i) => {
 					const isActive = active?.id === scene.id;
+					const snap = snaps[scene.id];
 					return (
 						<div
 							key={scene.id}
-							className={cn(
-								"group/page flex shrink-0 items-center overflow-hidden rounded-lg border transition-colors",
-								isActive
-									? "border-primary bg-primary/10"
-									: "border-border hover:bg-accent",
-							)}
+							ref={(el) => {
+								slotRefs.current[scene.id] = el;
+							}}
+							className="group/page"
 						>
-							<button
-								type="button"
-								onClick={() => editor.scenes.switchToScene({ sceneId: scene.id })}
-								className="flex items-center gap-1.5 py-1.5 pr-1 pl-3 text-sm"
-							>
-								<span
+							<div className="flex h-7 items-center gap-1.5 px-0.5">
+								<button
+									type="button"
+									onClick={() => selectPage(scene)}
 									className={cn(
-										"text-xs font-semibold tabular-nums",
-										isActive ? "text-primary" : "text-muted-foreground",
+										"text-xs font-medium",
+										isActive
+											? "text-foreground"
+											: "text-muted-foreground hover:text-foreground",
 									)}
 								>
-									{i + 1}
-								</span>
-								<span className="max-w-32 truncate">{scene.name}</span>
-							</button>
-							<DropdownMenu>
-								<DropdownMenuTrigger asChild>
+									{i + 1} · {scene.name}
+								</button>
+								<div className="flex items-center gap-0.5 opacity-0 transition-opacity group-hover/page:opacity-100">
 									<button
 										type="button"
-										aria-label={`Page ${i + 1} options`}
-										className="text-muted-foreground hover:text-foreground mr-1 flex size-6 items-center justify-center rounded opacity-0 transition-opacity group-hover/page:opacity-100 data-[state=open]:opacity-100"
+										onClick={() => renamePage(scene)}
+										aria-label="Rename page"
+										className="text-muted-foreground hover:text-foreground flex size-6 items-center justify-center rounded hover:bg-accent"
 									>
-										<MoreHorizontal className="size-3.5" />
+										<Pencil className="size-3" />
 									</button>
-								</DropdownMenuTrigger>
-								<DropdownMenuContent align="start">
-									<DropdownMenuItem onClick={() => renamePage(scene)}>
-										<Pencil className="size-4" /> Rename
-									</DropdownMenuItem>
-									<DropdownMenuItem onClick={() => duplicatePage(scene)}>
-										<Copy className="size-4" /> Duplicate
-									</DropdownMenuItem>
+									<button
+										type="button"
+										onClick={() => duplicatePage(scene)}
+										aria-label="Duplicate page"
+										className="text-muted-foreground hover:text-foreground flex size-6 items-center justify-center rounded hover:bg-accent"
+									>
+										<Copy className="size-3" />
+									</button>
 									{!scene.isMain && (
-										<>
-											<DropdownMenuSeparator />
-											<DropdownMenuItem
-												variant="destructive"
-												onClick={() => deletePage(scene)}
-											>
-												<Trash2 className="size-4" /> Delete
-											</DropdownMenuItem>
-										</>
+										<button
+											type="button"
+											onClick={() => deletePage(scene)}
+											aria-label="Delete page"
+											className="text-muted-foreground hover:text-destructive flex size-6 items-center justify-center rounded hover:bg-accent"
+										>
+											<Trash2 className="size-3" />
+										</button>
 									)}
-								</DropdownMenuContent>
-							</DropdownMenu>
+								</div>
+							</div>
+
+							{isActive ? (
+								<div
+									style={{ aspectRatio: aspect }}
+									className="ring-primary/60 w-full overflow-hidden rounded-md ring-2 [&_[data-preview-toolbar]]:hidden"
+								>
+									<PreviewPanel
+										overlayControls={[]}
+										overlayInstances={[]}
+										onOverlayVisibilityChange={() => {}}
+									/>
+								</div>
+							) : (
+								<button
+									type="button"
+									onClick={() => selectPage(scene)}
+									style={{ aspectRatio: aspect }}
+									className="border-border hover:ring-primary/40 block w-full overflow-hidden rounded-md border bg-white transition-shadow hover:ring-2"
+								>
+									{snap ? (
+										// eslint-disable-next-line @next/next/no-img-element
+										<img
+											src={snap.url}
+											alt={scene.name}
+											className="size-full object-cover"
+											draggable={false}
+										/>
+									) : null}
+								</button>
+							)}
 						</div>
 					);
 				})}
+
 				<button
 					type="button"
 					onClick={addPage}
-					className="text-muted-foreground hover:text-foreground border-border hover:bg-accent flex shrink-0 items-center gap-1.5 rounded-lg border border-dashed px-3 py-1.5 text-sm transition-colors"
+					className="text-muted-foreground hover:text-foreground border-border hover:bg-accent mt-3 flex w-full items-center justify-center gap-1.5 rounded-md border border-dashed py-3 text-sm transition-colors"
 				>
-					<Plus className="size-3.5" /> Add page
+					<Plus className="size-4" /> Add page
 				</button>
 			</div>
 		</div>
