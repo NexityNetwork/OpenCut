@@ -137,6 +137,7 @@ export function VaultSection() {
 		kind: "vault" | "project";
 	} | null>(null);
 	const [catFor, setCatFor] = useState<VaultItem | null>(null);
+	const [renamingCat, setRenamingCat] = useState<string | null>(null);
 	const [playingId, setPlayingId] = useState<string | null>(null);
 	const audioRef = useRef<HTMLAudioElement | null>(null);
 	const fileInputRef = useRef<HTMLInputElement | null>(null);
@@ -271,6 +272,40 @@ export function VaultSection() {
 		void setItemTags(target.id, [...(live.tags ?? []), cat]);
 	};
 
+	// Rename a category across every item that uses it (durable in D1).
+	const renameCategory = (oldName: string, newName: string) => {
+		const nn = newName.trim();
+		setRenamingCat(null);
+		if (!nn || nn === oldName) return;
+		for (const i of items) {
+			if (!(i.tags ?? []).includes(oldName)) continue;
+			const next = Array.from(
+				new Set((i.tags ?? []).map((t) => (t === oldName ? nn : t))),
+			);
+			void setItemTags(i.id, next);
+		}
+		if (activeTab === `cat:${oldName}`) setActiveTab(`cat:${nn}`);
+	};
+
+	// Remove a category from every item (items are kept; only the tag is dropped).
+	const deleteCategory = (name: string) => {
+		const n = catCounts[name] || 0;
+		if (
+			!window.confirm(
+				`Remove the "${name}" category from ${n} item${n === 1 ? "" : "s"}? The ${n === 1 ? "item stays" : "items stay"} — only the category label is removed.`,
+			)
+		)
+			return;
+		for (const i of items) {
+			if (!(i.tags ?? []).includes(name)) continue;
+			void setItemTags(
+				i.id,
+				(i.tags ?? []).filter((t) => t !== name),
+			);
+		}
+		if (activeTab === `cat:${name}`) setActiveTab("all");
+	};
+
 	const togglePlay = (item: VaultItem) => {
 		if (!audioRef.current) audioRef.current = new Audio();
 		const a = audioRef.current;
@@ -359,6 +394,32 @@ export function VaultSection() {
 		activeTab === "all" || activeTab === "projects" ? projects : [];
 
 	const urlMode = isUrl(text);
+
+	// One uniform model for every tab so built-ins and categories render identically.
+	const navTabs: {
+		key: string;
+		label: string;
+		Icon: typeof Tag;
+		count: number;
+		cat: string;
+	}[] = [
+		...TABS.filter(
+			(t) => t.key === "all" || t.key === "projects" || counts[t.key],
+		).map((t) => ({
+			key: t.key,
+			label: t.label,
+			Icon: t.Icon,
+			count: counts[t.key] || 0,
+			cat: "",
+		})),
+		...categories.map((c) => ({
+			key: `cat:${c}`,
+			label: c,
+			Icon: Tag,
+			count: catCounts[c] || 0,
+			cat: c,
+		})),
+	];
 
 	return (
 		<section
@@ -468,48 +529,67 @@ export function VaultSection() {
 
 			{/* Library — projects + vault, one tab bar, one grid */}
 			<div className="mt-20">
-				<div className="border-border/60 mb-8 flex items-center gap-1 overflow-x-auto border-b">
-					{TABS.filter(
-						(t) => t.key === "all" || t.key === "projects" || counts[t.key],
-					).map((t) => (
-						<button
-							key={t.key}
-							type="button"
-							onClick={() => setActiveTab(t.key)}
-							className={cn(
-								"flex shrink-0 flex-col items-center gap-1.5 border-b-2 px-4 pb-3 text-xs font-medium transition-colors",
-								activeTab === t.key
-									? "border-foreground text-foreground"
-									: "border-transparent text-muted-foreground hover:text-foreground",
-							)}
-						>
-							<t.Icon className="size-5" />
-							<span>
-								{t.label}
-								{counts[t.key] ? ` ${counts[t.key]}` : ""}
-							</span>
-						</button>
-					))}
-					{categories.map((cat) => (
-						<button
-							key={`cat:${cat}`}
-							type="button"
-							onClick={() => setActiveTab(`cat:${cat}`)}
-							title={cat}
-							className={cn(
-								"flex shrink-0 flex-col items-center gap-1.5 border-b-2 px-4 pb-3 text-xs font-medium transition-colors",
-								activeTab === `cat:${cat}`
-									? "border-foreground text-foreground"
-									: "border-transparent text-muted-foreground hover:text-foreground",
-							)}
-						>
-							<Tag className="size-5" />
-							<span className="block max-w-[7rem] truncate">
-								{cat}
-								{catCounts[cat] ? ` ${catCounts[cat]}` : ""}
-							</span>
-						</button>
-					))}
+				<div className="border-border/60 mb-8 flex items-stretch gap-0.5 overflow-x-auto border-b">
+					{navTabs.map((t) => {
+						const active = activeTab === t.key;
+						return (
+							<div key={t.key} className="group/tab relative shrink-0">
+								<button
+									type="button"
+									onClick={() => setActiveTab(t.key)}
+									title={t.label}
+									className={cn(
+										"flex flex-col items-center gap-1.5 border-b-2 px-4 pb-3 pt-1 text-xs font-medium transition-colors",
+										t.cat && "pr-6",
+										active
+											? "border-foreground text-foreground"
+											: "border-transparent text-muted-foreground hover:text-foreground",
+									)}
+								>
+									<t.Icon className="size-5" strokeWidth={1.75} />
+									<span className="flex max-w-[10rem] items-baseline gap-1">
+										<span className="truncate">{t.label}</span>
+										{t.count > 0 && (
+											<span className="text-muted-foreground/50 text-[11px] font-normal tabular-nums">
+												{t.count}
+											</span>
+										)}
+									</span>
+								</button>
+								{t.cat && (
+									<DropdownMenu>
+										<DropdownMenuTrigger asChild>
+											<button
+												type="button"
+												aria-label={`Manage "${t.cat}" category`}
+												className={cn(
+													"text-muted-foreground hover:text-foreground hover:bg-muted absolute top-0.5 right-0.5 flex size-5 items-center justify-center rounded-md transition-opacity",
+													active
+														? "opacity-100"
+														: "opacity-0 group-hover/tab:opacity-100",
+												)}
+											>
+												<MoreHorizontal className="size-3.5" />
+											</button>
+										</DropdownMenuTrigger>
+										<DropdownMenuContent align="end">
+											<DropdownMenuItem onClick={() => setRenamingCat(t.cat)}>
+												<Pencil className="size-4" />
+												Rename category
+											</DropdownMenuItem>
+											<DropdownMenuItem
+												variant="destructive"
+												onClick={() => deleteCategory(t.cat)}
+											>
+												<Trash2 className="size-4" />
+												Delete category
+											</DropdownMenuItem>
+										</DropdownMenuContent>
+									</DropdownMenu>
+								)}
+							</div>
+						);
+					})}
 				</div>
 				{(loading || !isInitialized) &&
 				shownProjects.length === 0 &&
@@ -563,10 +643,18 @@ export function VaultSection() {
 				onClose={() => setRenaming(null)}
 				onSave={doRename}
 			/>
-			<NewCategoryDialog
+			<CategoryDialog
 				open={!!catFor}
+				mode="new"
 				onClose={() => setCatFor(null)}
 				onSave={addCategory}
+			/>
+			<CategoryDialog
+				open={!!renamingCat}
+				mode="rename"
+				initial={renamingCat ?? ""}
+				onClose={() => setRenamingCat(null)}
+				onSave={(name) => renamingCat && renameCategory(renamingCat, name)}
 			/>
 		</section>
 	);
@@ -699,6 +787,16 @@ function VaultTile({
 							alt={item.name}
 							className="absolute inset-0 size-full object-cover transition-transform duration-300 group-hover:scale-[1.03]"
 							loading="lazy"
+						/>
+					) : item.kind === "video" && item.media[0] ? (
+						// First-frame preview for videos that have no poster image.
+						// biome-ignore lint/a11y/useMediaCaption: thumbnail preview only
+						<video
+							src={`${fileUrl(item.media[0].key)}#t=0.1`}
+							preload="metadata"
+							muted
+							playsInline
+							className="absolute inset-0 size-full object-cover transition-transform duration-300 group-hover:scale-[1.03]"
 						/>
 					) : item.kind === "audio" ? (
 						<div className="from-primary/25 absolute inset-0 flex items-center justify-center bg-gradient-to-br to-transparent">
@@ -861,39 +959,63 @@ function RenameDialog({
 	);
 }
 
-function NewCategoryDialog({
+function CategoryDialog({
 	open,
+	mode,
+	initial,
 	onClose,
 	onSave,
 }: {
 	open: boolean;
+	mode: "new" | "rename";
+	initial?: string;
 	onClose: () => void;
 	onSave: (name: string) => void;
 }) {
 	const [value, setValue] = useState("");
 	useEffect(() => {
-		if (open) setValue("");
-	}, [open]);
+		if (open) setValue(initial ?? "");
+	}, [open, initial]);
+	const isRename = mode === "rename";
+	const submit = () => {
+		const v = value.trim();
+		if (v) onSave(v);
+	};
 	return (
 		<Dialog open={open} onOpenChange={(o) => !o && onClose()}>
 			<DialogContent className="max-w-sm">
 				<DialogHeader>
-					<DialogTitle>New category</DialogTitle>
+					<div className="bg-primary/10 text-primary mb-1 flex size-10 items-center justify-center rounded-full">
+						<Tag className="size-5" />
+					</div>
+					<DialogTitle>{isRename ? "Rename category" : "New category"}</DialogTitle>
+					<p className="text-muted-foreground text-sm">
+						{isRename
+							? "Renames this category everywhere it's used."
+							: "Group your library your own way — like B-roll, Hooks or Music."}
+					</p>
 				</DialogHeader>
-				<Input
-					value={value}
-					onChange={(e) => setValue(e.target.value)}
-					onKeyDown={(e) => {
-						if (e.key === "Enter" && value.trim()) onSave(value.trim());
-					}}
-					placeholder="e.g. B-roll, Hooks, Music"
-					autoFocus
-				/>
+				<div className="space-y-1.5">
+					<span className="text-muted-foreground text-xs font-medium">
+						Category name
+					</span>
+					<Input
+						value={value}
+						onChange={(e) => setValue(e.target.value)}
+						onKeyDown={(e) => {
+							if (e.key === "Enter") submit();
+						}}
+						placeholder="e.g. B-roll, Hooks, Music"
+						autoFocus
+					/>
+				</div>
 				<DialogFooter>
 					<Button variant="text" onClick={onClose}>
 						Cancel
 					</Button>
-					<Button onClick={() => value.trim() && onSave(value.trim())}>Add</Button>
+					<Button onClick={submit} disabled={!value.trim()}>
+						{isRename ? "Save" : "Add"}
+					</Button>
 				</DialogFooter>
 			</DialogContent>
 		</Dialog>
