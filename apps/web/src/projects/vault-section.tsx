@@ -17,6 +17,8 @@ import {
 	Trash2,
 	Pencil,
 	FolderPlus,
+	LayoutGrid,
+	Clapperboard,
 	ChevronLeft,
 	ChevronRight,
 	X,
@@ -75,13 +77,25 @@ const PLATFORMS = [
 ];
 
 const TABS = [
-	{ key: "all", label: "All" },
-	{ key: "projects", label: "Projects" },
-	{ key: "video", label: "Videos" },
-	{ key: "carousel", label: "Carousels" },
-	{ key: "audio", label: "Audio" },
-	{ key: "image", label: "Images" },
+	{ key: "all", label: "All", Icon: LayoutGrid },
+	{ key: "projects", label: "Projects", Icon: Clapperboard },
+	{ key: "video", label: "Videos", Icon: VideoIcon },
+	{ key: "carousel", label: "Carousels", Icon: ImagesIcon },
+	{ key: "audio", label: "Audio", Icon: Music2 },
+	{ key: "image", label: "Images", Icon: ImageIcon },
 ] as const;
+
+function fmtDate(d: Date | string | number) {
+	try {
+		return new Date(d).toLocaleDateString(undefined, {
+			month: "short",
+			day: "numeric",
+			year: "numeric",
+		});
+	} catch {
+		return "";
+	}
+}
 
 const isUrl = (s: string) => /^https?:\/\//i.test(s) || /instagram\.com/i.test(s);
 
@@ -398,8 +412,8 @@ export function VaultSection() {
 			</div>
 
 			{/* Library — projects + vault, one tab bar, one grid */}
-			<div className="mt-10">
-				<div className="mb-4 flex flex-wrap items-center gap-1.5">
+			<div className="mt-20">
+				<div className="border-border/60 mb-8 flex items-center gap-1 overflow-x-auto border-b">
 					{TABS.filter(
 						(t) => t.key === "all" || t.key === "projects" || counts[t.key],
 					).map((t) => (
@@ -408,16 +422,17 @@ export function VaultSection() {
 							type="button"
 							onClick={() => setActiveTab(t.key)}
 							className={cn(
-								"rounded-full px-3 py-1 text-sm font-medium transition-colors",
+								"flex shrink-0 flex-col items-center gap-1.5 border-b-2 px-4 pb-3 text-xs font-medium transition-colors",
 								activeTab === t.key
-									? "bg-primary text-primary-foreground"
-									: "bg-muted/60 text-muted-foreground hover:text-foreground",
+									? "border-foreground text-foreground"
+									: "border-transparent text-muted-foreground hover:text-foreground",
 							)}
 						>
-							{t.label}
-							{counts[t.key] ? (
-								<span className="ml-1.5 opacity-70">{counts[t.key]}</span>
-							) : null}
+							<t.Icon className="size-5" />
+							<span>
+								{t.label}
+								{counts[t.key] ? ` ${counts[t.key]}` : ""}
+							</span>
 						</button>
 					))}
 				</div>
@@ -532,17 +547,21 @@ function ProjectCard({
 				</DropdownMenuContent>
 			</DropdownMenu>
 
-			<div className="flex flex-col gap-1 px-0.5 pt-3">
-				<h3
-					className="line-clamp-1 text-sm leading-snug font-medium"
-					title={project.name}
-				>
-					{project.name}
-				</h3>
-				<div className="text-muted-foreground flex items-center gap-1.5 text-xs">
-					<VideoIcon className="size-3.5" />
-					<span>Project</span>
+			<div className="flex items-start justify-between gap-2 px-0.5 pt-3">
+				<div className="min-w-0">
+					<h3
+						className="line-clamp-1 text-sm leading-snug font-medium"
+						title={project.name}
+					>
+						{project.name}
+					</h3>
+					<p className="text-muted-foreground mt-0.5 text-xs">
+						Edited {fmtDate(project.updatedAt)}
+					</p>
 				</div>
+				<span className="bg-muted/70 text-muted-foreground shrink-0 rounded-md px-2 py-0.5 text-xs">
+					Project
+				</span>
 			</div>
 		</div>
 	);
@@ -653,17 +672,21 @@ function VaultTile({
 				</DropdownMenuContent>
 			</DropdownMenu>
 
-			<div className="flex flex-col gap-1 px-0.5 pt-3">
-				<h3
-					className="line-clamp-1 text-sm leading-snug font-medium"
-					title={item.name}
-				>
-					{item.name}
-				</h3>
-				<div className="text-muted-foreground flex items-center gap-1.5 text-xs">
-					<KindIcon className="size-3.5" />
-					<span>{meta}</span>
+			<div className="flex items-start justify-between gap-2 px-0.5 pt-3">
+				<div className="min-w-0">
+					<h3
+						className="line-clamp-1 text-sm leading-snug font-medium"
+						title={item.name}
+					>
+						{item.name}
+					</h3>
+					<p className="text-muted-foreground mt-0.5 text-xs capitalize">
+						{item.source || meta}
+					</p>
 				</div>
+				<span className="bg-muted/70 text-muted-foreground shrink-0 rounded-md px-2 py-0.5 text-xs capitalize">
+					{item.kind}
+				</span>
 			</div>
 		</div>
 	);
