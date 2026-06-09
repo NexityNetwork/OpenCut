@@ -116,10 +116,59 @@ function fmtDur(s?: number) {
 	return `${m}:${sec.toString().padStart(2, "0")}`;
 }
 
+// Reveals true once the element scrolls within `rootMargin` of the viewport.
+function useInView<T extends Element>(rootMargin = "500px") {
+	const ref = useRef<T | null>(null);
+	const [inView, setInView] = useState(false);
+	useEffect(() => {
+		const el = ref.current;
+		if (!el || inView) return;
+		const io = new IntersectionObserver(
+			(entries) => {
+				if (entries.some((e) => e.isIntersecting)) {
+					setInView(true);
+					io.disconnect();
+				}
+			},
+			{ rootMargin },
+		);
+		io.observe(el);
+		return () => io.disconnect();
+	}, [inView, rootMargin]);
+	return { ref, inView };
+}
+
+// Lazy first-frame preview for videos with no poster — only mounts the <video>
+// (which triggers a metadata fetch + decode) once it's near the viewport, so a
+// gallery of 100+ clips doesn't try to decode them all at once.
+function VideoThumb({ src, className }: { src: string; className?: string }) {
+	const { ref, inView } = useInView<HTMLDivElement>();
+	return (
+		<div ref={ref} className="absolute inset-0">
+			{inView ? (
+				// biome-ignore lint/a11y/useMediaCaption: thumbnail preview only
+				<video
+					src={`${src}#t=0.1`}
+					preload="metadata"
+					muted
+					playsInline
+					className={className}
+				/>
+			) : (
+				<div className="bg-muted text-muted-foreground flex size-full items-center justify-center">
+					<VideoIcon className="size-9" />
+				</div>
+			)}
+		</div>
+	);
+}
+
 export function VaultSection() {
 	const editor = useEditor();
 	const router = useRouter();
-	const { setSearchQuery, searchQuery, sortKey, sortOrder } = useProjectsStore();
+	const { setSearchQuery, searchQuery, sortKey, sortOrder, viewMode, isHydrated } =
+		useProjectsStore();
+	const listView = isHydrated && viewMode === "list";
 	const sortOption = `${sortKey}-${sortOrder}` as TProjectSortOption;
 	const projects = useEditor((e) =>
 		e.project.getFilteredAndSortedProjects({ searchQuery, sortOption }),
@@ -617,38 +666,48 @@ export function VaultSection() {
 						project.
 					</div>
 				) : (
-					<div className="xs:grid-cols-2 grid grid-cols-1 gap-5 sm:grid-cols-3 lg:grid-cols-4">
-						{shownProjects.map((p) => (
-							<ProjectCard
-								key={p.id}
-								project={p}
-								onOpen={() => router.push(`/editor/${p.id}`)}
-								onRename={() =>
-									setRenaming({ id: p.id, name: p.name, kind: "project" })
-								}
-								onDelete={() => deleteProject(p)}
-							/>
-						))}
-						{shownVault.map((item) => (
-							<VaultTile
-								key={item.id}
-								item={item}
-								playing={playingId === item.id}
-								allCategories={categories}
-								onOpen={() =>
-									item.kind === "audio" ? togglePlay(item) : setLightbox(item)
-								}
-								onAdd={() => addToProject(item)}
-								onRename={() =>
-									setRenaming({ id: item.id, name: item.name, kind: "vault" })
-								}
-								onRemove={() => remove(item)}
-								onToggleCategory={(cat) => toggleCategory(item, cat)}
-								onNewCategory={() => setCatFor(item)}
-								onCaption={() => setCaptionItem(item)}
-								onCopyCaption={() => copyCaption(item)}
-							/>
-						))}
+					<div
+						className={
+							listView
+								? "flex flex-col gap-0.5"
+								: "xs:grid-cols-2 grid grid-cols-1 gap-5 sm:grid-cols-3 lg:grid-cols-4"
+						}
+					>
+						{shownProjects.map((p) => {
+							const props = {
+								project: p,
+								onOpen: () => router.push(`/editor/${p.id}`),
+								onRename: () =>
+									setRenaming({ id: p.id, name: p.name, kind: "project" as const }),
+								onDelete: () => deleteProject(p),
+							};
+							return listView ? (
+								<ProjectRow key={p.id} {...props} />
+							) : (
+								<ProjectCard key={p.id} {...props} />
+							);
+						})}
+						{shownVault.map((item) => {
+							const props = {
+								item,
+								allCategories: categories,
+								onOpen: () =>
+									item.kind === "audio" ? togglePlay(item) : setLightbox(item),
+								onAdd: () => addToProject(item),
+								onRename: () =>
+									setRenaming({ id: item.id, name: item.name, kind: "vault" as const }),
+								onRemove: () => remove(item),
+								onToggleCategory: (cat: string) => toggleCategory(item, cat),
+								onNewCategory: () => setCatFor(item),
+								onCaption: () => setCaptionItem(item),
+								onCopyCaption: () => copyCaption(item),
+							};
+							return listView ? (
+								<VaultRow key={item.id} {...props} />
+							) : (
+								<VaultTile key={item.id} {...props} playing={playingId === item.id} />
+							);
+						})}
 					</div>
 				)}
 			</div>
@@ -811,13 +870,8 @@ function VaultTile({
 							loading="lazy"
 						/>
 					) : item.kind === "video" && item.media[0] ? (
-						// First-frame preview for videos that have no poster image.
-						// biome-ignore lint/a11y/useMediaCaption: thumbnail preview only
-						<video
-							src={`${fileUrl(item.media[0].key)}#t=0.1`}
-							preload="metadata"
-							muted
-							playsInline
+						<VideoThumb
+							src={fileUrl(item.media[0].key)}
 							className="absolute inset-0 size-full object-cover transition-transform duration-300 group-hover:scale-[1.03]"
 						/>
 					) : item.kind === "audio" ? (
@@ -963,6 +1017,217 @@ function VaultTile({
 					</div>
 				)}
 			</div>
+		</div>
+	);
+}
+
+function ProjectRow({
+	project,
+	onOpen,
+	onRename,
+	onDelete,
+}: {
+	project: TProjectMetadata;
+	onOpen: () => void;
+	onRename: () => void;
+	onDelete: () => void;
+}) {
+	return (
+		<div className="group hover:bg-muted/40 flex items-center gap-3 rounded-lg px-2 py-1.5 transition-colors">
+			<button
+				type="button"
+				onClick={onOpen}
+				className="flex min-w-0 flex-1 items-center gap-3 text-left"
+			>
+				<div className="bg-muted relative size-12 shrink-0 overflow-hidden rounded-md">
+					{project.thumbnail ? (
+						// eslint-disable-next-line @next/next/no-img-element
+						<img
+							src={project.thumbnail}
+							alt={project.name}
+							loading="lazy"
+							className="absolute inset-0 size-full object-cover"
+						/>
+					) : (
+						<div className="text-muted-foreground flex size-full items-center justify-center">
+							<VideoIcon className="size-5" />
+						</div>
+					)}
+				</div>
+				<div className="min-w-0 flex-1">
+					<span className="block truncate text-sm font-medium">{project.name}</span>
+					<p className="text-muted-foreground truncate text-xs">
+						Edited {fmtDate(project.updatedAt)}
+					</p>
+				</div>
+			</button>
+			<span className="bg-muted/70 text-muted-foreground hidden shrink-0 rounded-md px-2 py-0.5 text-xs sm:block">
+				Project
+			</span>
+			<DropdownMenu>
+				<DropdownMenuTrigger asChild>
+					<button
+						type="button"
+						aria-label="Project options"
+						className="text-muted-foreground hover:text-foreground hover:bg-muted flex size-8 shrink-0 items-center justify-center rounded-md"
+					>
+						<MoreHorizontal className="size-4" />
+					</button>
+				</DropdownMenuTrigger>
+				<DropdownMenuContent align="end">
+					<DropdownMenuItem onClick={onRename}>
+						<Pencil className="size-4" />
+						Rename
+					</DropdownMenuItem>
+					<DropdownMenuItem variant="destructive" onClick={onDelete}>
+						<Trash2 className="size-4" />
+						Delete
+					</DropdownMenuItem>
+				</DropdownMenuContent>
+			</DropdownMenu>
+		</div>
+	);
+}
+
+function VaultRow({
+	item,
+	allCategories,
+	onOpen,
+	onAdd,
+	onRename,
+	onRemove,
+	onToggleCategory,
+	onNewCategory,
+	onCaption,
+	onCopyCaption,
+}: {
+	item: VaultItem;
+	allCategories: string[];
+	onOpen: () => void;
+	onAdd: () => void;
+	onRename: () => void;
+	onRemove: () => void;
+	onToggleCategory: (cat: string) => void;
+	onNewCategory: () => void;
+	onCaption: () => void;
+	onCopyCaption: () => void;
+}) {
+	const thumb = item.thumbKey ? fileUrl(item.thumbKey) : item.thumbUrl;
+	const hasCaption = !!item.caption?.trim();
+	const captionLine = item.caption?.trim().split("\n")[0] ?? "";
+	const KindIcon =
+		item.kind === "audio"
+			? Music2
+			: item.kind === "carousel"
+				? ImagesIcon
+				: item.kind === "image"
+					? ImageIcon
+					: VideoIcon;
+	return (
+		<div className="group hover:bg-muted/40 flex items-center gap-3 rounded-lg px-2 py-1.5 transition-colors">
+			<button
+				type="button"
+				onClick={onOpen}
+				className="flex min-w-0 flex-1 items-center gap-3 text-left"
+			>
+				<div className="bg-muted relative size-12 shrink-0 overflow-hidden rounded-md">
+					{thumb ? (
+						// eslint-disable-next-line @next/next/no-img-element
+						<img
+							src={thumb}
+							alt={item.name}
+							loading="lazy"
+							className="absolute inset-0 size-full object-cover"
+						/>
+					) : (
+						<div className="text-muted-foreground flex size-full items-center justify-center">
+							<KindIcon className="size-5" />
+						</div>
+					)}
+				</div>
+				<div className="min-w-0 flex-1">
+					<div className="flex items-center gap-2">
+						<span className="truncate text-sm font-medium">{item.name}</span>
+						{item.tags?.slice(0, 2).map((t) => (
+							<span
+								key={t}
+								className="bg-primary/10 text-primary hidden shrink-0 items-center gap-1 rounded-full px-2 py-0.5 text-[11px] sm:inline-flex"
+							>
+								<Tag className="size-2.5" />
+								{t}
+							</span>
+						))}
+					</div>
+					<p className="text-muted-foreground truncate text-xs">
+						<span className="capitalize">{item.source || item.kind}</span>
+						{captionLine && (
+							<span className="text-muted-foreground/70"> · {captionLine}</span>
+						)}
+					</p>
+				</div>
+			</button>
+			<span className="bg-muted/70 text-muted-foreground hidden shrink-0 rounded-md px-2 py-0.5 text-xs capitalize sm:block">
+				{item.kind}
+			</span>
+			<DropdownMenu>
+				<DropdownMenuTrigger asChild>
+					<button
+						type="button"
+						aria-label="Asset options"
+						className="text-muted-foreground hover:text-foreground hover:bg-muted flex size-8 shrink-0 items-center justify-center rounded-md"
+					>
+						<MoreHorizontal className="size-4" />
+					</button>
+				</DropdownMenuTrigger>
+				<DropdownMenuContent align="end">
+					<DropdownMenuItem onClick={onAdd}>
+						<FolderPlus className="size-4" />
+						Add to new project
+					</DropdownMenuItem>
+					<DropdownMenuSub>
+						<DropdownMenuSubTrigger>
+							<Tag className="size-4" />
+							Category
+						</DropdownMenuSubTrigger>
+						<DropdownMenuSubContent className="max-h-72 overflow-y-auto">
+							{allCategories.map((cat) => (
+								<DropdownMenuCheckboxItem
+									key={cat}
+									checked={(item.tags ?? []).includes(cat)}
+									onCheckedChange={() => onToggleCategory(cat)}
+								>
+									{cat}
+								</DropdownMenuCheckboxItem>
+							))}
+							{allCategories.length > 0 && <DropdownMenuSeparator />}
+							<DropdownMenuItem onClick={onNewCategory}>
+								<Plus className="size-4" />
+								New category…
+							</DropdownMenuItem>
+						</DropdownMenuSubContent>
+					</DropdownMenuSub>
+					{hasCaption && (
+						<>
+							<DropdownMenuItem onClick={onCaption}>
+								<Quote className="size-4" />
+								View caption
+							</DropdownMenuItem>
+							<DropdownMenuItem onClick={onCopyCaption}>
+								<Copy className="size-4" />
+								Copy caption
+							</DropdownMenuItem>
+						</>
+					)}
+					<DropdownMenuItem onClick={onRename}>
+						<Pencil className="size-4" />
+						Rename
+					</DropdownMenuItem>
+					<DropdownMenuItem variant="destructive" onClick={onRemove}>
+						<Trash2 className="size-4" />
+						Delete
+					</DropdownMenuItem>
+				</DropdownMenuContent>
+			</DropdownMenu>
 		</div>
 	);
 }
