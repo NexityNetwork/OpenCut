@@ -143,6 +143,11 @@
   ::selection {
     @apply bg-primary/35 selection:text-primary-foreground;
   }
+  /* Tailwind v4 drops the implicit pointer cursor on buttons; restore it. */
+  button:not(:disabled),
+  [role="button"]:not([aria-disabled="true"]) {
+    cursor: pointer;
+  }
 }
 
 @theme inline {

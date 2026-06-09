@@ -34,6 +34,12 @@ import {
 	LayoutList,
 	HelpCircle,
 	Calendar,
+	Folder,
+	Film,
+	Layers,
+	AudioLines,
+	Hash,
+	Library as LibraryIcon,
 	X,
 } from "lucide-react";
 import {
@@ -99,10 +105,10 @@ const PLATFORMS = [
 
 const TABS = [
 	{ key: "all", label: "All", Icon: LayoutGrid },
-	{ key: "projects", label: "Projects", Icon: Clapperboard },
-	{ key: "video", label: "Videos", Icon: VideoIcon },
-	{ key: "carousel", label: "Carousels", Icon: ImagesIcon },
-	{ key: "audio", label: "Audio", Icon: Music2 },
+	{ key: "projects", label: "Projects", Icon: Folder },
+	{ key: "video", label: "Videos", Icon: Film },
+	{ key: "carousel", label: "Carousels", Icon: Layers },
+	{ key: "audio", label: "Audio", Icon: AudioLines },
 	{ key: "image", label: "Images", Icon: ImageIcon },
 ] as const;
 
@@ -499,14 +505,44 @@ export function VaultSection() {
 		...categories.map((c) => ({
 			key: `cat:${c}`,
 			label: c,
-			Icon: Tag,
+			Icon: Hash,
 			count: catCounts[c] || 0,
 			cat: c,
 		})),
 	];
 
+	// Recently touched: latest projects + vault items, merged by time.
+	const recents: {
+		key: string;
+		label: string;
+		Icon: typeof Tag;
+		onClick: () => void;
+	}[] = [
+		...projects.map((p) => ({
+			key: `p:${p.id}`,
+			label: p.name,
+			Icon: Folder,
+			t: Number(new Date(p.updatedAt)) || 0,
+			onClick: () => router.push(`/editor/${p.id}`),
+		})),
+		...items.map((i) => ({
+			key: `v:${i.id}`,
+			label: i.name,
+			Icon: kindIcon(i.kind),
+			t: i.createdAt || 0,
+			onClick: () => {
+				setAppView("library");
+				if (i.kind === "audio") togglePlay(i);
+				else setLightbox(i);
+			},
+		})),
+	]
+		.sort((a, b) => b.t - a.t)
+		.slice(0, 6)
+		.map((r) => ({ key: r.key, label: r.label, Icon: r.Icon, onClick: r.onClick }));
+
 	return (
-		<div className="text-foreground flex h-screen overflow-hidden bg-[#141413]">
+		<div className="text-foreground flex h-screen overflow-hidden bg-[#181614]">
 			<LibrarySidebar
 				collapsed={collapsed}
 				onToggleCollapse={() => setCollapsed((c) => !c)}
@@ -523,6 +559,7 @@ export function VaultSection() {
 				onNewProject={createBlankProject}
 				onRenameCat={setRenamingCat}
 				onDeleteCat={deleteCategory}
+				recents={recents}
 			/>
 			<main
 				className={cn(
@@ -832,13 +869,13 @@ function SidebarItem({
 			type="button"
 			onClick={onClick}
 			className={cn(
-				"flex w-full items-center gap-2.5 rounded-lg px-2 py-1.5 text-[13px] transition-colors",
+				"flex w-full items-center gap-2.5 rounded-lg px-2 py-1 text-[13px] transition-colors",
 				active
-					? "bg-muted/70 text-foreground"
-					: "text-foreground/80 hover:bg-muted/40 hover:text-foreground",
+					? "bg-white/[0.07] text-[#f1ebdc]"
+					: "text-[#c7c0ae] hover:bg-white/[0.04] hover:text-[#f1ebdc]",
 			)}
 		>
-			<Icon className="size-4 shrink-0" strokeWidth={1.75} />
+			<Icon className="size-[15px] shrink-0" strokeWidth={1.75} />
 			<span className="flex-1 text-left">{label}</span>
 			{badge && (
 				<span className="bg-primary/15 text-primary rounded px-1.5 py-0.5 text-[10px] font-semibold tracking-wide">
@@ -887,6 +924,7 @@ function LibrarySidebar({
 	onNewProject,
 	onRenameCat,
 	onDeleteCat,
+	recents,
 }: {
 	collapsed: boolean;
 	onToggleCollapse: () => void;
@@ -900,13 +938,15 @@ function LibrarySidebar({
 	onNewProject: () => void;
 	onRenameCat: (c: string) => void;
 	onDeleteCat: (c: string) => void;
+	recents: { key: string; label: string; Icon: typeof Tag; onClick: () => void }[];
 }) {
 	const { data: session } = useSession();
 	const user = session?.user;
+	const [moreOpen, setMoreOpen] = useState(false);
 
 	if (collapsed) {
 		return (
-			<aside className="m-2 flex w-16 shrink-0 flex-col items-center gap-1 rounded-2xl border border-white/[0.07] bg-[#1b1a18] py-3 shadow-sm">
+			<aside className="m-2 flex w-16 shrink-0 flex-col items-center gap-1 rounded-2xl border border-white/[0.07] bg-[#201e1b] py-3 shadow-sm">
 				<button
 					type="button"
 					onClick={onToggleCollapse}
@@ -965,7 +1005,7 @@ function LibrarySidebar({
 	}
 
 	return (
-		<aside className="m-2 flex w-72 shrink-0 flex-col rounded-2xl border border-white/[0.07] bg-[#1b1a18] shadow-sm">
+		<aside className="m-2 flex w-72 shrink-0 flex-col rounded-2xl border border-white/[0.07] bg-[#201e1b] shadow-sm">
 			<div className="flex items-center justify-between px-4 py-4">
 				<span className="text-foreground text-xl font-semibold tracking-tight">
 					Ultron<span className="ml-1.5 font-normal">Monolith</span>
@@ -993,7 +1033,7 @@ function LibrarySidebar({
 			<nav className="space-y-0.5 px-2">
 				<SidebarItem icon={Plus} label="New project" onClick={onNewProject} />
 				<SidebarItem
-					icon={LayoutGrid}
+					icon={LibraryIcon}
 					label="Library"
 					active={appView === "library"}
 					onClick={onSelectLibrary}
@@ -1005,13 +1045,32 @@ function LibrarySidebar({
 					active={appView === "publish"}
 					onClick={onSelectPublish}
 				/>
+				<button
+					type="button"
+					onClick={() => setMoreOpen((v) => !v)}
+					className="flex w-full items-center gap-2.5 rounded-lg px-2 py-1 text-[13px] text-[#c7c0ae] transition-colors hover:bg-white/[0.04] hover:text-[#f1ebdc]"
+				>
+					<ChevronDown
+						className={cn(
+							"size-[15px] shrink-0 transition-transform",
+							!moreOpen && "-rotate-90",
+						)}
+					/>
+					<span className="flex-1 text-left">More</span>
+				</button>
+				{moreOpen && (
+					<div className="space-y-0.5">
+						<SidebarItem icon={Settings} label="Customize" onClick={() => {}} />
+						<SidebarItem icon={HelpCircle} label="Get help" onClick={() => {}} />
+					</div>
+				)}
 			</nav>
 
 			<div className="flex items-center justify-between px-4 pt-4 pb-1">
-				<span className="text-muted-foreground text-[11px] font-semibold tracking-wide uppercase">
+				<span className="text-[11px] font-semibold tracking-wide text-[#8b8676] uppercase">
 					Browse
 				</span>
-				<ListFilter className="text-muted-foreground size-3.5" />
+				<ListFilter className="size-3.5 text-[#8b8676]" />
 			</div>
 
 			<div className="min-h-0 flex-1 overflow-y-auto px-2 pb-2">
@@ -1024,17 +1083,17 @@ function LibrarySidebar({
 								onClick={() => onSelectTab(t.key)}
 								title={t.label}
 								className={cn(
-									"flex w-full items-center gap-2.5 rounded-lg px-2 py-1.5 text-left transition-colors",
+									"flex w-full items-center gap-2.5 rounded-lg px-2 py-1 text-left transition-colors",
 									active
-										? "bg-muted/70 text-foreground"
-										: "text-foreground/80 hover:bg-muted/40 hover:text-foreground",
+										? "bg-white/[0.07] text-[#f1ebdc]"
+										: "text-[#c7c0ae] hover:bg-white/[0.04] hover:text-[#f1ebdc]",
 									t.cat && "pr-7",
 								)}
 							>
-								<t.Icon className="size-4 shrink-0" strokeWidth={1.75} />
+								<t.Icon className="size-[15px] shrink-0" strokeWidth={1.75} />
 								<span className="flex-1 truncate text-[13px]">{t.label}</span>
 								{t.count > 0 && (
-									<span className="text-muted-foreground/60 text-[11px] tabular-nums">
+									<span className="text-[11px] tabular-nums text-[#8b8676]">
 										{t.count}
 									</span>
 								)}
@@ -1068,6 +1127,25 @@ function LibrarySidebar({
 						</div>
 					);
 				})}
+					{recents.length > 0 && (
+						<>
+							<div className="px-2 pt-4 pb-1 text-[11px] font-semibold tracking-wide text-[#8b8676] uppercase">
+								Recents
+							</div>
+							{recents.map((r) => (
+								<button
+									key={r.key}
+									type="button"
+									onClick={r.onClick}
+									title={r.label}
+									className="flex w-full items-center gap-2.5 rounded-lg px-2 py-1 text-left text-[#c7c0ae] transition-colors hover:bg-white/[0.04] hover:text-[#f1ebdc]"
+								>
+									<r.Icon className="size-[15px] shrink-0" strokeWidth={1.75} />
+									<span className="flex-1 truncate text-[13px]">{r.label}</span>
+								</button>
+							))}
+						</>
+					)}
 			</div>
 
 			<div className="p-2">
@@ -1357,7 +1435,7 @@ function ProjectCard({
 	return (
 		<div className="group relative">
 			<button type="button" onClick={onOpen} className="block w-full text-left">
-				<div className="bg-muted relative aspect-[4/5] overflow-hidden rounded-xl border border-border/60 shadow-sm ring-1 ring-white/5 ring-inset transition-all duration-200 group-hover:border-border group-hover:shadow-xl group-hover:shadow-black/30">
+				<div className="bg-muted relative aspect-[4/5] overflow-hidden rounded-xl border border-white/[0.12] shadow-md ring-1 ring-black/20 transition-all duration-200 group-hover:border-white/25 group-hover:shadow-xl group-hover:shadow-black/40">
 					{project.thumbnail ? (
 						// eslint-disable-next-line @next/next/no-img-element
 						<img
@@ -1467,7 +1545,7 @@ function VaultTile({
 	return (
 		<div className="group relative">
 			<button type="button" onClick={onOpen} className="block w-full text-left">
-				<div className="bg-muted relative aspect-[4/5] overflow-hidden rounded-xl border border-border/60 shadow-sm ring-1 ring-white/5 ring-inset transition-all duration-200 group-hover:border-border group-hover:shadow-xl group-hover:shadow-black/30">
+				<div className="bg-muted relative aspect-[4/5] overflow-hidden rounded-xl border border-white/[0.12] shadow-md ring-1 ring-black/20 transition-all duration-200 group-hover:border-white/25 group-hover:shadow-xl group-hover:shadow-black/40">
 					{thumb ? (
 						// eslint-disable-next-line @next/next/no-img-element
 						<img
