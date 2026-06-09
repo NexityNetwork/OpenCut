@@ -33,7 +33,6 @@ import {
 	ListFilter,
 	LayoutList,
 	HelpCircle,
-	Calendar,
 	Folder,
 	Film,
 	Layers,
@@ -109,6 +108,10 @@ const PLATFORMS = [
 	{ Icon: SiVimeo, label: "Vimeo", color: "#1AB7EA" },
 	{ Icon: SiX, label: "X", color: "#e8e8e8" },
 ];
+
+// Single-tenant for now: publishing is wired to the owner account only.
+// (Multi-tenant — per-user channels/tokens — comes later.)
+const OWNER_EMAIL = "catalin@nexitynetwork.org";
 
 const TABS = [
 	{ key: "all", label: "All", Icon: LayoutGrid },
@@ -1085,6 +1088,7 @@ function LibrarySidebar({
 }) {
 	const { data: session } = useSession();
 	const user = session?.user;
+	const isOwner = user?.email === OWNER_EMAIL;
 	const [moreOpen, setMoreOpen] = useState(false);
 
 	if (collapsed) {
@@ -1127,19 +1131,21 @@ function LibrarySidebar({
 				>
 					<LayoutGrid className="size-5" />
 				</button>
-				<button
-					type="button"
-					onClick={onSelectPublish}
-					aria-label="Publish"
-					className={cn(
-						"flex size-9 items-center justify-center rounded-md",
-						appView === "publish"
-							? "bg-muted text-foreground"
-							: "text-muted-foreground hover:text-foreground hover:bg-muted",
-					)}
-				>
-					<Rocket className="size-5" />
-				</button>
+				{isOwner && (
+					<button
+						type="button"
+						onClick={onSelectPublish}
+						aria-label="Publish"
+						className={cn(
+							"flex size-9 items-center justify-center rounded-md",
+							appView === "publish"
+								? "bg-muted text-foreground"
+								: "text-muted-foreground hover:text-foreground hover:bg-muted",
+						)}
+					>
+						<Rocket className="size-5" />
+					</button>
+				)}
 				<div className="mt-auto">
 					<Avatar name={user?.name} image={user?.image} size={8} />
 				</div>
@@ -1181,13 +1187,15 @@ function LibrarySidebar({
 					active={appView === "library"}
 					onClick={onSelectLibrary}
 				/>
-				<SidebarItem
-					icon={Rocket}
-					label="Publish"
-					badge="Beta"
-					active={appView === "publish"}
-					onClick={onSelectPublish}
-				/>
+				{isOwner && (
+					<SidebarItem
+						icon={Rocket}
+						label="Publish"
+						badge="Beta"
+						active={appView === "publish"}
+						onClick={onSelectPublish}
+					/>
+				)}
 				<button
 					type="button"
 					onClick={() => setMoreOpen((v) => !v)}
@@ -1569,68 +1577,183 @@ function SearchRow({
 	);
 }
 
+function pubPlatformIcon(p: string) {
+	const k = (p || "").toLowerCase();
+	if (k.includes("you")) return <SiYoutube style={{ color: "#FF0000" }} className="size-3.5" />;
+	if (k.includes("insta")) return <SiInstagram style={{ color: "#E4405F" }} className="size-3.5" />;
+	if (k.includes("tik")) return <SiTiktok className="size-3.5" />;
+	return <Send className="size-3.5" />;
+}
+function pubWhen(ts?: number) {
+	if (!ts) return "";
+	try {
+		return new Date(ts).toLocaleString(undefined, {
+			month: "short",
+			day: "numeric",
+			hour: "numeric",
+			minute: "2-digit",
+		});
+	} catch {
+		return "";
+	}
+}
+const pubStatusColor = (s: string) =>
+	/publish|done|success/.test(s)
+		? "text-green-500"
+		: /fail|error|cancel/.test(s)
+			? "text-red-500"
+			: /upload|process/.test(s)
+				? "text-amber-400"
+				: "text-muted-foreground";
+
+type PubStatus = {
+	counts?: Record<string, number>;
+	upcoming?: {
+		slug: string;
+		platform: string;
+		scheduled_for?: number;
+	}[];
+	recent?: {
+		slug: string;
+		platform: string;
+		status: string;
+		external_url?: string | null;
+		published_at?: number;
+	}[];
+};
+
 function PublishPane({ onNewProject }: { onNewProject: () => void }) {
 	const [online, setOnline] = useState<boolean | null>(null);
+	const [status, setStatus] = useState<PubStatus | null>(null);
 	useEffect(() => {
 		fetch("/api/publish/health")
 			.then((r) => (r.ok ? r.json() : null))
 			.then((d) => setOnline(!!d?.ok))
 			.catch(() => setOnline(false));
+		fetch("/api/publish/status")
+			.then((r) => (r.ok ? r.json() : null))
+			.then((d) => setStatus(d))
+			.catch(() => setStatus(null));
 	}, []);
+	const c = status?.counts ?? {};
+	const stat = [
+		{ label: "Published", value: c.published, color: "text-green-500" },
+		{ label: "Queued", value: c.queued, color: "text-foreground" },
+		{ label: "Uploading", value: c.uploading, color: "text-amber-400" },
+		{ label: "Failed", value: c.failed, color: "text-red-500" },
+	];
+	const upcoming = status?.upcoming ?? [];
+	const recent = status?.recent ?? [];
 	return (
 		<div className="mx-auto max-w-3xl px-8 py-10">
-			<h1 className="text-2xl font-semibold tracking-tight">Publishing</h1>
-			<p className="text-muted-foreground mt-1 text-sm">
-				Schedule and track posts across your channels.
-			</p>
-
-			<div className="mt-8 grid grid-cols-1 gap-3 sm:grid-cols-3">
-				<div className="border-border/60 bg-card/40 rounded-xl border p-4">
-					<div className="text-muted-foreground flex items-center gap-2 text-xs">
-						<span
-							className={cn(
-								"size-1.5 rounded-full",
-								online ? "bg-green-500" : "bg-muted-foreground/50",
-							)}
-						/>
-						Engine
-					</div>
-					<div className="mt-1.5 text-lg font-semibold">
-						{online == null ? "…" : online ? "Online" : "Offline"}
-					</div>
+			<div className="flex items-center justify-between gap-4">
+				<div>
+					<h1 className="text-2xl font-semibold tracking-tight">Publishing</h1>
+					<p className="text-muted-foreground mt-1 text-sm">
+						Schedule and track posts across your channels.
+					</p>
 				</div>
-				<div className="border-border/60 bg-card/40 rounded-xl border p-4">
-					<div className="text-muted-foreground flex items-center gap-2 text-xs">
-						<Calendar className="size-4" />
-						Scheduled
-					</div>
-					<div className="mt-1.5 text-lg font-semibold">0</div>
-				</div>
-				<div className="border-border/60 bg-card/40 rounded-xl border p-4">
-					<div className="text-muted-foreground flex items-center gap-2 text-xs">
-						<Send className="size-4" />
-						Channels
-					</div>
-					<div className="mt-2 flex items-center gap-2">
-						<SiYoutube style={{ color: "#FF0000" }} className="size-4" />
-						<SiInstagram style={{ color: "#E4405F" }} className="size-4" />
-						<SiTiktok className="size-4" />
-					</div>
-				</div>
+				<span className="text-muted-foreground flex shrink-0 items-center gap-1.5 text-xs">
+					<span
+						className={cn(
+							"size-1.5 rounded-full",
+							online ? "bg-green-500" : "bg-muted-foreground/50",
+						)}
+					/>
+					Engine {online == null ? "…" : online ? "online" : "offline"}
+				</span>
 			</div>
 
-			<div className="text-muted-foreground mt-12 flex flex-col items-center gap-3 py-12 text-center">
-				<Send className="size-8 opacity-50" />
-				<p className="text-sm">No scheduled posts yet.</p>
-				<button
-					type="button"
-					onClick={onNewProject}
-					className="bg-primary text-primary-foreground hover:bg-primary/90 mt-1 inline-flex items-center gap-1.5 rounded-lg px-4 py-2 text-sm font-medium transition-colors"
-				>
-					<Plus className="size-4" />
-					New post
-				</button>
+			<div className="mt-8 grid grid-cols-2 gap-3 sm:grid-cols-4">
+				{stat.map((s) => (
+					<div
+						key={s.label}
+						className="border-border/60 bg-card/40 rounded-xl border p-4"
+					>
+						<div className="text-muted-foreground text-xs">{s.label}</div>
+						<div className={cn("mt-1.5 text-2xl font-semibold", s.color)}>
+							{s.value ?? 0}
+						</div>
+					</div>
+				))}
 			</div>
+
+			{/* Upcoming */}
+			<div className="mt-9">
+				<h2 className="mb-2 text-sm font-semibold">Upcoming</h2>
+				{upcoming.length === 0 ? (
+					<div className="text-muted-foreground border-border/60 rounded-xl border border-dashed py-8 text-center text-sm">
+						Nothing scheduled.
+					</div>
+				) : (
+					<div className="border-border/60 divide-border/60 divide-y overflow-hidden rounded-xl border">
+						{upcoming.slice(0, 12).map((u, i) => (
+							<div
+								key={`${u.slug}-${u.platform}-${i}`}
+								className="hover:bg-muted/30 flex items-center gap-3 px-4 py-2.5"
+							>
+								{pubPlatformIcon(u.platform)}
+								<span className="flex-1 truncate font-mono text-xs">{u.slug}</span>
+								<span className="text-muted-foreground text-xs capitalize">
+									{u.platform}
+								</span>
+								<span className="text-muted-foreground shrink-0 text-xs">
+									{pubWhen(u.scheduled_for)}
+								</span>
+							</div>
+						))}
+					</div>
+				)}
+			</div>
+
+			{/* Recent */}
+			<div className="mt-8">
+				<h2 className="mb-2 text-sm font-semibold">Recent</h2>
+				{recent.length === 0 ? (
+					<div className="text-muted-foreground border-border/60 rounded-xl border border-dashed py-8 text-center text-sm">
+						No posts yet.
+					</div>
+				) : (
+					<div className="border-border/60 divide-border/60 divide-y overflow-hidden rounded-xl border">
+						{recent.slice(0, 15).map((p, i) => (
+							<div
+								key={`${p.slug}-${p.platform}-${i}`}
+								className="hover:bg-muted/30 flex items-center gap-3 px-4 py-2.5"
+							>
+								{pubPlatformIcon(p.platform)}
+								<span className="flex-1 truncate font-mono text-xs">{p.slug}</span>
+								<span className={cn("text-xs capitalize", pubStatusColor(p.status))}>
+									{p.status}
+								</span>
+								{p.external_url ? (
+									<a
+										href={p.external_url}
+										target="_blank"
+										rel="noopener noreferrer"
+										className="text-muted-foreground hover:text-foreground shrink-0"
+										title="Open post"
+									>
+										<ArrowUpRight className="size-4" />
+									</a>
+								) : (
+									<span className="text-muted-foreground/40 shrink-0 text-xs">
+										{pubWhen(p.published_at)}
+									</span>
+								)}
+							</div>
+						))}
+					</div>
+				)}
+			</div>
+
+			<button
+				type="button"
+				onClick={onNewProject}
+				className="bg-primary text-primary-foreground hover:bg-primary/90 mt-8 inline-flex items-center gap-1.5 rounded-lg px-4 py-2 text-sm font-medium transition-colors"
+			>
+				<Plus className="size-4" />
+				New post
+			</button>
 		</div>
 	);
 }
