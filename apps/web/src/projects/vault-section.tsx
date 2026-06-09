@@ -832,10 +832,10 @@ function SidebarItem({
 			type="button"
 			onClick={onClick}
 			className={cn(
-				"flex w-full items-center gap-2.5 rounded-md px-2.5 py-2 text-sm font-medium transition-colors",
+				"flex w-full items-center gap-2.5 rounded-lg px-2 py-1.5 text-[13px] transition-colors",
 				active
-					? "bg-muted text-foreground"
-					: "text-muted-foreground hover:bg-muted hover:text-foreground",
+					? "bg-muted/70 text-foreground"
+					: "text-foreground/80 hover:bg-muted/40 hover:text-foreground",
 			)}
 		>
 			<Icon className="size-4 shrink-0" strokeWidth={1.75} />
@@ -856,9 +856,9 @@ function Avatar({
 }: {
 	name?: string | null;
 	image?: string | null;
-	size?: 7 | 8;
+	size?: 6 | 7 | 8;
 }) {
-	const sz = size === 8 ? "size-8" : "size-7";
+	const sz = size === 8 ? "size-8" : size === 6 ? "size-6" : "size-7";
 	if (image)
 		// eslint-disable-next-line @next/next/no-img-element
 		return <img src={image} alt="" className={cn(sz, "shrink-0 rounded-full")} />;
@@ -906,7 +906,7 @@ function LibrarySidebar({
 
 	if (collapsed) {
 		return (
-			<aside className="border-border/60 bg-card/30 flex w-14 shrink-0 flex-col items-center gap-1 border-r py-3">
+			<aside className="border-border/50 bg-card/40 m-2 flex w-16 shrink-0 flex-col items-center gap-1 rounded-2xl border py-3 shadow-sm">
 				<button
 					type="button"
 					onClick={onToggleCollapse}
@@ -965,11 +965,11 @@ function LibrarySidebar({
 	}
 
 	return (
-		<aside className="border-border/60 bg-card/30 flex w-64 shrink-0 flex-col border-r">
-			<div className="flex items-center justify-between px-3 py-3">
-				<span className="flex items-center text-[15px] font-bold tracking-tight">
+		<aside className="border-border/50 bg-card/40 m-2 flex w-72 shrink-0 flex-col rounded-2xl border shadow-sm">
+			<div className="flex items-center justify-between px-4 py-4">
+				<span className="flex items-baseline text-base font-bold tracking-tight">
 					<span className="text-foreground">Ultron</span>
-					<span className="text-muted-foreground ml-1.5 text-sm font-medium">
+					<span className="text-muted-foreground ml-1.5 text-sm font-normal">
 						Monolith
 					</span>
 				</span>
@@ -1027,17 +1027,17 @@ function LibrarySidebar({
 								onClick={() => onSelectTab(t.key)}
 								title={t.label}
 								className={cn(
-									"flex w-full items-center gap-2.5 rounded-md px-2.5 py-1.5 text-left transition-colors",
+									"flex w-full items-center gap-2.5 rounded-lg px-2 py-1.5 text-left transition-colors",
 									active
-										? "bg-muted text-foreground"
-										: "text-muted-foreground hover:bg-muted/60 hover:text-foreground",
+										? "bg-muted/70 text-foreground"
+										: "text-foreground/80 hover:bg-muted/40 hover:text-foreground",
 									t.cat && "pr-7",
 								)}
 							>
 								<t.Icon className="size-4 shrink-0" strokeWidth={1.75} />
-								<span className="flex-1 truncate text-sm">{t.label}</span>
+								<span className="flex-1 truncate text-[13px]">{t.label}</span>
 								{t.count > 0 && (
-									<span className="text-muted-foreground/50 text-[11px] tabular-nums">
+									<span className="text-muted-foreground/60 text-[11px] tabular-nums">
 										{t.count}
 									</span>
 								)}
@@ -1073,22 +1073,18 @@ function LibrarySidebar({
 				})}
 			</div>
 
-			<div className="border-border/60 border-t p-2">
+			<div className="p-2">
 				{user ? (
 					<DropdownMenu>
 						<DropdownMenuTrigger asChild>
 							<button
 								type="button"
-								className="hover:bg-muted flex w-full items-center gap-2.5 rounded-md px-2 py-2 text-left transition-colors"
+								className="hover:bg-muted/50 flex w-full items-center gap-2 rounded-lg px-2 py-1.5 text-left transition-colors"
 							>
-								<Avatar name={user.name} image={user.image} size={7} />
-								<span className="min-w-0 flex-1">
-									<span className="block truncate text-sm font-medium">
-										{user.name ?? "You"}
-									</span>
-									<span className="text-muted-foreground block truncate text-[11px]">
-										Max
-									</span>
+								<Avatar name={user.name} image={user.image} size={6} />
+								<span className="min-w-0 flex-1 truncate text-[13px]">
+									<span className="text-foreground">{user.name ?? "You"}</span>
+									<span className="text-muted-foreground"> · Max</span>
 								</span>
 								<ChevronDown className="text-muted-foreground size-4 shrink-0" />
 							</button>
