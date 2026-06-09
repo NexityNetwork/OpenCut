@@ -122,13 +122,20 @@ export async function PATCH(request: Request) {
 	const b = (await request.json().catch(() => ({}))) as Record<string, unknown>;
 	const owner = String(b.owner || "").trim();
 	const id = String(b.id || "");
-	const name = String(b.name || "");
 	if (!owner || !id) return Response.json({ error: "bad request" }, { status: 400 });
 	const d = db();
 	if (!d) return Response.json({ error: "vault not configured" }, { status: 503 });
-	await d
-		.prepare("UPDATE vault_items SET name = ? WHERE owner = ? AND id = ?")
-		.bind(name, owner, id)
-		.run();
+	if (Array.isArray(b.tags)) {
+		await d
+			.prepare("UPDATE vault_items SET tags = ? WHERE owner = ? AND id = ?")
+			.bind(JSON.stringify(b.tags), owner, id)
+			.run();
+	}
+	if (typeof b.name === "string" && b.name.trim()) {
+		await d
+			.prepare("UPDATE vault_items SET name = ? WHERE owner = ? AND id = ?")
+			.bind(b.name.trim(), owner, id)
+			.run();
+	}
 	return Response.json({ ok: true });
 }

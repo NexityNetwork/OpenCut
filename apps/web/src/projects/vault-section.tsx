@@ -21,6 +21,7 @@ import {
 	Clapperboard,
 	ChevronLeft,
 	ChevronRight,
+	Tag,
 	X,
 } from "lucide-react";
 import {
@@ -35,8 +36,13 @@ import {
 import { Spinner } from "@/components/ui/spinner";
 import {
 	DropdownMenu,
+	DropdownMenuCheckboxItem,
 	DropdownMenuContent,
 	DropdownMenuItem,
+	DropdownMenuSeparator,
+	DropdownMenuSub,
+	DropdownMenuSubContent,
+	DropdownMenuSubTrigger,
 	DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import {
@@ -58,6 +64,7 @@ import {
 	fetchVault,
 	deleteVaultItem,
 	renameVaultItem,
+	setVaultItemTags,
 	importLinkToVault,
 	migrateVaultOwner,
 	uploadFilesToVault,
@@ -129,6 +136,7 @@ export function VaultSection() {
 		name: string;
 		kind: "vault" | "project";
 	} | null>(null);
+	const [catFor, setCatFor] = useState<VaultItem | null>(null);
 	const [playingId, setPlayingId] = useState<string | null>(null);
 	const audioRef = useRef<HTMLAudioElement | null>(null);
 	const fileInputRef = useRef<HTMLInputElement | null>(null);
@@ -235,6 +243,34 @@ export function VaultSection() {
 		await editor.project.deleteProjects({ ids: [p.id] });
 	};
 
+	// Custom categories live as durable tags on each vault item (stored in D1).
+	const setItemTags = async (id: string, tags: string[]) => {
+		setItems((prev) => prev.map((x) => (x.id === id ? { ...x, tags } : x)));
+		try {
+			await setVaultItemTags(owner, id, tags);
+		} catch {
+			/* ignore */
+		}
+	};
+
+	const toggleCategory = (item: VaultItem, cat: string) => {
+		const current = item.tags ?? [];
+		const next = current.includes(cat)
+			? current.filter((t) => t !== cat)
+			: [...current, cat];
+		void setItemTags(item.id, next);
+	};
+
+	const addCategory = (name: string) => {
+		const target = catFor;
+		setCatFor(null);
+		const cat = name.trim();
+		if (!target || !cat) return;
+		const live = items.find((x) => x.id === target.id) ?? target;
+		if ((live.tags ?? []).includes(cat)) return;
+		void setItemTags(target.id, [...(live.tags ?? []), cat]);
+	};
+
 	const togglePlay = (item: VaultItem) => {
 		if (!audioRef.current) audioRef.current = new Audio();
 		const a = audioRef.current;
@@ -288,18 +324,37 @@ export function VaultSection() {
 		for (const i of items) c[i.kind] = (c[i.kind] || 0) + 1;
 		return c;
 	}, [items, projects]);
+	const { categories, catCounts } = useMemo(() => {
+		const cc: Record<string, number> = {};
+		for (const i of items) {
+			for (const t of i.tags ?? []) cc[t] = (cc[t] || 0) + 1;
+		}
+		return {
+			categories: Object.keys(cc).sort((a, b) => a.localeCompare(b)),
+			catCounts: cc,
+		};
+	}, [items]);
+	// Fall back to "All" if the selected category was emptied out.
+	useEffect(() => {
+		if (
+			activeTab.startsWith("cat:") &&
+			!categories.includes(activeTab.slice(4))
+		) {
+			setActiveTab("all");
+		}
+	}, [categories, activeTab]);
 	const q = isUrl(text) ? "" : text.trim().toLowerCase();
-	const shownVault = useMemo(
-		() =>
-			activeTab === "projects"
-				? []
-				: items.filter(
-						(i) =>
-							(activeTab === "all" || i.kind === activeTab) &&
-							(!q || i.name.toLowerCase().includes(q)),
-					),
-		[items, activeTab, q],
-	);
+	const shownVault = useMemo(() => {
+		if (activeTab === "projects") return [];
+		const cat = activeTab.startsWith("cat:") ? activeTab.slice(4) : null;
+		return items.filter(
+			(i) =>
+				(cat
+					? (i.tags ?? []).includes(cat)
+					: activeTab === "all" || i.kind === activeTab) &&
+				(!q || i.name.toLowerCase().includes(q)),
+		);
+	}, [items, activeTab, q]);
 	const shownProjects =
 		activeTab === "all" || activeTab === "projects" ? projects : [];
 
@@ -435,6 +490,26 @@ export function VaultSection() {
 							</span>
 						</button>
 					))}
+					{categories.map((cat) => (
+						<button
+							key={`cat:${cat}`}
+							type="button"
+							onClick={() => setActiveTab(`cat:${cat}`)}
+							title={cat}
+							className={cn(
+								"flex shrink-0 flex-col items-center gap-1.5 border-b-2 px-4 pb-3 text-xs font-medium transition-colors",
+								activeTab === `cat:${cat}`
+									? "border-foreground text-foreground"
+									: "border-transparent text-muted-foreground hover:text-foreground",
+							)}
+						>
+							<Tag className="size-5" />
+							<span className="block max-w-[7rem] truncate">
+								{cat}
+								{catCounts[cat] ? ` ${catCounts[cat]}` : ""}
+							</span>
+						</button>
+					))}
 				</div>
 				{(loading || !isInitialized) &&
 				shownProjects.length === 0 &&
@@ -465,6 +540,7 @@ export function VaultSection() {
 								key={item.id}
 								item={item}
 								playing={playingId === item.id}
+								allCategories={categories}
 								onOpen={() =>
 									item.kind === "audio" ? togglePlay(item) : setLightbox(item)
 								}
@@ -473,6 +549,8 @@ export function VaultSection() {
 									setRenaming({ id: item.id, name: item.name, kind: "vault" })
 								}
 								onRemove={() => remove(item)}
+								onToggleCategory={(cat) => toggleCategory(item, cat)}
+								onNewCategory={() => setCatFor(item)}
 							/>
 						))}
 					</div>
@@ -484,6 +562,11 @@ export function VaultSection() {
 				item={renaming}
 				onClose={() => setRenaming(null)}
 				onSave={doRename}
+			/>
+			<NewCategoryDialog
+				open={!!catFor}
+				onClose={() => setCatFor(null)}
+				onSave={addCategory}
 			/>
 		</section>
 	);
@@ -570,17 +653,23 @@ function ProjectCard({
 function VaultTile({
 	item,
 	playing,
+	allCategories,
 	onOpen,
 	onAdd,
 	onRename,
 	onRemove,
+	onToggleCategory,
+	onNewCategory,
 }: {
 	item: VaultItem;
 	playing: boolean;
+	allCategories: string[];
 	onOpen: () => void;
 	onAdd: () => void;
 	onRename: () => void;
 	onRemove: () => void;
+	onToggleCategory: (cat: string) => void;
+	onNewCategory: () => void;
 }) {
 	const thumb = item.thumbKey ? fileUrl(item.thumbKey) : item.thumbUrl;
 	const KindIcon =
@@ -661,6 +750,28 @@ function VaultTile({
 						<FolderPlus className="size-4" />
 						Add to new project
 					</DropdownMenuItem>
+					<DropdownMenuSub>
+						<DropdownMenuSubTrigger>
+							<Tag className="size-4" />
+							Category
+						</DropdownMenuSubTrigger>
+						<DropdownMenuSubContent className="max-h-72 overflow-y-auto">
+							{allCategories.map((cat) => (
+								<DropdownMenuCheckboxItem
+									key={cat}
+									checked={(item.tags ?? []).includes(cat)}
+									onCheckedChange={() => onToggleCategory(cat)}
+								>
+									{cat}
+								</DropdownMenuCheckboxItem>
+							))}
+							{allCategories.length > 0 && <DropdownMenuSeparator />}
+							<DropdownMenuItem onClick={onNewCategory}>
+								<Plus className="size-4" />
+								New category…
+							</DropdownMenuItem>
+						</DropdownMenuSubContent>
+					</DropdownMenuSub>
 					<DropdownMenuItem onClick={onRename}>
 						<Pencil className="size-4" />
 						Rename
@@ -672,21 +783,41 @@ function VaultTile({
 				</DropdownMenuContent>
 			</DropdownMenu>
 
-			<div className="flex items-start justify-between gap-2 px-0.5 pt-3">
-				<div className="min-w-0">
-					<h3
-						className="line-clamp-1 text-sm leading-snug font-medium"
-						title={item.name}
-					>
-						{item.name}
-					</h3>
-					<p className="text-muted-foreground mt-0.5 text-xs capitalize">
-						{item.source || meta}
-					</p>
+			<div className="px-0.5 pt-3">
+				<div className="flex items-start justify-between gap-2">
+					<div className="min-w-0">
+						<h3
+							className="line-clamp-1 text-sm leading-snug font-medium"
+							title={item.name}
+						>
+							{item.name}
+						</h3>
+						<p className="text-muted-foreground mt-0.5 text-xs capitalize">
+							{item.source || meta}
+						</p>
+					</div>
+					<span className="bg-muted/70 text-muted-foreground shrink-0 rounded-md px-2 py-0.5 text-xs capitalize">
+						{item.kind}
+					</span>
 				</div>
-				<span className="bg-muted/70 text-muted-foreground shrink-0 rounded-md px-2 py-0.5 text-xs capitalize">
-					{item.kind}
-				</span>
+				{item.tags && item.tags.length > 0 && (
+					<div className="mt-2 flex flex-wrap gap-1">
+						{item.tags.slice(0, 3).map((t) => (
+							<span
+								key={t}
+								className="bg-primary/10 text-primary inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[11px] font-medium"
+							>
+								<Tag className="size-2.5" />
+								{t}
+							</span>
+						))}
+						{item.tags.length > 3 && (
+							<span className="text-muted-foreground px-1 text-[11px]">
+								+{item.tags.length - 3}
+							</span>
+						)}
+					</div>
+				)}
 			</div>
 		</div>
 	);
@@ -724,6 +855,45 @@ function RenameDialog({
 						Cancel
 					</Button>
 					<Button onClick={() => value.trim() && onSave(value.trim())}>Save</Button>
+				</DialogFooter>
+			</DialogContent>
+		</Dialog>
+	);
+}
+
+function NewCategoryDialog({
+	open,
+	onClose,
+	onSave,
+}: {
+	open: boolean;
+	onClose: () => void;
+	onSave: (name: string) => void;
+}) {
+	const [value, setValue] = useState("");
+	useEffect(() => {
+		if (open) setValue("");
+	}, [open]);
+	return (
+		<Dialog open={open} onOpenChange={(o) => !o && onClose()}>
+			<DialogContent className="max-w-sm">
+				<DialogHeader>
+					<DialogTitle>New category</DialogTitle>
+				</DialogHeader>
+				<Input
+					value={value}
+					onChange={(e) => setValue(e.target.value)}
+					onKeyDown={(e) => {
+						if (e.key === "Enter" && value.trim()) onSave(value.trim());
+					}}
+					placeholder="e.g. B-roll, Hooks, Music"
+					autoFocus
+				/>
+				<DialogFooter>
+					<Button variant="text" onClick={onClose}>
+						Cancel
+					</Button>
+					<Button onClick={() => value.trim() && onSave(value.trim())}>Add</Button>
 				</DialogFooter>
 			</DialogContent>
 		</Dialog>

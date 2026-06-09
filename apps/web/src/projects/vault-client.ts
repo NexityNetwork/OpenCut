@@ -57,6 +57,19 @@ export async function renameVaultItem(owner: string, id: string, name: string) {
 	});
 }
 
+/** Persists the full category list for a vault item (durable on the account). */
+export async function setVaultItemTags(
+	owner: string,
+	id: string,
+	tags: string[],
+) {
+	await fetch("/api/vault", {
+		method: "PATCH",
+		headers: { "content-type": "application/json" },
+		body: JSON.stringify({ owner, id, tags }),
+	});
+}
+
 async function addVaultItem(owner: string, item: Partial<VaultItem>) {
 	const r = await fetch("/api/vault", {
 		method: "POST",
