@@ -20,6 +20,7 @@ import { useEditor } from "@/editor/use-editor";
 import {
 	ArrowUpRight01Icon,
 	CommandIcon,
+	Copy01Icon,
 	Logout05Icon,
 } from "@hugeicons/core-free-icons";
 import { HugeiconsIcon } from "@hugeicons/react";
@@ -46,9 +47,28 @@ function ProjectDropdown() {
 		"delete" | "rename" | "shortcuts" | null
 	>(null);
 	const [isExiting, setIsExiting] = useState(false);
+	const [savingTemplate, setSavingTemplate] = useState(false);
 	const router = useRouter();
 	const editor = useEditor();
 	const activeProject = useEditor((e) => e.project.getActive());
+
+	const handleSaveAsTemplate = async () => {
+		if (savingTemplate) return;
+		setSavingTemplate(true);
+		try {
+			await editor.project.saveAsTemplate();
+			toast.success("Saved as template", {
+				description: "Find it under Templates in your library.",
+			});
+		} catch (error) {
+			toast.error("Couldn't save template", {
+				description:
+					error instanceof Error ? error.message : "Please try again",
+			});
+		} finally {
+			setSavingTemplate(false);
+		}
+	};
 
 	const handleExit = async () => {
 		if (isExiting) return;
@@ -126,6 +146,14 @@ function ProjectDropdown() {
 						icon={<HugeiconsIcon icon={Logout05Icon} />}
 					>
 						Exit project
+					</DropdownMenuItem>
+
+					<DropdownMenuItem
+						onClick={handleSaveAsTemplate}
+						disabled={savingTemplate}
+						icon={<HugeiconsIcon icon={Copy01Icon} />}
+					>
+						Save as template
 					</DropdownMenuItem>
 
 					<DropdownMenuItem

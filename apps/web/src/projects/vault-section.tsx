@@ -38,6 +38,7 @@ import {
 	Film,
 	Layers,
 	AudioLines,
+	LayoutTemplate,
 	Hash,
 	Library as LibraryIcon,
 	Rocket,
@@ -239,6 +240,11 @@ export function VaultSection() {
 	const projects = useMemo(
 		() => allProjects.filter((p) => !archived.has(p.id)),
 		[allProjects, archived],
+	);
+	const allTemplates = useEditor((e) => e.project.getTemplates());
+	const templates = useMemo(
+		() => allTemplates.filter((t) => !archived.has(t.id)),
+		[allTemplates, archived],
 	);
 	const isInitialized = useEditor((e) => e.project.getIsInitialized());
 	const { data: session } = useSession();
@@ -490,6 +496,21 @@ export function VaultSection() {
 		router.push(`/editor/${id}`);
 	};
 
+	const useTemplate = async (t: TProjectMetadata) => {
+		const tid = toast.loading("Creating project from template…");
+		try {
+			const id = await editor.project.createProjectFromTemplate({
+				templateId: t.id,
+			});
+			toast.success("Project created", { id: tid });
+			router.push(`/editor/${id}`);
+		} catch (e) {
+			toast.error(e instanceof Error ? e.message : "Couldn't use template", {
+				id: tid,
+			});
+		}
+	};
+
 	const visibleItems = useMemo(
 		() => items.filter((i) => !archived.has(i.id)),
 		[items, archived],
@@ -535,6 +556,10 @@ export function VaultSection() {
 	}, [visibleItems, activeTab, q]);
 	const shownProjects =
 		activeTab === "all" || activeTab === "projects" ? projects : [];
+	const shownTemplates =
+		activeTab === "templates"
+			? templates.filter((t) => !q || t.name.toLowerCase().includes(q))
+			: [];
 
 	const urlMode = isUrl(text);
 
@@ -555,6 +580,17 @@ export function VaultSection() {
 			count: counts[t.key] || 0,
 			cat: "",
 		})),
+		...(templates.length
+			? [
+					{
+						key: "templates",
+						label: "Templates",
+						Icon: LayoutTemplate,
+						count: templates.length,
+						cat: "",
+					},
+				]
+			: []),
 		...categories.map((c) => ({
 			key: `cat:${c}`,
 			label: c,
@@ -812,11 +848,14 @@ export function VaultSection() {
 				</div>
 				{(loading || !isInitialized) &&
 				shownProjects.length === 0 &&
-				shownVault.length === 0 ? (
+				shownVault.length === 0 &&
+				shownTemplates.length === 0 ? (
 					<div className="flex justify-center py-12">
 						<Spinner className="text-muted-foreground size-5" />
 					</div>
-				) : shownProjects.length === 0 && shownVault.length === 0 ? (
+				) : shownProjects.length === 0 &&
+					shownVault.length === 0 &&
+					shownTemplates.length === 0 ? (
 					<div className="text-muted-foreground py-12 text-center text-sm">
 						Nothing here yet — paste a link, upload a file, or start a new
 						project.
@@ -862,6 +901,22 @@ export function VaultSection() {
 								<VaultRow key={item.id} {...props} />
 							) : (
 								<VaultTile key={item.id} {...props} playing={playingId === item.id} />
+							);
+						})}
+						{shownTemplates.map((t) => {
+							const props = {
+								project: t,
+								badge: "Template",
+								openLabel: "Use template",
+								onOpen: () => useTemplate(t),
+								onRename: () =>
+									setRenaming({ id: t.id, name: t.name, kind: "project" as const }),
+								onDelete: () => deleteProject(t),
+							};
+							return listView ? (
+								<ProjectRow key={t.id} {...props} />
+							) : (
+								<ProjectCard key={t.id} {...props} />
 							);
 						})}
 					</div>
@@ -1585,11 +1640,15 @@ function ProjectCard({
 	onOpen,
 	onRename,
 	onDelete,
+	badge = "Project",
+	openLabel = "Open",
 }: {
 	project: TProjectMetadata;
 	onOpen: () => void;
 	onRename: () => void;
 	onDelete: () => void;
+	badge?: string;
+	openLabel?: string;
 }) {
 	return (
 		<div className="group relative">
@@ -1610,7 +1669,7 @@ function ProjectCard({
 					)}
 					<div className="pointer-events-none absolute inset-0 flex items-center justify-center bg-black/0 transition-colors duration-200 group-hover:bg-black/25">
 						<span className="translate-y-1 scale-95 rounded-full bg-white/15 px-5 py-2 text-sm font-medium text-white opacity-0 shadow-lg ring-1 ring-white/30 backdrop-blur-md transition-all duration-200 group-hover:translate-y-0 group-hover:scale-100 group-hover:opacity-100">
-							Open
+							{openLabel}
 						</span>
 					</div>
 				</div>
@@ -1651,7 +1710,7 @@ function ProjectCard({
 					</p>
 				</div>
 				<span className="bg-muted/70 text-muted-foreground shrink-0 rounded-md px-2 py-0.5 text-xs">
-					Project
+					{badge}
 				</span>
 			</div>
 		</div>
@@ -1870,11 +1929,14 @@ function ProjectRow({
 	onOpen,
 	onRename,
 	onDelete,
+	badge = "Project",
 }: {
 	project: TProjectMetadata;
 	onOpen: () => void;
 	onRename: () => void;
 	onDelete: () => void;
+	badge?: string;
+	openLabel?: string;
 }) {
 	return (
 		<div className="group hover:bg-muted/40 flex items-center gap-3 rounded-lg px-2 py-1.5 transition-colors">
@@ -1906,7 +1968,7 @@ function ProjectRow({
 				</div>
 			</button>
 			<span className="bg-muted/70 text-muted-foreground hidden shrink-0 rounded-md px-2 py-0.5 text-xs sm:block">
-				Project
+				{badge}
 			</span>
 			<DropdownMenu>
 				<DropdownMenuTrigger asChild>

@@ -24,6 +24,8 @@ export interface TProjectMetadata {
 	duration: MediaTime;
 	createdAt: Date;
 	updatedAt: Date;
+	/** Templates are reusable project snapshots, hidden from the normal list. */
+	isTemplate?: boolean;
 }
 
 export interface TProjectSettings {

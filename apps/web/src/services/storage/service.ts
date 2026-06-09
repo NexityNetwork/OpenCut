@@ -151,6 +151,7 @@ class StorageService {
 				name: project.metadata.name,
 				thumbnail: project.metadata.thumbnail,
 				duration,
+				isTemplate: project.metadata.isTemplate,
 				createdAt: project.metadata.createdAt.toISOString(),
 				updatedAt: project.metadata.updatedAt.toISOString(),
 			},
@@ -211,6 +212,7 @@ class StorageService {
 						serializedProject.metadata.duration ??
 						getProjectDurationFromScenes({ scenes }),
 				}),
+				isTemplate: serializedProject.metadata.isTemplate,
 				createdAt: new Date(serializedProject.metadata.createdAt),
 				updatedAt: new Date(serializedProject.metadata.updatedAt),
 			},
@@ -270,6 +272,7 @@ class StorageService {
 							scenes: (serializedProject.scenes ?? []) as unknown as TScene[],
 						}),
 				}),
+				isTemplate: serializedProject.metadata.isTemplate,
 				createdAt: new Date(serializedProject.metadata.createdAt),
 				updatedAt: new Date(serializedProject.metadata.updatedAt),
 			});

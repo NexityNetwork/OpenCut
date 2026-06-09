@@ -518,6 +518,76 @@ export class ProjectManager {
 		}
 	}
 
+	/** Clones a project's full structure + media into a new project id. */
+	private async cloneProjectTo(
+		sourceId: string,
+		{ name, isTemplate }: { name?: string; isTemplate: boolean },
+	): Promise<string> {
+		const result = await storageService.loadProject({ id: sourceId });
+		const source = result?.project;
+		if (!source) throw new Error("Project not found");
+
+		const newProjectId = generateUUID();
+		const newProject: TProject = {
+			...source,
+			metadata: {
+				...source.metadata,
+				id: newProjectId,
+				name: name ?? source.metadata.name,
+				isTemplate,
+				createdAt: new Date(),
+				updatedAt: new Date(),
+			},
+		};
+		await storageService.saveProject({ project: newProject });
+
+		const sourceMediaAssets = await storageService.loadAllMediaAssets({
+			projectId: sourceId,
+		});
+		await Promise.all(
+			sourceMediaAssets.map((mediaAsset) =>
+				storageService.saveMediaAsset({ projectId: newProjectId, mediaAsset }),
+			),
+		);
+
+		this.updateMetadata(newProject);
+		return newProjectId;
+	}
+
+	/** Saves the current (or given) project as a reusable template. */
+	async saveAsTemplate({
+		projectId,
+	}: { projectId?: string } = {}): Promise<string> {
+		const id = projectId ?? this.active?.metadata.id;
+		if (!id) throw new Error("No project to save as template");
+		// Capture any in-flight edits before snapshotting.
+		if (this.active?.metadata.id === id) {
+			await this.saveCurrentProject();
+		}
+		const name =
+			this.savedProjects.find((p) => p.id === id)?.name ??
+			this.active?.metadata.name ??
+			"Untitled";
+		return this.cloneProjectTo(id, { name, isTemplate: true });
+	}
+
+	/** Spins up a fresh editable project from a template. */
+	async createProjectFromTemplate({
+		templateId,
+	}: {
+		templateId: string;
+	}): Promise<string> {
+		const name =
+			this.savedProjects.find((p) => p.id === templateId)?.name ?? "Untitled";
+		return this.cloneProjectTo(templateId, { name, isTemplate: false });
+	}
+
+	getTemplates(): TProjectMetadata[] {
+		return this.savedProjects
+			.filter((p) => p.isTemplate)
+			.sort((a, b) => b.updatedAt.getTime() - a.updatedAt.getTime());
+	}
+
 	async updateSettings({
 		settings,
 		pushHistory = true,
@@ -586,8 +656,10 @@ export class ProjectManager {
 		searchQuery: string;
 		sortOption: TProjectSortOption;
 	}): TProjectMetadata[] {
-		const filteredProjects = this.savedProjects.filter((project) =>
-			project.name.toLowerCase().includes(searchQuery.toLowerCase()),
+		const filteredProjects = this.savedProjects.filter(
+			(project) =>
+				!project.isTemplate &&
+				project.name.toLowerCase().includes(searchQuery.toLowerCase()),
 		);
 
 		const [key, order] = sortOption.split("-") as [
