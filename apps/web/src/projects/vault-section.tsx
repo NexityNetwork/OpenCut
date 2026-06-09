@@ -21,9 +21,19 @@ import {
 	Clapperboard,
 	ChevronLeft,
 	ChevronRight,
+	ChevronDown,
 	Tag,
 	Quote,
 	Copy,
+	Search,
+	PanelLeft,
+	Settings,
+	LogOut,
+	Send,
+	ListFilter,
+	LayoutList,
+	HelpCircle,
+	Calendar,
 	X,
 } from "lucide-react";
 import {
@@ -73,7 +83,8 @@ import {
 	uploadFilesToVault,
 	fileUrl,
 } from "@/projects/vault-client";
-import { useSession } from "@/auth/client";
+import { useSession, signOut } from "@/auth/client";
+import { AuthButton } from "@/auth/auth-button";
 import type { TProjectMetadata, TProjectSortOption } from "@/project/types";
 
 const PLATFORMS = [
@@ -166,9 +177,19 @@ function VideoThumb({ src, className }: { src: string; className?: string }) {
 export function VaultSection() {
 	const editor = useEditor();
 	const router = useRouter();
-	const { setSearchQuery, searchQuery, sortKey, sortOrder, viewMode, isHydrated } =
-		useProjectsStore();
+	const {
+		setSearchQuery,
+		searchQuery,
+		sortKey,
+		sortOrder,
+		viewMode,
+		setViewMode,
+		isHydrated,
+	} = useProjectsStore();
 	const listView = isHydrated && viewMode === "list";
+	const [collapsed, setCollapsed] = useState(false);
+	const [searchOpen, setSearchOpen] = useState(false);
+	const [appView, setAppView] = useState<"library" | "publish">("library");
 	const sortOption = `${sortKey}-${sortOrder}` as TProjectSortOption;
 	const projects = useEditor((e) =>
 		e.project.getFilteredAndSortedProjects({ searchQuery, sortOption }),
@@ -485,25 +506,54 @@ export function VaultSection() {
 	];
 
 	return (
-		<section
-			className={cn(
-				"px-8 transition-colors",
-				dragging && "ring-primary/40 rounded-xl ring-2",
-			)}
-			onDragOver={(e) => {
-				e.preventDefault();
-				if (!dragging) setDragging(true);
-			}}
-			onDragLeave={(e) => {
-				if (e.currentTarget === e.target) setDragging(false);
-			}}
-			onDrop={(e) => {
-				e.preventDefault();
-				setDragging(false);
-				void onFiles(e.dataTransfer.files);
-			}}
-		>
-			{/* Hero */}
+		<div className="bg-background text-foreground flex h-screen overflow-hidden">
+			<LibrarySidebar
+				collapsed={collapsed}
+				onToggleCollapse={() => setCollapsed((c) => !c)}
+				onOpenSearch={() => setSearchOpen(true)}
+				appView={appView}
+				onSelectLibrary={() => setAppView("library")}
+				onSelectPublish={() => setAppView("publish")}
+				navTabs={navTabs}
+				activeTab={activeTab}
+				onSelectTab={(k) => {
+					setAppView("library");
+					setActiveTab(k);
+				}}
+				onNewProject={createBlankProject}
+				onRenameCat={setRenamingCat}
+				onDeleteCat={deleteCategory}
+			/>
+			<main
+				className={cn(
+					"min-w-0 flex-1 overflow-y-auto transition-colors",
+					dragging && "ring-primary/40 ring-2 ring-inset",
+				)}
+				onDragOver={(e) => {
+					e.preventDefault();
+					if (!dragging) setDragging(true);
+				}}
+				onDragLeave={(e) => {
+					if (e.currentTarget === e.target) setDragging(false);
+				}}
+				onDrop={(e) => {
+					e.preventDefault();
+					setDragging(false);
+					void onFiles(e.dataTransfer.files);
+				}}
+			>
+				{appView === "publish" ? (
+					<PublishPane onNewProject={createBlankProject} />
+				) : (
+					<div className="px-8 pb-12">
+						<div className="flex justify-end pt-4">
+							<ViewToggle
+								viewMode={viewMode}
+								setViewMode={setViewMode}
+								isHydrated={isHydrated}
+							/>
+						</div>
+						{/* Hero */}
 			<div className="flex flex-col items-center pt-16 pb-2 sm:pt-24">
 				<h1 className="text-foreground mb-6 text-center text-3xl font-semibold tracking-tight sm:text-4xl">
 					What will you create today?
@@ -590,9 +640,9 @@ export function VaultSection() {
 				</div>
 			</div>
 
-			{/* Library — projects + vault, one tab bar, one grid */}
-			<div className="mt-20">
-				<div className="border-border/60 mb-8 flex items-stretch gap-0.5 overflow-x-auto border-b">
+			{/* Library grid (navigation lives in the sidebar now) */}
+			<div className="mt-6">
+				<div className="hidden">
 					{navTabs.map((t) => {
 						const active = activeTab === t.key;
 						return (
@@ -711,6 +761,8 @@ export function VaultSection() {
 					</div>
 				)}
 			</div>
+					</div>
+				)}
 
 			{lightbox && <Lightbox item={lightbox} onClose={() => setLightbox(null)} />}
 			<RenameDialog
@@ -732,7 +784,569 @@ export function VaultSection() {
 				onSave={(name) => renamingCat && renameCategory(renamingCat, name)}
 			/>
 			<CaptionDialog item={captionItem} onClose={() => setCaptionItem(null)} />
-		</section>
+			</main>
+			{searchOpen && (
+				<SearchModal
+					items={items}
+					projects={projects}
+					onClose={() => setSearchOpen(false)}
+					onSelectVault={(i) => {
+						setSearchOpen(false);
+						setAppView("library");
+						if (i.kind === "audio") togglePlay(i);
+						else setLightbox(i);
+					}}
+					onSelectProject={(p) => {
+						setSearchOpen(false);
+						router.push(`/editor/${p.id}`);
+					}}
+				/>
+			)}
+		</div>
+	);
+}
+
+type NavTab = {
+	key: string;
+	label: string;
+	Icon: typeof Tag;
+	count: number;
+	cat: string;
+};
+
+function SidebarItem({
+	icon: Icon,
+	label,
+	onClick,
+	active,
+	badge,
+}: {
+	icon: typeof Tag;
+	label: string;
+	onClick: () => void;
+	active?: boolean;
+	badge?: string;
+}) {
+	return (
+		<button
+			type="button"
+			onClick={onClick}
+			className={cn(
+				"flex w-full items-center gap-2.5 rounded-md px-2.5 py-2 text-sm font-medium transition-colors",
+				active
+					? "bg-muted text-foreground"
+					: "text-muted-foreground hover:bg-muted hover:text-foreground",
+			)}
+		>
+			<Icon className="size-4 shrink-0" strokeWidth={1.75} />
+			<span className="flex-1 text-left">{label}</span>
+			{badge && (
+				<span className="bg-primary/15 text-primary rounded px-1.5 py-0.5 text-[10px] font-semibold tracking-wide">
+					{badge}
+				</span>
+			)}
+		</button>
+	);
+}
+
+function Avatar({
+	name,
+	image,
+	size = 7,
+}: {
+	name?: string | null;
+	image?: string | null;
+	size?: 7 | 8;
+}) {
+	const sz = size === 8 ? "size-8" : "size-7";
+	if (image)
+		// eslint-disable-next-line @next/next/no-img-element
+		return <img src={image} alt="" className={cn(sz, "shrink-0 rounded-full")} />;
+	return (
+		<span
+			className={cn(
+				sz,
+				"bg-muted text-foreground flex shrink-0 items-center justify-center rounded-full text-xs font-semibold",
+			)}
+		>
+			{(name ?? "U").slice(0, 1).toUpperCase()}
+		</span>
+	);
+}
+
+function LibrarySidebar({
+	collapsed,
+	onToggleCollapse,
+	onOpenSearch,
+	appView,
+	onSelectLibrary,
+	onSelectPublish,
+	navTabs,
+	activeTab,
+	onSelectTab,
+	onNewProject,
+	onRenameCat,
+	onDeleteCat,
+}: {
+	collapsed: boolean;
+	onToggleCollapse: () => void;
+	onOpenSearch: () => void;
+	appView: "library" | "publish";
+	onSelectLibrary: () => void;
+	onSelectPublish: () => void;
+	navTabs: NavTab[];
+	activeTab: string;
+	onSelectTab: (k: string) => void;
+	onNewProject: () => void;
+	onRenameCat: (c: string) => void;
+	onDeleteCat: (c: string) => void;
+}) {
+	const { data: session } = useSession();
+	const user = session?.user;
+
+	if (collapsed) {
+		return (
+			<aside className="border-border/60 bg-card/30 flex w-14 shrink-0 flex-col items-center gap-1 border-r py-3">
+				<button
+					type="button"
+					onClick={onToggleCollapse}
+					aria-label="Expand sidebar"
+					className="text-muted-foreground hover:text-foreground hover:bg-muted flex size-9 items-center justify-center rounded-md"
+				>
+					<PanelLeft className="size-5" />
+				</button>
+				<button
+					type="button"
+					onClick={onNewProject}
+					aria-label="New project"
+					className="text-muted-foreground hover:text-foreground hover:bg-muted flex size-9 items-center justify-center rounded-md"
+				>
+					<Plus className="size-5" />
+				</button>
+				<button
+					type="button"
+					onClick={onOpenSearch}
+					aria-label="Search"
+					className="text-muted-foreground hover:text-foreground hover:bg-muted flex size-9 items-center justify-center rounded-md"
+				>
+					<Search className="size-5" />
+				</button>
+				<button
+					type="button"
+					onClick={onSelectLibrary}
+					aria-label="Library"
+					className={cn(
+						"flex size-9 items-center justify-center rounded-md",
+						appView === "library"
+							? "bg-muted text-foreground"
+							: "text-muted-foreground hover:text-foreground hover:bg-muted",
+					)}
+				>
+					<LayoutGrid className="size-5" />
+				</button>
+				<button
+					type="button"
+					onClick={onSelectPublish}
+					aria-label="Publish"
+					className={cn(
+						"flex size-9 items-center justify-center rounded-md",
+						appView === "publish"
+							? "bg-muted text-foreground"
+							: "text-muted-foreground hover:text-foreground hover:bg-muted",
+					)}
+				>
+					<Send className="size-5" />
+				</button>
+				<div className="mt-auto">
+					<Avatar name={user?.name} image={user?.image} size={8} />
+				</div>
+			</aside>
+		);
+	}
+
+	return (
+		<aside className="border-border/60 bg-card/30 flex w-64 shrink-0 flex-col border-r">
+			<div className="flex items-center justify-between px-3 py-3">
+				<span className="flex items-center text-[15px] font-bold tracking-tight">
+					<span className="text-foreground">Ultron</span>
+					<span className="text-muted-foreground ml-1.5 text-sm font-medium">
+						Monolith
+					</span>
+				</span>
+				<div className="flex items-center gap-0.5">
+					<button
+						type="button"
+						onClick={onToggleCollapse}
+						aria-label="Collapse sidebar"
+						className="text-muted-foreground hover:text-foreground hover:bg-muted flex size-7 items-center justify-center rounded-md"
+					>
+						<PanelLeft className="size-4" />
+					</button>
+					<button
+						type="button"
+						onClick={onOpenSearch}
+						aria-label="Search"
+						className="text-muted-foreground hover:text-foreground hover:bg-muted flex size-7 items-center justify-center rounded-md"
+					>
+						<Search className="size-4" />
+					</button>
+				</div>
+			</div>
+
+			<nav className="space-y-0.5 px-2">
+				<SidebarItem icon={Plus} label="New project" onClick={onNewProject} />
+				<SidebarItem
+					icon={LayoutGrid}
+					label="Library"
+					active={appView === "library"}
+					onClick={onSelectLibrary}
+				/>
+				<SidebarItem
+					icon={Send}
+					label="Publish"
+					badge="Beta"
+					active={appView === "publish"}
+					onClick={onSelectPublish}
+				/>
+			</nav>
+
+			<div className="flex items-center justify-between px-4 pt-4 pb-1">
+				<span className="text-muted-foreground text-[11px] font-semibold tracking-wide uppercase">
+					Browse
+				</span>
+				<ListFilter className="text-muted-foreground size-3.5" />
+			</div>
+
+			<div className="min-h-0 flex-1 overflow-y-auto px-2 pb-2">
+				{navTabs.map((t) => {
+					const active = appView === "library" && activeTab === t.key;
+					return (
+						<div key={t.key} className="group/row relative">
+							<button
+								type="button"
+								onClick={() => onSelectTab(t.key)}
+								title={t.label}
+								className={cn(
+									"flex w-full items-center gap-2.5 rounded-md px-2.5 py-1.5 text-left transition-colors",
+									active
+										? "bg-muted text-foreground"
+										: "text-muted-foreground hover:bg-muted/60 hover:text-foreground",
+									t.cat && "pr-7",
+								)}
+							>
+								<t.Icon className="size-4 shrink-0" strokeWidth={1.75} />
+								<span className="flex-1 truncate text-sm">{t.label}</span>
+								{t.count > 0 && (
+									<span className="text-muted-foreground/50 text-[11px] tabular-nums">
+										{t.count}
+									</span>
+								)}
+							</button>
+							{t.cat && (
+								<DropdownMenu>
+									<DropdownMenuTrigger asChild>
+										<button
+											type="button"
+											aria-label={`Manage "${t.cat}" category`}
+											className="text-muted-foreground hover:text-foreground hover:bg-muted absolute top-1/2 right-1 flex size-6 -translate-y-1/2 items-center justify-center rounded opacity-0 group-hover/row:opacity-100 data-[state=open]:opacity-100"
+										>
+											<MoreHorizontal className="size-3.5" />
+										</button>
+									</DropdownMenuTrigger>
+									<DropdownMenuContent align="end">
+										<DropdownMenuItem onClick={() => onRenameCat(t.cat)}>
+											<Pencil className="size-4" />
+											Rename category
+										</DropdownMenuItem>
+										<DropdownMenuItem
+											variant="destructive"
+											onClick={() => onDeleteCat(t.cat)}
+										>
+											<Trash2 className="size-4" />
+											Delete category
+										</DropdownMenuItem>
+									</DropdownMenuContent>
+								</DropdownMenu>
+							)}
+						</div>
+					);
+				})}
+			</div>
+
+			<div className="border-border/60 border-t p-2">
+				{user ? (
+					<DropdownMenu>
+						<DropdownMenuTrigger asChild>
+							<button
+								type="button"
+								className="hover:bg-muted flex w-full items-center gap-2.5 rounded-md px-2 py-2 text-left transition-colors"
+							>
+								<Avatar name={user.name} image={user.image} size={7} />
+								<span className="min-w-0 flex-1">
+									<span className="block truncate text-sm font-medium">
+										{user.name ?? "You"}
+									</span>
+									<span className="text-muted-foreground block truncate text-[11px]">
+										Max
+									</span>
+								</span>
+								<ChevronDown className="text-muted-foreground size-4 shrink-0" />
+							</button>
+						</DropdownMenuTrigger>
+						<DropdownMenuContent align="start" className="w-56">
+							<div className="text-muted-foreground truncate px-2 py-1.5 text-xs">
+								{user.email}
+							</div>
+							<DropdownMenuSeparator />
+							<DropdownMenuItem disabled>
+								<Settings className="size-4" />
+								Settings
+							</DropdownMenuItem>
+							<DropdownMenuItem disabled>
+								<HelpCircle className="size-4" />
+								Get help
+							</DropdownMenuItem>
+							<DropdownMenuSeparator />
+							<DropdownMenuItem
+								variant="destructive"
+								onClick={() => {
+									void signOut().finally(() => window.location.reload());
+								}}
+							>
+								<LogOut className="size-4" />
+								Log out
+							</DropdownMenuItem>
+						</DropdownMenuContent>
+					</DropdownMenu>
+				) : (
+					<AuthButton />
+				)}
+			</div>
+		</aside>
+	);
+}
+
+function ViewToggle({
+	viewMode,
+	setViewMode,
+	isHydrated,
+}: {
+	viewMode: string;
+	setViewMode: (a: { viewMode: "grid" | "list" }) => void;
+	isHydrated: boolean;
+}) {
+	const opts: [("grid" | "list"), typeof Tag][] = [
+		["grid", LayoutGrid],
+		["list", LayoutList],
+	];
+	return (
+		<div className="border-border/60 flex items-center gap-0.5 rounded-md border p-0.5">
+			{opts.map(([m, Icon]) => (
+				<button
+					key={m}
+					type="button"
+					onClick={() => setViewMode({ viewMode: m })}
+					aria-label={`${m} view`}
+					className={cn(
+						"flex size-7 items-center justify-center rounded transition-colors",
+						isHydrated && viewMode === m
+							? "bg-muted text-foreground"
+							: "text-muted-foreground hover:text-foreground",
+					)}
+				>
+					<Icon className="size-4" />
+				</button>
+			))}
+		</div>
+	);
+}
+
+function kindIcon(kind: string): typeof Tag {
+	return kind === "audio"
+		? Music2
+		: kind === "carousel"
+			? ImagesIcon
+			: kind === "image"
+				? ImageIcon
+				: VideoIcon;
+}
+
+function SearchModal({
+	items,
+	projects,
+	onClose,
+	onSelectVault,
+	onSelectProject,
+}: {
+	items: VaultItem[];
+	projects: TProjectMetadata[];
+	onClose: () => void;
+	onSelectVault: (i: VaultItem) => void;
+	onSelectProject: (p: TProjectMetadata) => void;
+}) {
+	const [q, setQ] = useState("");
+	const ql = q.trim().toLowerCase();
+	const pRes = (ql
+		? projects.filter((p) => p.name.toLowerCase().includes(ql))
+		: projects
+	).slice(0, 6);
+	const vRes = (ql
+		? items.filter(
+				(i) =>
+					i.name.toLowerCase().includes(ql) ||
+					(i.caption ?? "").toLowerCase().includes(ql),
+			)
+		: items
+	).slice(0, 12);
+	useEffect(() => {
+		const onKey = (e: KeyboardEvent) => {
+			if (e.key === "Escape") onClose();
+		};
+		window.addEventListener("keydown", onKey);
+		return () => window.removeEventListener("keydown", onKey);
+	}, [onClose]);
+	return (
+		<div
+			className="fixed inset-0 z-[200] flex items-start justify-center bg-black/50 p-4 pt-[12vh]"
+			onClick={onClose}
+		>
+			<div
+				className="bg-popover border-border w-full max-w-xl overflow-hidden rounded-xl border shadow-2xl"
+				onClick={(e) => e.stopPropagation()}
+			>
+				<div className="border-border/60 flex items-center gap-2 border-b px-4">
+					<Search className="text-muted-foreground size-4" />
+					<input
+						autoFocus
+						value={q}
+						onChange={(e) => setQ(e.target.value)}
+						placeholder="Search your library and projects…"
+						className="flex-1 bg-transparent py-3.5 text-sm outline-none"
+					/>
+					<button type="button" onClick={onClose} aria-label="Close">
+						<X className="text-muted-foreground hover:text-foreground size-4" />
+					</button>
+				</div>
+				<div className="max-h-[55vh] overflow-y-auto p-2">
+					{pRes.length === 0 && vRes.length === 0 ? (
+						<div className="text-muted-foreground py-10 text-center text-sm">
+							No matches
+						</div>
+					) : (
+						<>
+							{pRes.map((p) => (
+								<SearchRow
+									key={p.id}
+									Icon={Clapperboard}
+									title={p.name}
+									meta="Project"
+									onClick={() => onSelectProject(p)}
+								/>
+							))}
+							{vRes.map((i) => (
+								<SearchRow
+									key={i.id}
+									Icon={kindIcon(i.kind)}
+									title={i.name}
+									meta={i.source || i.kind}
+									onClick={() => onSelectVault(i)}
+								/>
+							))}
+						</>
+					)}
+				</div>
+			</div>
+		</div>
+	);
+}
+
+function SearchRow({
+	Icon,
+	title,
+	meta,
+	onClick,
+}: {
+	Icon: typeof Tag;
+	title: string;
+	meta: string;
+	onClick: () => void;
+}) {
+	return (
+		<button
+			type="button"
+			onClick={onClick}
+			className="hover:bg-muted flex w-full items-center gap-3 rounded-md px-3 py-2 text-left transition-colors"
+		>
+			<Icon className="text-muted-foreground size-4 shrink-0" />
+			<span className="min-w-0 flex-1 truncate text-sm">{title}</span>
+			<span className="text-muted-foreground shrink-0 text-xs capitalize">{meta}</span>
+		</button>
+	);
+}
+
+function PublishPane({ onNewProject }: { onNewProject: () => void }) {
+	const [online, setOnline] = useState<boolean | null>(null);
+	useEffect(() => {
+		fetch("/api/publish/health")
+			.then((r) => (r.ok ? r.json() : null))
+			.then((d) => setOnline(!!d?.ok))
+			.catch(() => setOnline(false));
+	}, []);
+	return (
+		<div className="mx-auto max-w-3xl px-8 py-10">
+			<h1 className="text-2xl font-semibold tracking-tight">Publishing</h1>
+			<p className="text-muted-foreground mt-1 text-sm">
+				Schedule and track posts across your channels.
+			</p>
+
+			<div className="mt-8 grid grid-cols-1 gap-3 sm:grid-cols-3">
+				<div className="border-border/60 bg-card/40 rounded-xl border p-4">
+					<div className="text-muted-foreground flex items-center gap-2 text-xs">
+						<span
+							className={cn(
+								"size-1.5 rounded-full",
+								online ? "bg-green-500" : "bg-muted-foreground/50",
+							)}
+						/>
+						Engine
+					</div>
+					<div className="mt-1.5 text-lg font-semibold">
+						{online == null ? "…" : online ? "Online" : "Offline"}
+					</div>
+				</div>
+				<div className="border-border/60 bg-card/40 rounded-xl border p-4">
+					<div className="text-muted-foreground flex items-center gap-2 text-xs">
+						<Calendar className="size-4" />
+						Scheduled
+					</div>
+					<div className="mt-1.5 text-lg font-semibold">0</div>
+				</div>
+				<div className="border-border/60 bg-card/40 rounded-xl border p-4">
+					<div className="text-muted-foreground flex items-center gap-2 text-xs">
+						<Send className="size-4" />
+						Channels
+					</div>
+					<div className="mt-2 flex items-center gap-2">
+						<SiYoutube style={{ color: "#FF0000" }} className="size-4" />
+						<SiInstagram style={{ color: "#E4405F" }} className="size-4" />
+						<SiTiktok className="size-4" />
+					</div>
+				</div>
+			</div>
+
+			<div className="text-muted-foreground mt-12 flex flex-col items-center gap-3 py-12 text-center">
+				<Send className="size-8 opacity-50" />
+				<p className="text-sm">No scheduled posts yet.</p>
+				<button
+					type="button"
+					onClick={onNewProject}
+					className="bg-primary text-primary-foreground hover:bg-primary/90 mt-1 inline-flex items-center gap-1.5 rounded-lg px-4 py-2 text-sm font-medium transition-colors"
+				>
+					<Plus className="size-4" />
+					New post
+				</button>
+			</div>
+		</div>
 	);
 }
 

@@ -98,11 +98,10 @@ export default function ProjectsPage() {
 	}, [editor.project]);
 
 	return (
-		<div className="bg-background min-h-screen pb-12">
+		<div className="bg-background">
 			<MigrationDialog />
 			<StoragePersistenceDialog />
 			<ChangelogNotification />
-			<ProjectsHeader />
 			<VaultSection />
 		</div>
 	);
