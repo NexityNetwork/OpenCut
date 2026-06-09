@@ -47,6 +47,18 @@
   --sidebar-border: hsl(0 0% 85.1%);
   --sidebar-ring: hsl(0 0% 16.9%);
   --sidebar: hsl(0 0% 98%);
+  /* Monolith (warm) palette — adapts per theme */
+  --mono-app: hsl(40 24% 96%);
+  --mono-panel: hsl(40 30% 99%);
+  --mono-elev: hsl(0 0% 100%);
+  --mono-field: hsl(40 16% 94%);
+  --mono-ink: hsl(28 18% 15%);
+  --mono-ink-2: hsl(30 8% 34%);
+  --mono-ink-3: hsl(34 8% 47%);
+  --mono-line: rgba(25, 18, 8, 0.1);
+  --mono-hover: rgba(25, 18, 8, 0.05);
+  --mono-active: rgba(25, 18, 8, 0.08);
+  --mono-strong: rgba(25, 18, 8, 0.2);
 }
 
 .panel {
@@ -97,6 +109,17 @@
   --sidebar-border: hsl(0 0% 20%);
   --sidebar-ring: hsl(0 0% 83.1%);
   --sidebar: hsl(0 0% 6%);
+  --mono-app: #181614;
+  --mono-panel: #201e1b;
+  --mono-elev: #26231f;
+  --mono-field: #181614;
+  --mono-ink: #f1ebdc;
+  --mono-ink-2: #c7c0ae;
+  --mono-ink-3: #8b8676;
+  --mono-line: rgba(255, 255, 255, 0.07);
+  --mono-hover: rgba(255, 255, 255, 0.045);
+  --mono-active: rgba(255, 255, 255, 0.09);
+  --mono-strong: rgba(255, 255, 255, 0.22);
 }
 
 .dark .panel {

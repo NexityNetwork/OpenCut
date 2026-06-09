@@ -50,7 +50,29 @@ import {
 	Check,
 	CalendarDays,
 	Clock,
+	Sun,
+	Moon,
+	Star,
+	Heart,
+	Bookmark,
+	Flame,
+	Zap,
+	Sparkles,
+	Camera,
+	Mic,
+	Megaphone,
+	Briefcase,
+	Globe,
+	TrendingUp,
+	Flag,
+	Crown,
+	Palette,
+	Wand2,
+	Smile,
+	Coffee,
+	Calendar as CalendarIcon,
 } from "lucide-react";
+import { useTheme } from "next-themes";
 import {
 	SiYoutube,
 	SiYoutubemusic,
@@ -126,6 +148,41 @@ const TABS = [
 	{ key: "audio", label: "Audio", Icon: AudioLines },
 	{ key: "image", label: "Images", Icon: ImageIcon },
 ] as const;
+
+// Always-visible browse tabs (shown even when empty).
+const STICKY_TABS = new Set(["all", "projects", "video", "carousel", "audio"]);
+
+// Icon catalog for custom sections (filter → New section → pick an icon).
+const SECTION_ICONS: { name: string; Icon: typeof Tag }[] = [
+	{ name: "hash", Icon: Hash },
+	{ name: "star", Icon: Star },
+	{ name: "heart", Icon: Heart },
+	{ name: "bookmark", Icon: Bookmark },
+	{ name: "flame", Icon: Flame },
+	{ name: "zap", Icon: Zap },
+	{ name: "sparkles", Icon: Sparkles },
+	{ name: "rocket", Icon: Rocket },
+	{ name: "film", Icon: Film },
+	{ name: "camera", Icon: Camera },
+	{ name: "mic", Icon: Mic },
+	{ name: "megaphone", Icon: Megaphone },
+	{ name: "layers", Icon: Layers },
+	{ name: "folder", Icon: Folder },
+	{ name: "briefcase", Icon: Briefcase },
+	{ name: "globe", Icon: Globe },
+	{ name: "trending", Icon: TrendingUp },
+	{ name: "calendar", Icon: CalendarIcon },
+	{ name: "flag", Icon: Flag },
+	{ name: "crown", Icon: Crown },
+	{ name: "palette", Icon: Palette },
+	{ name: "wand", Icon: Wand2 },
+	{ name: "smile", Icon: Smile },
+	{ name: "coffee", Icon: Coffee },
+];
+const ICON_MAP: Record<string, typeof Tag> = Object.fromEntries(
+	SECTION_ICONS.map((i) => [i.name, i.Icon]),
+);
+type CustomSection = { name: string; icon: string };
 
 function fmtDate(d: Date | string | number) {
 	try {
@@ -229,6 +286,29 @@ export function VaultSection() {
 	useEffect(() => {
 		localStorage.setItem("vault-archived", JSON.stringify([...archived]));
 	}, [archived]);
+	const [customSections, setCustomSections] = useState<CustomSection[]>(() => {
+		if (typeof window === "undefined") return [];
+		try {
+			return JSON.parse(localStorage.getItem("vault-sections") || "[]");
+		} catch {
+			return [];
+		}
+	});
+	const [newSectionOpen, setNewSectionOpen] = useState(false);
+	useEffect(() => {
+		localStorage.setItem("vault-sections", JSON.stringify(customSections));
+	}, [customSections]);
+	const createSection = (name: string, icon: string) => {
+		const n = name.trim();
+		if (!n) return;
+		setCustomSections((prev) =>
+			prev.some((s) => s.name === n)
+				? prev.map((s) => (s.name === n ? { ...s, icon } : s))
+				: [...prev, { name: n, icon }],
+		);
+		setAppView("library");
+		setActiveTab(`cat:${n}`);
+	};
 	const togglePin = (id: string) =>
 		setPinned((s) => {
 			const n = new Set(s);
@@ -438,6 +518,7 @@ export function VaultSection() {
 				(i.tags ?? []).filter((t) => t !== name),
 			);
 		}
+		setCustomSections((prev) => prev.filter((s) => s.name !== name));
 		if (activeTab === `cat:${name}`) setActiveTab("all");
 	};
 
@@ -542,15 +623,22 @@ export function VaultSection() {
 			catCounts: cc,
 		};
 	}, [visibleItems]);
-	// Fall back to "All" if the selected category was emptied out.
+	// Merge tag-derived categories with user-created (possibly empty) sections.
+	const sectionNames = useMemo(
+		() =>
+			Array.from(
+				new Set([...categories, ...customSections.map((s) => s.name)]),
+			).sort((a, b) => a.localeCompare(b)),
+		[categories, customSections],
+	);
+	const sectionIcon = (name: string) =>
+		customSections.find((s) => s.name === name)?.icon ?? "";
+	// Fall back to "All" if the selected category no longer exists.
 	useEffect(() => {
-		if (
-			activeTab.startsWith("cat:") &&
-			!categories.includes(activeTab.slice(4))
-		) {
+		if (activeTab.startsWith("cat:") && !sectionNames.includes(activeTab.slice(4))) {
 			setActiveTab("all");
 		}
-	}, [categories, activeTab]);
+	}, [sectionNames, activeTab]);
 	const q = isUrl(text) ? "" : text.trim().toLowerCase();
 	const shownVault = useMemo(() => {
 		if (activeTab === "projects") return [];
@@ -580,30 +668,24 @@ export function VaultSection() {
 		count: number;
 		cat: string;
 	}[] = [
-		...TABS.filter(
-			(t) => t.key === "all" || t.key === "projects" || counts[t.key],
-		).map((t) => ({
+		...TABS.filter((t) => STICKY_TABS.has(t.key) || counts[t.key]).map((t) => ({
 			key: t.key,
 			label: t.label,
 			Icon: t.Icon,
 			count: counts[t.key] || 0,
 			cat: "",
 		})),
-		...(templates.length
-			? [
-					{
-						key: "templates",
-						label: "Templates",
-						Icon: LayoutTemplate,
-						count: templates.length,
-						cat: "",
-					},
-				]
-			: []),
-		...categories.map((c) => ({
+		{
+			key: "templates",
+			label: "Templates",
+			Icon: LayoutTemplate,
+			count: templates.length,
+			cat: "",
+		},
+		...sectionNames.map((c) => ({
 			key: `cat:${c}`,
 			label: c,
-			Icon: Hash,
+			Icon: ICON_MAP[sectionIcon(c)] ?? Hash,
 			count: catCounts[c] || 0,
 			cat: c,
 		})),
@@ -655,7 +737,7 @@ export function VaultSection() {
 		.slice(0, 8);
 
 	return (
-		<div className="text-foreground flex h-screen overflow-hidden bg-[#181614]">
+		<div className="text-foreground flex h-screen overflow-hidden bg-[var(--mono-app)]">
 			<LibrarySidebar
 				collapsed={collapsed}
 				onToggleCollapse={() => setCollapsed((c) => !c)}
@@ -672,6 +754,7 @@ export function VaultSection() {
 				onNewProject={createBlankProject}
 				onRenameCat={setRenamingCat}
 				onDeleteCat={deleteCategory}
+				onNewSection={() => setNewSectionOpen(true)}
 				recents={recents}
 				categories={categories}
 			/>
@@ -954,6 +1037,11 @@ export function VaultSection() {
 				onSave={(name) => renamingCat && renameCategory(renamingCat, name)}
 			/>
 			<CaptionDialog item={captionItem} onClose={() => setCaptionItem(null)} />
+			<NewSectionDialog
+				open={newSectionOpen}
+				onOpenChange={setNewSectionOpen}
+				onCreate={createSection}
+			/>
 			</main>
 			{searchOpen && (
 				<SearchModal
@@ -973,6 +1061,85 @@ export function VaultSection() {
 				/>
 			)}
 		</div>
+	);
+}
+
+function NewSectionDialog({
+	open,
+	onOpenChange,
+	onCreate,
+}: {
+	open: boolean;
+	onOpenChange: (o: boolean) => void;
+	onCreate: (name: string, icon: string) => void;
+}) {
+	const [name, setName] = useState("");
+	const [icon, setIcon] = useState("hash");
+	useEffect(() => {
+		if (open) {
+			setName("");
+			setIcon("hash");
+		}
+	}, [open]);
+	const submit = () => {
+		if (!name.trim()) return;
+		onCreate(name, icon);
+		onOpenChange(false);
+	};
+	return (
+		<Dialog open={open} onOpenChange={onOpenChange}>
+			<DialogContent className="max-w-md gap-0 rounded-2xl border-[var(--mono-line)] bg-[var(--mono-panel)] p-0 text-[var(--mono-ink)]">
+				<div className="border-b border-[var(--mono-line)] px-6 py-4">
+					<DialogTitle className="text-[15px] font-semibold text-[var(--mono-ink)]">
+						New section
+					</DialogTitle>
+				</div>
+				<div className="p-6">
+					<input
+						// biome-ignore lint/a11y/noAutofocus: focus the field on open
+						autoFocus
+						value={name}
+						onChange={(e) => setName(e.target.value)}
+						onKeyDown={(e) => e.key === "Enter" && submit()}
+						placeholder="Section name"
+						className="w-full rounded-xl border border-[var(--mono-line)] bg-[var(--mono-field)] px-3.5 py-2.5 text-sm text-[var(--mono-ink)] outline-none transition-colors placeholder:text-[var(--mono-ink-3)] focus:border-[var(--mono-strong)]"
+					/>
+					<div className="mt-5">
+						<div className="mb-2 text-[11px] font-semibold uppercase tracking-wide text-[var(--mono-ink-3)]">
+							Icon
+						</div>
+						<div className="grid grid-cols-8 gap-1.5">
+							{SECTION_ICONS.map(({ name: n, Icon }) => {
+								const on = icon === n;
+								return (
+									<button
+										key={n}
+										type="button"
+										onClick={() => setIcon(n)}
+										className={cn(
+											"flex aspect-square items-center justify-center rounded-lg border transition-colors",
+											on
+												? "border-[var(--mono-strong)] bg-[var(--mono-active)] text-[var(--mono-ink)]"
+												: "border-[var(--mono-line)] text-[var(--mono-ink-2)] hover:bg-[var(--mono-hover)] hover:text-[var(--mono-ink)]",
+										)}
+									>
+										<Icon className="size-4" />
+									</button>
+								);
+							})}
+						</div>
+					</div>
+				</div>
+				<div className="flex items-center justify-end gap-3 border-t border-[var(--mono-line)] px-6 py-4">
+					<Button variant="ghost" onClick={() => onOpenChange(false)}>
+						Cancel
+					</Button>
+					<Button onClick={submit} disabled={!name.trim()}>
+						Create section
+					</Button>
+				</div>
+			</DialogContent>
+		</Dialog>
 	);
 }
 
@@ -1021,8 +1188,8 @@ function SidebarItem({
 			className={cn(
 				"flex w-full items-center gap-2.5 rounded-lg px-2 py-1 text-[13px] transition-colors",
 				active
-					? "bg-white/[0.07] text-[#f1ebdc]"
-					: "text-[#c7c0ae] hover:bg-white/[0.04] hover:text-[#f1ebdc]",
+					? "bg-[var(--mono-active)] text-[var(--mono-ink)]"
+					: "text-[var(--mono-ink-2)] hover:bg-[var(--mono-hover)] hover:text-[var(--mono-ink)]",
 			)}
 		>
 			<Icon className="size-[15px] shrink-0" strokeWidth={1.75} />
@@ -1074,6 +1241,7 @@ function LibrarySidebar({
 	onNewProject,
 	onRenameCat,
 	onDeleteCat,
+	onNewSection,
 	recents,
 	categories,
 }: {
@@ -1089,16 +1257,18 @@ function LibrarySidebar({
 	onNewProject: () => void;
 	onRenameCat: (c: string) => void;
 	onDeleteCat: (c: string) => void;
+	onNewSection: () => void;
 	recents: RecentItem[];
 	categories: string[];
 }) {
 	const { data: session } = useSession();
 	const user = session?.user;
+	const { resolvedTheme, setTheme } = useTheme();
 	const [moreOpen, setMoreOpen] = useState(false);
 
 	if (collapsed) {
 		return (
-			<aside className="m-2 flex w-16 shrink-0 flex-col items-center gap-1 rounded-2xl border border-white/[0.07] bg-[#201e1b] py-3 shadow-sm">
+			<aside className="m-2 flex w-16 shrink-0 flex-col items-center gap-1 rounded-2xl border border-[var(--mono-line)] bg-[var(--mono-panel)] py-3 shadow-sm">
 				<button
 					type="button"
 					onClick={onToggleCollapse}
@@ -1157,7 +1327,7 @@ function LibrarySidebar({
 	}
 
 	return (
-		<aside className="m-2 flex w-72 shrink-0 flex-col rounded-2xl border border-white/[0.07] bg-[#201e1b] shadow-sm">
+		<aside className="m-2 flex w-72 shrink-0 flex-col rounded-2xl border border-[var(--mono-line)] bg-[var(--mono-panel)] shadow-sm">
 			<div className="flex items-center justify-between px-4 py-4">
 				<span className="text-foreground text-xl font-semibold tracking-tight">
 					Ultron<span className="ml-1.5 font-normal">Monolith</span>
@@ -1200,7 +1370,7 @@ function LibrarySidebar({
 				<button
 					type="button"
 					onClick={() => setMoreOpen((v) => !v)}
-					className="flex w-full items-center gap-2.5 rounded-lg px-2 py-1 text-[13px] text-[#c7c0ae] transition-colors hover:bg-white/[0.04] hover:text-[#f1ebdc]"
+					className="flex w-full items-center gap-2.5 rounded-lg px-2 py-1 text-[13px] text-[var(--mono-ink-2)] transition-colors hover:bg-[var(--mono-hover)] hover:text-[var(--mono-ink)]"
 				>
 					<ChevronDown
 						className={cn(
@@ -1219,10 +1389,18 @@ function LibrarySidebar({
 			</nav>
 
 			<div className="flex items-center justify-between px-4 pt-4 pb-1">
-				<span className="text-[11px] font-semibold tracking-wide text-[#8b8676] uppercase">
+				<span className="text-[11px] font-semibold tracking-wide text-[var(--mono-ink-3)] uppercase">
 					Browse
 				</span>
-				<ListFilter className="size-3.5 text-[#8b8676]" />
+				<button
+					type="button"
+					onClick={onNewSection}
+					aria-label="New section"
+					title="New section"
+					className="flex size-6 items-center justify-center rounded text-[var(--mono-ink-3)] transition-colors hover:bg-[var(--mono-hover)] hover:text-[var(--mono-ink)]"
+				>
+					<Plus className="size-3.5" />
+				</button>
 			</div>
 
 			<div className="min-h-0 flex-1 overflow-y-auto px-2 pb-2">
@@ -1237,8 +1415,8 @@ function LibrarySidebar({
 								className={cn(
 									"flex w-full items-center gap-2.5 rounded-lg px-2 py-1 text-left transition-colors",
 									active
-										? "bg-white/[0.07] text-[#f1ebdc]"
-										: "text-[#c7c0ae] hover:bg-white/[0.04] hover:text-[#f1ebdc]",
+										? "bg-[var(--mono-active)] text-[var(--mono-ink)]"
+										: "text-[var(--mono-ink-2)] hover:bg-[var(--mono-hover)] hover:text-[var(--mono-ink)]",
 								)}
 							>
 								<t.Icon className="size-[15px] shrink-0" strokeWidth={1.75} />
@@ -1246,7 +1424,7 @@ function LibrarySidebar({
 								{t.count > 0 && (
 									<span
 										className={cn(
-											"text-[11px] tabular-nums text-[#8b8676]",
+											"text-[11px] tabular-nums text-[var(--mono-ink-3)]",
 											t.cat && "transition-opacity group-hover/row:opacity-0",
 										)}
 									>
@@ -1260,7 +1438,7 @@ function LibrarySidebar({
 										<button
 											type="button"
 											aria-label={`Manage "${t.cat}" category`}
-											className="absolute top-1/2 right-1 flex size-6 -translate-y-1/2 items-center justify-center rounded text-[#8b8676] opacity-0 transition-opacity hover:bg-white/[0.06] hover:text-[#f1ebdc] group-hover/row:opacity-100 data-[state=open]:opacity-100"
+											className="absolute top-1/2 right-1 flex size-6 -translate-y-1/2 items-center justify-center rounded text-[var(--mono-ink-3)] opacity-0 transition-opacity hover:bg-[var(--mono-hover)] hover:text-[var(--mono-ink)] group-hover/row:opacity-100 data-[state=open]:opacity-100"
 										>
 											<MoreHorizontal className="size-3.5" />
 										</button>
@@ -1285,7 +1463,7 @@ function LibrarySidebar({
 				})}
 					{recents.length > 0 && (
 						<>
-							<div className="px-2 pt-4 pb-1 text-[11px] font-semibold tracking-wide text-[#8b8676] uppercase">
+							<div className="px-2 pt-4 pb-1 text-[11px] font-semibold tracking-wide text-[var(--mono-ink-3)] uppercase">
 								Recents
 							</div>
 							{recents.map((r) => (
@@ -1294,12 +1472,12 @@ function LibrarySidebar({
 										type="button"
 										onClick={r.onClick}
 										title={r.label}
-										className="flex w-full items-center gap-2.5 rounded-lg px-2 py-1 pr-7 text-left text-[#c7c0ae] transition-colors hover:bg-white/[0.04] hover:text-[#f1ebdc]"
+										className="flex w-full items-center gap-2.5 rounded-lg px-2 py-1 pr-7 text-left text-[var(--mono-ink-2)] transition-colors hover:bg-[var(--mono-hover)] hover:text-[var(--mono-ink)]"
 									>
 										<r.Icon className="size-[15px] shrink-0" strokeWidth={1.75} />
 										<span className="flex-1 truncate text-[13px]">{r.label}</span>
 										{r.pinned && (
-											<Pin className="size-3 shrink-0 fill-current text-[#8b8676]" />
+											<Pin className="size-3 shrink-0 fill-current text-[var(--mono-ink-3)]" />
 										)}
 									</button>
 									<DropdownMenu>
@@ -1307,7 +1485,7 @@ function LibrarySidebar({
 											<button
 												type="button"
 												aria-label="Item options"
-												className="absolute top-1/2 right-1 flex size-6 -translate-y-1/2 items-center justify-center rounded text-[#8b8676] opacity-0 transition-opacity hover:bg-white/[0.06] hover:text-[#f1ebdc] group-hover/row:opacity-100 data-[state=open]:opacity-100"
+												className="absolute top-1/2 right-1 flex size-6 -translate-y-1/2 items-center justify-center rounded text-[var(--mono-ink-3)] opacity-0 transition-opacity hover:bg-[var(--mono-hover)] hover:text-[var(--mono-ink)] group-hover/row:opacity-100 data-[state=open]:opacity-100"
 											>
 												<MoreHorizontal className="size-3.5" />
 											</button>
@@ -1392,6 +1570,19 @@ function LibrarySidebar({
 								{user.email}
 							</div>
 							<DropdownMenuSeparator />
+							<DropdownMenuItem
+								onSelect={(e) => {
+									e.preventDefault();
+									setTheme(resolvedTheme === "dark" ? "light" : "dark");
+								}}
+							>
+								{resolvedTheme === "dark" ? (
+									<Sun className="size-4" />
+								) : (
+									<Moon className="size-4" />
+								)}
+								{resolvedTheme === "dark" ? "Light mode" : "Dark mode"}
+							</DropdownMenuItem>
 							<DropdownMenuItem disabled>
 								<Settings className="size-4" />
 								Settings
@@ -1784,7 +1975,7 @@ function ChannelsSection({ preview = false }: { preview?: boolean }) {
 						<button
 							type="button"
 							onClick={load}
-							className="text-[#8b8676] hover:text-[#f1ebdc] text-xs transition-colors"
+							className="text-[var(--mono-ink-3)] hover:text-[var(--mono-ink)] text-xs transition-colors"
 						>
 							Refresh
 						</button>
@@ -1793,7 +1984,7 @@ function ChannelsSection({ preview = false }: { preview?: boolean }) {
 								<button
 									type="button"
 									disabled={busy}
-									className="flex items-center gap-1.5 rounded-full border border-white/[0.1] px-3 py-1 text-xs font-medium text-[#c7c0ae] transition-colors hover:bg-white/[0.05] hover:text-[#f1ebdc]"
+									className="flex items-center gap-1.5 rounded-full border border-[var(--mono-line)] px-3 py-1 text-xs font-medium text-[var(--mono-ink-2)] transition-colors hover:bg-[var(--mono-hover)] hover:text-[var(--mono-ink)]"
 								>
 									<Plus className="size-3.5" /> Connect
 								</button>
@@ -1832,29 +2023,29 @@ function ChannelsSection({ preview = false }: { preview?: boolean }) {
 			)}
 
 			{channels === null ? (
-				<div className="text-sm text-[#8b8676]">Loading channels…</div>
+				<div className="text-sm text-[var(--mono-ink-3)]">Loading channels…</div>
 			) : channels.length === 0 ? (
-				<div className="rounded-xl border border-dashed border-white/[0.08] py-6 text-center text-sm text-[#8b8676]">
+				<div className="rounded-xl border border-dashed border-[var(--mono-line)] py-6 text-center text-sm text-[var(--mono-ink-3)]">
 					No channels connected yet — use Connect.
 				</div>
 			) : (
-				<div className="divide-y divide-white/[0.06] overflow-hidden rounded-xl border border-white/[0.07]">
+				<div className="divide-y divide-[var(--mono-line)] overflow-hidden rounded-xl border border-[var(--mono-line)]">
 					{channels.map((ch) => (
 						<div key={ch.id} className="flex items-center gap-3 px-4 py-3">
-							<span className="flex size-9 shrink-0 items-center justify-center rounded-lg bg-white/[0.04]">
+							<span className="flex size-9 shrink-0 items-center justify-center rounded-lg bg-[var(--mono-hover)]">
 								{pubPlatformIconLg(ch.platform)}
 							</span>
 							<div className="min-w-0 flex-1">
-								<div className="truncate text-sm font-medium text-[#f1ebdc]">
+								<div className="truncate text-sm font-medium text-[var(--mono-ink)]">
 									{ch.label}
 								</div>
 								{ch.platform_handle && (
-									<div className="truncate text-xs text-[#8b8676]">
+									<div className="truncate text-xs text-[var(--mono-ink-3)]">
 										{ch.platform_handle}
 									</div>
 								)}
 							</div>
-							<span className="flex items-center gap-1.5 text-xs text-[#8b8676]">
+							<span className="flex items-center gap-1.5 text-xs text-[var(--mono-ink-3)]">
 								<span
 									className={cn(
 										"size-1.5 rounded-full",
@@ -1875,9 +2066,9 @@ function ChannelsSection({ preview = false }: { preview?: boolean }) {
 
 const COMPOSE_ASPECTS = ["9:16", "16:9", "1:1", "4:3"];
 const LABEL_CLS =
-	"mb-2 block text-[11px] font-semibold uppercase tracking-wide text-[#8b8676]";
+	"mb-2 block text-[11px] font-semibold uppercase tracking-wide text-[var(--mono-ink-3)]";
 const FIELD_CLS =
-	"w-full rounded-xl border border-white/[0.08] bg-[#181614] px-3.5 py-2.5 text-[#f1ebdc] placeholder:text-[#6f6a5d] outline-none transition-colors focus:border-white/25";
+	"w-full rounded-xl border border-[var(--mono-line)] bg-[var(--mono-field)] px-3.5 py-2.5 text-[var(--mono-ink)] placeholder:text-[var(--mono-ink-3)] outline-none transition-colors focus:border-[var(--mono-strong)]";
 
 // Small scaled-rectangle icon mirroring the editor's aspect-ratio preview.
 function RatioIcon({ ratio }: { ratio: string }) {
@@ -1966,10 +2157,10 @@ function DateTimePicker({
 				className={cn(FIELD_CLS, "flex items-center justify-between text-left text-sm")}
 			>
 				<span>{label}</span>
-				<CalendarDays className="size-4 shrink-0 text-[#8b8676]" />
+				<CalendarDays className="size-4 shrink-0 text-[var(--mono-ink-3)]" />
 			</button>
 			{open && (
-				<div className="absolute bottom-full left-0 z-50 mb-2 w-[20rem] rounded-2xl border border-white/10 bg-[#26231f] p-2 shadow-2xl">
+				<div className="absolute bottom-full left-0 z-50 mb-2 w-[20rem] rounded-2xl border border-[var(--mono-line)] bg-[var(--mono-elev)] p-2 shadow-2xl">
 					<Calendar
 						mode="single"
 						selected={selectedDate}
@@ -1982,33 +2173,33 @@ function DateTimePicker({
 						}}
 						classNames={{
 							day_selected:
-								"bg-white/[0.16] text-[#f1ebdc] hover:bg-white/20 focus:bg-white/20",
-							day_today: "font-semibold text-[#f1ebdc] underline",
+								"bg-[var(--mono-active)] text-[var(--mono-ink)] hover:bg-[var(--mono-active)] focus:bg-[var(--mono-active)]",
+							day_today: "font-semibold text-[var(--mono-ink)] underline",
 							head_cell:
-								"text-[#8b8676] rounded-md w-8 font-normal text-[0.8rem]",
-							caption_label: "text-sm font-medium text-[#f1ebdc]",
+								"text-[var(--mono-ink-3)] rounded-md w-8 font-normal text-[0.8rem]",
+							caption_label: "text-sm font-medium text-[var(--mono-ink)]",
 						}}
 					/>
-					<div className="mt-1 flex items-center gap-2 border-t border-white/[0.06] px-2 py-2.5">
-						<Clock className="size-4 shrink-0 text-[#8b8676]" />
+					<div className="mt-1 flex items-center gap-2 border-t border-[var(--mono-line)] px-2 py-2.5">
+						<Clock className="size-4 shrink-0 text-[var(--mono-ink-3)]" />
 						<input
 							value={pad2(h12)}
 							inputMode="numeric"
 							onChange={(e) =>
 								setTime(to24(clamp(Number.parseInt(e.target.value, 10) || 0, 1, 12), min, ampm))
 							}
-							className="w-11 rounded-lg border border-white/10 bg-[#181614] px-2 py-1.5 text-center text-sm text-[#f1ebdc] outline-none focus:border-white/25"
+							className="w-11 rounded-lg border border-[var(--mono-line)] bg-[var(--mono-field)] px-2 py-1.5 text-center text-sm text-[var(--mono-ink)] outline-none focus:border-[var(--mono-strong)]"
 						/>
-						<span className="text-[#8b8676]">:</span>
+						<span className="text-[var(--mono-ink-3)]">:</span>
 						<input
 							value={pad2(min)}
 							inputMode="numeric"
 							onChange={(e) =>
 								setTime(to24(h12, clamp(Number.parseInt(e.target.value, 10) || 0, 0, 59), ampm))
 							}
-							className="w-11 rounded-lg border border-white/10 bg-[#181614] px-2 py-1.5 text-center text-sm text-[#f1ebdc] outline-none focus:border-white/25"
+							className="w-11 rounded-lg border border-[var(--mono-line)] bg-[var(--mono-field)] px-2 py-1.5 text-center text-sm text-[var(--mono-ink)] outline-none focus:border-[var(--mono-strong)]"
 						/>
-						<div className="ml-auto flex overflow-hidden rounded-lg border border-white/10">
+						<div className="ml-auto flex overflow-hidden rounded-lg border border-[var(--mono-line)]">
 							{["AM", "PM"].map((a) => (
 								<button
 									key={a}
@@ -2017,8 +2208,8 @@ function DateTimePicker({
 									className={cn(
 										"px-2.5 py-1.5 text-xs transition-colors",
 										ampm === a
-											? "bg-white/[0.12] text-[#f1ebdc]"
-											: "text-[#8b8676] hover:text-[#f1ebdc]",
+											? "bg-[var(--mono-active)] text-[var(--mono-ink)]"
+											: "text-[var(--mono-ink-3)] hover:text-[var(--mono-ink)]",
 									)}
 								>
 									{a}
@@ -2185,9 +2376,9 @@ function ComposePostModal({
 
 	return (
 		<Dialog open onOpenChange={(o) => !o && onClose()}>
-			<DialogContent className="flex h-[88vh] max-w-[76rem] flex-col gap-0 overflow-hidden rounded-2xl border-white/[0.08] bg-[#201e1b] p-0 text-[#f1ebdc]">
-				<div className="flex shrink-0 items-center border-b border-white/[0.06] px-6 py-4">
-					<DialogTitle className="text-[15px] font-semibold text-[#f1ebdc]">
+			<DialogContent className="flex h-[88vh] max-w-[76rem] flex-col gap-0 overflow-hidden rounded-2xl border-[var(--mono-line)] bg-[var(--mono-panel)] p-0 text-[var(--mono-ink)]">
+				<div className="flex shrink-0 items-center border-b border-[var(--mono-line)] px-6 py-4">
+					<DialogTitle className="text-[15px] font-semibold text-[var(--mono-ink)]">
 						{picked ? "Schedule post" : "Choose a video"}
 					</DialogTitle>
 				</div>
@@ -2201,7 +2392,7 @@ function ComposePostModal({
 							className={cn(FIELD_CLS, "mb-4 max-w-sm text-sm")}
 						/>
 						{filtered.length === 0 ? (
-							<div className="flex flex-1 items-center justify-center text-sm text-[#8b8676]">
+							<div className="flex flex-1 items-center justify-center text-sm text-[var(--mono-ink-3)]">
 								No videos in your library yet.
 							</div>
 						) : (
@@ -2213,10 +2404,10 @@ function ComposePostModal({
 										onClick={() => choose(v)}
 										className="group text-left"
 									>
-										<div className="relative aspect-[9/16] overflow-hidden rounded-xl border border-white/[0.07] bg-black/30 transition group-hover:border-white/25">
+										<div className="relative aspect-[9/16] overflow-hidden rounded-xl border border-[var(--mono-line)] bg-black/30 transition group-hover:border-[var(--mono-strong)]">
 											{poster(v)}
 										</div>
-										<div className="mt-1.5 truncate text-xs text-[#c7c0ae]">
+										<div className="mt-1.5 truncate text-xs text-[var(--mono-ink-2)]">
 											{v.name || "Untitled"}
 										</div>
 									</button>
@@ -2227,8 +2418,8 @@ function ComposePostModal({
 				) : (
 					<div className="flex min-h-0 flex-1">
 						{/* Aspect-ratio rail */}
-						<div className="flex w-44 shrink-0 flex-col gap-1 overflow-y-auto border-r border-white/[0.06] p-3">
-							<div className="px-2 pb-1.5 text-[11px] font-semibold uppercase tracking-wide text-[#8b8676]">
+						<div className="flex w-44 shrink-0 flex-col gap-1 overflow-y-auto border-r border-[var(--mono-line)] p-3">
+							<div className="px-2 pb-1.5 text-[11px] font-semibold uppercase tracking-wide text-[var(--mono-ink-3)]">
 								Aspect ratio
 							</div>
 							{COMPOSE_ASPECTS.map((r) => {
@@ -2241,8 +2432,8 @@ function ComposePostModal({
 										className={cn(
 											"flex items-center gap-2.5 rounded-lg px-2.5 py-2 text-[13px] transition-colors",
 											on
-												? "bg-white/[0.07] text-[#f1ebdc]"
-												: "text-[#c7c0ae] hover:bg-white/[0.04] hover:text-[#f1ebdc]",
+												? "bg-[var(--mono-active)] text-[var(--mono-ink)]"
+												: "text-[var(--mono-ink-2)] hover:bg-[var(--mono-hover)] hover:text-[var(--mono-ink)]",
 										)}
 									>
 										<span className="flex size-5 items-center justify-center">
@@ -2257,7 +2448,7 @@ function ComposePostModal({
 								<button
 									type="button"
 									onClick={() => setPicked(null)}
-									className="flex items-center gap-1.5 rounded-lg px-2 py-1.5 text-[13px] text-[#8b8676] transition-colors hover:bg-white/[0.04] hover:text-[#f1ebdc]"
+									className="flex items-center gap-1.5 rounded-lg px-2 py-1.5 text-[13px] text-[var(--mono-ink-3)] transition-colors hover:bg-[var(--mono-hover)] hover:text-[var(--mono-ink)]"
 								>
 									<ChevronLeft className="size-3.5" /> Change video
 								</button>
@@ -2289,7 +2480,7 @@ function ComposePostModal({
 						</div>
 
 						{/* Fields */}
-						<div className="flex w-[26rem] shrink-0 flex-col gap-5 border-l border-white/[0.06] p-6">
+						<div className="flex w-[26rem] shrink-0 flex-col gap-5 border-l border-[var(--mono-line)] p-6">
 							<div>
 								<label className={LABEL_CLS}>Title</label>
 								<input
@@ -2317,9 +2508,9 @@ function ComposePostModal({
 							<div>
 								<label className={LABEL_CLS}>Channels</label>
 								{channels === null ? (
-									<div className="text-sm text-[#8b8676]">Loading…</div>
+									<div className="text-sm text-[var(--mono-ink-3)]">Loading…</div>
 								) : available.length === 0 ? (
-									<div className="rounded-xl border border-dashed border-white/[0.08] p-3 text-sm text-[#8b8676]">
+									<div className="rounded-xl border border-dashed border-[var(--mono-line)] p-3 text-sm text-[var(--mono-ink-3)]">
 										No channels connected yet.
 									</div>
 								) : (
@@ -2340,8 +2531,8 @@ function ComposePostModal({
 													className={cn(
 														"flex items-center gap-1.5 rounded-full border px-3 py-1.5 text-[13px] capitalize transition-colors",
 														on
-															? "border-white/25 bg-white/[0.08] text-[#f1ebdc]"
-															: "border-white/[0.08] text-[#c7c0ae] hover:bg-white/[0.04] hover:text-[#f1ebdc]",
+															? "border-[var(--mono-strong)] bg-[var(--mono-active)] text-[var(--mono-ink)]"
+															: "border-[var(--mono-line)] text-[var(--mono-ink-2)] hover:bg-[var(--mono-hover)] hover:text-[var(--mono-ink)]",
 													)}
 												>
 													{pubPlatformIcon(p)} {p}
@@ -2366,7 +2557,7 @@ function ComposePostModal({
 				)}
 
 				{picked && (
-					<div className="flex shrink-0 items-center justify-end gap-3 border-t border-white/[0.06] px-6 py-4">
+					<div className="flex shrink-0 items-center justify-end gap-3 border-t border-[var(--mono-line)] px-6 py-4">
 						<Button variant="ghost" onClick={onClose} disabled={busy}>
 							Cancel
 						</Button>
@@ -2447,19 +2638,19 @@ function ReadOnlyPostModal({
 	};
 
 	const metaLabel =
-		"w-24 shrink-0 text-[11px] font-semibold uppercase tracking-wide text-[#8b8676]";
+		"w-24 shrink-0 text-[11px] font-semibold uppercase tracking-wide text-[var(--mono-ink-3)]";
 
 	return (
 		<Dialog open onOpenChange={(o) => !o && onClose()}>
-			<DialogContent className="flex h-[80vh] max-w-[60rem] flex-col gap-0 overflow-hidden rounded-2xl border-white/[0.08] bg-[#201e1b] p-0 text-[#f1ebdc]">
-				<div className="flex shrink-0 items-center gap-3 border-b border-white/[0.06] px-6 py-4">
-					<DialogTitle className="text-[15px] font-semibold text-[#f1ebdc]">
+			<DialogContent className="flex h-[80vh] max-w-[60rem] flex-col gap-0 overflow-hidden rounded-2xl border-[var(--mono-line)] bg-[var(--mono-panel)] p-0 text-[var(--mono-ink)]">
+				<div className="flex shrink-0 items-center gap-3 border-b border-[var(--mono-line)] px-6 py-4">
+					<DialogTitle className="text-[15px] font-semibold text-[var(--mono-ink)]">
 						Post
 					</DialogTitle>
 					{status && (
 						<span
 							className={cn(
-								"rounded-full border border-white/[0.08] px-2 py-0.5 text-[11px] capitalize",
+								"rounded-full border border-[var(--mono-line)] px-2 py-0.5 text-[11px] capitalize",
 								pubStatusColor(status),
 							)}
 						>
@@ -2469,7 +2660,7 @@ function ReadOnlyPostModal({
 				</div>
 
 				{!item ? (
-					<div className="flex flex-1 items-center justify-center text-sm text-[#8b8676]">
+					<div className="flex flex-1 items-center justify-center text-sm text-[var(--mono-ink-3)]">
 						{failed ? "Couldn't load this post." : "Loading…"}
 					</div>
 				) : (
@@ -2484,26 +2675,26 @@ function ReadOnlyPostModal({
 									className="max-h-full max-w-full rounded-xl bg-black shadow-2xl ring-1 ring-white/10"
 								/>
 							) : (
-								<div className="text-sm text-[#8b8676]">No preview</div>
+								<div className="text-sm text-[var(--mono-ink-3)]">No preview</div>
 							)}
 						</div>
-						<div className="flex w-[24rem] shrink-0 flex-col gap-5 overflow-y-auto border-l border-white/[0.06] p-6">
+						<div className="flex w-[24rem] shrink-0 flex-col gap-5 overflow-y-auto border-l border-[var(--mono-line)] p-6">
 							{title && (
 								<div>
 									<div className={LABEL_CLS}>Title</div>
-									<div className="text-[15px] text-[#f1ebdc]">{title}</div>
+									<div className="text-[15px] text-[var(--mono-ink)]">{title}</div>
 								</div>
 							)}
 							<div className="flex min-h-0 flex-1 flex-col">
 								<div className={LABEL_CLS}>Caption</div>
-								<div className="flex-1 overflow-y-auto whitespace-pre-wrap text-sm leading-relaxed text-[#c7c0ae]">
+								<div className="flex-1 overflow-y-auto whitespace-pre-wrap text-sm leading-relaxed text-[var(--mono-ink-2)]">
 									{caption || "—"}
 								</div>
 							</div>
-							<div className="space-y-3 border-t border-white/[0.06] pt-4">
+							<div className="space-y-3 border-t border-[var(--mono-line)] pt-4">
 								<div className="flex items-center gap-3 text-sm">
 									<span className={metaLabel}>Channel</span>
-									<span className="flex items-center gap-1.5 capitalize text-[#c7c0ae]">
+									<span className="flex items-center gap-1.5 capitalize text-[var(--mono-ink-2)]">
 										{pubPlatformIcon(platform)}
 										{String(meta.channel || platform)}
 									</span>
@@ -2512,14 +2703,14 @@ function ReadOnlyPostModal({
 									<span className={metaLabel}>
 										{status === "published" ? "Published" : "Scheduled"}
 									</span>
-									<span className="text-[#c7c0ae]">{pubWhen(when) || "—"}</span>
+									<span className="text-[var(--mono-ink-2)]">{pubWhen(when) || "—"}</span>
 								</div>
 							</div>
 						</div>
 					</div>
 				)}
 
-				<div className="flex shrink-0 items-center justify-between gap-3 border-t border-white/[0.06] px-6 py-4">
+				<div className="flex shrink-0 items-center justify-between gap-3 border-t border-[var(--mono-line)] px-6 py-4">
 					<div>
 						{status === "queued" && (
 							<button
@@ -2538,7 +2729,7 @@ function ReadOnlyPostModal({
 								href={externalUrl}
 								target="_blank"
 								rel="noopener noreferrer"
-								className="flex items-center gap-1.5 text-sm text-[#c7c0ae] transition-colors hover:text-[#f1ebdc]"
+								className="flex items-center gap-1.5 text-sm text-[var(--mono-ink-2)] transition-colors hover:text-[var(--mono-ink)]"
 							>
 								Open post <ArrowUpRight className="size-4" />
 							</a>
@@ -2603,7 +2794,7 @@ function PublishPane({
 	const c = preview ? DEMO_COUNTS : status?.counts ?? {};
 	const stat = [
 		{ label: "Published", value: c.published, color: "text-green-500" },
-		{ label: "Queued", value: c.queued, color: "text-[#f1ebdc]" },
+		{ label: "Queued", value: c.queued, color: "text-[var(--mono-ink)]" },
 		{ label: "Uploading", value: c.uploading, color: "text-amber-400" },
 		{ label: "Failed", value: c.failed, color: "text-red-500" },
 	];
@@ -2638,7 +2829,7 @@ function PublishPane({
 						<button
 							type="button"
 							onClick={requestAccess}
-							className="rounded-full border border-white/[0.14] bg-white/[0.05] px-3 py-1 text-xs font-medium text-[#c7c0ae] transition-colors hover:bg-white/[0.1] hover:text-[#f1ebdc]"
+							className="rounded-full border border-[var(--mono-strong)] bg-[var(--mono-hover)] px-3 py-1 text-xs font-medium text-[var(--mono-ink-2)] transition-colors hover:bg-[var(--mono-active)] hover:text-[var(--mono-ink)]"
 						>
 							Request access
 						</button>
@@ -2657,9 +2848,9 @@ function PublishPane({
 				{stat.map((s) => (
 					<div
 						key={s.label}
-						className="rounded-xl border border-white/[0.07] bg-white/[0.02] p-4"
+						className="rounded-xl border border-[var(--mono-line)] bg-[var(--mono-hover)] p-4"
 					>
-						<div className="text-xs text-[#8b8676]">{s.label}</div>
+						<div className="text-xs text-[var(--mono-ink-3)]">{s.label}</div>
 						<div className={cn("mt-1.5 text-2xl font-semibold", s.color)}>
 							{s.value ?? 0}
 						</div>
@@ -2681,8 +2872,8 @@ function PublishPane({
 							className={cn(
 								"flex items-center gap-1.5 rounded-full border px-3 py-1.5 text-[13px] transition-colors",
 								on
-									? "border-white/25 bg-white/[0.08] text-[#f1ebdc]"
-									: "border-white/[0.08] text-[#c7c0ae] hover:bg-white/[0.04] hover:text-[#f1ebdc]",
+									? "border-[var(--mono-strong)] bg-[var(--mono-active)] text-[var(--mono-ink)]"
+									: "border-[var(--mono-line)] text-[var(--mono-ink-2)] hover:bg-[var(--mono-hover)] hover:text-[var(--mono-ink)]",
 							)}
 						>
 							{f.k !== "all" && pubPlatformIcon(f.k)}
@@ -2696,30 +2887,30 @@ function PublishPane({
 			<div className="mt-5">
 				<h2 className="mb-2 text-sm font-semibold">Upcoming</h2>
 				{queue === null ? (
-					<div className="rounded-xl border border-dashed border-white/[0.08] py-8 text-center text-sm text-[#8b8676]">
+					<div className="rounded-xl border border-dashed border-[var(--mono-line)] py-8 text-center text-sm text-[var(--mono-ink-3)]">
 						Loading…
 					</div>
 				) : upcoming.length === 0 ? (
-					<div className="rounded-xl border border-dashed border-white/[0.08] py-8 text-center text-sm text-[#8b8676]">
+					<div className="rounded-xl border border-dashed border-[var(--mono-line)] py-8 text-center text-sm text-[var(--mono-ink-3)]">
 						Nothing scheduled.
 					</div>
 				) : (
-					<div className="divide-y divide-white/[0.06] overflow-hidden rounded-xl border border-white/[0.07]">
+					<div className="divide-y divide-[var(--mono-line)] overflow-hidden rounded-xl border border-[var(--mono-line)]">
 						{upcoming.slice(0, 80).map((u) => (
 							<button
 								type="button"
 								key={u.id}
 								onClick={() => onRow(u.id)}
-								className="flex w-full items-center gap-3 px-4 py-2.5 text-left transition-colors hover:bg-white/[0.03]"
+								className="flex w-full items-center gap-3 px-4 py-2.5 text-left transition-colors hover:bg-[var(--mono-hover)]"
 							>
 								{pubPlatformIcon(u.platform)}
-								<span className="flex-1 truncate text-[13px] text-[#d7d0c0]">
+								<span className="flex-1 truncate text-[13px] text-[var(--mono-ink-2)]">
 									{u.slug}
 								</span>
-								<span className="text-xs capitalize text-[#8b8676]">
+								<span className="text-xs capitalize text-[var(--mono-ink-3)]">
 									{u.platform}
 								</span>
-								<span className="shrink-0 text-xs text-[#8b8676]">
+								<span className="shrink-0 text-xs text-[var(--mono-ink-3)]">
 									{pubWhen(u.scheduled_for)}
 								</span>
 							</button>
@@ -2732,33 +2923,33 @@ function PublishPane({
 			<div className="mt-8">
 				<h2 className="mb-2 text-sm font-semibold">Recent</h2>
 				{queue === null ? (
-					<div className="rounded-xl border border-dashed border-white/[0.08] py-8 text-center text-sm text-[#8b8676]">
+					<div className="rounded-xl border border-dashed border-[var(--mono-line)] py-8 text-center text-sm text-[var(--mono-ink-3)]">
 						Loading…
 					</div>
 				) : recent.length === 0 ? (
-					<div className="rounded-xl border border-dashed border-white/[0.08] py-8 text-center text-sm text-[#8b8676]">
+					<div className="rounded-xl border border-dashed border-[var(--mono-line)] py-8 text-center text-sm text-[var(--mono-ink-3)]">
 						No posts yet.
 					</div>
 				) : (
-					<div className="divide-y divide-white/[0.06] overflow-hidden rounded-xl border border-white/[0.07]">
+					<div className="divide-y divide-[var(--mono-line)] overflow-hidden rounded-xl border border-[var(--mono-line)]">
 						{recent.slice(0, 80).map((p) => (
 							<button
 								type="button"
 								key={p.id}
 								onClick={() => onRow(p.id)}
-								className="flex w-full items-center gap-3 px-4 py-2.5 text-left transition-colors hover:bg-white/[0.03]"
+								className="flex w-full items-center gap-3 px-4 py-2.5 text-left transition-colors hover:bg-[var(--mono-hover)]"
 							>
 								{pubPlatformIcon(p.platform)}
-								<span className="flex-1 truncate text-[13px] text-[#d7d0c0]">
+								<span className="flex-1 truncate text-[13px] text-[var(--mono-ink-2)]">
 									{p.slug}
 								</span>
 								<span className={cn("text-xs capitalize", pubStatusColor(p.status))}>
 									{p.status}
 								</span>
 								{p.external_url ? (
-									<ArrowUpRight className="size-4 shrink-0 text-[#8b8676]" />
+									<ArrowUpRight className="size-4 shrink-0 text-[var(--mono-ink-3)]" />
 								) : (
-									<span className="shrink-0 text-xs text-[#8b8676]/60">
+									<span className="shrink-0 text-xs text-[var(--mono-ink-3)]/60">
 										{pubWhen(p.published_at || p.scheduled_for)}
 									</span>
 								)}
@@ -2805,7 +2996,7 @@ function ProjectCard({
 	return (
 		<div className="group relative">
 			<button type="button" onClick={onOpen} className="block w-full text-left">
-				<div className="bg-muted relative aspect-[4/5] overflow-hidden rounded-xl border border-white/[0.12] shadow-md ring-1 ring-black/20 transition-all duration-200 group-hover:border-white/25 group-hover:shadow-xl group-hover:shadow-black/40">
+				<div className="bg-muted relative aspect-[4/5] overflow-hidden rounded-xl border border-[var(--mono-strong)] shadow-md ring-1 ring-black/20 transition-all duration-200 group-hover:border-[var(--mono-strong)] group-hover:shadow-xl group-hover:shadow-black/40">
 					{project.thumbnail ? (
 						// eslint-disable-next-line @next/next/no-img-element
 						<img
@@ -2915,7 +3106,7 @@ function VaultTile({
 	return (
 		<div className="group relative">
 			<button type="button" onClick={onOpen} className="block w-full text-left">
-				<div className="bg-muted relative aspect-[4/5] overflow-hidden rounded-xl border border-white/[0.12] shadow-md ring-1 ring-black/20 transition-all duration-200 group-hover:border-white/25 group-hover:shadow-xl group-hover:shadow-black/40">
+				<div className="bg-muted relative aspect-[4/5] overflow-hidden rounded-xl border border-[var(--mono-strong)] shadow-md ring-1 ring-black/20 transition-all duration-200 group-hover:border-[var(--mono-strong)] group-hover:shadow-xl group-hover:shadow-black/40">
 					{thumb ? (
 						// eslint-disable-next-line @next/next/no-img-element
 						<img
@@ -3540,7 +3731,7 @@ function Lightbox({ item, onClose }: { item: VaultItem; onClose: () => void }) {
 
 				{item.caption && (
 					<aside className="hidden max-h-[85vh] w-80 shrink-0 flex-col overflow-hidden rounded-xl bg-neutral-900/95 ring-1 ring-white/10 lg:flex">
-						<div className="flex items-center justify-between border-b border-white/10 px-4 py-3">
+						<div className="flex items-center justify-between border-b border-[var(--mono-line)] px-4 py-3">
 							<span className="text-sm font-semibold text-white">Caption</span>
 							<button
 								type="button"
