@@ -1,5 +1,7 @@
 // Client helpers for the global (D1-backed) assets vault.
 
+import { processMediaAssets } from "@/media/processing";
+
 export type VaultMedia = {
 	key: string;
 	type: "video" | "image" | "audio";
@@ -64,6 +66,51 @@ async function addVaultItem(owner: string, item: Partial<VaultItem>) {
 	const d = (await r.json().catch(() => ({}))) as { id?: string; error?: string };
 	if (!r.ok || !d.id) throw new Error(d.error || "Couldn't save to vault");
 	return d.id;
+}
+
+/** Uploads local files straight into the vault (R2 + D1), generating a
+ * thumbnail/duration via the same processing the editor uses. */
+export async function uploadFilesToVault(
+	owner: string,
+	files: File[],
+): Promise<VaultItem[]> {
+	const created: VaultItem[] = [];
+	for (const file of files) {
+		const [processed] = await processMediaAssets({ files: [file] });
+		const type: VaultMedia["type"] = processed?.type ?? "video";
+		const ext = file.name.match(/\.([a-z0-9]+)$/i)?.[1]?.toLowerCase() || "bin";
+		const up = await fetch(
+			`/api/import-from-url/upload?ext=${encodeURIComponent(ext)}`,
+			{
+				method: "POST",
+				headers: { "content-type": file.type || "application/octet-stream" },
+				body: file,
+			},
+		);
+		const ud = (await up.json().catch(() => ({}))) as {
+			key?: string;
+			error?: string;
+		};
+		if (!up.ok || !ud.key) throw new Error(ud.error || "Upload failed");
+		const item = {
+			kind: type as VaultItem["kind"],
+			name: file.name.replace(/\.[^.]+$/, "") || "Upload",
+			source: "upload",
+			durationSec: processed?.duration ?? undefined,
+			thumbUrl: processed?.thumbnailUrl ?? undefined,
+			media: [
+				{
+					key: ud.key,
+					type,
+					ext,
+					contentType: file.type || undefined,
+				},
+			],
+		};
+		const id = await addVaultItem(owner, item);
+		created.push({ id, createdAt: Date.now(), tags: [], ...item });
+	}
+	return created;
 }
 
 export function detectPlatform(url: string) {

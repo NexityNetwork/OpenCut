@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 import {
 	ArrowUp,
+	Paperclip,
 	Plus,
 	Video as VideoIcon,
 	Music2,
@@ -57,6 +58,7 @@ import {
 	renameVaultItem,
 	importLinkToVault,
 	migrateVaultOwner,
+	uploadFilesToVault,
 	fileUrl,
 } from "@/projects/vault-client";
 import { useSession } from "@/auth/client";
@@ -104,6 +106,8 @@ export function VaultSection() {
 	const [renaming, setRenaming] = useState<VaultItem | null>(null);
 	const [playingId, setPlayingId] = useState<string | null>(null);
 	const audioRef = useRef<HTMLAudioElement | null>(null);
+	const fileInputRef = useRef<HTMLInputElement | null>(null);
+	const [dragging, setDragging] = useState(false);
 
 	useEffect(() => () => audioRef.current?.pause(), []);
 
@@ -147,6 +151,26 @@ export function VaultSection() {
 			setSearchQuery({ query: "" });
 		} catch (e) {
 			toast.error(e instanceof Error ? e.message : "Import failed", { id: tid });
+		} finally {
+			setBusy(false);
+		}
+	};
+
+	const onFiles = async (list: FileList | File[] | null) => {
+		const files = Array.from(list ?? []).filter((f) =>
+			/^(video|image|audio)\//.test(f.type),
+		);
+		if (!files.length || busy || !owner) return;
+		setBusy(true);
+		const tid = toast.loading(
+			`Uploading ${files.length} file${files.length > 1 ? "s" : ""}…`,
+		);
+		try {
+			const added = await uploadFilesToVault(owner, files);
+			setItems((prev) => [...added, ...prev]);
+			toast.success(`Added ${added.length} to your vault`, { id: tid });
+		} catch (e) {
+			toast.error(e instanceof Error ? e.message : "Upload failed", { id: tid });
 		} finally {
 			setBusy(false);
 		}
@@ -241,7 +265,24 @@ export function VaultSection() {
 	const urlMode = isUrl(text);
 
 	return (
-		<section className="px-8">
+		<section
+			className={cn(
+				"px-8 transition-colors",
+				dragging && "ring-primary/40 rounded-xl ring-2",
+			)}
+			onDragOver={(e) => {
+				e.preventDefault();
+				if (!dragging) setDragging(true);
+			}}
+			onDragLeave={(e) => {
+				if (e.currentTarget === e.target) setDragging(false);
+			}}
+			onDrop={(e) => {
+				e.preventDefault();
+				setDragging(false);
+				void onFiles(e.dataTransfer.files);
+			}}
+		>
 			{/* Hero */}
 			<div className="flex flex-col items-center pt-16 pb-2 sm:pt-24">
 				<h1 className="text-foreground mb-6 text-center text-3xl font-semibold tracking-tight sm:text-4xl">
@@ -256,6 +297,27 @@ export function VaultSection() {
 								: "border-border focus-within:border-foreground/30",
 						)}
 					>
+						<button
+							type="button"
+							onClick={() => fileInputRef.current?.click()}
+							disabled={busy}
+							aria-label="Upload files to your vault"
+							title="Upload files"
+							className="text-muted-foreground hover:text-foreground flex size-8 shrink-0 items-center justify-center rounded-full transition-colors disabled:opacity-50"
+						>
+							<Paperclip className="size-4" />
+						</button>
+						<input
+							ref={fileInputRef}
+							type="file"
+							multiple
+							accept="video/*,image/*,audio/*"
+							className="hidden"
+							onChange={(e) => {
+								void onFiles(e.target.files);
+								e.currentTarget.value = "";
+							}}
+						/>
 						<input
 							value={text}
 							onChange={(e) => onChange(e.target.value)}
