@@ -36,6 +36,17 @@ export async function deleteVaultItem(owner: string, id: string) {
 	);
 }
 
+/** Re-owns all of `from`'s vault items to `to` (used to claim a device's
+ * anonymous vault into the signed-in account on first login). Idempotent. */
+export async function migrateVaultOwner(from: string, to: string) {
+	if (!from || !to || from === to) return;
+	await fetch("/api/vault", {
+		method: "POST",
+		headers: { "content-type": "application/json" },
+		body: JSON.stringify({ action: "migrate", from, to }),
+	}).catch(() => {});
+}
+
 export async function renameVaultItem(owner: string, id: string, name: string) {
 	await fetch("/api/vault", {
 		method: "PATCH",

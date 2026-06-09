@@ -58,6 +58,21 @@ export async function GET(request: Request) {
 
 export async function POST(request: Request) {
 	const b = (await request.json().catch(() => ({}))) as Record<string, unknown>;
+
+	// Re-own a device's anonymous vault into the signed-in account.
+	if (b.action === "migrate") {
+		const from = String(b.from || "").trim();
+		const to = String(b.to || "").trim();
+		if (!from || !to || from === to) return Response.json({ ok: true });
+		const d = db();
+		if (!d) return Response.json({ error: "vault not configured" }, { status: 503 });
+		await d
+			.prepare("UPDATE vault_items SET owner = ? WHERE owner = ?")
+			.bind(to, from)
+			.run();
+		return Response.json({ ok: true });
+	}
+
 	const owner = String(b.owner || "").trim();
 	const media = b.media;
 	if (!owner || !b.kind || !Array.isArray(media) || media.length === 0) {

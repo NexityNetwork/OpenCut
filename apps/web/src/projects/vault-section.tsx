@@ -56,8 +56,10 @@ import {
 	deleteVaultItem,
 	renameVaultItem,
 	importLinkToVault,
+	migrateVaultOwner,
 	fileUrl,
 } from "@/projects/vault-client";
+import { useSession } from "@/auth/client";
 
 const PLATFORMS = [
 	{ Icon: SiYoutube, label: "YouTube", color: "#FF0000" },
@@ -90,6 +92,8 @@ export function VaultSection() {
 	const editor = useEditor();
 	const router = useRouter();
 	const { setSearchQuery } = useProjectsStore();
+	const { data: session } = useSession();
+	const userId = session?.user?.id;
 	const [owner, setOwner] = useState("");
 	const [items, setItems] = useState<VaultItem[]>([]);
 	const [loading, setLoading] = useState(true);
@@ -101,15 +105,29 @@ export function VaultSection() {
 	const [playingId, setPlayingId] = useState<string | null>(null);
 	const audioRef = useRef<HTMLAudioElement | null>(null);
 
+	useEffect(() => () => audioRef.current?.pause(), []);
+
 	useEffect(() => {
-		const o = getVaultOwner();
+		let cancelled = false;
+		const anon = getVaultOwner();
+		const o = userId || anon;
 		setOwner(o);
-		fetchVault(o)
-			.then(setItems)
-			.catch(() => {})
-			.finally(() => setLoading(false));
-		return () => audioRef.current?.pause();
-	}, []);
+		setLoading(true);
+		(async () => {
+			// First login on this device: claim its anonymous vault into the account.
+			if (userId && anon && userId !== anon) {
+				await migrateVaultOwner(anon, userId);
+			}
+			const next = await fetchVault(o).catch(() => [] as VaultItem[]);
+			if (!cancelled) {
+				setItems(next);
+				setLoading(false);
+			}
+		})();
+		return () => {
+			cancelled = true;
+		};
+	}, [userId]);
 
 	const onChange = (v: string) => {
 		setText(v);
