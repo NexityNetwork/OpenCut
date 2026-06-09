@@ -111,6 +111,7 @@ export class PlayheadController {
 		this.onRulerMouseDown = this.onRulerMouseDown.bind(this);
 		this.handleMouseMove = this.handleMouseMove.bind(this);
 		this.handleMouseUp = this.handleMouseUp.bind(this);
+		this.handleInterrupt = this.handleInterrupt.bind(this);
 	}
 
 	private get config(): PlayheadConfig {
@@ -240,6 +241,11 @@ export class PlayheadController {
 	private activate(): void {
 		window.addEventListener("mousemove", this.handleMouseMove);
 		window.addEventListener("mouseup", this.handleMouseUp);
+		// Safety nets: a mouseup is missed if the pointer is released outside the
+		// browser window or the tab loses focus mid-drag. Without these the scrub
+		// session stays active and the playhead gets "stuck" following the cursor.
+		window.addEventListener("blur", this.handleInterrupt);
+		document.addEventListener("pointercancel", this.handleInterrupt);
 	}
 
 	private deactivate(): void {
@@ -250,6 +256,17 @@ export class PlayheadController {
 		this.pendingMoveEvent = null;
 		window.removeEventListener("mousemove", this.handleMouseMove);
 		window.removeEventListener("mouseup", this.handleMouseUp);
+		window.removeEventListener("blur", this.handleInterrupt);
+		document.removeEventListener("pointercancel", this.handleInterrupt);
+	}
+
+	// Ends a scrub that lost its mouseup (pointer released off-window or focus
+	// lost), so the playhead can never get permanently stuck mid-drag.
+	private handleInterrupt(): void {
+		if (this.session.kind !== "scrubbing") return;
+		this.config.setScrubbing(false);
+		this.session = { kind: "idle" };
+		this.deactivate();
 	}
 
 	/**

@@ -1130,10 +1130,21 @@ function TiledMediaContent({
 			: (mediaAsset?.thumbnailUrl ?? mediaAsset?.url);
 
 	if (!imageUrl) {
+		// No thumbnail available (still decoding, decode failed, or a reload
+		// before the thumbnail is ready). Paint a fully opaque filled block with
+		// the name anyway — a clip that draws as bare transparent text reads as a
+		// "broken/empty timeline" even though the element is present.
 		return (
-			<span className="text-foreground/80 truncate text-xs">
-				{element.name}
-			</span>
+			<>
+				<div
+					className="absolute inset-0"
+					style={{ backgroundColor: "var(--muted)", pointerEvents: "none" }}
+				/>
+				<MediaElementHeader
+					name={mediaAsset?.name ?? element.name}
+					hasFade={false}
+				/>
+			</>
 		);
 	}
 

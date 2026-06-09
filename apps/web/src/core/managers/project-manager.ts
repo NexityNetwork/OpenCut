@@ -37,6 +37,34 @@ export interface MigrationState {
 	projectName: string | null;
 }
 
+/**
+ * Guard the persisted timeline view against junk values (NaN / Infinity /
+ * negative) that would otherwise restore on reload and collapse the whole
+ * timeline (zoom 0/NaN draws every clip and ruler tick at pixel 0). If the zoom
+ * is unusable we drop the view entirely so the timeline fits to content instead.
+ */
+function sanitizeTimelineViewState(
+	viewState: TTimelineViewState | undefined,
+): TTimelineViewState | undefined {
+	if (!viewState) return undefined;
+	const isUsable = (value: unknown): value is number =>
+		typeof value === "number" && Number.isFinite(value);
+
+	if (!isUsable(viewState.zoomLevel) || viewState.zoomLevel <= 0) {
+		return undefined;
+	}
+	return {
+		zoomLevel: viewState.zoomLevel,
+		scrollLeft:
+			isUsable(viewState.scrollLeft) && viewState.scrollLeft >= 0
+				? viewState.scrollLeft
+				: 0,
+		playheadTime: (isUsable(viewState.playheadTime) && viewState.playheadTime >= 0
+			? Math.round(viewState.playheadTime)
+			: 0) as TTimelineViewState["playheadTime"],
+	};
+}
+
 export class ProjectManager {
 	private active: TProject | null = null;
 	private savedProjects: TProjectMetadata[] = [];
@@ -615,14 +643,17 @@ export class ProjectManager {
 	}
 
 	getTimelineViewState(): TTimelineViewState {
-		return this.active?.timelineViewState ?? DEFAULTS.timeline.viewState;
+		return (
+			sanitizeTimelineViewState(this.active?.timelineViewState) ??
+			DEFAULTS.timeline.viewState
+		);
 	}
 
 	setTimelineViewState({ viewState }: { viewState: TTimelineViewState }): void {
 		if (!this.active) return;
 		this.active = {
 			...this.active,
-			timelineViewState: viewState ?? undefined,
+			timelineViewState: sanitizeTimelineViewState(viewState),
 		};
 		this.editor.save.markDirty();
 		this.notify();
