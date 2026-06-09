@@ -1794,6 +1794,10 @@ function ChannelsSection() {
 }
 
 const COMPOSE_ASPECTS = ["9:16", "16:9", "1:1", "4:3"];
+const LABEL_CLS =
+	"mb-2 block text-[11px] font-semibold uppercase tracking-wide text-[#8b8676]";
+const FIELD_CLS =
+	"w-full rounded-xl border border-white/[0.08] bg-[#181614] px-3.5 py-2.5 text-[#f1ebdc] placeholder:text-[#6f6a5d] outline-none transition-colors focus:border-white/25";
 
 // Small scaled-rectangle icon mirroring the editor's aspect-ratio preview.
 function RatioIcon({ ratio }: { ratio: string }) {
@@ -1804,7 +1808,7 @@ function RatioIcon({ ratio }: { ratio: string }) {
 	return (
 		<div
 			style={{ width, height }}
-			className="rounded-[2px] border-[1.5px] border-current opacity-70"
+			className="rounded-[2px] border-[1.5px] border-current opacity-80"
 		/>
 	);
 }
@@ -1848,7 +1852,6 @@ function ComposePostModal({
 	const [q, setQ] = useState("");
 	const [title, setTitle] = useState("");
 	const [caption, setCaption] = useState("");
-	const [privacy, setPrivacy] = useState("public");
 	const [sel, setSel] = useState<Set<string>>(new Set());
 	const [ratio, setRatio] = useState("9:16");
 	const init = useMemo(() => new Date(Date.now() + 60 * 60 * 1000), []);
@@ -1863,6 +1866,34 @@ function ComposePostModal({
 	useEffect(() => {
 		if (available.length) setSel(new Set(available));
 	}, [available]);
+
+	// Measure the preview stage and size the frame to the chosen ratio so
+	// every aspect (incl. 1:1 / 4:3) renders correctly and never overflows.
+	const stageRef = useRef<HTMLDivElement>(null);
+	const [box, setBox] = useState<{ w: number; h: number } | null>(null);
+	useEffect(() => {
+		if (!picked) return;
+		const el = stageRef.current;
+		if (!el) return;
+		const compute = () => {
+			const cw = el.clientWidth;
+			const ch = el.clientHeight;
+			if (!cw || !ch) return;
+			const [rw, rh] = ratio.split(":").map(Number);
+			const ar = rw / rh;
+			let w = cw;
+			let h = w / ar;
+			if (h > ch) {
+				h = ch;
+				w = h * ar;
+			}
+			setBox({ w: Math.round(w), h: Math.round(h) });
+		};
+		compute();
+		const ro = new ResizeObserver(compute);
+		ro.observe(el);
+		return () => ro.disconnect();
+	}, [ratio, picked]);
 
 	const filtered = useMemo(() => {
 		const s = q.trim().toLowerCase();
@@ -1902,7 +1933,7 @@ function ComposePostModal({
 					title,
 					caption,
 					description: caption,
-					privacy,
+					privacy: "public",
 					scheduledFor: ms,
 				}),
 			});
@@ -1939,23 +1970,23 @@ function ComposePostModal({
 
 	return (
 		<Dialog open onOpenChange={(o) => !o && onClose()}>
-			<DialogContent className="flex h-[88vh] max-w-[76rem] flex-col gap-0 overflow-hidden p-0">
-				<div className="border-border/60 flex shrink-0 items-center border-b px-6 py-4">
-					<DialogTitle className="text-base">
+			<DialogContent className="flex h-[88vh] max-w-[76rem] flex-col gap-0 overflow-hidden rounded-2xl border-white/[0.08] bg-[#201e1b] p-0 text-[#f1ebdc]">
+				<div className="flex shrink-0 items-center border-b border-white/[0.06] px-6 py-4">
+					<DialogTitle className="text-[15px] font-semibold text-[#f1ebdc]">
 						{picked ? "Schedule post" : "Choose a video"}
 					</DialogTitle>
 				</div>
 
 				{!picked ? (
 					<div className="flex min-h-0 flex-1 flex-col p-6">
-						<Input
+						<input
 							placeholder="Search your videos…"
 							value={q}
 							onChange={(e) => setQ(e.target.value)}
-							className="mb-4 max-w-sm"
+							className={cn(FIELD_CLS, "mb-4 max-w-sm text-sm")}
 						/>
 						{filtered.length === 0 ? (
-							<div className="text-muted-foreground flex flex-1 items-center justify-center text-sm">
+							<div className="flex flex-1 items-center justify-center text-sm text-[#8b8676]">
 								No videos in your library yet.
 							</div>
 						) : (
@@ -1967,10 +1998,10 @@ function ComposePostModal({
 										onClick={() => choose(v)}
 										className="group text-left"
 									>
-										<div className="bg-muted relative aspect-[9/16] overflow-hidden rounded-lg border border-white/10 transition group-hover:border-white/40">
+										<div className="relative aspect-[9/16] overflow-hidden rounded-xl border border-white/[0.07] bg-black/30 transition group-hover:border-white/25">
 											{poster(v)}
 										</div>
-										<div className="mt-1 truncate text-xs">
+										<div className="mt-1.5 truncate text-xs text-[#c7c0ae]">
 											{v.name || "Untitled"}
 										</div>
 									</button>
@@ -1981,8 +2012,8 @@ function ComposePostModal({
 				) : (
 					<div className="flex min-h-0 flex-1">
 						{/* Aspect-ratio rail */}
-						<div className="border-border/60 flex w-44 shrink-0 flex-col gap-1 overflow-y-auto border-r p-3">
-							<div className="text-muted-foreground px-1 pb-1 text-xs font-medium">
+						<div className="flex w-44 shrink-0 flex-col gap-1 overflow-y-auto border-r border-white/[0.06] p-3">
+							<div className="px-2 pb-1.5 text-[11px] font-semibold uppercase tracking-wide text-[#8b8676]">
 								Aspect ratio
 							</div>
 							{COMPOSE_ASPECTS.map((r) => {
@@ -1993,17 +2024,17 @@ function ComposePostModal({
 										type="button"
 										onClick={() => setRatio(r)}
 										className={cn(
-											"flex items-center gap-2.5 rounded-lg px-2 py-2 text-sm transition",
+											"flex items-center gap-2.5 rounded-lg px-2.5 py-2 text-[13px] transition-colors",
 											on
-												? "bg-muted text-foreground"
-												: "text-muted-foreground hover:bg-muted/50 hover:text-foreground",
+												? "bg-white/[0.07] text-[#f1ebdc]"
+												: "text-[#c7c0ae] hover:bg-white/[0.04] hover:text-[#f1ebdc]",
 										)}
 									>
 										<span className="flex size-5 items-center justify-center">
 											<RatioIcon ratio={r} />
 										</span>
 										<span className="flex-1 text-left">{r}</span>
-										{on && <Check className="size-4" />}
+										{on && <Check className="size-3.5" />}
 									</button>
 								);
 							})}
@@ -2011,67 +2042,69 @@ function ComposePostModal({
 								<button
 									type="button"
 									onClick={() => setPicked(null)}
-									className="text-muted-foreground hover:text-foreground flex items-center gap-1.5 px-1 text-xs"
+									className="flex items-center gap-1.5 rounded-lg px-2 py-1.5 text-[13px] text-[#8b8676] transition-colors hover:bg-white/[0.04] hover:text-[#f1ebdc]"
 								>
-									<ChevronLeft className="size-3.5" /> Choose a different video
+									<ChevronLeft className="size-3.5" /> Change video
 								</button>
 							</div>
 						</div>
 
 						{/* Centered preview */}
-						<div className="flex min-w-0 flex-1 items-center justify-center overflow-hidden bg-black/40 p-6">
+						<div className="relative flex min-w-0 flex-1 bg-black/30">
 							<div
-								className="relative max-h-full max-w-full overflow-hidden rounded-xl bg-black shadow-2xl ring-1 ring-white/10"
-								style={{ aspectRatio: ratio.replace(":", " / "), height: "100%" }}
+								ref={stageRef}
+								className="absolute inset-5 flex items-center justify-center"
 							>
-								{videoKey ? (
-									// biome-ignore lint/a11y/useMediaCaption: preview only
-									<video
-										key={videoKey}
-										src={`${fileUrl(videoKey)}#t=0.1`}
-										controls
-										playsInline
-										className="size-full object-cover"
-									/>
-								) : null}
+								{box && videoKey && (
+									<div
+										style={{ width: box.w, height: box.h }}
+										className="overflow-hidden rounded-xl bg-black shadow-2xl ring-1 ring-white/10"
+									>
+										{/* biome-ignore lint/a11y/useMediaCaption: preview only */}
+										<video
+											key={videoKey}
+											src={`${fileUrl(videoKey)}#t=0.1`}
+											controls
+											playsInline
+											className="size-full object-cover"
+										/>
+									</div>
+								)}
 							</div>
 						</div>
 
 						{/* Fields */}
-						<div className="border-border/60 flex w-[26rem] shrink-0 flex-col gap-4 overflow-y-auto border-l p-6">
+						<div className="flex w-[26rem] shrink-0 flex-col gap-5 overflow-y-auto border-l border-white/[0.06] p-6">
 							<div>
-								<label className="text-muted-foreground mb-1.5 block text-xs font-medium">
-									Title
-								</label>
+								<label className={LABEL_CLS}>Title</label>
 								<input
 									value={title}
 									onChange={(e) => setTitle(e.target.value)}
 									maxLength={100}
 									placeholder="Add a title…"
-									className="border-border/60 bg-background focus:ring-ring w-full rounded-lg border px-3.5 py-2.5 text-[15px] outline-none focus:ring-1"
+									className={cn(FIELD_CLS, "text-[15px]")}
 								/>
 							</div>
 
 							<div className="flex min-h-0 flex-1 flex-col">
-								<label className="text-muted-foreground mb-1.5 block text-xs font-medium">
-									Caption
-								</label>
+								<label className={LABEL_CLS}>Caption</label>
 								<textarea
 									value={caption}
 									onChange={(e) => setCaption(e.target.value)}
 									placeholder="Write a caption…"
-									className="border-border/60 bg-background focus:ring-ring min-h-[10rem] flex-1 resize-none rounded-lg border p-3.5 text-sm leading-relaxed outline-none focus:ring-1"
+									className={cn(
+										FIELD_CLS,
+										"min-h-[10rem] flex-1 resize-none text-sm leading-relaxed",
+									)}
 								/>
 							</div>
 
 							<div>
-								<label className="text-muted-foreground mb-1.5 block text-xs font-medium">
-									Channels
-								</label>
+								<label className={LABEL_CLS}>Channels</label>
 								{channels === null ? (
-									<div className="text-muted-foreground text-sm">Loading…</div>
+									<div className="text-sm text-[#8b8676]">Loading…</div>
 								) : available.length === 0 ? (
-									<div className="text-muted-foreground border-border/60 rounded-lg border border-dashed p-3 text-sm">
+									<div className="rounded-xl border border-dashed border-white/[0.08] p-3 text-sm text-[#8b8676]">
 										No channels connected yet.
 									</div>
 								) : (
@@ -2090,10 +2123,10 @@ function ComposePostModal({
 														})
 													}
 													className={cn(
-														"flex items-center gap-1.5 rounded-lg border px-3 py-1.5 text-sm capitalize transition",
+														"flex items-center gap-1.5 rounded-full border px-3 py-1.5 text-[13px] capitalize transition-colors",
 														on
-															? "border-primary bg-primary/10"
-															: "border-border/60 hover:bg-muted/50",
+															? "border-white/25 bg-white/[0.08] text-[#f1ebdc]"
+															: "border-white/[0.08] text-[#c7c0ae] hover:bg-white/[0.04] hover:text-[#f1ebdc]",
 													)}
 												>
 													{pubPlatformIcon(p)} {p}
@@ -2106,54 +2139,32 @@ function ComposePostModal({
 
 							<div className="grid grid-cols-2 gap-3">
 								<div>
-									<label className="text-muted-foreground mb-1.5 block text-xs font-medium">
-										Date
-									</label>
+									<label className={LABEL_CLS}>Date</label>
 									<input
 										type="date"
 										value={date}
 										onChange={(e) => setDate(e.target.value)}
 										style={{ colorScheme: "dark" }}
-										className="border-border/60 bg-background w-full rounded-lg border px-3 py-2 text-sm outline-none"
+										className={cn(FIELD_CLS, "py-2 text-sm")}
 									/>
 								</div>
 								<div>
-									<label className="text-muted-foreground mb-1.5 block text-xs font-medium">
-										Time
-									</label>
+									<label className={LABEL_CLS}>Time</label>
 									<input
 										type="time"
 										value={time}
 										onChange={(e) => setTime(e.target.value)}
 										style={{ colorScheme: "dark" }}
-										className="border-border/60 bg-background w-full rounded-lg border px-3 py-2 text-sm outline-none"
+										className={cn(FIELD_CLS, "py-2 text-sm")}
 									/>
 								</div>
 							</div>
-
-							{sel.has("youtube") && (
-								<div>
-									<label className="text-muted-foreground mb-1.5 block text-xs font-medium">
-										YouTube privacy
-									</label>
-									<select
-										value={privacy}
-										onChange={(e) => setPrivacy(e.target.value)}
-										style={{ colorScheme: "dark" }}
-										className="border-border/60 bg-background w-full rounded-lg border px-3 py-2 text-sm outline-none"
-									>
-										<option value="public">Public</option>
-										<option value="unlisted">Unlisted</option>
-										<option value="private">Private</option>
-									</select>
-								</div>
-							)}
 						</div>
 					</div>
 				)}
 
 				{picked && (
-					<div className="border-border/60 flex shrink-0 items-center justify-end gap-3 border-t px-6 py-4">
+					<div className="flex shrink-0 items-center justify-end gap-3 border-t border-white/[0.06] px-6 py-4">
 						<Button variant="ghost" onClick={onClose} disabled={busy}>
 							Cancel
 						</Button>
@@ -2214,14 +2225,9 @@ function PublishPane({
 						Engine {online == null ? "…" : online ? "online" : "offline"}
 					</p>
 				</div>
-				<button
-					type="button"
-					onClick={() => setComposing(true)}
-					className="bg-primary text-primary-foreground hover:bg-primary/90 inline-flex shrink-0 items-center gap-1.5 rounded-lg px-4 py-2 text-sm font-medium transition-colors"
-				>
-					<Plus className="size-4" />
+				<Button onClick={() => setComposing(true)} className="shrink-0">
 					New post
-				</button>
+				</Button>
 			</div>
 
 			<div className="mt-8 grid grid-cols-2 gap-3 sm:grid-cols-4">
