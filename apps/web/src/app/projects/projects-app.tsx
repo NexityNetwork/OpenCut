@@ -98,7 +98,7 @@ export default function ProjectsPage() {
 	}, [editor.project]);
 
 	return (
-		<div className="bg-background">
+		<div className="bg-[#141413]">
 			<MigrationDialog />
 			<StoragePersistenceDialog />
 			<ChangelogNotification />

@@ -506,7 +506,7 @@ export function VaultSection() {
 	];
 
 	return (
-		<div className="bg-background text-foreground flex h-screen overflow-hidden">
+		<div className="text-foreground flex h-screen overflow-hidden bg-[#141413]">
 			<LibrarySidebar
 				collapsed={collapsed}
 				onToggleCollapse={() => setCollapsed((c) => !c)}
@@ -720,7 +720,7 @@ export function VaultSection() {
 						className={
 							listView
 								? "flex flex-col gap-0.5"
-								: "xs:grid-cols-2 grid grid-cols-1 gap-5 sm:grid-cols-3 lg:grid-cols-4"
+								: "xs:grid-cols-2 grid grid-cols-1 gap-5 sm:grid-cols-3"
 						}
 					>
 						{shownProjects.map((p) => {
@@ -906,7 +906,7 @@ function LibrarySidebar({
 
 	if (collapsed) {
 		return (
-			<aside className="border-border/50 bg-card/40 m-2 flex w-16 shrink-0 flex-col items-center gap-1 rounded-2xl border py-3 shadow-sm">
+			<aside className="m-2 flex w-16 shrink-0 flex-col items-center gap-1 rounded-2xl border border-white/[0.07] bg-[#1b1a18] py-3 shadow-sm">
 				<button
 					type="button"
 					onClick={onToggleCollapse}
@@ -965,13 +965,10 @@ function LibrarySidebar({
 	}
 
 	return (
-		<aside className="border-border/50 bg-card/40 m-2 flex w-72 shrink-0 flex-col rounded-2xl border shadow-sm">
+		<aside className="m-2 flex w-72 shrink-0 flex-col rounded-2xl border border-white/[0.07] bg-[#1b1a18] shadow-sm">
 			<div className="flex items-center justify-between px-4 py-4">
-				<span className="flex items-baseline text-base font-bold tracking-tight">
-					<span className="text-foreground">Ultron</span>
-					<span className="text-muted-foreground ml-1.5 text-sm font-normal">
-						Monolith
-					</span>
+				<span className="text-foreground text-xl font-semibold tracking-tight">
+					Ultron<span className="ml-1.5 font-normal">Monolith</span>
 				</span>
 				<div className="flex items-center gap-0.5">
 					<button
