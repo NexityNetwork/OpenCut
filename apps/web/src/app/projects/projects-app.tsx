@@ -15,6 +15,7 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { Input } from "@/components/ui/input";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useEditor } from "@/editor/use-editor";
+import { AuthButton } from "@/auth/auth-button";
 import { useProjectsStore } from "./store";
 import type {
 	TProjectMetadata,
@@ -175,6 +176,7 @@ function ProjectsHeader() {
 				<div className="md:hidden">
 					<NewProjectButton />
 				</div>
+				<AuthButton />
 			</div>
 		</header>
 	);
