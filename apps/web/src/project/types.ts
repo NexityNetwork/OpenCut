@@ -26,6 +26,8 @@ export interface TProjectMetadata {
 	updatedAt: Date;
 	/** Templates are reusable project snapshots, hidden from the normal list. */
 	isTemplate?: boolean;
+	/** Canvas projects are static multi-page designs, opened in /canvas. */
+	isCanvas?: boolean;
 }
 
 export interface TProjectSettings {

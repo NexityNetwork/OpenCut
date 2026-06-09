@@ -71,6 +71,7 @@ import {
 	Smile,
 	Coffee,
 	Calendar as CalendarIcon,
+	Frame,
 } from "lucide-react";
 import { useTheme } from "next-themes";
 import {
@@ -586,6 +587,20 @@ export function VaultSection() {
 		router.push(`/editor/${id}`);
 	};
 
+	const [newCanvasOpen, setNewCanvasOpen] = useState(false);
+	const createCanvas = async (size: { width: number; height: number }) => {
+		const id = await editor.project.createNewProject({
+			name: "New canvas",
+			canvasSize: size,
+			isCanvas: true,
+		});
+		router.push(`/canvas/${id}`);
+	};
+
+	// Canvas projects open in the static design editor, everything else in /editor.
+	const projectHref = (p: TProjectMetadata) =>
+		p.isCanvas ? `/canvas/${p.id}` : `/editor/${p.id}`;
+
 	const useTemplate = async (t: TProjectMetadata) => {
 		const tid = toast.loading("Creating project from template…");
 		try {
@@ -593,7 +608,7 @@ export function VaultSection() {
 				templateId: t.id,
 			});
 			toast.success("Project created", { id: tid });
-			router.push(`/editor/${id}`);
+			router.push(t.isCanvas ? `/canvas/${id}` : `/editor/${id}`);
 		} catch (e) {
 			toast.error(e instanceof Error ? e.message : "Couldn't use template", {
 				id: tid,
@@ -700,11 +715,11 @@ export function VaultSection() {
 			Icon: Folder,
 			t: Number(new Date(p.updatedAt)) || 0,
 			pinned: pinned.has(p.id),
-			onClick: () => router.push(`/editor/${p.id}`),
+			onClick: () => router.push(projectHref(p)),
 			onPin: () => togglePin(p.id),
 			onRename: () =>
 				setRenaming({ id: p.id, name: p.name, kind: "project" as const }),
-			onCopyLink: () => copyLink(`${location.origin}/editor/${p.id}`),
+			onCopyLink: () => copyLink(`${location.origin}${projectHref(p)}`),
 			onArchive: () => toggleArchive(p.id),
 			onDelete: () => deleteProject(p),
 		})),
@@ -752,6 +767,7 @@ export function VaultSection() {
 					setActiveTab(k);
 				}}
 				onNewProject={createBlankProject}
+				onNewCanvas={() => setNewCanvasOpen(true)}
 				onRenameCat={setRenamingCat}
 				onDeleteCat={deleteCategory}
 				onNewSection={() => setNewSectionOpen(true)}
@@ -963,7 +979,8 @@ export function VaultSection() {
 						{shownProjects.map((p) => {
 							const props = {
 								project: p,
-								onOpen: () => router.push(`/editor/${p.id}`),
+								badge: p.isCanvas ? "Canvas" : "Project",
+								onOpen: () => router.push(projectHref(p)),
 								onRename: () =>
 									setRenaming({ id: p.id, name: p.name, kind: "project" as const }),
 								onDelete: () => deleteProject(p),
@@ -1042,6 +1059,11 @@ export function VaultSection() {
 				onOpenChange={setNewSectionOpen}
 				onCreate={createSection}
 			/>
+			<NewCanvasDialog
+				open={newCanvasOpen}
+				onOpenChange={setNewCanvasOpen}
+				onCreate={createCanvas}
+			/>
 			</main>
 			{searchOpen && (
 				<SearchModal
@@ -1056,7 +1078,7 @@ export function VaultSection() {
 					}}
 					onSelectProject={(p) => {
 						setSearchOpen(false);
-						router.push(`/editor/${p.id}`);
+						router.push(projectHref(p));
 					}}
 				/>
 			)}
@@ -1137,6 +1159,133 @@ function NewSectionDialog({
 					<Button onClick={submit} disabled={!name.trim()}>
 						Create section
 					</Button>
+				</div>
+			</DialogContent>
+		</Dialog>
+	);
+}
+
+const CANVAS_PRESETS = [
+	{ label: "Instagram Post", hint: "4:5", width: 1080, height: 1350 },
+	{ label: "Square", hint: "1:1", width: 1080, height: 1080 },
+	{ label: "Story / Reel", hint: "9:16", width: 1080, height: 1920 },
+	{ label: "Landscape", hint: "16:9", width: 1920, height: 1080 },
+	{ label: "YouTube Thumbnail", hint: "16:9", width: 1280, height: 720 },
+	{ label: "A4 Document", hint: "print", width: 2480, height: 3508 },
+];
+
+function NewCanvasDialog({
+	open,
+	onOpenChange,
+	onCreate,
+}: {
+	open: boolean;
+	onOpenChange: (o: boolean) => void;
+	onCreate: (size: { width: number; height: number }) => Promise<void>;
+}) {
+	const [w, setW] = useState("1080");
+	const [h, setH] = useState("1350");
+	const [busy, setBusy] = useState(false);
+	useEffect(() => {
+		if (open) {
+			setW("1080");
+			setH("1350");
+			setBusy(false);
+		}
+	}, [open]);
+
+	const create = async (width: number, height: number) => {
+		if (busy) return;
+		if (
+			!Number.isFinite(width) ||
+			!Number.isFinite(height) ||
+			width < 16 ||
+			height < 16 ||
+			width > 8192 ||
+			height > 8192
+		) {
+			toast.error("Enter a size between 16 and 8192 px");
+			return;
+		}
+		setBusy(true);
+		try {
+			await onCreate({ width: Math.round(width), height: Math.round(height) });
+			onOpenChange(false);
+		} catch (e) {
+			toast.error(e instanceof Error ? e.message : "Couldn't create canvas");
+			setBusy(false);
+		}
+	};
+
+	const fieldCls =
+		"w-full rounded-xl border border-[var(--mono-line)] bg-[var(--mono-field)] px-3.5 py-2.5 text-sm text-[var(--mono-ink)] outline-none transition-colors placeholder:text-[var(--mono-ink-3)] focus:border-[var(--mono-strong)]";
+
+	return (
+		<Dialog open={open} onOpenChange={(o) => !busy && onOpenChange(o)}>
+			<DialogContent className="max-w-md gap-0 rounded-2xl border-[var(--mono-line)] bg-[var(--mono-panel)] p-0 text-[var(--mono-ink)]">
+				<div className="border-b border-[var(--mono-line)] px-6 py-4">
+					<DialogTitle className="text-[15px] font-semibold text-[var(--mono-ink)]">
+						Create a canvas
+					</DialogTitle>
+				</div>
+				<div className="p-6">
+					<div className="mb-2 text-[11px] font-semibold uppercase tracking-wide text-[var(--mono-ink-3)]">
+						Custom size
+					</div>
+					<div className="flex items-end gap-2">
+						<div className="flex-1">
+							<label className="mb-1 block text-xs text-[var(--mono-ink-3)]">
+								Width
+							</label>
+							<input
+								value={w}
+								onChange={(e) => setW(e.target.value.replace(/[^\d]/g, ""))}
+								inputMode="numeric"
+								className={fieldCls}
+							/>
+						</div>
+						<span className="pb-2.5 text-[var(--mono-ink-3)]">×</span>
+						<div className="flex-1">
+							<label className="mb-1 block text-xs text-[var(--mono-ink-3)]">
+								Height
+							</label>
+							<input
+								value={h}
+								onChange={(e) => setH(e.target.value.replace(/[^\d]/g, ""))}
+								inputMode="numeric"
+								className={fieldCls}
+							/>
+						</div>
+						<Button
+							onClick={() => create(Number(w), Number(h))}
+							disabled={busy || !w || !h}
+							className="shrink-0"
+						>
+							{busy ? "Creating…" : "Create"}
+						</Button>
+					</div>
+
+					<div className="mt-6 mb-2 text-[11px] font-semibold uppercase tracking-wide text-[var(--mono-ink-3)]">
+						Suggested
+					</div>
+					<div className="grid grid-cols-2 gap-1.5">
+						{CANVAS_PRESETS.map((p) => (
+							<button
+								key={p.label}
+								type="button"
+								disabled={busy}
+								onClick={() => create(p.width, p.height)}
+								className="rounded-xl border border-[var(--mono-line)] px-3 py-2.5 text-left transition-colors hover:bg-[var(--mono-hover)]"
+							>
+								<div className="text-[13px] font-medium text-[var(--mono-ink)]">
+									{p.label}
+								</div>
+								<div className="text-[11px] text-[var(--mono-ink-3)]">
+									{p.width} × {p.height} px · {p.hint}
+								</div>
+							</button>
+						))}
+					</div>
 				</div>
 			</DialogContent>
 		</Dialog>
@@ -1239,6 +1388,7 @@ function LibrarySidebar({
 	activeTab,
 	onSelectTab,
 	onNewProject,
+	onNewCanvas,
 	onRenameCat,
 	onDeleteCat,
 	onNewSection,
@@ -1255,6 +1405,7 @@ function LibrarySidebar({
 	activeTab: string;
 	onSelectTab: (k: string) => void;
 	onNewProject: () => void;
+	onNewCanvas: () => void;
 	onRenameCat: (c: string) => void;
 	onDeleteCat: (c: string) => void;
 	onNewSection: () => void;
@@ -1284,6 +1435,14 @@ function LibrarySidebar({
 					className="text-muted-foreground hover:text-foreground hover:bg-muted flex size-9 items-center justify-center rounded-md"
 				>
 					<Plus className="size-5" />
+				</button>
+				<button
+					type="button"
+					onClick={onNewCanvas}
+					aria-label="New canvas"
+					className="text-muted-foreground hover:text-foreground hover:bg-muted flex size-9 items-center justify-center rounded-md"
+				>
+					<Frame className="size-5" />
 				</button>
 				<button
 					type="button"
@@ -1354,6 +1513,7 @@ function LibrarySidebar({
 
 			<nav className="space-y-0.5 px-2">
 				<SidebarItem icon={Plus} label="New project" onClick={onNewProject} />
+				<SidebarItem icon={Frame} label="New canvas" onClick={onNewCanvas} />
 				<SidebarItem
 					icon={LibraryIcon}
 					label="Library"

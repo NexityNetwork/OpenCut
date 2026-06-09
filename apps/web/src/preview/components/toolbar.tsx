@@ -32,7 +32,10 @@ export function PreviewToolbar({
 	onToggleFullscreen: () => void;
 }) {
 	return (
-		<div className="grid grid-cols-[1fr_auto_1fr] items-center pb-3 pt-5 px-5">
+		<div
+			data-preview-toolbar
+			className="grid grid-cols-[1fr_auto_1fr] items-center pb-3 pt-5 px-5"
+		>
 			<TimecodeDisplay />
 			<PlayPauseButton />
 			<div className="justify-self-end flex items-center gap-2.5">

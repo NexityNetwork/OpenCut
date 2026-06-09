@@ -107,8 +107,21 @@ export class ProjectManager {
 		await this.storageMigrationPromise;
 	}
 
-	async createNewProject({ name }: { name: string }): Promise<string> {
-		const mainScene = buildDefaultScene({ name: "Main scene", isMain: true });
+	async createNewProject({
+		name,
+		canvasSize,
+		isCanvas,
+		background,
+	}: {
+		name: string;
+		canvasSize?: { width: number; height: number };
+		isCanvas?: boolean;
+		background?: TProject["settings"]["background"];
+	}): Promise<string> {
+		const mainScene = buildDefaultScene({
+			name: isCanvas ? "Page 1" : "Main scene",
+			isMain: true,
+		});
 		const newProject: TProject = {
 			metadata: {
 				id: generateUUID(),
@@ -116,18 +129,19 @@ export class ProjectManager {
 				duration: getProjectDurationFromScenes({ scenes: [mainScene] }),
 				createdAt: new Date(),
 				updatedAt: new Date(),
+				...(isCanvas ? { isCanvas: true } : {}),
 			},
 			scenes: [mainScene],
 			currentSceneId: mainScene.id,
 			settings: {
 				fps: DEFAULT_FPS,
-				canvasSize: DEFAULT_CANVAS_SIZE,
-				canvasSizeMode: "preset",
-				lastCustomCanvasSize: null,
+				canvasSize: canvasSize ?? DEFAULT_CANVAS_SIZE,
+				canvasSizeMode: canvasSize ? "custom" : "preset",
+				lastCustomCanvasSize: canvasSize ?? null,
 				originalCanvasSize: null,
-				background: {
+				background: background ?? {
 					type: "color",
-					color: DEFAULT_BACKGROUND_COLOR,
+					color: isCanvas ? "#ffffff" : DEFAULT_BACKGROUND_COLOR,
 				},
 			},
 			version: CURRENT_PROJECT_VERSION,
