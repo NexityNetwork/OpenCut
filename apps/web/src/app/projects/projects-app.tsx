@@ -89,15 +89,7 @@ const VIEW_MODE_OPTIONS = [
 ];
 
 export default function ProjectsPage() {
-	const { searchQuery, sortKey, sortOrder, viewMode } = useProjectsStore();
 	const editor = useEditor();
-	const sortOption: TProjectSortOption = `${sortKey}-${sortOrder}`;
-
-	const isLoading = useEditor((e) => e.project.getIsLoading());
-	const isInitialized = useEditor((e) => e.project.getIsInitialized());
-	const projectsToDisplay = useEditor((e) =>
-		e.project.getFilteredAndSortedProjects({ searchQuery, sortOption }),
-	);
 
 	useEffect(() => {
 		if (!editor.project.getIsInitialized()) {
@@ -106,36 +98,12 @@ export default function ProjectsPage() {
 	}, [editor.project]);
 
 	return (
-		<div className="bg-background min-h-screen">
+		<div className="bg-background min-h-screen pb-12">
 			<MigrationDialog />
 			<StoragePersistenceDialog />
 			<ChangelogNotification />
 			<ProjectsHeader />
 			<VaultSection />
-			{(isLoading || !isInitialized || projectsToDisplay.length > 0) && (
-				<ProjectsToolbar projectIds={projectsToDisplay.map((p) => p.id)} />
-			)}
-			<main className="mx-auto px-4 pt-2 pb-6 flex flex-col gap-4">
-				{isLoading || !isInitialized ? (
-					<ProjectsSkeleton />
-				) : projectsToDisplay.length === 0 ? null : (
-					<div
-						className={
-							viewMode === "grid"
-								? "xs:grid-cols-2 grid grid-cols-1 gap-5 sm:grid-cols-3 lg:grid-cols-4 px-4"
-								: "flex flex-col"
-						}
-					>
-						{projectsToDisplay.map((project) => (
-							<ProjectItem
-								key={project.id}
-								project={project}
-								allProjectIds={projectsToDisplay.map((p) => p.id)}
-							/>
-						))}
-					</div>
-				)}
-			</main>
 		</div>
 	);
 }

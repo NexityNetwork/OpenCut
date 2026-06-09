@@ -62,6 +62,7 @@ import {
 	fileUrl,
 } from "@/projects/vault-client";
 import { useSession } from "@/auth/client";
+import type { TProjectMetadata, TProjectSortOption } from "@/project/types";
 
 const PLATFORMS = [
 	{ Icon: SiYoutube, label: "YouTube", color: "#FF0000" },
@@ -73,8 +74,9 @@ const PLATFORMS = [
 	{ Icon: SiX, label: "X", color: "#e8e8e8" },
 ];
 
-const FILTERS = [
+const TABS = [
 	{ key: "all", label: "All" },
+	{ key: "projects", label: "Projects" },
 	{ key: "video", label: "Videos" },
 	{ key: "carousel", label: "Carousels" },
 	{ key: "audio", label: "Audio" },
@@ -93,7 +95,12 @@ function fmtDur(s?: number) {
 export function VaultSection() {
 	const editor = useEditor();
 	const router = useRouter();
-	const { setSearchQuery } = useProjectsStore();
+	const { setSearchQuery, searchQuery, sortKey, sortOrder } = useProjectsStore();
+	const sortOption = `${sortKey}-${sortOrder}` as TProjectSortOption;
+	const projects = useEditor((e) =>
+		e.project.getFilteredAndSortedProjects({ searchQuery, sortOption }),
+	);
+	const isInitialized = useEditor((e) => e.project.getIsInitialized());
 	const { data: session } = useSession();
 	const userId = session?.user?.id;
 	const [owner, setOwner] = useState("");
@@ -101,9 +108,13 @@ export function VaultSection() {
 	const [loading, setLoading] = useState(true);
 	const [text, setText] = useState("");
 	const [busy, setBusy] = useState(false);
-	const [filter, setFilter] = useState<string>("all");
+	const [activeTab, setActiveTab] = useState<string>("all");
 	const [lightbox, setLightbox] = useState<VaultItem | null>(null);
-	const [renaming, setRenaming] = useState<VaultItem | null>(null);
+	const [renaming, setRenaming] = useState<{
+		id: string;
+		name: string;
+		kind: "vault" | "project";
+	} | null>(null);
 	const [playingId, setPlayingId] = useState<string | null>(null);
 	const audioRef = useRef<HTMLAudioElement | null>(null);
 	const fileInputRef = useRef<HTMLInputElement | null>(null);
@@ -191,14 +202,23 @@ export function VaultSection() {
 
 	const doRename = async (name: string) => {
 		if (!renaming) return;
-		const id = renaming.id;
-		setItems((prev) => prev.map((x) => (x.id === id ? { ...x, name } : x)));
+		const { id, kind } = renaming;
 		setRenaming(null);
+		if (kind === "project") {
+			await editor.project.renameProject({ id, name });
+			return;
+		}
+		setItems((prev) => prev.map((x) => (x.id === id ? { ...x, name } : x)));
 		try {
 			await renameVaultItem(owner, id, name);
 		} catch {
 			/* ignore */
 		}
+	};
+
+	const deleteProject = async (p: TProjectMetadata) => {
+		if (!window.confirm(`Delete "${p.name}"? This can't be undone.`)) return;
+		await editor.project.deleteProjects({ ids: [p.id] });
 	};
 
 	const togglePlay = (item: VaultItem) => {
@@ -247,20 +267,27 @@ export function VaultSection() {
 	};
 
 	const counts = useMemo(() => {
-		const c: Record<string, number> = { all: items.length };
+		const c: Record<string, number> = {
+			all: items.length + projects.length,
+			projects: projects.length,
+		};
 		for (const i of items) c[i.kind] = (c[i.kind] || 0) + 1;
 		return c;
-	}, [items]);
+	}, [items, projects]);
 	const q = isUrl(text) ? "" : text.trim().toLowerCase();
-	const filtered = useMemo(
+	const shownVault = useMemo(
 		() =>
-			items.filter(
-				(i) =>
-					(filter === "all" || i.kind === filter) &&
-					(!q || i.name.toLowerCase().includes(q)),
-			),
-		[items, filter, q],
+			activeTab === "projects"
+				? []
+				: items.filter(
+						(i) =>
+							(activeTab === "all" || i.kind === activeTab) &&
+							(!q || i.name.toLowerCase().includes(q)),
+					),
+		[items, activeTab, q],
 	);
+	const shownProjects =
+		activeTab === "all" || activeTab === "projects" ? projects : [];
 
 	const urlMode = isUrl(text);
 
@@ -370,53 +397,72 @@ export function VaultSection() {
 				</div>
 			</div>
 
-			{/* Vault */}
-			{(loading || items.length > 0) && (
-				<div className="mt-10">
-					<div className="mb-3 flex flex-wrap items-center gap-2">
-						<h2 className="text-sm font-medium">Vault</h2>
-						<div className="flex flex-wrap gap-1">
-							{FILTERS.filter((f) => f.key === "all" || counts[f.key]).map((f) => (
-								<button
-									key={f.key}
-									type="button"
-									onClick={() => setFilter(f.key)}
-									className={cn(
-										"rounded-full px-2.5 py-0.5 text-xs transition-colors",
-										filter === f.key
-											? "bg-primary text-primary-foreground"
-											: "bg-muted text-muted-foreground hover:text-foreground",
-									)}
-								>
-									{f.label}
-									{counts[f.key] ? ` ${counts[f.key]}` : ""}
-								</button>
-							))}
-						</div>
-					</div>
-					{loading ? (
-						<div className="flex justify-center py-8">
-							<Spinner className="text-muted-foreground size-5" />
-						</div>
-					) : (
-						<div className="xs:grid-cols-2 grid grid-cols-1 gap-5 sm:grid-cols-3 lg:grid-cols-4">
-							{filtered.map((item) => (
-								<VaultTile
-									key={item.id}
-									item={item}
-									playing={playingId === item.id}
-									onOpen={() =>
-										item.kind === "audio" ? togglePlay(item) : setLightbox(item)
-									}
-									onAdd={() => addToProject(item)}
-									onRename={() => setRenaming(item)}
-									onRemove={() => remove(item)}
-								/>
-							))}
-						</div>
-					)}
+			{/* Library — projects + vault, one tab bar, one grid */}
+			<div className="mt-10">
+				<div className="mb-4 flex flex-wrap items-center gap-1.5">
+					{TABS.filter(
+						(t) => t.key === "all" || t.key === "projects" || counts[t.key],
+					).map((t) => (
+						<button
+							key={t.key}
+							type="button"
+							onClick={() => setActiveTab(t.key)}
+							className={cn(
+								"rounded-full px-3 py-1 text-sm font-medium transition-colors",
+								activeTab === t.key
+									? "bg-primary text-primary-foreground"
+									: "bg-muted/60 text-muted-foreground hover:text-foreground",
+							)}
+						>
+							{t.label}
+							{counts[t.key] ? (
+								<span className="ml-1.5 opacity-70">{counts[t.key]}</span>
+							) : null}
+						</button>
+					))}
 				</div>
-			)}
+				{(loading || !isInitialized) &&
+				shownProjects.length === 0 &&
+				shownVault.length === 0 ? (
+					<div className="flex justify-center py-12">
+						<Spinner className="text-muted-foreground size-5" />
+					</div>
+				) : shownProjects.length === 0 && shownVault.length === 0 ? (
+					<div className="text-muted-foreground py-12 text-center text-sm">
+						Nothing here yet — paste a link, upload a file, or start a new
+						project.
+					</div>
+				) : (
+					<div className="xs:grid-cols-2 grid grid-cols-1 gap-5 sm:grid-cols-3 lg:grid-cols-4">
+						{shownProjects.map((p) => (
+							<ProjectCard
+								key={p.id}
+								project={p}
+								onOpen={() => router.push(`/editor/${p.id}`)}
+								onRename={() =>
+									setRenaming({ id: p.id, name: p.name, kind: "project" })
+								}
+								onDelete={() => deleteProject(p)}
+							/>
+						))}
+						{shownVault.map((item) => (
+							<VaultTile
+								key={item.id}
+								item={item}
+								playing={playingId === item.id}
+								onOpen={() =>
+									item.kind === "audio" ? togglePlay(item) : setLightbox(item)
+								}
+								onAdd={() => addToProject(item)}
+								onRename={() =>
+									setRenaming({ id: item.id, name: item.name, kind: "vault" })
+								}
+								onRemove={() => remove(item)}
+							/>
+						))}
+					</div>
+				)}
+			</div>
 
 			{lightbox && <Lightbox item={lightbox} onClose={() => setLightbox(null)} />}
 			<RenameDialog
@@ -425,6 +471,80 @@ export function VaultSection() {
 				onSave={doRename}
 			/>
 		</section>
+	);
+}
+
+function ProjectCard({
+	project,
+	onOpen,
+	onRename,
+	onDelete,
+}: {
+	project: TProjectMetadata;
+	onOpen: () => void;
+	onRename: () => void;
+	onDelete: () => void;
+}) {
+	return (
+		<div className="group relative">
+			<button type="button" onClick={onOpen} className="block w-full text-left">
+				<div className="bg-muted relative aspect-video overflow-hidden rounded-xl border border-border/60 shadow-sm ring-1 ring-white/5 ring-inset transition-all duration-200 group-hover:border-border group-hover:shadow-xl group-hover:shadow-black/30">
+					{project.thumbnail ? (
+						// eslint-disable-next-line @next/next/no-img-element
+						<img
+							src={project.thumbnail}
+							alt={project.name}
+							className="absolute inset-0 size-full object-cover transition-transform duration-300 group-hover:scale-[1.03]"
+							loading="lazy"
+						/>
+					) : (
+						<div className="text-muted-foreground flex size-full items-center justify-center">
+							<VideoIcon className="size-9" />
+						</div>
+					)}
+					<div className="pointer-events-none absolute inset-0 flex items-center justify-center bg-black/0 transition-colors duration-200 group-hover:bg-black/25">
+						<span className="translate-y-1 scale-95 rounded-full bg-white/15 px-5 py-2 text-sm font-medium text-white opacity-0 shadow-lg ring-1 ring-white/30 backdrop-blur-md transition-all duration-200 group-hover:translate-y-0 group-hover:scale-100 group-hover:opacity-100">
+							Open
+						</span>
+					</div>
+				</div>
+			</button>
+
+			<DropdownMenu>
+				<DropdownMenuTrigger asChild>
+					<button
+						type="button"
+						aria-label="Project options"
+						className="absolute top-2 right-2 flex size-7 items-center justify-center rounded-full bg-black/55 text-white opacity-0 backdrop-blur-sm transition-opacity group-hover:opacity-100 data-[state=open]:opacity-100"
+					>
+						<MoreHorizontal className="size-4" />
+					</button>
+				</DropdownMenuTrigger>
+				<DropdownMenuContent align="end">
+					<DropdownMenuItem onClick={onRename}>
+						<Pencil className="size-4" />
+						Rename
+					</DropdownMenuItem>
+					<DropdownMenuItem variant="destructive" onClick={onDelete}>
+						<Trash2 className="size-4" />
+						Delete
+					</DropdownMenuItem>
+				</DropdownMenuContent>
+			</DropdownMenu>
+
+			<div className="flex flex-col gap-1 px-0.5 pt-3">
+				<h3
+					className="line-clamp-1 text-sm leading-snug font-medium"
+					title={project.name}
+				>
+					{project.name}
+				</h3>
+				<div className="text-muted-foreground flex items-center gap-1.5 text-xs">
+					<VideoIcon className="size-3.5" />
+					<span>Project</span>
+				</div>
+			</div>
+		</div>
 	);
 }
 
@@ -554,7 +674,7 @@ function RenameDialog({
 	onClose,
 	onSave,
 }: {
-	item: VaultItem | null;
+	item: { name: string } | null;
 	onClose: () => void;
 	onSave: (name: string) => void;
 }) {
@@ -566,7 +686,7 @@ function RenameDialog({
 		<Dialog open={!!item} onOpenChange={(o) => !o && onClose()}>
 			<DialogContent className="max-w-sm">
 				<DialogHeader>
-					<DialogTitle>Rename asset</DialogTitle>
+					<DialogTitle>Rename</DialogTitle>
 				</DialogHeader>
 				<Input
 					value={value}
