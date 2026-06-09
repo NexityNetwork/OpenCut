@@ -47,6 +47,7 @@ import {
 	FolderInput,
 	ArrowUpRight,
 	X,
+	Check,
 } from "lucide-react";
 import {
 	SiYoutube,
@@ -1607,12 +1608,6 @@ const pubStatusColor = (s: string) =>
 				? "text-amber-400"
 				: "text-muted-foreground";
 
-// Format a Date for a native <input type="datetime-local"> (local time).
-function toLocalInput(d: Date) {
-	const p = (n: number) => String(n).padStart(2, "0");
-	return `${d.getFullYear()}-${p(d.getMonth() + 1)}-${p(d.getDate())}T${p(d.getHours())}:${p(d.getMinutes())}`;
-}
-
 type PubStatus = {
 	counts?: Record<string, number>;
 	upcoming?: {
@@ -1798,6 +1793,26 @@ function ChannelsSection() {
 	);
 }
 
+const COMPOSE_ASPECTS = ["9:16", "16:9", "1:1", "4:3"];
+
+// Small scaled-rectangle icon mirroring the editor's aspect-ratio preview.
+function RatioIcon({ ratio }: { ratio: string }) {
+	const [w, h] = ratio.split(":").map(Number);
+	const max = 15;
+	const width = w >= h ? max : (w / h) * max;
+	const height = h >= w ? max : (h / w) * max;
+	return (
+		<div
+			style={{ width, height }}
+			className="rounded-[2px] border-[1.5px] border-current opacity-70"
+		/>
+	);
+}
+
+function pad2(n: number) {
+	return String(n).padStart(2, "0");
+}
+
 function ComposePostModal({
 	owner,
 	items,
@@ -1835,8 +1850,13 @@ function ComposePostModal({
 	const [caption, setCaption] = useState("");
 	const [privacy, setPrivacy] = useState("public");
 	const [sel, setSel] = useState<Set<string>>(new Set());
-	const [when, setWhen] = useState(() =>
-		toLocalInput(new Date(Date.now() + 60 * 60 * 1000)),
+	const [ratio, setRatio] = useState("9:16");
+	const init = useMemo(() => new Date(Date.now() + 60 * 60 * 1000), []);
+	const [date, setDate] = useState(
+		() => `${init.getFullYear()}-${pad2(init.getMonth() + 1)}-${pad2(init.getDate())}`,
+	);
+	const [time, setTime] = useState(
+		() => `${pad2(init.getHours())}:${pad2(init.getMinutes())}`,
 	);
 	const [busy, setBusy] = useState(false);
 
@@ -1855,6 +1875,8 @@ function ComposePostModal({
 		setCaption(it.caption || "");
 	};
 
+	const videoKey = picked?.media.find((m) => m.type === "video")?.key || "";
+
 	const submit = async () => {
 		if (!picked || busy) return;
 		const platforms = [...sel];
@@ -1862,9 +1884,9 @@ function ComposePostModal({
 			toast.error("Pick at least one channel");
 			return;
 		}
-		const ms = new Date(when).getTime();
+		const ms = new Date(`${date}T${time || "00:00"}`).getTime();
 		if (!Number.isFinite(ms)) {
-			toast.error("Pick a valid time");
+			toast.error("Pick a valid date and time");
 			return;
 		}
 		setBusy(true);
@@ -1917,94 +1939,140 @@ function ComposePostModal({
 
 	return (
 		<Dialog open onOpenChange={(o) => !o && onClose()}>
-			<DialogContent className="max-w-2xl">
-				<DialogHeader>
-					<DialogTitle>
+			<DialogContent className="flex h-[88vh] max-w-[76rem] flex-col gap-0 overflow-hidden p-0">
+				<div className="border-border/60 flex shrink-0 items-center border-b px-6 py-4">
+					<DialogTitle className="text-base">
 						{picked ? "Schedule post" : "Choose a video"}
 					</DialogTitle>
-				</DialogHeader>
-				<DialogBody>
-					{!picked ? (
-						<>
-							<Input
-								placeholder="Search your videos…"
-								value={q}
-								onChange={(e) => setQ(e.target.value)}
-								className="mb-3"
-							/>
-							{filtered.length === 0 ? (
-								<div className="text-muted-foreground py-12 text-center text-sm">
-									No videos in your library yet.
-								</div>
-							) : (
-								<div className="grid max-h-[55vh] grid-cols-3 gap-3 overflow-y-auto pr-1 sm:grid-cols-4">
-									{filtered.map((v) => (
-										<button
-											key={v.id}
-											type="button"
-											onClick={() => choose(v)}
-											className="group text-left"
-										>
-											<div className="bg-muted relative aspect-[4/5] overflow-hidden rounded-lg border border-white/10 transition group-hover:border-white/30">
-												{poster(v)}
-											</div>
-											<div className="mt-1 truncate text-xs">
-												{v.name || "Untitled"}
-											</div>
-										</button>
-									))}
-								</div>
-							)}
-						</>
-					) : (
-						<div className="space-y-4">
-							<div className="flex gap-4">
-								<div className="bg-muted relative aspect-[4/5] w-28 shrink-0 overflow-hidden rounded-lg border border-white/10">
-									{poster(picked)}
-								</div>
-								<div className="min-w-0 flex-1 space-y-3">
-									<div>
-										<label className="text-muted-foreground mb-1 block text-xs">
-											Title (YouTube)
-										</label>
-										<Input
-											value={title}
-											onChange={(e) => setTitle(e.target.value)}
-											maxLength={100}
-										/>
-									</div>
+				</div>
+
+				{!picked ? (
+					<div className="flex min-h-0 flex-1 flex-col p-6">
+						<Input
+							placeholder="Search your videos…"
+							value={q}
+							onChange={(e) => setQ(e.target.value)}
+							className="mb-4 max-w-sm"
+						/>
+						{filtered.length === 0 ? (
+							<div className="text-muted-foreground flex flex-1 items-center justify-center text-sm">
+								No videos in your library yet.
+							</div>
+						) : (
+							<div className="grid min-h-0 flex-1 grid-cols-3 content-start gap-3 overflow-y-auto pr-1 sm:grid-cols-4 lg:grid-cols-6">
+								{filtered.map((v) => (
 									<button
+										key={v.id}
 										type="button"
-										onClick={() => setPicked(null)}
-										className="text-muted-foreground hover:text-foreground text-xs"
+										onClick={() => choose(v)}
+										className="group text-left"
 									>
-										← Choose a different video
+										<div className="bg-muted relative aspect-[9/16] overflow-hidden rounded-lg border border-white/10 transition group-hover:border-white/40">
+											{poster(v)}
+										</div>
+										<div className="mt-1 truncate text-xs">
+											{v.name || "Untitled"}
+										</div>
 									</button>
-								</div>
+								))}
+							</div>
+						)}
+					</div>
+				) : (
+					<div className="flex min-h-0 flex-1">
+						{/* Aspect-ratio rail */}
+						<div className="border-border/60 flex w-44 shrink-0 flex-col gap-1 overflow-y-auto border-r p-3">
+							<div className="text-muted-foreground px-1 pb-1 text-xs font-medium">
+								Aspect ratio
+							</div>
+							{COMPOSE_ASPECTS.map((r) => {
+								const on = ratio === r;
+								return (
+									<button
+										key={r}
+										type="button"
+										onClick={() => setRatio(r)}
+										className={cn(
+											"flex items-center gap-2.5 rounded-lg px-2 py-2 text-sm transition",
+											on
+												? "bg-muted text-foreground"
+												: "text-muted-foreground hover:bg-muted/50 hover:text-foreground",
+										)}
+									>
+										<span className="flex size-5 items-center justify-center">
+											<RatioIcon ratio={r} />
+										</span>
+										<span className="flex-1 text-left">{r}</span>
+										{on && <Check className="size-4" />}
+									</button>
+								);
+							})}
+							<div className="mt-auto pt-3">
+								<button
+									type="button"
+									onClick={() => setPicked(null)}
+									className="text-muted-foreground hover:text-foreground flex items-center gap-1.5 px-1 text-xs"
+								>
+									<ChevronLeft className="size-3.5" /> Choose a different video
+								</button>
+							</div>
+						</div>
+
+						{/* Centered preview */}
+						<div className="flex min-w-0 flex-1 items-center justify-center overflow-hidden bg-black/40 p-6">
+							<div
+								className="relative max-h-full max-w-full overflow-hidden rounded-xl bg-black shadow-2xl ring-1 ring-white/10"
+								style={{ aspectRatio: ratio.replace(":", " / "), height: "100%" }}
+							>
+								{videoKey ? (
+									// biome-ignore lint/a11y/useMediaCaption: preview only
+									<video
+										key={videoKey}
+										src={`${fileUrl(videoKey)}#t=0.1`}
+										controls
+										playsInline
+										className="size-full object-cover"
+									/>
+								) : null}
+							</div>
+						</div>
+
+						{/* Fields */}
+						<div className="border-border/60 flex w-[26rem] shrink-0 flex-col gap-4 overflow-y-auto border-l p-6">
+							<div>
+								<label className="text-muted-foreground mb-1.5 block text-xs font-medium">
+									Title
+								</label>
+								<input
+									value={title}
+									onChange={(e) => setTitle(e.target.value)}
+									maxLength={100}
+									placeholder="Add a title…"
+									className="border-border/60 bg-background focus:ring-ring w-full rounded-lg border px-3.5 py-2.5 text-[15px] outline-none focus:ring-1"
+								/>
 							</div>
 
-							<div>
-								<label className="text-muted-foreground mb-1 block text-xs">
-									Caption / description
+							<div className="flex min-h-0 flex-1 flex-col">
+								<label className="text-muted-foreground mb-1.5 block text-xs font-medium">
+									Caption
 								</label>
 								<textarea
 									value={caption}
 									onChange={(e) => setCaption(e.target.value)}
-									rows={5}
-									className="border-border/60 bg-background focus:ring-ring w-full resize-none rounded-lg border p-3 text-sm outline-none focus:ring-1"
+									placeholder="Write a caption…"
+									className="border-border/60 bg-background focus:ring-ring min-h-[10rem] flex-1 resize-none rounded-lg border p-3.5 text-sm leading-relaxed outline-none focus:ring-1"
 								/>
 							</div>
 
 							<div>
-								<label className="text-muted-foreground mb-1.5 block text-xs">
+								<label className="text-muted-foreground mb-1.5 block text-xs font-medium">
 									Channels
 								</label>
 								{channels === null ? (
 									<div className="text-muted-foreground text-sm">Loading…</div>
 								) : available.length === 0 ? (
 									<div className="text-muted-foreground border-border/60 rounded-lg border border-dashed p-3 text-sm">
-										No channels connected — connect one in the Channels section
-										first.
+										No channels connected yet.
 									</div>
 								) : (
 									<div className="flex flex-wrap gap-2">
@@ -2036,49 +2104,63 @@ function ComposePostModal({
 								)}
 							</div>
 
-							<div className="flex flex-wrap gap-4">
+							<div className="grid grid-cols-2 gap-3">
 								<div>
-									<label className="text-muted-foreground mb-1 block text-xs">
-										Publish at
+									<label className="text-muted-foreground mb-1.5 block text-xs font-medium">
+										Date
 									</label>
 									<input
-										type="datetime-local"
-										value={when}
-										onChange={(e) => setWhen(e.target.value)}
+										type="date"
+										value={date}
+										onChange={(e) => setDate(e.target.value)}
 										style={{ colorScheme: "dark" }}
-										className="border-border/60 bg-background rounded-lg border px-3 py-1.5 text-sm outline-none"
+										className="border-border/60 bg-background w-full rounded-lg border px-3 py-2 text-sm outline-none"
 									/>
 								</div>
-								{sel.has("youtube") && (
-									<div>
-										<label className="text-muted-foreground mb-1 block text-xs">
-											YouTube privacy
-										</label>
-										<select
-											value={privacy}
-											onChange={(e) => setPrivacy(e.target.value)}
-											style={{ colorScheme: "dark" }}
-											className="border-border/60 bg-background rounded-lg border px-3 py-1.5 text-sm outline-none"
-										>
-											<option value="public">Public</option>
-											<option value="unlisted">Unlisted</option>
-											<option value="private">Private</option>
-										</select>
-									</div>
-								)}
+								<div>
+									<label className="text-muted-foreground mb-1.5 block text-xs font-medium">
+										Time
+									</label>
+									<input
+										type="time"
+										value={time}
+										onChange={(e) => setTime(e.target.value)}
+										style={{ colorScheme: "dark" }}
+										className="border-border/60 bg-background w-full rounded-lg border px-3 py-2 text-sm outline-none"
+									/>
+								</div>
 							</div>
+
+							{sel.has("youtube") && (
+								<div>
+									<label className="text-muted-foreground mb-1.5 block text-xs font-medium">
+										YouTube privacy
+									</label>
+									<select
+										value={privacy}
+										onChange={(e) => setPrivacy(e.target.value)}
+										style={{ colorScheme: "dark" }}
+										className="border-border/60 bg-background w-full rounded-lg border px-3 py-2 text-sm outline-none"
+									>
+										<option value="public">Public</option>
+										<option value="unlisted">Unlisted</option>
+										<option value="private">Private</option>
+									</select>
+								</div>
+							)}
 						</div>
-					)}
-				</DialogBody>
+					</div>
+				)}
+
 				{picked && (
-					<DialogFooter>
+					<div className="border-border/60 flex shrink-0 items-center justify-end gap-3 border-t px-6 py-4">
 						<Button variant="ghost" onClick={onClose} disabled={busy}>
 							Cancel
 						</Button>
 						<Button onClick={submit} disabled={busy || sel.size === 0}>
 							{busy ? "Scheduling…" : "Schedule post"}
 						</Button>
-					</DialogFooter>
+					</div>
 				)}
 			</DialogContent>
 		</Dialog>
@@ -2119,22 +2201,27 @@ function PublishPane({
 	const recent = status?.recent ?? [];
 	return (
 		<div className="mx-auto max-w-3xl px-8 py-10">
-			<div className="flex items-center justify-between gap-4">
+			<div className="flex items-start justify-between gap-4">
 				<div>
 					<h1 className="text-2xl font-semibold tracking-tight">Publishing</h1>
-					<p className="text-muted-foreground mt-1 text-sm">
-						Schedule and track posts across your channels.
+					<p className="text-muted-foreground mt-1 flex items-center gap-1.5 text-sm">
+						<span
+							className={cn(
+								"size-1.5 rounded-full",
+								online ? "bg-green-500" : "bg-muted-foreground/50",
+							)}
+						/>
+						Engine {online == null ? "…" : online ? "online" : "offline"}
 					</p>
 				</div>
-				<span className="text-muted-foreground flex shrink-0 items-center gap-1.5 text-xs">
-					<span
-						className={cn(
-							"size-1.5 rounded-full",
-							online ? "bg-green-500" : "bg-muted-foreground/50",
-						)}
-					/>
-					Engine {online == null ? "…" : online ? "online" : "offline"}
-				</span>
+				<button
+					type="button"
+					onClick={() => setComposing(true)}
+					className="bg-primary text-primary-foreground hover:bg-primary/90 inline-flex shrink-0 items-center gap-1.5 rounded-lg px-4 py-2 text-sm font-medium transition-colors"
+				>
+					<Plus className="size-4" />
+					New post
+				</button>
 			</div>
 
 			<div className="mt-8 grid grid-cols-2 gap-3 sm:grid-cols-4">
@@ -2220,15 +2307,6 @@ function PublishPane({
 					</div>
 				)}
 			</div>
-
-			<button
-				type="button"
-				onClick={() => setComposing(true)}
-				className="bg-primary text-primary-foreground hover:bg-primary/90 mt-8 inline-flex items-center gap-1.5 rounded-lg px-4 py-2 text-sm font-medium transition-colors"
-			>
-				<Plus className="size-4" />
-				New post
-			</button>
 
 			{composing && (
 				<ComposePostModal
