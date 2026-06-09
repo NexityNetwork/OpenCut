@@ -112,6 +112,7 @@ const PLATFORMS = [
 // Single-tenant for now: publishing is wired to the owner account only.
 // (Multi-tenant — per-user channels/tokens — comes later.)
 const OWNER_EMAIL = "catalin@nexitynetwork.org";
+const PUBLISH_ORIGIN = "https://ultron-publish.catalin-932.workers.dev";
 
 const TABS = [
 	{ key: "all", label: "All", Icon: LayoutGrid },
@@ -1622,6 +1623,175 @@ type PubStatus = {
 	}[];
 };
 
+type Channel = {
+	id: string;
+	platform: string;
+	label: string;
+	platform_handle?: string | null;
+	status: string;
+};
+
+function ChannelsSection() {
+	const [channels, setChannels] = useState<Channel[] | null>(null);
+	const [pending, setPending] = useState<{
+		platform: string;
+		connection_id: string;
+		label: string;
+	} | null>(null);
+	const [busy, setBusy] = useState(false);
+	const load = () => {
+		fetch("/api/publish/channels")
+			.then((r) => (r.ok ? r.json() : null))
+			.then((d) => setChannels(d?.channels ?? []))
+			.catch(() => setChannels([]));
+	};
+	useEffect(() => {
+		load();
+	}, []);
+
+	const connectYouTube = () => {
+		window.open(`${PUBLISH_ORIGIN}/oauth2/youtube/start`, "_blank", "noopener");
+		toast.message("Authorize YouTube in the new tab, then hit Refresh.");
+	};
+	const initiate = async (platform: string) => {
+		const label = window.prompt(`Name this ${platform} account`, "");
+		if (!label?.trim()) return;
+		setBusy(true);
+		try {
+			const r = await fetch(`/api/publish/channels/initiate/${platform}`, {
+				method: "POST",
+				headers: { "content-type": "application/json" },
+				body: JSON.stringify({ entity_id: "default" }),
+			});
+			const d = await r.json().catch(() => ({}));
+			if (!r.ok || !d.redirect_url)
+				throw new Error(d.error || d.hint || "Couldn't start connect");
+			window.open(d.redirect_url, "_blank", "noopener");
+			setPending({ platform, connection_id: d.connection_id, label: label.trim() });
+			toast.message(
+				`Authorize ${platform} in the new tab, then click "Finish connecting".`,
+			);
+		} catch (e) {
+			toast.error(e instanceof Error ? e.message : "Connect failed");
+		} finally {
+			setBusy(false);
+		}
+	};
+	const finish = async () => {
+		if (!pending) return;
+		setBusy(true);
+		try {
+			const r = await fetch("/api/publish/channels", {
+				method: "POST",
+				headers: { "content-type": "application/json" },
+				body: JSON.stringify({
+					platform: pending.platform,
+					label: pending.label,
+					composio_entity_id: "default",
+					composio_connection_id: pending.connection_id,
+				}),
+			});
+			const d = await r.json().catch(() => ({}));
+			if (!r.ok || !d.ok)
+				throw new Error(d.error || "Couldn't finish — did you approve it?");
+			toast.success(`${pending.platform} connected`);
+			setPending(null);
+			load();
+		} catch (e) {
+			toast.error(e instanceof Error ? e.message : "Finish failed");
+		} finally {
+			setBusy(false);
+		}
+	};
+
+	return (
+		<div className="mt-9">
+			<div className="mb-2 flex items-center justify-between">
+				<h2 className="text-sm font-semibold">Channels</h2>
+				<div className="flex items-center gap-1.5">
+					<button
+						type="button"
+						onClick={load}
+						className="text-muted-foreground hover:text-foreground text-xs"
+					>
+						Refresh
+					</button>
+					<DropdownMenu>
+						<DropdownMenuTrigger asChild>
+							<button
+								type="button"
+								disabled={busy}
+								className="border-border/60 hover:bg-muted/50 flex items-center gap-1.5 rounded-lg border px-2.5 py-1 text-xs font-medium"
+							>
+								<Plus className="size-3.5" /> Connect
+							</button>
+						</DropdownMenuTrigger>
+						<DropdownMenuContent align="end">
+							<DropdownMenuItem onClick={connectYouTube}>
+								<SiYoutube style={{ color: "#FF0000" }} /> YouTube
+							</DropdownMenuItem>
+							<DropdownMenuItem onClick={() => initiate("instagram")}>
+								<SiInstagram style={{ color: "#E4405F" }} /> Instagram
+							</DropdownMenuItem>
+							<DropdownMenuItem onClick={() => initiate("tiktok")}>
+								<SiTiktok /> TikTok
+							</DropdownMenuItem>
+						</DropdownMenuContent>
+					</DropdownMenu>
+				</div>
+			</div>
+
+			{pending && (
+				<div className="mb-2 flex items-center justify-between gap-3 rounded-lg border border-amber-500/30 bg-amber-500/10 p-3 text-sm">
+					<span>
+						Approve <span className="capitalize">{pending.platform}</span> in the
+						other tab, then finish.
+					</span>
+					<button
+						type="button"
+						onClick={finish}
+						disabled={busy}
+						className="bg-primary text-primary-foreground shrink-0 rounded-md px-3 py-1 text-xs font-medium"
+					>
+						Finish connecting
+					</button>
+				</div>
+			)}
+
+			{channels === null ? (
+				<div className="text-muted-foreground py-4 text-sm">Loading channels…</div>
+			) : channels.length === 0 ? (
+				<div className="text-muted-foreground border-border/60 rounded-xl border border-dashed py-6 text-center text-sm">
+					No channels connected yet — use Connect.
+				</div>
+			) : (
+				<div className="flex flex-wrap gap-2">
+					{channels.map((ch) => (
+						<div
+							key={ch.id}
+							className="border-border/60 bg-card/40 flex items-center gap-2 rounded-lg border px-3 py-2 text-sm"
+						>
+							{pubPlatformIcon(ch.platform)}
+							<span className="font-medium">{ch.label}</span>
+							{ch.platform_handle && (
+								<span className="text-muted-foreground text-xs">
+									{ch.platform_handle}
+								</span>
+							)}
+							<span
+								className={cn(
+									"size-1.5 rounded-full",
+									ch.status === "active" ? "bg-green-500" : "bg-muted-foreground/50",
+								)}
+							/>
+						</div>
+					))}
+				</div>
+			)}
+		</div>
+	);
+}
+
 function PublishPane({ onNewProject }: { onNewProject: () => void }) {
 	const [online, setOnline] = useState<boolean | null>(null);
 	const [status, setStatus] = useState<PubStatus | null>(null);
@@ -1677,6 +1847,8 @@ function PublishPane({ onNewProject }: { onNewProject: () => void }) {
 					</div>
 				))}
 			</div>
+
+			<ChannelsSection />
 
 			{/* Upcoming */}
 			<div className="mt-9">
