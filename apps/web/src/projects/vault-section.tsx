@@ -48,6 +48,8 @@ import {
 	ArrowUpRight,
 	X,
 	Check,
+	CalendarDays,
+	Clock,
 } from "lucide-react";
 import {
 	SiYoutube,
@@ -80,6 +82,7 @@ import {
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
+import { Calendar } from "@/components/ui/calendar";
 import { cn } from "@/utils/ui";
 import { useEditor } from "@/editor/use-editor";
 import { processMediaAssets } from "@/media/processing";
@@ -1817,6 +1820,141 @@ function pad2(n: number) {
 	return String(n).padStart(2, "0");
 }
 
+function clamp(n: number, lo: number, hi: number) {
+	return Math.max(lo, Math.min(hi, n));
+}
+
+function to12(t: string) {
+	const [H, M] = t.split(":").map(Number);
+	const ampm = (H || 0) >= 12 ? "PM" : "AM";
+	let h = (H || 0) % 12;
+	if (h === 0) h = 12;
+	return { h, m: M || 0, ampm };
+}
+
+function to24(h: number, m: number, ampm: string) {
+	let H = h % 12;
+	if (ampm === "PM") H += 12;
+	return `${pad2(H)}:${pad2(m)}`;
+}
+
+// Themed date + time picker (no native popups) — calendar + 12h time, opens
+// upward so it never gets clipped by the dialog.
+function DateTimePicker({
+	date,
+	time,
+	setDate,
+	setTime,
+}: {
+	date: string;
+	time: string;
+	setDate: (s: string) => void;
+	setTime: (s: string) => void;
+}) {
+	const [open, setOpen] = useState(false);
+	const ref = useRef<HTMLDivElement>(null);
+	useEffect(() => {
+		if (!open) return;
+		const onDoc = (e: MouseEvent) => {
+			if (ref.current && !ref.current.contains(e.target as Node)) setOpen(false);
+		};
+		document.addEventListener("mousedown", onDoc);
+		return () => document.removeEventListener("mousedown", onDoc);
+	}, [open]);
+
+	const selectedDate = useMemo(() => {
+		const [y, m, d] = date.split("-").map(Number);
+		return new Date(y || 1970, (m || 1) - 1, d || 1);
+	}, [date]);
+	const { h: h12, m: min, ampm } = to12(time);
+
+	const label = useMemo(() => {
+		const dd = new Date(`${date}T${time || "00:00"}`);
+		if (Number.isNaN(dd.getTime())) return "Pick date & time";
+		return `${dd.toLocaleDateString(undefined, {
+			weekday: "short",
+			month: "short",
+			day: "numeric",
+		})} · ${dd.toLocaleTimeString(undefined, {
+			hour: "numeric",
+			minute: "2-digit",
+		})}`;
+	}, [date, time]);
+
+	return (
+		<div ref={ref} className="relative">
+			<button
+				type="button"
+				onClick={() => setOpen((o) => !o)}
+				className={cn(FIELD_CLS, "flex items-center justify-between text-left text-sm")}
+			>
+				<span>{label}</span>
+				<CalendarDays className="size-4 shrink-0 text-[#8b8676]" />
+			</button>
+			{open && (
+				<div className="absolute bottom-full left-0 z-50 mb-2 w-[20rem] rounded-2xl border border-white/10 bg-[#26231f] p-2 shadow-2xl">
+					<Calendar
+						mode="single"
+						selected={selectedDate}
+						defaultMonth={selectedDate}
+						onSelect={(d?: Date) => {
+							if (d)
+								setDate(
+									`${d.getFullYear()}-${pad2(d.getMonth() + 1)}-${pad2(d.getDate())}`,
+								);
+						}}
+						classNames={{
+							day_selected:
+								"bg-white/[0.16] text-[#f1ebdc] hover:bg-white/20 focus:bg-white/20",
+							day_today: "font-semibold text-[#f1ebdc] underline",
+							head_cell:
+								"text-[#8b8676] rounded-md w-8 font-normal text-[0.8rem]",
+							caption_label: "text-sm font-medium text-[#f1ebdc]",
+						}}
+					/>
+					<div className="mt-1 flex items-center gap-2 border-t border-white/[0.06] px-2 py-2.5">
+						<Clock className="size-4 shrink-0 text-[#8b8676]" />
+						<input
+							value={pad2(h12)}
+							inputMode="numeric"
+							onChange={(e) =>
+								setTime(to24(clamp(Number.parseInt(e.target.value, 10) || 0, 1, 12), min, ampm))
+							}
+							className="w-11 rounded-lg border border-white/10 bg-[#181614] px-2 py-1.5 text-center text-sm text-[#f1ebdc] outline-none focus:border-white/25"
+						/>
+						<span className="text-[#8b8676]">:</span>
+						<input
+							value={pad2(min)}
+							inputMode="numeric"
+							onChange={(e) =>
+								setTime(to24(h12, clamp(Number.parseInt(e.target.value, 10) || 0, 0, 59), ampm))
+							}
+							className="w-11 rounded-lg border border-white/10 bg-[#181614] px-2 py-1.5 text-center text-sm text-[#f1ebdc] outline-none focus:border-white/25"
+						/>
+						<div className="ml-auto flex overflow-hidden rounded-lg border border-white/10">
+							{["AM", "PM"].map((a) => (
+								<button
+									key={a}
+									type="button"
+									onClick={() => setTime(to24(h12, min, a))}
+									className={cn(
+										"px-2.5 py-1.5 text-xs transition-colors",
+										ampm === a
+											? "bg-white/[0.12] text-[#f1ebdc]"
+											: "text-[#8b8676] hover:text-[#f1ebdc]",
+									)}
+								>
+									{a}
+								</button>
+							))}
+						</div>
+					</div>
+				</div>
+			)}
+		</div>
+	);
+}
+
 function ComposePostModal({
 	owner,
 	items,
@@ -2074,7 +2212,7 @@ function ComposePostModal({
 						</div>
 
 						{/* Fields */}
-						<div className="flex w-[26rem] shrink-0 flex-col gap-5 overflow-y-auto border-l border-white/[0.06] p-6">
+						<div className="flex w-[26rem] shrink-0 flex-col gap-5 border-l border-white/[0.06] p-6">
 							<div>
 								<label className={LABEL_CLS}>Title</label>
 								<input
@@ -2137,27 +2275,14 @@ function ComposePostModal({
 								)}
 							</div>
 
-							<div className="grid grid-cols-2 gap-3">
-								<div>
-									<label className={LABEL_CLS}>Date</label>
-									<input
-										type="date"
-										value={date}
-										onChange={(e) => setDate(e.target.value)}
-										style={{ colorScheme: "dark" }}
-										className={cn(FIELD_CLS, "py-2 text-sm")}
-									/>
-								</div>
-								<div>
-									<label className={LABEL_CLS}>Time</label>
-									<input
-										type="time"
-										value={time}
-										onChange={(e) => setTime(e.target.value)}
-										style={{ colorScheme: "dark" }}
-										className={cn(FIELD_CLS, "py-2 text-sm")}
-									/>
-								</div>
+							<div>
+								<label className={LABEL_CLS}>Publish at</label>
+								<DateTimePicker
+									date={date}
+									time={time}
+									setDate={setDate}
+									setTime={setTime}
+								/>
 							</div>
 						</div>
 					</div>
@@ -2178,6 +2303,179 @@ function ComposePostModal({
 	);
 }
 
+type QueueRow = {
+	id: string;
+	slug: string;
+	platform: string;
+	status: string;
+	scheduled_for?: number;
+	published_at?: number | null;
+	external_url?: string | null;
+};
+
+// Read-only "full view" of a scheduled/published post — same vibe as the
+// composer but not editable. Pulls the row's metadata (title/caption/video)
+// from the engine's /queue/:id.
+function ReadOnlyPostModal({
+	id,
+	onClose,
+	onChanged,
+}: {
+	id: string;
+	onClose: () => void;
+	onChanged: () => void;
+}) {
+	const [item, setItem] = useState<Record<string, unknown> | null>(null);
+	const [failed, setFailed] = useState(false);
+	const [busy, setBusy] = useState(false);
+	useEffect(() => {
+		fetch(`/api/publish/queue/${id}`)
+			.then((r) => (r.ok ? r.json() : null))
+			.then((d) => (d?.item ? setItem(d.item) : setFailed(true)))
+			.catch(() => setFailed(true));
+	}, [id]);
+	const meta = useMemo(() => {
+		try {
+			return item
+				? (JSON.parse(String(item.metadata_json)) as Record<string, unknown>)
+				: {};
+		} catch {
+			return {};
+		}
+	}, [item]);
+	const videoUrl = typeof meta.video_url === "string" ? meta.video_url : "";
+	const title = String(meta.title || "");
+	const caption = String(meta.caption || meta.description || "");
+	const platform = String(item?.platform || "");
+	const status = String(item?.status || "");
+	const when =
+		(item?.published_at as number) || (item?.scheduled_for as number) || 0;
+	const externalUrl =
+		typeof item?.external_url === "string" ? (item.external_url as string) : "";
+
+	const cancelPost = async () => {
+		if (busy) return;
+		setBusy(true);
+		try {
+			const r = await fetch(`/api/publish/queue/${id}`, { method: "DELETE" });
+			if (!r.ok) throw new Error();
+			toast.success("Post cancelled");
+			onChanged();
+			onClose();
+		} catch {
+			toast.error("Couldn't cancel");
+		} finally {
+			setBusy(false);
+		}
+	};
+
+	const metaLabel =
+		"w-24 shrink-0 text-[11px] font-semibold uppercase tracking-wide text-[#8b8676]";
+
+	return (
+		<Dialog open onOpenChange={(o) => !o && onClose()}>
+			<DialogContent className="flex h-[80vh] max-w-[60rem] flex-col gap-0 overflow-hidden rounded-2xl border-white/[0.08] bg-[#201e1b] p-0 text-[#f1ebdc]">
+				<div className="flex shrink-0 items-center gap-3 border-b border-white/[0.06] px-6 py-4">
+					<DialogTitle className="text-[15px] font-semibold text-[#f1ebdc]">
+						Post
+					</DialogTitle>
+					{status && (
+						<span
+							className={cn(
+								"rounded-full border border-white/[0.08] px-2 py-0.5 text-[11px] capitalize",
+								pubStatusColor(status),
+							)}
+						>
+							{status}
+						</span>
+					)}
+				</div>
+
+				{!item ? (
+					<div className="flex flex-1 items-center justify-center text-sm text-[#8b8676]">
+						{failed ? "Couldn't load this post." : "Loading…"}
+					</div>
+				) : (
+					<div className="flex min-h-0 flex-1">
+						<div className="flex min-w-0 flex-1 items-center justify-center bg-black/30 p-6">
+							{videoUrl ? (
+								// biome-ignore lint/a11y/useMediaCaption: preview only
+								<video
+									src={videoUrl}
+									controls
+									playsInline
+									className="max-h-full max-w-full rounded-xl bg-black shadow-2xl ring-1 ring-white/10"
+								/>
+							) : (
+								<div className="text-sm text-[#8b8676]">No preview</div>
+							)}
+						</div>
+						<div className="flex w-[24rem] shrink-0 flex-col gap-5 overflow-y-auto border-l border-white/[0.06] p-6">
+							{title && (
+								<div>
+									<div className={LABEL_CLS}>Title</div>
+									<div className="text-[15px] text-[#f1ebdc]">{title}</div>
+								</div>
+							)}
+							<div className="flex min-h-0 flex-1 flex-col">
+								<div className={LABEL_CLS}>Caption</div>
+								<div className="flex-1 overflow-y-auto whitespace-pre-wrap text-sm leading-relaxed text-[#c7c0ae]">
+									{caption || "—"}
+								</div>
+							</div>
+							<div className="space-y-3 border-t border-white/[0.06] pt-4">
+								<div className="flex items-center gap-3 text-sm">
+									<span className={metaLabel}>Channel</span>
+									<span className="flex items-center gap-1.5 capitalize text-[#c7c0ae]">
+										{pubPlatformIcon(platform)}
+										{String(meta.channel || platform)}
+									</span>
+								</div>
+								<div className="flex items-center gap-3 text-sm">
+									<span className={metaLabel}>
+										{status === "published" ? "Published" : "Scheduled"}
+									</span>
+									<span className="text-[#c7c0ae]">{pubWhen(when) || "—"}</span>
+								</div>
+							</div>
+						</div>
+					</div>
+				)}
+
+				<div className="flex shrink-0 items-center justify-between gap-3 border-t border-white/[0.06] px-6 py-4">
+					<div>
+						{status === "queued" && (
+							<button
+								type="button"
+								onClick={cancelPost}
+								disabled={busy}
+								className="text-sm text-red-400/90 transition-colors hover:text-red-400"
+							>
+								Cancel post
+							</button>
+						)}
+					</div>
+					<div className="flex items-center gap-3">
+						{externalUrl && (
+							<a
+								href={externalUrl}
+								target="_blank"
+								rel="noopener noreferrer"
+								className="flex items-center gap-1.5 text-sm text-[#c7c0ae] transition-colors hover:text-[#f1ebdc]"
+							>
+								Open post <ArrowUpRight className="size-4" />
+							</a>
+						)}
+						<Button variant="ghost" onClick={onClose}>
+							Close
+						</Button>
+					</div>
+				</div>
+			</DialogContent>
+		</Dialog>
+	);
+}
+
 function PublishPane({
 	items,
 	owner,
@@ -2187,12 +2485,24 @@ function PublishPane({
 }) {
 	const [online, setOnline] = useState<boolean | null>(null);
 	const [status, setStatus] = useState<PubStatus | null>(null);
+	const [queue, setQueue] = useState<QueueRow[] | null>(null);
 	const [composing, setComposing] = useState(false);
+	const [detailId, setDetailId] = useState<string | null>(null);
 	const loadStatus = () => {
 		fetch("/api/publish/status")
 			.then((r) => (r.ok ? r.json() : null))
 			.then((d) => setStatus(d))
 			.catch(() => setStatus(null));
+	};
+	const loadQueue = () => {
+		fetch("/api/publish/queue?limit=200")
+			.then((r) => (r.ok ? r.json() : null))
+			.then((d) => setQueue(Array.isArray(d?.items) ? d.items : []))
+			.catch(() => setQueue([]));
+	};
+	const reload = () => {
+		loadStatus();
+		loadQueue();
 	};
 	useEffect(() => {
 		fetch("/api/publish/health")
@@ -2200,6 +2510,7 @@ function PublishPane({
 			.then((d) => setOnline(!!d?.ok))
 			.catch(() => setOnline(false));
 		loadStatus();
+		loadQueue();
 	}, []);
 	const c = status?.counts ?? {};
 	const stat = [
@@ -2208,8 +2519,25 @@ function PublishPane({
 		{ label: "Uploading", value: c.uploading, color: "text-amber-400" },
 		{ label: "Failed", value: c.failed, color: "text-red-500" },
 	];
-	const upcoming = status?.upcoming ?? [];
-	const recent = status?.recent ?? [];
+	const rows = queue ?? [];
+	const upcoming = useMemo(
+		() =>
+			rows
+				.filter((r) => r.status === "queued")
+				.sort((a, b) => (a.scheduled_for || 0) - (b.scheduled_for || 0)),
+		[queue],
+	);
+	const recent = useMemo(
+		() =>
+			rows
+				.filter((r) => r.status !== "queued")
+				.sort(
+					(a, b) =>
+						(b.published_at || b.scheduled_for || 0) -
+						(a.published_at || a.scheduled_for || 0),
+				),
+		[queue],
+	);
 	return (
 		<div className="mx-auto max-w-3xl px-8 py-10">
 			<div className="flex items-start justify-between gap-4">
@@ -2249,16 +2577,22 @@ function PublishPane({
 			{/* Upcoming */}
 			<div className="mt-9">
 				<h2 className="mb-2 text-sm font-semibold">Upcoming</h2>
-				{upcoming.length === 0 ? (
+				{queue === null ? (
+					<div className="text-muted-foreground border-border/60 rounded-xl border border-dashed py-8 text-center text-sm">
+						Loading…
+					</div>
+				) : upcoming.length === 0 ? (
 					<div className="text-muted-foreground border-border/60 rounded-xl border border-dashed py-8 text-center text-sm">
 						Nothing scheduled.
 					</div>
 				) : (
 					<div className="border-border/60 divide-border/60 divide-y overflow-hidden rounded-xl border">
-						{upcoming.slice(0, 12).map((u, i) => (
-							<div
-								key={`${u.slug}-${u.platform}-${i}`}
-								className="hover:bg-muted/30 flex items-center gap-3 px-4 py-2.5"
+						{upcoming.slice(0, 60).map((u) => (
+							<button
+								type="button"
+								key={u.id}
+								onClick={() => setDetailId(u.id)}
+								className="hover:bg-muted/30 flex w-full items-center gap-3 px-4 py-2.5 text-left"
 							>
 								{pubPlatformIcon(u.platform)}
 								<span className="flex-1 truncate font-mono text-xs">{u.slug}</span>
@@ -2268,7 +2602,7 @@ function PublishPane({
 								<span className="text-muted-foreground shrink-0 text-xs">
 									{pubWhen(u.scheduled_for)}
 								</span>
-							</div>
+							</button>
 						))}
 					</div>
 				)}
@@ -2277,16 +2611,22 @@ function PublishPane({
 			{/* Recent */}
 			<div className="mt-8">
 				<h2 className="mb-2 text-sm font-semibold">Recent</h2>
-				{recent.length === 0 ? (
+				{queue === null ? (
+					<div className="text-muted-foreground border-border/60 rounded-xl border border-dashed py-8 text-center text-sm">
+						Loading…
+					</div>
+				) : recent.length === 0 ? (
 					<div className="text-muted-foreground border-border/60 rounded-xl border border-dashed py-8 text-center text-sm">
 						No posts yet.
 					</div>
 				) : (
 					<div className="border-border/60 divide-border/60 divide-y overflow-hidden rounded-xl border">
-						{recent.slice(0, 15).map((p, i) => (
-							<div
-								key={`${p.slug}-${p.platform}-${i}`}
-								className="hover:bg-muted/30 flex items-center gap-3 px-4 py-2.5"
+						{recent.slice(0, 60).map((p) => (
+							<button
+								type="button"
+								key={p.id}
+								onClick={() => setDetailId(p.id)}
+								className="hover:bg-muted/30 flex w-full items-center gap-3 px-4 py-2.5 text-left"
 							>
 								{pubPlatformIcon(p.platform)}
 								<span className="flex-1 truncate font-mono text-xs">{p.slug}</span>
@@ -2294,21 +2634,13 @@ function PublishPane({
 									{p.status}
 								</span>
 								{p.external_url ? (
-									<a
-										href={p.external_url}
-										target="_blank"
-										rel="noopener noreferrer"
-										className="text-muted-foreground hover:text-foreground shrink-0"
-										title="Open post"
-									>
-										<ArrowUpRight className="size-4" />
-									</a>
+									<ArrowUpRight className="text-muted-foreground size-4 shrink-0" />
 								) : (
 									<span className="text-muted-foreground/40 shrink-0 text-xs">
-										{pubWhen(p.published_at)}
+										{pubWhen(p.published_at || p.scheduled_for)}
 									</span>
 								)}
-							</div>
+							</button>
 						))}
 					</div>
 				)}
@@ -2319,7 +2651,14 @@ function PublishPane({
 					owner={owner}
 					items={items}
 					onClose={() => setComposing(false)}
-					onPosted={loadStatus}
+					onPosted={reload}
+				/>
+			)}
+			{detailId && (
+				<ReadOnlyPostModal
+					id={detailId}
+					onClose={() => setDetailId(null)}
+					onChanged={reload}
 				/>
 			)}
 		</div>
