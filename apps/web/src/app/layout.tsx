@@ -7,6 +7,7 @@ import { TooltipProvider } from "../components/ui/tooltip";
 import { baseMetaData } from "./metadata";
 import { BotIdClient } from "botid/client";
 import { webEnv } from "@/env/web";
+import { AccountSync } from "@/projects/account-sync";
 
 export const metadata = baseMetaData;
 
@@ -60,6 +61,7 @@ export default function RootLayout({
 				>
 					<TooltipProvider>
 						<Toaster />
+						<AccountSync />
 						<Script
 							src="https://cdn.databuddy.cc/databuddy.js"
 							strategy="afterInteractive"
