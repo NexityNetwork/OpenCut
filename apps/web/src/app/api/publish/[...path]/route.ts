@@ -64,3 +64,11 @@ export async function POST(request: Request, { params }: Ctx) {
 	const { path = [] } = await params;
 	return proxy(request, path);
 }
+export async function DELETE(request: Request, { params }: Ctx) {
+	const { path = [] } = await params;
+	return proxy(request, path);
+}
+export async function PUT(request: Request, { params }: Ctx) {
+	const { path = [] } = await params;
+	return proxy(request, path);
+}

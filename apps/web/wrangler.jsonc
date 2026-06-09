@@ -50,6 +50,11 @@
       "binding": "VAULT_DB",
       "database_name": "opencut-vault",
       "database_id": "16afa4b2-a2ae-46d1-af4a-41e75836d95b"
+    },
+    {
+      "binding": "PUBLISH_DB",
+      "database_name": "ultron-publish-db",
+      "database_id": "bbe67359-d11f-4db0-a71e-6872f64b5fa1"
     }
   ]
 }

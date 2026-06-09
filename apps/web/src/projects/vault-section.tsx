@@ -689,7 +689,7 @@ export function VaultSection() {
 				}}
 			>
 				{appView === "publish" ? (
-					<PublishPane onNewProject={createBlankProject} />
+					<PublishPane items={visibleItems} owner={owner} />
 				) : (
 					<div className="px-8 pb-12">
 						<div className="flex justify-end pt-4">
@@ -1607,6 +1607,12 @@ const pubStatusColor = (s: string) =>
 				? "text-amber-400"
 				: "text-muted-foreground";
 
+// Format a Date for a native <input type="datetime-local"> (local time).
+function toLocalInput(d: Date) {
+	const p = (n: number) => String(n).padStart(2, "0");
+	return `${d.getFullYear()}-${p(d.getMonth() + 1)}-${p(d.getDate())}T${p(d.getHours())}:${p(d.getMinutes())}`;
+}
+
 type PubStatus = {
 	counts?: Record<string, number>;
 	upcoming?: {
@@ -1792,18 +1798,315 @@ function ChannelsSection() {
 	);
 }
 
-function PublishPane({ onNewProject }: { onNewProject: () => void }) {
+function ComposePostModal({
+	owner,
+	items,
+	onClose,
+	onPosted,
+}: {
+	owner: string;
+	items: VaultItem[];
+	onClose: () => void;
+	onPosted: () => void;
+}) {
+	const videos = useMemo(
+		() => items.filter((i) => i.media?.some((m) => m.type === "video")),
+		[items],
+	);
+	const [channels, setChannels] = useState<Channel[] | null>(null);
+	useEffect(() => {
+		fetch("/api/publish/channels")
+			.then((r) => (r.ok ? r.json() : null))
+			.then((d) => setChannels(d?.channels ?? []))
+			.catch(() => setChannels([]));
+	}, []);
+	const available = useMemo(() => {
+		const set = new Set(
+			(channels ?? [])
+				.filter((c) => c.status === "active")
+				.map((c) => c.platform.toLowerCase()),
+		);
+		return ["youtube", "instagram", "tiktok"].filter((p) => set.has(p));
+	}, [channels]);
+
+	const [picked, setPicked] = useState<VaultItem | null>(null);
+	const [q, setQ] = useState("");
+	const [title, setTitle] = useState("");
+	const [caption, setCaption] = useState("");
+	const [privacy, setPrivacy] = useState("public");
+	const [sel, setSel] = useState<Set<string>>(new Set());
+	const [when, setWhen] = useState(() =>
+		toLocalInput(new Date(Date.now() + 60 * 60 * 1000)),
+	);
+	const [busy, setBusy] = useState(false);
+
+	useEffect(() => {
+		if (available.length) setSel(new Set(available));
+	}, [available]);
+
+	const filtered = useMemo(() => {
+		const s = q.trim().toLowerCase();
+		return s ? videos.filter((v) => v.name.toLowerCase().includes(s)) : videos;
+	}, [videos, q]);
+
+	const choose = (it: VaultItem) => {
+		setPicked(it);
+		setTitle(it.name || "");
+		setCaption(it.caption || "");
+	};
+
+	const submit = async () => {
+		if (!picked || busy) return;
+		const platforms = [...sel];
+		if (platforms.length === 0) {
+			toast.error("Pick at least one channel");
+			return;
+		}
+		const ms = new Date(when).getTime();
+		if (!Number.isFinite(ms)) {
+			toast.error("Pick a valid time");
+			return;
+		}
+		setBusy(true);
+		const tid = toast.loading("Scheduling…");
+		try {
+			const r = await fetch("/api/publish-post", {
+				method: "POST",
+				headers: { "content-type": "application/json" },
+				body: JSON.stringify({
+					owner,
+					itemId: picked.id,
+					platforms,
+					title,
+					caption,
+					description: caption,
+					privacy,
+					scheduledFor: ms,
+				}),
+			});
+			const d = (await r.json().catch(() => ({}))) as {
+				ok?: boolean;
+				created?: unknown[];
+				error?: string;
+			};
+			if (!r.ok || !d.ok) throw new Error(d.error || "Couldn't schedule");
+			const n = d.created?.length ?? 0;
+			toast.success(`Scheduled to ${n} channel${n === 1 ? "" : "s"}`, {
+				id: tid,
+				description: pubWhen(ms),
+			});
+			onPosted();
+			onClose();
+		} catch (e) {
+			toast.error(e instanceof Error ? e.message : "Failed", { id: tid });
+		} finally {
+			setBusy(false);
+		}
+	};
+
+	const poster = (v: VaultItem) =>
+		v.thumbUrl ? (
+			// eslint-disable-next-line @next/next/no-img-element
+			<img src={v.thumbUrl} alt="" className="size-full object-cover" />
+		) : (
+			<VideoThumb
+				src={fileUrl(v.media.find((m) => m.type === "video")?.key || "")}
+				className="size-full object-cover"
+			/>
+		);
+
+	return (
+		<Dialog open onOpenChange={(o) => !o && onClose()}>
+			<DialogContent className="max-w-2xl">
+				<DialogHeader>
+					<DialogTitle>
+						{picked ? "Schedule post" : "Choose a video"}
+					</DialogTitle>
+				</DialogHeader>
+				<DialogBody>
+					{!picked ? (
+						<>
+							<Input
+								placeholder="Search your videos…"
+								value={q}
+								onChange={(e) => setQ(e.target.value)}
+								className="mb-3"
+							/>
+							{filtered.length === 0 ? (
+								<div className="text-muted-foreground py-12 text-center text-sm">
+									No videos in your library yet.
+								</div>
+							) : (
+								<div className="grid max-h-[55vh] grid-cols-3 gap-3 overflow-y-auto pr-1 sm:grid-cols-4">
+									{filtered.map((v) => (
+										<button
+											key={v.id}
+											type="button"
+											onClick={() => choose(v)}
+											className="group text-left"
+										>
+											<div className="bg-muted relative aspect-[4/5] overflow-hidden rounded-lg border border-white/10 transition group-hover:border-white/30">
+												{poster(v)}
+											</div>
+											<div className="mt-1 truncate text-xs">
+												{v.name || "Untitled"}
+											</div>
+										</button>
+									))}
+								</div>
+							)}
+						</>
+					) : (
+						<div className="space-y-4">
+							<div className="flex gap-4">
+								<div className="bg-muted relative aspect-[4/5] w-28 shrink-0 overflow-hidden rounded-lg border border-white/10">
+									{poster(picked)}
+								</div>
+								<div className="min-w-0 flex-1 space-y-3">
+									<div>
+										<label className="text-muted-foreground mb-1 block text-xs">
+											Title (YouTube)
+										</label>
+										<Input
+											value={title}
+											onChange={(e) => setTitle(e.target.value)}
+											maxLength={100}
+										/>
+									</div>
+									<button
+										type="button"
+										onClick={() => setPicked(null)}
+										className="text-muted-foreground hover:text-foreground text-xs"
+									>
+										← Choose a different video
+									</button>
+								</div>
+							</div>
+
+							<div>
+								<label className="text-muted-foreground mb-1 block text-xs">
+									Caption / description
+								</label>
+								<textarea
+									value={caption}
+									onChange={(e) => setCaption(e.target.value)}
+									rows={5}
+									className="border-border/60 bg-background focus:ring-ring w-full resize-none rounded-lg border p-3 text-sm outline-none focus:ring-1"
+								/>
+							</div>
+
+							<div>
+								<label className="text-muted-foreground mb-1.5 block text-xs">
+									Channels
+								</label>
+								{channels === null ? (
+									<div className="text-muted-foreground text-sm">Loading…</div>
+								) : available.length === 0 ? (
+									<div className="text-muted-foreground border-border/60 rounded-lg border border-dashed p-3 text-sm">
+										No channels connected — connect one in the Channels section
+										first.
+									</div>
+								) : (
+									<div className="flex flex-wrap gap-2">
+										{available.map((p) => {
+											const on = sel.has(p);
+											return (
+												<button
+													key={p}
+													type="button"
+													onClick={() =>
+														setSel((s) => {
+															const n = new Set(s);
+															on ? n.delete(p) : n.add(p);
+															return n;
+														})
+													}
+													className={cn(
+														"flex items-center gap-1.5 rounded-lg border px-3 py-1.5 text-sm capitalize transition",
+														on
+															? "border-primary bg-primary/10"
+															: "border-border/60 hover:bg-muted/50",
+													)}
+												>
+													{pubPlatformIcon(p)} {p}
+												</button>
+											);
+										})}
+									</div>
+								)}
+							</div>
+
+							<div className="flex flex-wrap gap-4">
+								<div>
+									<label className="text-muted-foreground mb-1 block text-xs">
+										Publish at
+									</label>
+									<input
+										type="datetime-local"
+										value={when}
+										onChange={(e) => setWhen(e.target.value)}
+										style={{ colorScheme: "dark" }}
+										className="border-border/60 bg-background rounded-lg border px-3 py-1.5 text-sm outline-none"
+									/>
+								</div>
+								{sel.has("youtube") && (
+									<div>
+										<label className="text-muted-foreground mb-1 block text-xs">
+											YouTube privacy
+										</label>
+										<select
+											value={privacy}
+											onChange={(e) => setPrivacy(e.target.value)}
+											style={{ colorScheme: "dark" }}
+											className="border-border/60 bg-background rounded-lg border px-3 py-1.5 text-sm outline-none"
+										>
+											<option value="public">Public</option>
+											<option value="unlisted">Unlisted</option>
+											<option value="private">Private</option>
+										</select>
+									</div>
+								)}
+							</div>
+						</div>
+					)}
+				</DialogBody>
+				{picked && (
+					<DialogFooter>
+						<Button variant="ghost" onClick={onClose} disabled={busy}>
+							Cancel
+						</Button>
+						<Button onClick={submit} disabled={busy || sel.size === 0}>
+							{busy ? "Scheduling…" : "Schedule post"}
+						</Button>
+					</DialogFooter>
+				)}
+			</DialogContent>
+		</Dialog>
+	);
+}
+
+function PublishPane({
+	items,
+	owner,
+}: {
+	items: VaultItem[];
+	owner: string;
+}) {
 	const [online, setOnline] = useState<boolean | null>(null);
 	const [status, setStatus] = useState<PubStatus | null>(null);
+	const [composing, setComposing] = useState(false);
+	const loadStatus = () => {
+		fetch("/api/publish/status")
+			.then((r) => (r.ok ? r.json() : null))
+			.then((d) => setStatus(d))
+			.catch(() => setStatus(null));
+	};
 	useEffect(() => {
 		fetch("/api/publish/health")
 			.then((r) => (r.ok ? r.json() : null))
 			.then((d) => setOnline(!!d?.ok))
 			.catch(() => setOnline(false));
-		fetch("/api/publish/status")
-			.then((r) => (r.ok ? r.json() : null))
-			.then((d) => setStatus(d))
-			.catch(() => setStatus(null));
+		loadStatus();
 	}, []);
 	const c = status?.counts ?? {};
 	const stat = [
@@ -1920,12 +2223,21 @@ function PublishPane({ onNewProject }: { onNewProject: () => void }) {
 
 			<button
 				type="button"
-				onClick={onNewProject}
+				onClick={() => setComposing(true)}
 				className="bg-primary text-primary-foreground hover:bg-primary/90 mt-8 inline-flex items-center gap-1.5 rounded-lg px-4 py-2 text-sm font-medium transition-colors"
 			>
 				<Plus className="size-4" />
 				New post
 			</button>
+
+			{composing && (
+				<ComposePostModal
+					owner={owner}
+					items={items}
+					onClose={() => setComposing(false)}
+					onPosted={loadStatus}
+				/>
+			)}
 		</div>
 	);
 }
