@@ -22,6 +22,8 @@ import {
 	ChevronLeft,
 	ChevronRight,
 	Tag,
+	Quote,
+	Copy,
 	X,
 } from "lucide-react";
 import {
@@ -47,6 +49,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 import {
 	Dialog,
+	DialogBody,
 	DialogContent,
 	DialogFooter,
 	DialogHeader,
@@ -138,6 +141,7 @@ export function VaultSection() {
 	} | null>(null);
 	const [catFor, setCatFor] = useState<VaultItem | null>(null);
 	const [renamingCat, setRenamingCat] = useState<string | null>(null);
+	const [captionItem, setCaptionItem] = useState<VaultItem | null>(null);
 	const [playingId, setPlayingId] = useState<string | null>(null);
 	const audioRef = useRef<HTMLAudioElement | null>(null);
 	const fileInputRef = useRef<HTMLInputElement | null>(null);
@@ -304,6 +308,16 @@ export function VaultSection() {
 			);
 		}
 		if (activeTab === `cat:${name}`) setActiveTab("all");
+	};
+
+	const copyCaption = async (item: VaultItem) => {
+		if (!item.caption) return;
+		try {
+			await navigator.clipboard.writeText(item.caption);
+			toast.success("Caption copied");
+		} catch {
+			toast.error("Couldn't copy caption");
+		}
 	};
 
 	const togglePlay = (item: VaultItem) => {
@@ -631,6 +645,8 @@ export function VaultSection() {
 								onRemove={() => remove(item)}
 								onToggleCategory={(cat) => toggleCategory(item, cat)}
 								onNewCategory={() => setCatFor(item)}
+								onCaption={() => setCaptionItem(item)}
+								onCopyCaption={() => copyCaption(item)}
 							/>
 						))}
 					</div>
@@ -656,6 +672,7 @@ export function VaultSection() {
 				onClose={() => setRenamingCat(null)}
 				onSave={(name) => renamingCat && renameCategory(renamingCat, name)}
 			/>
+			<CaptionDialog item={captionItem} onClose={() => setCaptionItem(null)} />
 		</section>
 	);
 }
@@ -748,6 +765,8 @@ function VaultTile({
 	onRemove,
 	onToggleCategory,
 	onNewCategory,
+	onCaption,
+	onCopyCaption,
 }: {
 	item: VaultItem;
 	playing: boolean;
@@ -758,7 +777,10 @@ function VaultTile({
 	onRemove: () => void;
 	onToggleCategory: (cat: string) => void;
 	onNewCategory: () => void;
+	onCaption: () => void;
+	onCopyCaption: () => void;
 }) {
+	const hasCaption = !!item.caption?.trim();
 	const thumb = item.thumbKey ? fileUrl(item.thumbKey) : item.thumbUrl;
 	const KindIcon =
 		item.kind === "audio"
@@ -833,6 +855,18 @@ function VaultTile({
 				</div>
 			</button>
 
+			{hasCaption && (
+				<button
+					type="button"
+					onClick={onCaption}
+					aria-label="View caption"
+					title="View caption"
+					className="absolute top-2 right-11 flex size-7 items-center justify-center rounded-full bg-black/55 text-white opacity-0 backdrop-blur-sm transition-opacity group-hover:opacity-100"
+				>
+					<Quote className="size-3.5" />
+				</button>
+			)}
+
 			<DropdownMenu>
 				<DropdownMenuTrigger asChild>
 					<button
@@ -870,6 +904,18 @@ function VaultTile({
 							</DropdownMenuItem>
 						</DropdownMenuSubContent>
 					</DropdownMenuSub>
+					{hasCaption && (
+						<>
+							<DropdownMenuItem onClick={onCaption}>
+								<Quote className="size-4" />
+								View caption
+							</DropdownMenuItem>
+							<DropdownMenuItem onClick={onCopyCaption}>
+								<Copy className="size-4" />
+								Copy caption
+							</DropdownMenuItem>
+						</>
+					)}
 					<DropdownMenuItem onClick={onRename}>
 						<Pencil className="size-4" />
 						Rename
@@ -940,14 +986,16 @@ function RenameDialog({
 				<DialogHeader>
 					<DialogTitle>Rename</DialogTitle>
 				</DialogHeader>
-				<Input
-					value={value}
-					onChange={(e) => setValue(e.target.value)}
-					onKeyDown={(e) => {
-						if (e.key === "Enter" && value.trim()) onSave(value.trim());
-					}}
-					autoFocus
-				/>
+				<DialogBody>
+					<Input
+						value={value}
+						onChange={(e) => setValue(e.target.value)}
+						onKeyDown={(e) => {
+							if (e.key === "Enter" && value.trim()) onSave(value.trim());
+						}}
+						autoFocus
+					/>
+				</DialogBody>
 				<DialogFooter>
 					<Button variant="text" onClick={onClose}>
 						Cancel
@@ -985,9 +1033,6 @@ function CategoryDialog({
 		<Dialog open={open} onOpenChange={(o) => !o && onClose()}>
 			<DialogContent className="max-w-sm">
 				<DialogHeader>
-					<div className="bg-primary/10 text-primary mb-1 flex size-10 items-center justify-center rounded-full">
-						<Tag className="size-5" />
-					</div>
 					<DialogTitle>{isRename ? "Rename category" : "New category"}</DialogTitle>
 					<p className="text-muted-foreground text-sm">
 						{isRename
@@ -995,20 +1040,22 @@ function CategoryDialog({
 							: "Group your library your own way — like B-roll, Hooks or Music."}
 					</p>
 				</DialogHeader>
-				<div className="space-y-1.5">
-					<span className="text-muted-foreground text-xs font-medium">
-						Category name
-					</span>
-					<Input
-						value={value}
-						onChange={(e) => setValue(e.target.value)}
-						onKeyDown={(e) => {
-							if (e.key === "Enter") submit();
-						}}
-						placeholder="e.g. B-roll, Hooks, Music"
-						autoFocus
-					/>
-				</div>
+				<DialogBody>
+					<div className="space-y-1.5">
+						<span className="text-muted-foreground text-xs font-medium">
+							Category name
+						</span>
+						<Input
+							value={value}
+							onChange={(e) => setValue(e.target.value)}
+							onKeyDown={(e) => {
+								if (e.key === "Enter") submit();
+							}}
+							placeholder="e.g. B-roll, Hooks, Music"
+							autoFocus
+						/>
+					</div>
+				</DialogBody>
 				<DialogFooter>
 					<Button variant="text" onClick={onClose}>
 						Cancel
@@ -1022,11 +1069,67 @@ function CategoryDialog({
 	);
 }
 
+function CaptionDialog({
+	item,
+	onClose,
+}: {
+	item: VaultItem | null;
+	onClose: () => void;
+}) {
+	const caption = item?.caption ?? "";
+	const copy = async () => {
+		try {
+			await navigator.clipboard.writeText(caption);
+			toast.success("Caption copied");
+		} catch {
+			toast.error("Couldn't copy caption");
+		}
+	};
+	return (
+		<Dialog open={!!item} onOpenChange={(o) => !o && onClose()}>
+			<DialogContent className="max-w-lg">
+				<DialogHeader>
+					<DialogTitle className="line-clamp-2 pr-8">
+						{item?.name || "Caption"}
+					</DialogTitle>
+					{item?.source && (
+						<p className="text-muted-foreground text-sm">{item.source}</p>
+					)}
+				</DialogHeader>
+				<DialogBody className="max-h-[58vh] overflow-y-auto">
+					<p className="text-foreground/90 text-sm leading-relaxed whitespace-pre-wrap">
+						{caption}
+					</p>
+				</DialogBody>
+				<DialogFooter>
+					<Button variant="text" onClick={onClose}>
+						Close
+					</Button>
+					<Button onClick={copy}>
+						<Copy className="size-4" />
+						Copy caption
+					</Button>
+				</DialogFooter>
+			</DialogContent>
+		</Dialog>
+	);
+}
+
 function Lightbox({ item, onClose }: { item: VaultItem; onClose: () => void }) {
 	const [i, setI] = useState(0);
 	const media = item.media;
 	const idx = Math.min(i, media.length - 1);
 	const cur = media[idx];
+	const copyCap = async () => {
+		if (!item.caption) return;
+		try {
+			await navigator.clipboard.writeText(item.caption);
+			toast.success("Caption copied");
+		} catch {
+			toast.error("Couldn't copy caption");
+		}
+	};
+	const mediaMaxW = item.caption ? "max-w-[90vw] lg:max-w-[54vw]" : "max-w-[80vw]";
 
 	useEffect(() => {
 		for (const m of media) {
@@ -1084,14 +1187,14 @@ function Lightbox({ item, onClose }: { item: VaultItem; onClose: () => void }) {
 							autoPlay
 							controlsList="nodownload noplaybackrate noremoteplayback"
 							disablePictureInPicture
-							className="max-h-[85vh] max-w-[80vw] rounded-lg"
+							className={`max-h-[85vh] ${mediaMaxW} rounded-lg`}
 						/>
 					) : (
 						// eslint-disable-next-line @next/next/no-img-element
 						<img
 							src={fileUrl(cur.key)}
 							alt={item.name}
-							className="max-h-[85vh] max-w-[80vw] rounded-lg object-contain"
+							className={`max-h-[85vh] ${mediaMaxW} rounded-lg object-contain`}
 						/>
 					)}
 					{media.length > 1 && (
@@ -1110,6 +1213,25 @@ function Lightbox({ item, onClose }: { item: VaultItem; onClose: () => void }) {
 					>
 						<ChevronRight className="size-5" />
 					</button>
+				)}
+
+				{item.caption && (
+					<aside className="hidden max-h-[85vh] w-80 shrink-0 flex-col overflow-hidden rounded-xl bg-neutral-900/95 ring-1 ring-white/10 lg:flex">
+						<div className="flex items-center justify-between border-b border-white/10 px-4 py-3">
+							<span className="text-sm font-semibold text-white">Caption</span>
+							<button
+								type="button"
+								onClick={copyCap}
+								className="flex items-center gap-1.5 rounded-md bg-white/10 px-2.5 py-1 text-xs font-medium text-white transition-colors hover:bg-white/20"
+							>
+								<Copy className="size-3.5" />
+								Copy
+							</button>
+						</div>
+						<div className="overflow-y-auto px-4 py-3 text-sm leading-relaxed whitespace-pre-wrap text-white/80">
+							{item.caption}
+						</div>
+					</aside>
 				)}
 			</div>
 		</div>

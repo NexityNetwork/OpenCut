@@ -38,6 +38,7 @@ function rowToItem(r: Record<string, unknown>) {
 		thumbUrl: r.thumb_url,
 		media: safeJson(r.media, [] as unknown[]),
 		tags: safeJson(r.tags, [] as string[]),
+		caption: r.caption ?? null,
 		createdAt: r.created_at,
 	};
 }
@@ -84,8 +85,8 @@ export async function POST(request: Request) {
 	await d
 		.prepare(
 			`INSERT INTO vault_items
-       (id, owner, kind, name, source, duration_sec, thumb_key, thumb_url, media, tags, created_at)
-       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+       (id, owner, kind, name, source, duration_sec, thumb_key, thumb_url, media, tags, caption, created_at)
+       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
 		)
 		.bind(
 			id,
@@ -98,6 +99,7 @@ export async function POST(request: Request) {
 			b.thumbUrl ? String(b.thumbUrl) : null,
 			JSON.stringify(media),
 			JSON.stringify(Array.isArray(b.tags) ? b.tags : []),
+			typeof b.caption === "string" && b.caption.trim() ? b.caption : null,
 			Date.now(),
 		)
 		.run();
@@ -135,6 +137,12 @@ export async function PATCH(request: Request) {
 		await d
 			.prepare("UPDATE vault_items SET name = ? WHERE owner = ? AND id = ?")
 			.bind(b.name.trim(), owner, id)
+			.run();
+	}
+	if (typeof b.caption === "string") {
+		await d
+			.prepare("UPDATE vault_items SET caption = ? WHERE owner = ? AND id = ?")
+			.bind(b.caption.trim() ? b.caption : null, owner, id)
 			.run();
 	}
 	return Response.json({ ok: true });

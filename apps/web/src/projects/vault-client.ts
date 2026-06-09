@@ -19,6 +19,7 @@ export type VaultItem = {
 	thumbUrl?: string;
 	media: VaultMedia[];
 	tags?: string[];
+	caption?: string;
 	createdAt: number;
 };
 
