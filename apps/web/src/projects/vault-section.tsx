@@ -586,7 +586,7 @@ function ProjectCard({
 	return (
 		<div className="group relative">
 			<button type="button" onClick={onOpen} className="block w-full text-left">
-				<div className="bg-muted relative aspect-video overflow-hidden rounded-xl border border-border/60 shadow-sm ring-1 ring-white/5 ring-inset transition-all duration-200 group-hover:border-border group-hover:shadow-xl group-hover:shadow-black/30">
+				<div className="bg-muted relative aspect-[4/5] overflow-hidden rounded-xl border border-border/60 shadow-sm ring-1 ring-white/5 ring-inset transition-all duration-200 group-hover:border-border group-hover:shadow-xl group-hover:shadow-black/30">
 					{project.thumbnail ? (
 						// eslint-disable-next-line @next/next/no-img-element
 						<img
@@ -691,7 +691,7 @@ function VaultTile({
 	return (
 		<div className="group relative">
 			<button type="button" onClick={onOpen} className="block w-full text-left">
-				<div className="bg-muted relative aspect-video overflow-hidden rounded-xl border border-border/60 shadow-sm ring-1 ring-white/5 ring-inset transition-all duration-200 group-hover:border-border group-hover:shadow-xl group-hover:shadow-black/30">
+				<div className="bg-muted relative aspect-[4/5] overflow-hidden rounded-xl border border-border/60 shadow-sm ring-1 ring-white/5 ring-inset transition-all duration-200 group-hover:border-border group-hover:shadow-xl group-hover:shadow-black/30">
 					{thumb ? (
 						// eslint-disable-next-line @next/next/no-img-element
 						<img
