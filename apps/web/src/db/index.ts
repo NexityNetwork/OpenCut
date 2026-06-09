@@ -1,19 +1,18 @@
-import { drizzle } from "drizzle-orm/postgres-js";
-import postgres from "postgres";
+import { drizzle } from "drizzle-orm/d1";
+import { getCloudflareContext } from "@opennextjs/cloudflare";
 import * as schema from "./schema";
-import { webEnv } from "@/env/web";
 
-let _db: ReturnType<typeof drizzle> | null = null;
-
-function getDb() {
-	if (!_db) {
-		const client = postgres(webEnv.DATABASE_URL);
-		_db = drizzle(client, { schema });
+// D1 is a per-request binding (only available inside a request via the
+// Cloudflare context), so the Drizzle client is resolved per call rather than
+// at module load. The auth tables live alongside the Vault in the opencut-vault
+// D1 database (binding: VAULT_DB).
+export function getDb() {
+	const { env } = getCloudflareContext();
+	const d1 = (env as unknown as { VAULT_DB?: unknown }).VAULT_DB;
+	if (!d1) {
+		throw new Error("D1 binding VAULT_DB is not available");
 	}
-
-	return _db;
+	return drizzle(d1 as Parameters<typeof drizzle>[0], { schema });
 }
-
-export const db = getDb();
 
 export * from "./schema";

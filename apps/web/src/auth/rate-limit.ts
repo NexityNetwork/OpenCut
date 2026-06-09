@@ -1,21 +1,8 @@
-import { Ratelimit } from "@upstash/ratelimit";
-import { Redis } from "@upstash/redis";
-import { webEnv } from "@/env/web";
-
-const redis = new Redis({
-	url: webEnv.UPSTASH_REDIS_REST_URL,
-	token: webEnv.UPSTASH_REDIS_REST_TOKEN,
-});
-
-export const baseRateLimit = new Ratelimit({
-	redis,
-	limiter: Ratelimit.slidingWindow(100, "1 m"), // 100 requests per minute
-	analytics: true,
-	prefix: "rate-limit",
-});
-
-export async function checkRateLimit({ request }: { request: Request }) {
-	const ip = request.headers.get("x-forwarded-for") ?? "anonymous";
-	const { success } = await baseRateLimit.limit(ip);
-	return { success, limited: !success };
+// Best-effort feedback rate-limit. The previous implementation talked to
+// Upstash Redis, but this deployment only has placeholder Upstash creds, which
+// would make every call throw. Until a real Upstash (or D1-backed) limiter is
+// wired, this is a safe no-op so the feedback endpoint never 500s. better-auth
+// has its own built-in rate limiting for the auth routes.
+export async function checkRateLimit(_: { request: Request }) {
+	return { success: true, limited: false };
 }

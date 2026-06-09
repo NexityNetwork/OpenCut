@@ -1,43 +1,46 @@
-import { betterAuth, type RateLimit } from "better-auth";
+import { betterAuth } from "better-auth";
 import { drizzleAdapter } from "better-auth/adapters/drizzle";
-import { Redis } from "@upstash/redis";
-import { db } from "@/db";
-import { webEnv } from "@/env/web";
+import { drizzle } from "drizzle-orm/d1";
+import { getCloudflareContext } from "@opennextjs/cloudflare";
+import * as schema from "@/db/schema";
 
-const redis = new Redis({
-	url: webEnv.UPSTASH_REDIS_REST_URL,
-	token: webEnv.UPSTASH_REDIS_REST_TOKEN,
-});
+type AuthEnv = {
+	VAULT_DB?: unknown;
+	BETTER_AUTH_SECRET?: string;
+	NEXT_PUBLIC_SITE_URL?: string;
+	GOOGLE_CLIENT_ID?: string;
+	GOOGLE_CLIENT_SECRET?: string;
+};
 
-export const auth = betterAuth({
-	database: drizzleAdapter(db, {
-		provider: "pg",
-		usePlural: true,
-	}),
-	secret: webEnv.BETTER_AUTH_SECRET,
-	user: {
-		deleteUser: {
-			enabled: true,
-		},
-	},
-	emailAndPassword: {
-		enabled: true,
-	},
-	rateLimit: {
-		storage: "secondary-storage",
-		customStorage: {
-			get: async (key) => {
-				const value = await redis.get(key);
-				return value as RateLimit | undefined;
-			},
-			set: async (key, value) => {
-				await redis.set(key, value);
-			},
-		},
-	},
-	baseURL: webEnv.NEXT_PUBLIC_SITE_URL,
-	appName: "OpenCut",
-	trustedOrigins: [webEnv.NEXT_PUBLIC_SITE_URL],
-});
+// Built per request: D1 and secrets come from the Cloudflare request context,
+// not module-load env. Google turns itself on automatically the moment
+// GOOGLE_CLIENT_ID/SECRET exist as Worker secrets — no code change needed.
+export function createAuth() {
+	const { env } = getCloudflareContext();
+	const e = env as unknown as AuthEnv;
+	const db = drizzle(e.VAULT_DB as Parameters<typeof drizzle>[0], { schema });
+	const baseURL = e.NEXT_PUBLIC_SITE_URL ?? "https://edits.51ultron.com";
+	const hasGoogle = Boolean(e.GOOGLE_CLIENT_ID && e.GOOGLE_CLIENT_SECRET);
 
-export type Auth = typeof auth;
+	return betterAuth({
+		database: drizzleAdapter(db, { provider: "sqlite", usePlural: true }),
+		secret: e.BETTER_AUTH_SECRET,
+		baseURL,
+		appName: "Ultron Monolith",
+		trustedOrigins: [baseURL],
+		emailAndPassword: { enabled: true },
+		user: { deleteUser: { enabled: true } },
+		...(hasGoogle
+			? {
+					socialProviders: {
+						google: {
+							clientId: e.GOOGLE_CLIENT_ID as string,
+							clientSecret: e.GOOGLE_CLIENT_SECRET as string,
+						},
+					},
+				}
+			: {}),
+	});
+}
+
+export type Auth = ReturnType<typeof createAuth>;
