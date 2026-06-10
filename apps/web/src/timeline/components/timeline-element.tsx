@@ -29,6 +29,9 @@ import {
 	ContextMenuContent,
 	ContextMenuItem,
 	ContextMenuSeparator,
+	ContextMenuSub,
+	ContextMenuSubContent,
+	ContextMenuSubTrigger,
 	ContextMenuTrigger,
 } from "@/components/ui/context-menu";
 import type { SelectionBoxBounds } from "@/selection/types";
@@ -50,7 +53,13 @@ import {
 import { buildWaveformGainSamples, isElementMuted } from "@/timeline/audio-state";
 import { getTimelinePixelsPerSecond } from "@/timeline";
 import { buildWaveformSourceKey } from "@/media/waveform-summary";
-import { addMediaTime, type MediaTime, TICKS_PER_SECOND } from "@/wasm";
+import {
+	addMediaTime,
+	type MediaTime,
+	mediaTimeFromSeconds,
+	mediaTimeToSeconds,
+	TICKS_PER_SECOND,
+} from "@/wasm";
 import {
 	getActionDefinition,
 	type TAction,
@@ -78,6 +87,8 @@ import {
 	Exchange01Icon,
 	KeyframeIcon,
 	MagicWand05Icon,
+	Clock01Icon,
+	EqualSignIcon,
 } from "@hugeicons/core-free-icons";
 import { HugeiconsIcon } from "@hugeicons/react";
 import { uppercase } from "@/utils/string";
@@ -223,6 +234,45 @@ interface TimelineElementProps {
 	isDropTarget?: boolean;
 }
 
+// Elements never collapse below this so a "0s" tap can't make one disappear.
+const MIN_DURATION_SEC = 0.1;
+// Fine-grained presets (0.5s steps where it matters) for the right-click
+// "Set duration" — so a precise length is one click, not a careful drag.
+const DURATION_PRESETS_SEC = [0.5, 1, 1.5, 2, 2.5, 3, 4, 5, 7, 10];
+
+// Build the timing patch to make an element exactly `seconds` long. Text /
+// images / stickers resize freely; video & audio are clamped to the available
+// source (and trimEnd is moved so the visible window stays valid).
+function durationPatch({
+	el,
+	seconds,
+}: {
+	el: TimelineElementType;
+	seconds: number;
+}): Partial<TimelineElementType> {
+	let target = Math.max(MIN_DURATION_SEC, seconds);
+	const bounded =
+		(el.type === "video" || el.type === "audio") &&
+		el.sourceDuration !== undefined;
+	if (bounded && el.sourceDuration !== undefined) {
+		const srcSec = mediaTimeToSeconds({ time: el.sourceDuration });
+		const trimStartSec = mediaTimeToSeconds({ time: el.trimStart });
+		const availSec = Math.max(MIN_DURATION_SEC, srcSec - trimStartSec);
+		target = Math.min(target, availSec);
+		const trimEndSec = Math.max(0, srcSec - trimStartSec - target);
+		return {
+			duration: mediaTimeFromSeconds({ seconds: target }),
+			trimEnd: mediaTimeFromSeconds({ seconds: trimEndSec }),
+		};
+	}
+	return { duration: mediaTimeFromSeconds({ seconds: target }) };
+}
+
+function formatDurationLabel(seconds: number): string {
+	const rounded = Math.round(seconds * 10) / 10;
+	return Number.isInteger(rounded) ? `${rounded}s` : `${rounded.toFixed(1)}s`;
+}
+
 export function TimelineElement({
 	element,
 	track,
@@ -336,6 +386,37 @@ export function TimelineElement({
 		event.stopPropagation();
 		if (hasMediaId(element)) {
 			requestRevealMedia(element.mediaId);
+		}
+	};
+
+	const editor = useEditor();
+	const currentDurationSec = mediaTimeToSeconds({ time: element.duration });
+
+	// Set this element to an exact length (single undoable step).
+	const setElementDurationSeconds = (seconds: number) => {
+		editor.timeline.updateElements({
+			updates: [
+				{
+					trackId: track.id,
+					elementId: element.id,
+					patch: durationPatch({ el: element, seconds }),
+				},
+			],
+		});
+	};
+
+	// Make every selected element the same length as this one — the "make these
+	// equal" the timeline can't yet do by eye. One undoable step for the batch.
+	const matchDurationToThis = () => {
+		const updates = editor.timeline
+			.getElementsWithTracks({ elements: selectedElements })
+			.map(({ track: elTrack, element: el }) => ({
+				trackId: elTrack.id,
+				elementId: el.id,
+				patch: durationPatch({ el, seconds: currentDurationSec }),
+			}));
+		if (updates.length > 0) {
+			editor.timeline.updateElements({ updates });
 		}
 	};
 
@@ -501,6 +582,43 @@ export function TimelineElement({
 								Replace media
 							</ContextMenuItem>
 						</>
+					)}
+					<ContextMenuSeparator />
+					<ContextMenuSub>
+						<ContextMenuSubTrigger
+							icon={<HugeiconsIcon icon={Clock01Icon} />}
+						>
+							Set duration
+						</ContextMenuSubTrigger>
+						<ContextMenuSubContent className="w-44">
+							<ContextMenuItem disabled>
+								Current: {formatDurationLabel(currentDurationSec)}
+							</ContextMenuItem>
+							<ContextMenuSeparator />
+							{DURATION_PRESETS_SEC.map((seconds) => (
+								<ContextMenuItem
+									key={seconds}
+									onClick={(event: React.MouseEvent) => {
+										event.stopPropagation();
+										setElementDurationSeconds(seconds);
+									}}
+								>
+									{formatDurationLabel(seconds)}
+								</ContextMenuItem>
+							))}
+						</ContextMenuSubContent>
+					</ContextMenuSub>
+					{selectedElements.length > 1 && (
+						<ContextMenuItem
+							icon={<HugeiconsIcon icon={EqualSignIcon} />}
+							onClick={(event: React.MouseEvent) => {
+								event.stopPropagation();
+								matchDurationToThis();
+							}}
+							textRight={formatDurationLabel(currentDurationSec)}
+						>
+							Match duration ({selectedElements.length})
+						</ContextMenuItem>
 					)}
 					<ContextMenuSeparator />
 					<DeleteMenuItem
