@@ -387,7 +387,9 @@ export function VaultSection() {
 	const isInitialized = useEditor((e) => e.project.getIsInitialized());
 	const { data: session } = useSession();
 	const userId = session?.user?.id;
-	const isOwner = session?.user?.email === OWNER_EMAIL;
+	// Multi-tenant: every signed-in user gets their own Publish + inbox (each
+	// scoped to their own connected channels). Signed-out visitors see a preview.
+	const isOwner = !!session?.user?.id;
 	const { resolvedTheme } = useTheme();
 	const [owner, setOwner] = useState("");
 	const [items, setItems] = useState<VaultItem[]>([]);
@@ -3049,6 +3051,8 @@ function demoQueueRows() {
 }
 
 function ChannelsSection({ preview = false }: { preview?: boolean }) {
+	const { data: channelSession } = useSession();
+	const channelOwner = channelSession?.user?.id ?? "";
 	const [channels, setChannels] = useState<Channel[] | null>(
 		preview ? DEMO_CHANNELS : null,
 	);
@@ -3070,12 +3074,14 @@ function ChannelsSection({ preview = false }: { preview?: boolean }) {
 		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, []);
 
+	// Carry the signed-in user's id so the token connects under THEIR account.
+	const ownerQS = channelOwner ? `?owner=${encodeURIComponent(channelOwner)}` : "";
 	const connectYouTube = () => {
-		window.open(`${PUBLISH_ORIGIN}/oauth2/youtube/start`, "_blank", "noopener");
+		window.open(`${PUBLISH_ORIGIN}/oauth2/youtube/start${ownerQS}`, "_blank", "noopener");
 		toast.message("Authorize YouTube in the new tab, then hit Refresh.");
 	};
 	const connectLinkedIn = () => {
-		window.open(`${PUBLISH_ORIGIN}/oauth2/linkedin/start`, "_blank", "noopener");
+		window.open(`${PUBLISH_ORIGIN}/oauth2/linkedin/start${ownerQS}`, "_blank", "noopener");
 		toast.message("Authorize LinkedIn in the new tab, then hit Refresh.");
 	};
 	const initiate = async (platform: string) => {

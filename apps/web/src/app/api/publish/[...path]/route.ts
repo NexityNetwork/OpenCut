@@ -30,6 +30,18 @@ async function proxy(request: Request, path: string[]) {
 		headers["x-api-key"] = key;
 		headers["x-ultron-api-key"] = key;
 	}
+	// Multi-tenant: tell the satellite WHICH user this is, derived server-side
+	// from the session (never client-supplied) so everyone sees only their own
+	// channels / queue / inbox.
+	try {
+		const { createAuth } = await import("@/auth/server");
+		const session = await createAuth().api.getSession({
+			headers: request.headers,
+		});
+		if (session?.user?.id) headers["x-ultron-owner"] = session.user.id;
+	} catch {
+		/* no session — satellite treats as legacy/all */
+	}
 
 	const init: RequestInit = { method: request.method, headers };
 	if (request.method !== "GET" && request.method !== "HEAD") {

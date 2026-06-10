@@ -187,12 +187,15 @@ export async function POST(request: Request) {
 			skipped.push({ platform, reason: "subreddit required" });
 			continue;
 		}
+		// Scope to THIS owner's channel so each user publishes to their own
+		// connected accounts (multi-tenant). Falls back to a legacy unowned
+		// channel only when the owner has none registered yet.
 		const channel = await d1Retry(() =>
 			publish
 				.prepare(
-					"SELECT id, label FROM channels WHERE platform = ? AND status = 'active' ORDER BY created_at ASC LIMIT 1",
+					"SELECT id, label FROM channels WHERE platform = ? AND status = 'active' AND owner = ? ORDER BY created_at ASC LIMIT 1",
 				)
-				.bind(platform)
+				.bind(platform, owner)
 				.first<{ id: string; label: string }>(),
 		);
 		if (!channel) {
@@ -270,13 +273,14 @@ export async function POST(request: Request) {
 				publish
 				.prepare(
 					`INSERT INTO content_queue
-           (id, channel_id, platform, slug, github_path, github_metadata_sha,
+           (id, owner, channel_id, platform, slug, github_path, github_metadata_sha,
             github_video_path, github_thumbnail_path, metadata_json, status,
             scheduled_for, attempts, created_at, updated_at)
-           VALUES (?, ?, ?, ?, ?, ?, ?, NULL, ?, ?, ?, 0, ?, ?)`,
+           VALUES (?, ?, ?, ?, ?, ?, ?, ?, NULL, ?, ?, ?, 0, ?, ?)`,
 				)
 				.bind(
 					id,
+					owner,
 					channel.id,
 					platform,
 					slug,
