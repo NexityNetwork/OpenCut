@@ -42,15 +42,19 @@ export function EditorHeader() {
 	);
 }
 
-// Return to the library on the tab the user came from (kept in sessionStorage
-// by the library), so back doesn't dump them on the default "All" view.
+// Return to the Library on the same tab the user came from (the library keeps
+// both in sessionStorage), so back doesn't dump them on the Home dashboard or
+// the default "All" view.
 function libraryHref(): string {
-	if (typeof window === "undefined") return "/projects";
+	if (typeof window === "undefined") return "/projects?view=library";
 	try {
-		const tab = sessionStorage.getItem("vault-active-tab");
-		return tab ? `/projects?tab=${encodeURIComponent(tab)}` : "/projects";
+		const view = sessionStorage.getItem("vault-app-view") || "library";
+		const tab = sessionStorage.getItem("vault-active-tab") || "";
+		const params = new URLSearchParams({ view });
+		if (tab) params.set("tab", tab);
+		return `/projects?${params.toString()}`;
 	} catch {
-		return "/projects";
+		return "/projects?view=library";
 	}
 }
 

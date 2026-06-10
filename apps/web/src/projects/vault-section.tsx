@@ -299,9 +299,32 @@ export function VaultSection() {
 	const [collapsed, setCollapsed] = useState(false);
 	const [mobileNav, setMobileNav] = useState(false);
 	const [searchOpen, setSearchOpen] = useState(false);
+	// The active view is persisted in the URL (?view=) + sessionStorage, so a
+	// refresh or returning from the editor lands on the same view (e.g. the
+	// Library) instead of always resetting to the Home dashboard.
 	const [appView, setAppView] = useState<
 		"home" | "library" | "publish" | "bio" | "clips" | "brand" | "inbox"
-	>("home");
+	>(() => {
+		if (typeof window === "undefined") return "home";
+		const v =
+			new URLSearchParams(window.location.search).get("view") ||
+			sessionStorage.getItem("vault-app-view") ||
+			"home";
+		return (
+			["home", "library", "publish", "bio", "clips", "brand", "inbox"] as const
+		).includes(
+			v as "home" | "library" | "publish" | "bio" | "clips" | "brand" | "inbox",
+		)
+			? (v as
+					| "home"
+					| "library"
+					| "publish"
+					| "bio"
+					| "clips"
+					| "brand"
+					| "inbox")
+			: "home";
+	});
 	// Which SM Automation subsection is active (the sidebar drives it directly).
 	const [inboxTab, setInboxTab] = useState<InboxTab>("comments");
 	const selectInboxTab = (t: InboxTab) => {
@@ -428,19 +451,30 @@ export function VaultSection() {
 		const fromUrl = new URLSearchParams(window.location.search).get("tab");
 		return fromUrl || sessionStorage.getItem("vault-active-tab") || "all";
 	});
+	// Mirror the current view + tab into the URL (and sessionStorage) so a
+	// refresh or a back-from-editor restores both.
 	useEffect(() => {
 		if (typeof window === "undefined") return;
 		sessionStorage.setItem("vault-active-tab", activeTab);
+		sessionStorage.setItem("vault-app-view", appView);
 		const params = new URLSearchParams(window.location.search);
+		let changed = false;
+		if ((params.get("view") || "") !== appView) {
+			params.set("view", appView);
+			changed = true;
+		}
 		if ((params.get("tab") || "") !== activeTab) {
 			params.set("tab", activeTab);
+			changed = true;
+		}
+		if (changed) {
 			window.history.replaceState(
 				null,
 				"",
 				`${window.location.pathname}?${params.toString()}`,
 			);
 		}
-	}, [activeTab]);
+	}, [activeTab, appView]);
 	// Asset detail opens inline (sidebar stays); cleared whenever you navigate.
 	const [selectedAsset, setSelectedAsset] = useState<VaultItem | null>(null);
 	const [renaming, setRenaming] = useState<{
