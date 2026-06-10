@@ -79,7 +79,7 @@ function Avatar({ name }: { name: string }) {
 	);
 }
 
-export function DmInbox({ preview }: { preview: boolean }) {
+export function DmInbox({ preview, account }: { preview: boolean; account?: string }) {
 	const [convs, setConvs] = useState<Conversation[] | null>(null);
 	const [active, setActive] = useState<Conversation | null>(null);
 	const [messages, setMessages] = useState<Message[] | null>(null);
@@ -97,7 +97,7 @@ export function DmInbox({ preview }: { preview: boolean }) {
 		}
 		setLoadingConvs(true);
 		try {
-			const r = await fetch("/api/publish/dm");
+			const r = await fetch(`/api/publish/dm${account ? `?account=${encodeURIComponent(account)}` : ""}`);
 			const d = (await r.json().catch(() => ({}))) as {
 				conversations?: Conversation[];
 				error?: string;
@@ -110,7 +110,7 @@ export function DmInbox({ preview }: { preview: boolean }) {
 		} finally {
 			setLoadingConvs(false);
 		}
-	}, [preview]);
+	}, [preview, account]);
 
 	useEffect(() => {
 		void loadConvs();
@@ -127,7 +127,7 @@ export function DmInbox({ preview }: { preview: boolean }) {
 			setLoadingMsgs(true);
 			try {
 				const r = await fetch(
-					`/api/publish/dm/messages?conversation_id=${encodeURIComponent(c.id)}`,
+					`/api/publish/dm/messages?conversation_id=${encodeURIComponent(c.id)}${account ? `&account=${encodeURIComponent(account)}` : ""}`,
 				);
 				const d = (await r.json().catch(() => ({}))) as {
 					messages?: Message[];
@@ -142,7 +142,7 @@ export function DmInbox({ preview }: { preview: boolean }) {
 				setLoadingMsgs(false);
 			}
 		},
-		[preview],
+		[preview, account],
 	);
 
 	useEffect(() => {
@@ -181,6 +181,7 @@ export function DmInbox({ preview }: { preview: boolean }) {
 					recipient_id: active.with_id,
 					image_url: `${origin}${fileUrl(key)}`,
 					text: draft.trim() || undefined,
+					account,
 				}),
 			});
 			const d = (await r.json().catch(() => ({}))) as { ok?: boolean; error?: string };
@@ -221,7 +222,7 @@ export function DmInbox({ preview }: { preview: boolean }) {
 			const r = await fetch("/api/publish/dm/send", {
 				method: "POST",
 				headers: { "content-type": "application/json" },
-				body: JSON.stringify({ recipient_id: active.with_id, text }),
+				body: JSON.stringify({ recipient_id: active.with_id, text, account }),
 			});
 			const d = (await r.json().catch(() => ({}))) as { ok?: boolean; error?: string };
 			if (!r.ok || !d.ok) throw new Error(d.error || "Send failed");

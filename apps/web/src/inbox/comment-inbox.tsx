@@ -126,7 +126,13 @@ function Avatar({ name }: { name: string }) {
 	);
 }
 
-export function CommentInbox({ preview }: { preview: boolean }) {
+export function CommentInbox({
+	preview,
+	account,
+}: {
+	preview: boolean;
+	account?: string;
+}) {
 	const [comments, setComments] = useState<InboxComment[] | null>(null);
 	const [errors, setErrors] = useState<Record<string, string>>({});
 	const [filter, setFilter] = useState<"all" | Platform>("all");
@@ -142,7 +148,9 @@ export function CommentInbox({ preview }: { preview: boolean }) {
 		}
 		setLoading(true);
 		try {
-			const r = await fetch("/api/publish/comments?platform=all");
+			const r = await fetch(
+				`/api/publish/comments?platform=all${account ? `&account=${encodeURIComponent(account)}` : ""}`,
+			);
 			const d = (await r.json().catch(() => ({}))) as {
 				comments?: InboxComment[];
 				errors?: Record<string, string>;
@@ -157,7 +165,7 @@ export function CommentInbox({ preview }: { preview: boolean }) {
 		} finally {
 			setLoading(false);
 		}
-	}, [preview]);
+	}, [preview, account]);
 
 	useEffect(() => {
 		void load();
@@ -210,6 +218,7 @@ export function CommentInbox({ preview }: { preview: boolean }) {
 					platform: c.platform,
 					comment_id: c.comment_id,
 					post_id: c.post_id,
+					account,
 					message,
 				}),
 			});

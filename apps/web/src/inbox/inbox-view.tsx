@@ -19,6 +19,7 @@ import { AutoDmBuilder } from "@/inbox/auto-dm";
 import { ContactsView } from "@/inbox/contacts-view";
 import { BroadcastsView } from "@/inbox/broadcasts-view";
 import { AnalyticsView } from "@/inbox/analytics-view";
+import { AccountSwitcher, useIgAccounts } from "@/inbox/account-switcher";
 
 type Tab = "comments" | "dms" | "funnels" | "contacts" | "broadcasts" | "analytics";
 
@@ -39,10 +40,12 @@ export function InboxView({
 	preview: boolean;
 }) {
 	const [tab, setTab] = useState<Tab>("comments");
+	const { accounts, account, setAccount } = useIgAccounts(preview);
 
 	return (
 		<div className="flex h-full flex-col">
-			<div className="flex shrink-0 justify-center px-4 pt-14 pb-1 lg:pt-6">
+			<div className="flex shrink-0 items-center gap-2 px-4 pt-14 pb-1 lg:pt-6">
+				<div className="flex-1" />
 				<div className="flex max-w-full gap-1 overflow-x-auto rounded-xl border border-[var(--mono-line)] bg-[var(--mono-panel)] p-1">
 					{TABS.map((t) => (
 						<button
@@ -61,17 +64,20 @@ export function InboxView({
 						</button>
 					))}
 				</div>
+				<div className="flex flex-1 justify-end">
+					<AccountSwitcher accounts={accounts} account={account} onSelect={setAccount} />
+				</div>
 			</div>
 
 			<div className="min-h-0 flex-1">
 				{tab === "comments" ? (
-					<CommentInbox preview={preview} />
+					<CommentInbox preview={preview} account={account} />
 				) : tab === "dms" ? (
 					<div className="mx-auto max-w-3xl px-4 pt-6 pb-10 sm:px-8">
-						<DmInbox preview={preview} />
+						<DmInbox preview={preview} account={account} />
 					</div>
 				) : tab === "funnels" ? (
-					<AutoDmBuilder owner={owner} preview={preview} />
+					<AutoDmBuilder owner={owner} preview={preview} account={account} />
 				) : tab === "contacts" ? (
 					<ContactsView owner={owner} preview={preview} />
 				) : tab === "broadcasts" ? (

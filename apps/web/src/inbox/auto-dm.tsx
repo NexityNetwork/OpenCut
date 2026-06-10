@@ -220,9 +220,11 @@ const DEMO_LEADS: Lead[] = [
 export function AutoDmBuilder({
 	owner,
 	preview,
+	account,
 }: {
 	owner: string;
 	preview: boolean;
+	account?: string;
 }) {
 	const [funnels, setFunnels] = useState<Funnel[] | null>(null);
 	const [media, setMedia] = useState<IgMediaItem[] | null>(null);
@@ -253,13 +255,13 @@ export function AutoDmBuilder({
 	const loadMedia = useCallback(async () => {
 		if (preview || media) return;
 		try {
-			const r = await fetch("/api/publish/ig/media");
+			const r = await fetch(`/api/publish/ig/media${account ? `?account=${encodeURIComponent(account)}` : ""}`);
 			const d = (await r.json().catch(() => ({}))) as { media?: IgMediaItem[] };
 			setMedia(d.media ?? []);
 		} catch {
 			setMedia([]);
 		}
-	}, [preview, media]);
+	}, [preview, media, account]);
 
 	const startNew = () => {
 		if (preview) {
@@ -350,6 +352,7 @@ export function AutoDmBuilder({
 		return (
 			<FunnelForm
 				owner={owner}
+				account={account}
 				preset={preset}
 				media={media}
 				onCancel={() => setMode("list")}
@@ -608,12 +611,14 @@ function StatusBadge({ status, score }: { status: string; score: number | null }
 // ---------------------------------------------------------------- Funnel form
 function FunnelForm({
 	owner,
+	account,
 	preset,
 	media,
 	onCancel,
 	onSaved,
 }: {
 	owner: string;
+	account?: string;
 	preset: Preset;
 	media: IgMediaItem[] | null;
 	onCancel: () => void;
@@ -709,6 +714,7 @@ function FunnelForm({
 				headers: { "content-type": "application/json" },
 				body: JSON.stringify({
 					owner,
+					channel_id: account || null,
 					name: name.trim() || preset.name,
 					preset: preset.key,
 					post_id: postId || null,
