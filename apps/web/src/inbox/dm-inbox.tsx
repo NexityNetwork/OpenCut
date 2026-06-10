@@ -5,9 +5,17 @@
 
 import { useCallback, useEffect, useRef, useState } from "react";
 import { toast } from "sonner";
-import { Loader2, MessagesSquare, RotateCw, SendHorizontal } from "lucide-react";
+import {
+	ImagePlus,
+	Loader2,
+	MessagesSquare,
+	RotateCw,
+	SendHorizontal,
+} from "lucide-react";
 import { SiInstagram } from "react-icons/si";
 import { cn } from "@/utils/ui";
+import { uploadBlobToR2 } from "@/canvas-editor/publish-export";
+import { fileUrl } from "@/projects/vault-client";
 
 type Conversation = {
 	id: string;
@@ -80,6 +88,7 @@ export function DmInbox({ preview }: { preview: boolean }) {
 	const [draft, setDraft] = useState("");
 	const [sending, setSending] = useState(false);
 	const threadRef = useRef<HTMLDivElement>(null);
+	const fileRef = useRef<HTMLInputElement>(null);
 
 	const loadConvs = useCallback(async () => {
 		if (preview) {
@@ -140,6 +149,61 @@ export function DmInbox({ preview }: { preview: boolean }) {
 		const el = threadRef.current;
 		if (el) el.scrollTop = el.scrollHeight;
 	}, [messages]);
+
+	const sendImage = async (file: File) => {
+		if (!active || sending) return;
+		if (preview) {
+			toast.error("Preview only — request access to reply");
+			return;
+		}
+		if (!active.with_id || active.with_id === "0") {
+			toast.error("Can't resolve this recipient");
+			return;
+		}
+		if (!file.type.startsWith("image/")) {
+			toast.error("Instagram DMs accept images only — send other files as a link");
+			return;
+		}
+		setSending(true);
+		const tid = toast.loading("Sending image…");
+		try {
+			const ext = file.name.match(/\.([a-z0-9]+)$/i)?.[1]?.toLowerCase() || "jpg";
+			const key = await uploadBlobToR2({
+				data: file,
+				ext,
+				contentType: file.type || "image/jpeg",
+			});
+			const origin = window.location.origin;
+			const r = await fetch("/api/publish/dm/send", {
+				method: "POST",
+				headers: { "content-type": "application/json" },
+				body: JSON.stringify({
+					recipient_id: active.with_id,
+					image_url: `${origin}${fileUrl(key)}`,
+					text: draft.trim() || undefined,
+				}),
+			});
+			const d = (await r.json().catch(() => ({}))) as { ok?: boolean; error?: string };
+			if (!r.ok || !d.ok) throw new Error(d.error || "Send failed");
+			setMessages((prev) => [
+				...(prev ?? []),
+				{
+					id: `local-${Date.now()}`,
+					from: "you",
+					from_id: "me",
+					text: draft.trim() ? `${draft.trim()} 🖼️` : "🖼️ Image sent",
+					ts: new Date().toISOString(),
+					mine: true,
+				},
+			]);
+			setDraft("");
+			toast.success("Image sent", { id: tid });
+		} catch (e) {
+			toast.error(e instanceof Error ? e.message : "Send failed", { id: tid });
+		} finally {
+			setSending(false);
+		}
+	};
 
 	const send = async () => {
 		const text = draft.trim();
@@ -314,6 +378,27 @@ export function DmInbox({ preview }: { preview: boolean }) {
 						</div>
 
 						<div className="flex items-center gap-2 border-t border-[var(--mono-line)] p-3">
+							<input
+								ref={fileRef}
+								type="file"
+								accept="image/*"
+								className="hidden"
+								onChange={(e) => {
+									const f = e.target.files?.[0];
+									e.currentTarget.value = "";
+									if (f) void sendImage(f);
+								}}
+							/>
+							<button
+								type="button"
+								onClick={() => fileRef.current?.click()}
+								disabled={sending}
+								aria-label="Attach image"
+								title="Attach image"
+								className="flex size-10 shrink-0 items-center justify-center rounded-xl border border-[var(--mono-line)] text-[var(--mono-ink-2)] transition-colors hover:bg-[var(--mono-hover)] hover:text-[var(--mono-ink)] disabled:opacity-50"
+							>
+								<ImagePlus className="size-4" />
+							</button>
 							<div className="flex flex-1 items-center rounded-full border border-[var(--mono-line)] bg-[var(--mono-field)] px-4 transition-colors focus-within:border-[var(--mono-strong)]">
 								<input
 									value={draft}

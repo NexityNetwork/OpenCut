@@ -16,9 +16,12 @@ import {
 	TriangleAlert,
 } from "lucide-react";
 import { SiInstagram, SiYoutube } from "react-icons/si";
+import { Linkedin } from "lucide-react";
 import { cn } from "@/utils/ui";
 
 const PUBLISH_ORIGIN = "https://ultron-publish.catalin-932.workers.dev";
+
+type Platform = "instagram" | "youtube" | "linkedin";
 
 type InboxReply = {
 	comment_id: string;
@@ -28,7 +31,7 @@ type InboxReply = {
 };
 
 type InboxComment = {
-	platform: "instagram" | "youtube";
+	platform: Platform;
 	post_id: string;
 	post_slug: string;
 	post_url: string | null;
@@ -91,10 +94,10 @@ const DEMO_COMMENTS: InboxComment[] = [
 ];
 
 // Slugs are often a UUID fragment (e.g. "92E704A8"); show a clean label instead.
-function postLabel(slug: string, platform: "instagram" | "youtube"): string {
+function postLabel(slug: string, platform: Platform): string {
 	const looksLikeHash = /^[0-9a-f]{6,}$/i.test(slug) || /^[0-9a-f-]{20,}$/i.test(slug);
 	if (!slug || looksLikeHash) {
-		return platform === "instagram" ? "Instagram post" : "YouTube video";
+		return platform === "instagram" ? "Instagram post" : platform === "youtube" ? "YouTube video" : "LinkedIn post";
 	}
 	return slug.replace(/-[a-z0-9]{6,}$/i, "").replace(/-/g, " ");
 }
@@ -107,12 +110,12 @@ function ago(ts: number | null): string {
 	return `${Math.floor(s / 86400)}d`;
 }
 
-function platformIcon(p: "instagram" | "youtube", cls = "size-3.5") {
-	return p === "instagram" ? (
-		<SiInstagram className={cls} style={{ color: "#E4405F" }} />
-	) : (
-		<SiYoutube className={cls} style={{ color: "#FF0000" }} />
-	);
+function platformIcon(p: Platform, cls = "size-3.5") {
+	if (p === "instagram")
+		return <SiInstagram className={cls} style={{ color: "#E4405F" }} />;
+	if (p === "youtube")
+		return <SiYoutube className={cls} style={{ color: "#FF0000" }} />;
+	return <Linkedin className={cls} style={{ color: "#0A66C2" }} />;
 }
 
 function Avatar({ name }: { name: string }) {
@@ -126,7 +129,7 @@ function Avatar({ name }: { name: string }) {
 export function CommentInbox({ preview }: { preview: boolean }) {
 	const [comments, setComments] = useState<InboxComment[] | null>(null);
 	const [errors, setErrors] = useState<Record<string, string>>({});
-	const [filter, setFilter] = useState<"all" | "instagram" | "youtube">("all");
+	const [filter, setFilter] = useState<"all" | Platform>("all");
 	const [loading, setLoading] = useState(false);
 	const [drafts, setDrafts] = useState<Record<string, string>>({});
 	const [sendingId, setSendingId] = useState<string | null>(null);
@@ -172,7 +175,7 @@ export function CommentInbox({ preview }: { preview: boolean }) {
 	const groups = useMemo(() => {
 		const map = new Map<
 			string,
-			{ key: string; platform: "instagram" | "youtube"; slug: string; url: string | null; items: InboxComment[] }
+			{ key: string; platform: Platform; slug: string; url: string | null; items: InboxComment[] }
 		>();
 		for (const c of filtered) {
 			const key = `${c.platform}:${c.post_id}`;
@@ -206,6 +209,7 @@ export function CommentInbox({ preview }: { preview: boolean }) {
 				body: JSON.stringify({
 					platform: c.platform,
 					comment_id: c.comment_id,
+					post_id: c.post_id,
 					message,
 				}),
 			});
@@ -249,6 +253,7 @@ export function CommentInbox({ preview }: { preview: boolean }) {
 			all: all.length,
 			instagram: all.filter((c) => c.platform === "instagram").length,
 			youtube: all.filter((c) => c.platform === "youtube").length,
+			linkedin: all.filter((c) => c.platform === "linkedin").length,
 		};
 	}, [comments]);
 
@@ -274,7 +279,7 @@ export function CommentInbox({ preview }: { preview: boolean }) {
 			</div>
 
 			<div className="mt-5 flex flex-wrap gap-2">
-				{(["all", "instagram", "youtube"] as const).map((p) => (
+				{(["all", "instagram", "youtube", "linkedin"] as const).map((p) => (
 					<button
 						key={p}
 						type="button"
@@ -321,8 +326,20 @@ export function CommentInbox({ preview }: { preview: boolean }) {
 			))}
 
 			{comments === null ? (
-				<div className="flex h-48 items-center justify-center text-sm text-[var(--mono-ink-3)]">
-					Loading…
+				<div className="mt-6 space-y-3">
+					{[0, 1, 2, 3].map((i) => (
+						<div
+							key={i}
+							className="flex gap-3 rounded-2xl border border-[var(--mono-line)] bg-[var(--mono-panel)] p-4"
+						>
+							<div className="size-8 shrink-0 animate-pulse rounded-full bg-[var(--mono-hover)]" />
+							<div className="flex-1 space-y-2">
+								<div className="h-3 w-28 animate-pulse rounded bg-[var(--mono-hover)]" />
+								<div className="h-3 w-3/4 animate-pulse rounded bg-[var(--mono-hover)]" />
+								<div className="h-8 w-full animate-pulse rounded-full bg-[var(--mono-hover)]" />
+							</div>
+						</div>
+					))}
 				</div>
 			) : groups.length === 0 ? (
 				<div className="mt-10 flex flex-col items-center gap-1 rounded-2xl border border-dashed border-[var(--mono-line)] px-6 py-14 text-center">

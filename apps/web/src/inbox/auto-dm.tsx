@@ -8,9 +8,16 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { toast } from "sonner";
 import {
+	type LucideIcon,
+	CalendarDays,
 	ChevronLeft,
+	CircleCheck,
+	Gift,
+	Link2,
 	Loader2,
+	Magnet,
 	Plus,
+	ClipboardList,
 	Sparkles,
 	Trash2,
 	Users,
@@ -20,6 +27,7 @@ import {
 import { SiInstagram } from "react-icons/si";
 import { cn } from "@/utils/ui";
 import { Button } from "@/components/ui/button";
+import { Switch } from "@/components/ui/switch";
 import { ConfirmDialog } from "@/inbox/confirm-dialog";
 
 type Funnel = {
@@ -63,7 +71,7 @@ type IgMediaItem = {
 
 type Preset = {
 	key: string;
-	emoji: string;
+	Icon: LucideIcon;
 	title: string;
 	desc: string;
 	name: string;
@@ -77,80 +85,80 @@ type Preset = {
 const PRESETS: Preset[] = [
 	{
 		key: "lead_magnet",
-		emoji: "🧲",
+		Icon: Magnet,
 		title: "Lead magnet",
 		desc: "Comment a word, get the free resource in DMs.",
 		name: "Lead magnet",
 		keywords: ["GUIDE"],
-		replySeed: "Sent! Check your DMs 📩",
-		dmSeed: "Here's the free guide you asked for 🙌",
+		replySeed: "Sent! Check your DMs.",
+		dmSeed: "Here's the free guide you asked for.",
 		qualify: false,
 		question: "",
 	},
 	{
 		key: "link",
-		emoji: "🔗",
+		Icon: Link2,
 		title: "Link in DM",
 		desc: "Push your link through DMs — beats link-in-bio reach.",
 		name: "Link in DM",
 		keywords: ["LINK"],
-		replySeed: "Just DMed you the link!",
-		dmSeed: "Here's the link you wanted 👇",
+		replySeed: "Just DMed you the link.",
+		dmSeed: "Here's the link you wanted:",
 		qualify: false,
 		question: "",
 	},
 	{
 		key: "waitlist",
-		emoji: "📝",
+		Icon: ClipboardList,
 		title: "Waitlist",
 		desc: "Collect signups for a launch or a drop.",
 		name: "Waitlist",
 		keywords: ["WAITLIST", "ME"],
-		replySeed: "You're on the list! check your DMs",
-		dmSeed: "You're in 🎉 tap here to lock your spot:",
+		replySeed: "You're on the list. Check your DMs.",
+		dmSeed: "You're in. Tap here to lock your spot:",
 		qualify: false,
 		question: "",
 	},
 	{
 		key: "code",
-		emoji: "🎁",
+		Icon: Gift,
 		title: "Discount code",
 		desc: "Reward commenters with a promo code.",
 		name: "Discount code",
 		keywords: ["CODE"],
-		replySeed: "Code sent to your DMs 🎁",
-		dmSeed: "Here's your code, enjoy 👇",
+		replySeed: "Code sent to your DMs.",
+		dmSeed: "Here's your code, enjoy:",
 		qualify: false,
 		question: "",
 	},
 	{
 		key: "booking",
-		emoji: "📅",
+		Icon: CalendarDays,
 		title: "Book a call",
 		desc: "Send your booking link and qualify the lead.",
 		name: "Book a call",
 		keywords: ["CALL"],
-		replySeed: "Sent you the link to grab a time 📅",
-		dmSeed: "Happy to chat! Grab a time here:",
+		replySeed: "Sent you the link to grab a time.",
+		dmSeed: "Happy to chat. Grab a time here:",
 		qualify: true,
 		question: "What are you hoping to solve on the call?",
 	},
 	{
 		key: "qualify",
-		emoji: "✅",
+		Icon: CircleCheck,
 		title: "Qualify & close",
 		desc: "Start a real conversation and score the lead.",
 		name: "Qualify lead",
 		keywords: ["INFO"],
-		replySeed: "DMing you now!",
+		replySeed: "DMing you now.",
 		dmSeed:
-			"Glad you reached out! Quick question so I point you the right way —",
+			"Glad you reached out. Quick question so I point you the right way —",
 		qualify: true,
 		question: "What's your biggest challenge with this right now?",
 	},
 	{
 		key: "custom",
-		emoji: "✨",
+		Icon: Sparkles,
 		title: "Start from scratch",
 		desc: "Build your own funnel, your way.",
 		name: "My funnel",
@@ -177,8 +185,8 @@ const DEMO_FUNNELS: Funnel[] = [
 		post_thumb: null,
 		keywords: ["prompts"],
 		reply_enabled: true,
-		reply_pool: ["Sent you a DM! 📩", "Check your inbox 🙌", "Just slid into your DMs!"],
-		dm_pool: ["Here you go! 🙌 [your link]"],
+		reply_pool: ["Sent you a DM.", "Check your inbox.", "Just slid into your DMs."],
+		dm_pool: ["Here you go — [your link]"],
 		dm_link: null,
 		qualify_enabled: false,
 		qualify_question: null,
@@ -320,7 +328,9 @@ export function AutoDmBuilder({
 							onClick={() => choosePreset(p)}
 							className="group flex items-start gap-3 rounded-2xl border border-[var(--mono-line)] bg-[var(--mono-panel)] p-4 text-left transition-colors hover:border-[var(--mono-strong)] hover:bg-[var(--mono-hover)]"
 						>
-							<span className="text-2xl leading-none">{p.emoji}</span>
+							<span className="flex size-9 shrink-0 items-center justify-center rounded-xl bg-[var(--mono-active)] text-[var(--mono-ink)]">
+								<p.Icon className="size-4" />
+							</span>
 							<div className="min-w-0">
 								<div className="text-sm font-semibold text-[var(--mono-ink)]">
 									{p.title}
@@ -510,23 +520,12 @@ function FunnelCard({
 						{funnel.dm_link && <span>· sends a link</span>}
 					</div>
 				</div>
-				<div className="flex shrink-0 items-center gap-1">
-					<button
-						type="button"
-						onClick={onToggle}
+				<div className="flex shrink-0 items-center gap-2">
+					<Switch
+						checked={funnel.enabled}
+						onCheckedChange={onToggle}
 						title={funnel.enabled ? "Pause" : "Resume"}
-						className={cn(
-							"relative h-5 w-9 rounded-full transition-colors",
-							funnel.enabled ? "bg-[var(--mono-strong)]" : "bg-[var(--mono-line)]",
-						)}
-					>
-						<span
-							className={cn(
-								"absolute top-0.5 size-4 rounded-full bg-[var(--mono-app)] transition-transform",
-								funnel.enabled ? "translate-x-4" : "translate-x-0.5",
-							)}
-						/>
-					</button>
+					/>
 					<button
 						type="button"
 						onClick={onDelete}
@@ -748,8 +747,10 @@ function FunnelForm({
 				<ChevronLeft className="size-4" /> Funnels
 			</button>
 
-			<div className="flex items-center gap-2">
-				<span className="text-2xl leading-none">{preset.emoji}</span>
+			<div className="flex items-center gap-2.5">
+				<span className="flex size-9 shrink-0 items-center justify-center rounded-xl bg-[var(--mono-active)] text-[var(--mono-ink)]">
+					<preset.Icon className="size-4" />
+				</span>
 				<input
 					value={name}
 					onChange={(e) => setName(e.target.value)}
@@ -1007,21 +1008,7 @@ function Toggle({
 				</div>
 				<div className="mt-0.5 text-[12px] text-[var(--mono-ink-3)]">{hint}</div>
 			</div>
-			<button
-				type="button"
-				onClick={() => onChange(!on)}
-				className={cn(
-					"relative mt-0.5 h-5 w-9 shrink-0 rounded-full transition-colors",
-					on ? "bg-[var(--mono-strong)]" : "bg-[var(--mono-line)]",
-				)}
-			>
-				<span
-					className={cn(
-						"absolute top-0.5 size-4 rounded-full bg-[var(--mono-app)] transition-transform",
-						on ? "translate-x-4" : "translate-x-0.5",
-					)}
-				/>
-			</button>
+			<Switch checked={on} onCheckedChange={onChange} className="mt-0.5" />
 		</div>
 	);
 }

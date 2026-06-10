@@ -231,24 +231,26 @@ function fmtDur(s?: number) {
 }
 
 // Reveals true once the element scrolls within `rootMargin` of the viewport.
-function useInView<T extends Element>(rootMargin = "500px") {
+// Bidirectional: mounts the heavy <video> when near the viewport AND unmounts
+// it once scrolled well away. A one-way latch leaked hundreds of live <video>
+// elements as you scrolled a 200-clip library, which starved the browser's
+// decoders and made opening any single video stutter badly.
+function useInView<T extends Element>(rootMargin = "300px") {
 	const ref = useRef<T | null>(null);
 	const [inView, setInView] = useState(false);
 	useEffect(() => {
 		const el = ref.current;
-		if (!el || inView) return;
+		if (!el) return;
 		const io = new IntersectionObserver(
 			(entries) => {
-				if (entries.some((e) => e.isIntersecting)) {
-					setInView(true);
-					io.disconnect();
-				}
+				const e = entries[0];
+				if (e) setInView(e.isIntersecting);
 			},
 			{ rootMargin },
 		);
 		io.observe(el);
 		return () => io.disconnect();
-	}, [inView, rootMargin]);
+	}, [rootMargin]);
 	return { ref, inView };
 }
 
@@ -383,7 +385,6 @@ export function VaultSection() {
 	const [text, setText] = useState("");
 	const [busy, setBusy] = useState(false);
 	const [activeTab, setActiveTab] = useState<string>("all");
-	const [lightbox, setLightbox] = useState<VaultItem | null>(null);
 	const [renaming, setRenaming] = useState<{
 		id: string;
 		name: string;
@@ -922,11 +923,10 @@ export function VaultSection() {
 
 			const next = await fetchVault(owner).catch(() => null);
 			if (next) setItems(next);
-			toast.success("Published to your library", { id: tid });
-			setAppView("library");
 			setActiveTab(kind === "video" ? "video" : kind);
-			const fresh = next?.find((i) => i.id === vaultId);
-			if (fresh) setLightbox(fresh);
+			toast.success("Published to your library", { id: tid });
+			// Straight to the asset page so the title/caption can be polished.
+			router.push(`/asset/${vaultId}`);
 		} catch (e) {
 			toast.error(
 				e instanceof Error ? e.message : "Couldn't publish the project",
@@ -1088,9 +1088,10 @@ export function VaultSection() {
 			t: i.createdAt || 0,
 			pinned: pinned.has(i.id),
 			onClick: () => {
-				setAppView("library");
-				if (i.kind === "audio") togglePlay(i);
-				else setLightbox(i);
+				if (i.kind === "audio") {
+					setAppView("library");
+					togglePlay(i);
+				} else router.push(`/asset/${i.id}`);
 			},
 			onPin: () => togglePin(i.id),
 			onRename: () =>
@@ -1519,10 +1520,8 @@ export function VaultSection() {
 									allCategories: categories,
 									onOpen: () =>
 										item.kind === "audio"
-										? togglePlay(item)
-										: item.kind === "pdf"
-											? window.open(fileUrl(item.media[0]?.key || ""), "_blank")
-											: setLightbox(item),
+											? togglePlay(item)
+											: router.push(`/asset/${item.id}`),
 									onAdd: () => addToProject(item),
 									onRename: () =>
 										setRenaming({ id: item.id, name: item.name, kind: "vault" as const }),
@@ -1589,17 +1588,6 @@ export function VaultSection() {
 					</div>
 				)}
 
-			{lightbox && (
-				<Lightbox
-					item={lightbox}
-					owner={owner}
-					onClose={() => setLightbox(null)}
-					onSaved={(u) => {
-						setItems((prev) => prev.map((i) => (i.id === u.id ? u : i)));
-						setLightbox(u);
-					}}
-				/>
-			)}
 			<RenameDialog
 				item={renaming}
 				onClose={() => setRenaming(null)}
@@ -1639,9 +1627,10 @@ export function VaultSection() {
 					onClose={() => setSearchOpen(false)}
 					onSelectVault={(i) => {
 						setSearchOpen(false);
-						setAppView("library");
-						if (i.kind === "audio") togglePlay(i);
-						else setLightbox(i);
+						if (i.kind === "audio") {
+							setAppView("library");
+							togglePlay(i);
+						} else router.push(`/asset/${i.id}`);
 					}}
 					onSelectProject={(p) => {
 						setSearchOpen(false);
@@ -5223,222 +5212,5 @@ function CaptionDialog({
 				</DialogFooter>
 			</DialogContent>
 		</Dialog>
-	);
-}
-
-function Lightbox({
-	item,
-	owner,
-	onClose,
-	onSaved,
-}: {
-	item: VaultItem;
-	owner?: string;
-	onClose: () => void;
-	onSaved?: (item: VaultItem) => void;
-}) {
-	const [i, setI] = useState(0);
-	const media = item.media;
-	const idx = Math.min(i, media.length - 1);
-	const cur = media[idx];
-	const editable = !!owner && !!onSaved;
-	const [title, setTitle] = useState(item.name);
-	const [caption, setCaption] = useState(item.caption ?? "");
-	const [saving, setSaving] = useState(false);
-	useEffect(() => {
-		setTitle(item.name);
-		setCaption(item.caption ?? "");
-	}, [item]);
-	const dirty =
-		editable && (title.trim() !== item.name || caption !== (item.caption ?? ""));
-	const save = async () => {
-		if (!owner || !onSaved || saving || !dirty) return;
-		setSaving(true);
-		try {
-			const r = await fetch("/api/vault", {
-				method: "PATCH",
-				headers: { "content-type": "application/json" },
-				body: JSON.stringify({
-					owner,
-					id: item.id,
-					name: title.trim() || item.name,
-					caption,
-				}),
-			});
-			if (!r.ok) throw new Error("Save failed");
-			onSaved({
-				...item,
-				name: title.trim() || item.name,
-				caption: caption.trim() ? caption : undefined,
-			});
-			toast.success("Saved");
-		} catch (e) {
-			toast.error(e instanceof Error ? e.message : "Save failed");
-		} finally {
-			setSaving(false);
-		}
-	};
-	const copyCap = async () => {
-		if (!caption) return;
-		try {
-			await navigator.clipboard.writeText(caption);
-			toast.success("Caption copied");
-		} catch {
-			toast.error("Couldn't copy caption");
-		}
-	};
-	const showPanel = editable || !!item.caption;
-	const mediaMaxW = showPanel ? "max-w-[90vw] lg:max-w-[54vw]" : "max-w-[80vw]";
-
-	useEffect(() => {
-		for (const m of media) {
-			if (m.type !== "video") {
-				const img = new Image();
-				img.src = fileUrl(m.key);
-			}
-		}
-	}, [media]);
-
-	useEffect(() => {
-		const onKey = (e: KeyboardEvent) => {
-			const tag = (e.target as HTMLElement | null)?.tagName;
-			const typing = tag === "INPUT" || tag === "TEXTAREA";
-			if (e.key === "Escape" && !typing) onClose();
-			if (typing) return;
-			if (media.length > 1 && e.key === "ArrowRight")
-				setI((p) => (p + 1) % media.length);
-			if (media.length > 1 && e.key === "ArrowLeft")
-				setI((p) => (p - 1 + media.length) % media.length);
-		};
-		window.addEventListener("keydown", onKey);
-		return () => window.removeEventListener("keydown", onKey);
-	}, [media.length, onClose]);
-
-	return (
-		<div
-			className="fixed inset-0 z-50 flex items-center justify-center bg-black/85 p-6"
-			onClick={onClose}
-		>
-			<button
-				type="button"
-				onClick={onClose}
-				aria-label="Close"
-				className="absolute top-4 right-4 flex size-9 items-center justify-center rounded-full bg-white/10 text-white hover:bg-white/20"
-			>
-				<X className="size-5" />
-			</button>
-
-			<div className="flex items-center gap-3" onClick={(e) => e.stopPropagation()}>
-				{media.length > 1 && (
-					<button
-						type="button"
-						onClick={() => setI((idx - 1 + media.length) % media.length)}
-						aria-label="Previous"
-						className="flex size-10 shrink-0 items-center justify-center rounded-full bg-white/10 text-white hover:bg-white/20"
-					>
-						<ChevronLeft className="size-5" />
-					</button>
-				)}
-
-				<div className="relative flex max-h-[85vh] items-center justify-center">
-					{cur.type === "video" ? (
-						// biome-ignore lint/a11y/useMediaCaption: user media
-						<video
-							src={fileUrl(cur.key)}
-							controls
-							autoPlay
-							controlsList="nodownload noplaybackrate noremoteplayback"
-							disablePictureInPicture
-							className={`max-h-[85vh] ${mediaMaxW} rounded-lg`}
-						/>
-					) : (
-						// eslint-disable-next-line @next/next/no-img-element
-						<img
-							src={fileUrl(cur.key)}
-							alt={item.name}
-							className={`max-h-[85vh] ${mediaMaxW} rounded-lg object-contain`}
-						/>
-					)}
-					{media.length > 1 && (
-						<div className="absolute bottom-2 left-1/2 -translate-x-1/2 rounded-full bg-black/60 px-2.5 py-0.5 text-xs text-white">
-							{idx + 1} / {media.length}
-						</div>
-					)}
-				</div>
-
-				{media.length > 1 && (
-					<button
-						type="button"
-						onClick={() => setI((idx + 1) % media.length)}
-						aria-label="Next"
-						className="flex size-10 shrink-0 items-center justify-center rounded-full bg-white/10 text-white hover:bg-white/20"
-					>
-						<ChevronRight className="size-5" />
-					</button>
-				)}
-
-				{showPanel && (
-					<aside className="hidden max-h-[85vh] w-80 shrink-0 flex-col overflow-hidden rounded-xl bg-neutral-900/95 ring-1 ring-white/10 lg:flex">
-						<div className="flex items-center justify-between border-b border-white/10 px-4 py-3">
-							<span className="text-sm font-semibold text-white">
-								{editable ? "Details" : "Caption"}
-							</span>
-							<div className="flex items-center gap-1.5">
-								{!!caption && (
-									<button
-										type="button"
-										onClick={copyCap}
-										className="flex items-center gap-1.5 rounded-md bg-white/10 px-2.5 py-1 text-xs font-medium text-white transition-colors hover:bg-white/20"
-									>
-										<Copy className="size-3.5" />
-										Copy
-									</button>
-								)}
-								{editable && (
-									<button
-										type="button"
-										onClick={() => void save()}
-										disabled={!dirty || saving}
-										className="rounded-md bg-white px-2.5 py-1 text-xs font-semibold text-black transition-opacity disabled:opacity-35"
-									>
-										{saving ? "Saving…" : "Save"}
-									</button>
-								)}
-							</div>
-						</div>
-						{editable ? (
-							<div className="flex min-h-0 flex-1 flex-col gap-3 overflow-y-auto px-4 py-3">
-								<div>
-									<span className="mb-1 block text-[11px] font-semibold tracking-wide text-white/40 uppercase">
-										Title
-									</span>
-									<input
-										value={title}
-										onChange={(e) => setTitle(e.target.value)}
-										placeholder="Add a title"
-										className="w-full rounded-lg border border-white/10 bg-white/5 px-3 py-2 text-sm text-white outline-none placeholder:text-white/30 focus:border-white/30"
-									/>
-								</div>
-								<div className="flex min-h-0 flex-1 flex-col">
-									<span className="mb-1 block text-[11px] font-semibold tracking-wide text-white/40 uppercase">
-										Caption
-									</span>
-									<textarea
-										value={caption}
-										onChange={(e) => setCaption(e.target.value)}
-										placeholder="Write the caption this post will use"
-										className="min-h-44 flex-1 resize-none rounded-lg border border-white/10 bg-white/5 px-3 py-2 text-sm leading-relaxed text-white outline-none placeholder:text-white/30 focus:border-white/30"
-									/>
-								</div>
-							</div>
-						) : (
-							<div className="overflow-y-auto px-4 py-3 text-sm leading-relaxed whitespace-pre-wrap text-white/80">
-								{item.caption}
-							</div>
-						)}
-					</aside>
-				)}
-			</div>
-		</div>
 	);
 }

@@ -32,6 +32,12 @@ export async function fetchVault(owner: string): Promise<VaultItem[]> {
 	return Array.isArray(d.items) ? d.items : [];
 }
 
+export async function fetchVaultItem(id: string): Promise<VaultItem | null> {
+	const r = await fetch(`/api/vault?id=${encodeURIComponent(id)}`);
+	const d = (await r.json().catch(() => ({}))) as { item?: VaultItem | null };
+	return d.item ?? null;
+}
+
 export async function deleteVaultItem(owner: string, id: string) {
 	await fetch(
 		`/api/vault?owner=${encodeURIComponent(owner)}&id=${encodeURIComponent(id)}`,

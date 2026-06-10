@@ -44,10 +44,23 @@ function rowToItem(r: Record<string, unknown>) {
 }
 
 export async function GET(request: Request) {
-	const owner = new URL(request.url).searchParams.get("owner") || "";
-	if (!owner) return Response.json({ items: [] });
+	const u = new URL(request.url);
+	const owner = u.searchParams.get("owner") || "";
+	const id = u.searchParams.get("id") || "";
 	const d = db();
 	if (!d) return Response.json({ error: "vault not configured" }, { status: 503 });
+
+	// Single item by id (UUID, unguessable) — powers the per-asset page.
+	if (id) {
+		const { results } = await d
+			.prepare("SELECT * FROM vault_items WHERE id = ? LIMIT 1")
+			.bind(id)
+			.all();
+		const row = (results || [])[0];
+		return Response.json({ item: row ? rowToItem(row) : null });
+	}
+
+	if (!owner) return Response.json({ items: [] });
 	const { results } = await d
 		.prepare(
 			"SELECT * FROM vault_items WHERE owner = ? ORDER BY created_at DESC LIMIT 500",

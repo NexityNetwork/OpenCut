@@ -129,7 +129,8 @@ export async function POST(request: Request) {
 Return STRICT JSON: {"variations": string[]}.
 Rules:
 - Produce ${count} DISTINCT variations of the same intent. Each must read like a real person, not a template.
-- Vary wording, length and emoji use. Keep each ${kind === "dm" ? "under 280 characters" : "under 90 characters"}.
+- Vary wording and length. Keep each ${kind === "dm" ? "under 280 characters" : "under 90 characters"}.
+- Use emoji very sparingly — at most one, and most variations should have none. Never lead with an emoji.
 - ${kind === "reply" ? "These are PUBLIC replies under the comment. Keep them light, never salesy, hint that a DM is coming." : "These are DMs. Be warm and direct. Deliver the thing."}
 - Never use hashtags. Never sound automated. No quotes around the text.${
 				link && kind === "dm"
