@@ -90,12 +90,23 @@ export async function POST(request: Request) {
 	const item = await d1Retry(() =>
 		vault
 			.prepare(
-				"SELECT media, name, caption FROM vault_items WHERE owner = ? AND id = ?",
+				"SELECT kind, media, name, caption FROM vault_items WHERE owner = ? AND id = ?",
 			)
 			.bind(owner, itemId)
-			.first<{ media: string; name: string; caption: string | null }>(),
+			.first<{
+				kind: string;
+				media: string;
+				name: string;
+				caption: string | null;
+			}>(),
 	);
 	if (!item) return Response.json({ error: "item not found" }, { status: 404 });
+	if (item.kind === "carousel" || item.kind === "pdf") {
+		return Response.json(
+			{ error: "carousels and PDFs publish to LinkedIn — coming soon" },
+			{ status: 400 },
+		);
+	}
 
 	let media: { key?: string; type?: string }[] = [];
 	try {

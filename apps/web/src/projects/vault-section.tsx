@@ -72,6 +72,8 @@ import {
 	Coffee,
 	Calendar as CalendarIcon,
 	Frame,
+	FileText,
+	Linkedin,
 } from "lucide-react";
 import { useTheme } from "next-themes";
 import {
@@ -1011,7 +1013,11 @@ export function VaultSection() {
 								item,
 								allCategories: categories,
 								onOpen: () =>
-									item.kind === "audio" ? togglePlay(item) : setLightbox(item),
+									item.kind === "audio"
+									? togglePlay(item)
+									: item.kind === "pdf"
+										? window.open(fileUrl(item.media[0]?.key || ""), "_blank")
+										: setLightbox(item),
 								onAdd: () => addToProject(item),
 								onRename: () =>
 									setRenaming({ id: item.id, name: item.name, kind: "vault" as const }),
@@ -1240,7 +1246,7 @@ function NewCanvasDialog({
 			<DialogContent className="max-w-md gap-0 rounded-2xl border-[var(--mono-line)] bg-[var(--mono-panel)] p-0 text-[var(--mono-ink)]">
 				<div className="border-b border-[var(--mono-line)] px-6 py-4">
 					<DialogTitle className="text-[15px] font-semibold text-[var(--mono-ink)]">
-						Create a canvas
+						Create a post
 					</DialogTitle>
 				</div>
 				<div className="p-6">
@@ -1454,7 +1460,7 @@ function LibrarySidebar({
 				<button
 					type="button"
 					onClick={onNewCanvas}
-					aria-label="New canvas"
+					aria-label="Create post"
 					className="text-muted-foreground hover:text-foreground hover:bg-muted flex size-9 items-center justify-center rounded-md"
 				>
 					<Frame className="size-5" />
@@ -1528,7 +1534,7 @@ function LibrarySidebar({
 
 			<nav className="space-y-0.5 px-2">
 				<SidebarItem icon={Plus} label="New project" onClick={onNewProject} />
-				<SidebarItem icon={Frame} label="New canvas" onClick={onNewCanvas} />
+				<SidebarItem icon={Frame} label="Create post" onClick={onNewCanvas} />
 				<SidebarItem
 					icon={LibraryIcon}
 					label="Library"
@@ -1735,7 +1741,7 @@ function LibrarySidebar({
 								<Avatar name={user.name} image={user.image} size={6} />
 								<span className="min-w-0 flex-1 truncate text-[13px]">
 									<span className="text-foreground">{user.name ?? "You"}</span>
-									<span className="text-muted-foreground"> · Max</span>
+									
 								</span>
 								<ChevronDown className="text-muted-foreground size-4 shrink-0" />
 							</button>
@@ -2263,6 +2269,8 @@ function pad2(n: number) {
 	return String(n).padStart(2, "0");
 }
 
+const FileTextIconLg = () => <FileText className="size-10" strokeWidth={1.5} />;
+
 function clamp(n: number, lo: number, hi: number) {
 	return Math.max(lo, Math.min(hi, n));
 }
@@ -2411,12 +2419,12 @@ function ComposePostModal({
 	onPosted: () => void;
 	initialItemId?: string | null;
 }) {
-	// Videos and single images (canvas exports) are postable.
+	// Videos, images, carousels and PDFs (LinkedIn docs) are postable.
 	const videos = useMemo(
 		() =>
 			items.filter(
 				(i) =>
-					i.kind !== "carousel" &&
+					i.kind === "pdf" ||
 					i.media?.some((m) => m.type === "video" || m.type === "image"),
 			),
 		[items],
@@ -2493,8 +2501,11 @@ function ComposePostModal({
 		setPicked(it);
 		setTitle(it.name || "");
 		setCaption(it.caption || "");
-		// Photos can only go to Instagram.
-		if (!it.media?.some((m) => m.type === "video")) {
+		if (it.kind === "carousel" || it.kind === "pdf") {
+			// LinkedIn formats — nothing postable until LinkedIn is connected.
+			setSel(new Set());
+		} else if (!it.media?.some((m) => m.type === "video")) {
+			// Photos can only go to Instagram.
 			setSel(new Set(available.filter((p) => p === "instagram")));
 		}
 	};
@@ -2507,11 +2518,18 @@ function ComposePostModal({
 		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, [initialItemId, videos]);
 
-	const videoKey = picked?.media.find((m) => m.type === "video")?.key || "";
+	const isCarousel = picked?.kind === "carousel";
+	const isPdf = picked?.kind === "pdf";
+	const videoKey =
+		(!isCarousel && !isPdf
+			? picked?.media.find((m) => m.type === "video")?.key
+			: "") || "";
 	const imageKey = videoKey
 		? ""
 		: picked?.media.find((m) => m.type === "image")?.key || "";
-	const isImage = !!imageKey;
+	const isImage = !isCarousel && !isPdf && !!imageKey;
+	// Carousels and PDF documents are LinkedIn formats — not connected yet.
+	const linkedinOnly = isCarousel || isPdf;
 
 	const submit = async () => {
 		if (!picked || busy) return;
@@ -2574,6 +2592,12 @@ function ComposePostModal({
 			// eslint-disable-next-line @next/next/no-img-element
 			return (
 				<img src={fileUrl(img)} alt="" className="size-full object-cover" />
+			);
+		if (v.kind === "pdf")
+			return (
+				<div className="flex size-full items-center justify-center text-[var(--mono-ink-3)]">
+					<FileTextIconLg />
+				</div>
 			);
 		return null;
 	};
@@ -2665,10 +2689,10 @@ function ComposePostModal({
 								ref={stageRef}
 								className="absolute inset-5 flex items-center justify-center"
 							>
-								{box && (videoKey || imageKey) && (
+								{box && (videoKey || imageKey || isPdf) && (
 									<div
 										style={{ width: box.w, height: box.h }}
-										className="overflow-hidden rounded-xl bg-black shadow-2xl ring-1 ring-white/10"
+										className="relative overflow-hidden rounded-xl bg-black shadow-2xl ring-1 ring-white/10"
 									>
 										{videoKey ? (
 											// biome-ignore lint/a11y/useMediaCaption: preview only
@@ -2679,13 +2703,24 @@ function ComposePostModal({
 												playsInline
 												className="size-full object-cover"
 											/>
-										) : (
+										) : imageKey ? (
 											// eslint-disable-next-line @next/next/no-img-element
 											<img
 												src={fileUrl(imageKey)}
 												alt=""
 												className="size-full object-contain"
 											/>
+										) : (
+											<div className="flex size-full flex-col items-center justify-center gap-2 text-[var(--mono-ink-3)]">
+												<FileTextIconLg />
+												<span className="text-sm">PDF document</span>
+											</div>
+										)}
+										{isCarousel && (
+											<span className="absolute top-3 right-3 rounded-full bg-black/60 px-2.5 py-1 text-xs font-medium text-white backdrop-blur">
+												{picked?.media.filter((m) => m.type === "image").length}{" "}
+												pages
+											</span>
 										)}
 									</div>
 								)}
@@ -2694,7 +2729,7 @@ function ComposePostModal({
 
 						{/* Fields */}
 						<div className="flex w-[26rem] shrink-0 flex-col gap-5 border-l border-[var(--mono-line)] p-6">
-							{!isImage && (
+							{!!videoKey && (
 								<div>
 									<label className={LABEL_CLS}>Title</label>
 									<input
@@ -2732,7 +2767,8 @@ function ComposePostModal({
 									<div className="flex flex-wrap gap-2">
 										{available.map((p) => {
 											const on = sel.has(p);
-											const blocked = isImage && p !== "instagram";
+											const blocked =
+												linkedinOnly || (isImage && p !== "instagram");
 											return (
 												<button
 													key={p}
@@ -2758,6 +2794,11 @@ function ComposePostModal({
 												</button>
 											);
 										})}
+										{linkedinOnly && (
+											<span className="flex items-center gap-1.5 rounded-full border border-dashed border-[var(--mono-line)] px-3 py-1.5 text-[13px] text-[var(--mono-ink-3)]">
+												<Linkedin className="size-3.5" /> LinkedIn · soon
+											</span>
+										)}
 									</div>
 								)}
 							</div>
@@ -3316,7 +3357,9 @@ function VaultTile({
 				? ImagesIcon
 				: item.kind === "image"
 					? ImageIcon
-					: VideoIcon;
+					: item.kind === "pdf"
+						? FileText
+						: VideoIcon;
 	const meta =
 		item.kind === "carousel"
 			? `${item.media.length} slides`
@@ -3324,7 +3367,9 @@ function VaultTile({
 				? "Audio"
 				: item.kind === "image"
 					? "Image"
-					: "Video";
+					: item.kind === "pdf"
+						? "PDF"
+						: "Video";
 	return (
 		<div className="group relative">
 			<button type="button" onClick={onOpen} className="block w-full text-left">

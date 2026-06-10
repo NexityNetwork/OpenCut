@@ -322,6 +322,34 @@ export class ProjectManager {
 		}
 	}
 
+	/**
+	 * Deletes the active project if the user never actually edited it — no
+	 * elements on any scene and no imported media. Keeps backing out of a
+	 * fresh editor/canvas from littering the library with empty projects.
+	 * Returns true when the project was discarded.
+	 */
+	async discardIfEmpty(): Promise<boolean> {
+		const project = this.active;
+		if (!project) return false;
+		const scenes = this.editor.scenes.getScenes();
+		const hasElements = scenes.some((scene) => {
+			const t = scene.tracks;
+			return (
+				t.main.elements.length > 0 ||
+				t.overlay.some((track) => track.elements.length > 0) ||
+				t.audio.some((track) => track.elements.length > 0)
+			);
+		});
+		if (hasElements) return false;
+		if (this.editor.media.getAssets().length > 0) return false;
+		try {
+			await this.deleteProjects({ ids: [project.metadata.id] });
+			return true;
+		} catch {
+			return false;
+		}
+	}
+
 	async deleteProjects({ ids }: { ids: string[] }): Promise<void> {
 		const uniqueIds = Array.from(new Set(ids));
 		if (uniqueIds.length === 0) return;

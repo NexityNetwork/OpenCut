@@ -110,8 +110,8 @@ export async function exportPagesAsImages({
 	}
 }
 
-/** Builds a multi-page PDF (one page per scene) and downloads it. */
-export async function exportPagesAsPdf({
+/** Builds a multi-page PDF blob (one page per scene). */
+export async function buildPagesPdfBlob({
 	project,
 	scenes,
 	mediaAssets,
@@ -121,7 +121,7 @@ export async function exportPagesAsPdf({
 	scenes: TScene[];
 	mediaAssets: MediaAsset[];
 	onProgress?: (done: number, total: number) => void;
-}): Promise<void> {
+}): Promise<Blob> {
 	const { PDFDocument } = await import("pdf-lib");
 	const doc = await PDFDocument.create();
 	const { width, height } = project.settings.canvasSize;
@@ -141,8 +141,53 @@ export async function exportPagesAsPdf({
 	}
 
 	const pdfBytes = await doc.save();
-	downloadBlob(
-		new Blob([pdfBytes as unknown as BlobPart], { type: "application/pdf" }),
-		`${slugName(project.metadata.name)}.pdf`,
-	);
+	return new Blob([pdfBytes as unknown as BlobPart], {
+		type: "application/pdf",
+	});
+}
+
+/** Renders every page once and returns the PNG blobs (carousel upload). */
+export async function renderPagesToBlobs({
+	project,
+	scenes,
+	mediaAssets,
+	onProgress,
+}: {
+	project: TProject;
+	scenes: TScene[];
+	mediaAssets: MediaAsset[];
+	onProgress?: (done: number, total: number) => void;
+}): Promise<Blob[]> {
+	const blobs: Blob[] = [];
+	for (let i = 0; i < scenes.length; i++) {
+		const canvas = await renderPageToCanvas({
+			project,
+			scene: scenes[i],
+			mediaAssets,
+		});
+		blobs.push(await canvasToBlob(canvas, "image/png"));
+		onProgress?.(i + 1, scenes.length);
+	}
+	return blobs;
+}
+
+/** Builds a multi-page PDF (one page per scene) and downloads it. */
+export async function exportPagesAsPdf({
+	project,
+	scenes,
+	mediaAssets,
+	onProgress,
+}: {
+	project: TProject;
+	scenes: TScene[];
+	mediaAssets: MediaAsset[];
+	onProgress?: (done: number, total: number) => void;
+}): Promise<void> {
+	const blob = await buildPagesPdfBlob({
+		project,
+		scenes,
+		mediaAssets,
+		onProgress,
+	});
+	downloadBlob(blob, `${slugName(project.metadata.name)}.pdf`);
 }

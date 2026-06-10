@@ -51,11 +51,14 @@ import type { TimelineDragData } from "@/timeline/drag";
 import {
 	exportPagesAsImages,
 	exportPagesAsPdf,
+	buildPagesPdfBlob,
+	renderPagesToBlobs,
 	renderPageToCanvas,
 	type CanvasExportFormat,
 } from "@/canvas-editor/export";
 import {
 	uploadExportToVault,
+	uploadCarouselToVault,
 	composeUrlFor,
 } from "@/canvas-editor/publish-export";
 import { useSession } from "@/auth/client";
@@ -99,7 +102,9 @@ function CanvasHeader() {
 		if (exiting) return;
 		setExiting(true);
 		try {
-			await editor.project.prepareExit();
+			// Untouched canvases are discarded instead of saved as clutter.
+			const discarded = await editor.project.discardIfEmpty();
+			if (!discarded) await editor.project.prepareExit();
 		} catch {
 			// best-effort: still close + leave
 		} finally {
@@ -179,35 +184,64 @@ function DownloadButton() {
 	const [busy, setBusy] = useState(false);
 	const [progress, setProgress] = useState("");
 
-	// Renders the current page and hands it to the Publishing composer.
-	const publish = async () => {
+	// Renders pages and hands the result to the Publishing composer.
+	const publish = async (mode: "photo" | "carousel" | "pdf") => {
 		const project = editor.project.getActiveOrNull();
 		if (!project || busy) return;
 		setBusy(true);
 		setProgress("Rendering…");
 		try {
-			const scene = editor.scenes.getActiveScene();
-			const canvas = await renderPageToCanvas({
-				project,
-				scene,
-				mediaAssets: editor.media.getAssets(),
-			});
-			const blob: Blob = await new Promise((resolve, reject) =>
-				canvas.toBlob(
-					(b) => (b ? resolve(b) : reject(new Error("Render failed"))),
-					"image/png",
-				),
-			);
-			setProgress("Uploading…");
+			const mediaAssets = editor.media.getAssets();
 			const owner = session?.user?.id || getVaultOwner();
-			const id = await uploadExportToVault({
-				owner,
-				name: project.metadata.name,
-				data: blob,
-				ext: "png",
-				contentType: "image/png",
-				kind: "image",
-			});
+			const name = project.metadata.name;
+			const onProgress = (done: number, total: number) =>
+				setProgress(`Rendering ${done}/${total}…`);
+			let id: string;
+			if (mode === "photo") {
+				const [blob] = await renderPagesToBlobs({
+					project,
+					scenes: [editor.scenes.getActiveScene()],
+					mediaAssets,
+				});
+				setProgress("Uploading…");
+				id = await uploadExportToVault({
+					owner,
+					name,
+					data: blob,
+					ext: "png",
+					contentType: "image/png",
+					kind: "image",
+				});
+			} else if (mode === "carousel") {
+				const blobs = await renderPagesToBlobs({
+					project,
+					scenes: editor.scenes.getScenes(),
+					mediaAssets,
+					onProgress,
+				});
+				id = await uploadCarouselToVault({
+					owner,
+					name,
+					pages: blobs,
+					onProgress: (d, t) => setProgress(`Uploading ${d}/${t}…`),
+				});
+			} else {
+				const blob = await buildPagesPdfBlob({
+					project,
+					scenes: editor.scenes.getScenes(),
+					mediaAssets,
+					onProgress,
+				});
+				setProgress("Uploading…");
+				id = await uploadExportToVault({
+					owner,
+					name,
+					data: blob,
+					ext: "pdf",
+					contentType: "application/pdf",
+					kind: "pdf",
+				});
+			}
 			router.push(composeUrlFor(id));
 		} catch (e) {
 			toast.error(e instanceof Error ? e.message : "Couldn't publish");
@@ -332,14 +366,38 @@ function DownloadButton() {
 					<Button className="w-full" onClick={run} disabled={busy}>
 						{busy ? progress || "Rendering…" : "Download"}
 					</Button>
-					<Button
-						variant="outline"
-						className="w-full"
-						onClick={publish}
-						disabled={busy}
-					>
-						Publish current page…
-					</Button>
+
+					<div className="space-y-1.5 border-t pt-3">
+						<div className="text-muted-foreground text-xs font-medium">
+							Publish
+						</div>
+						<Button
+							variant="outline"
+							className="w-full rounded-md"
+							onClick={() => publish("photo")}
+							disabled={busy}
+						>
+							Current page as photo…
+						</Button>
+						{pageCount > 1 && (
+							<Button
+								variant="outline"
+								className="w-full rounded-md"
+								onClick={() => publish("carousel")}
+								disabled={busy}
+							>
+								All pages as carousel…
+							</Button>
+						)}
+						<Button
+							variant="outline"
+							className="w-full rounded-md"
+							onClick={() => publish("pdf")}
+							disabled={busy}
+						>
+							As PDF (LinkedIn)…
+						</Button>
+					</div>
 				</div>
 			</PopoverContent>
 		</Popover>

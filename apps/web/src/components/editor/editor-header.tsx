@@ -25,11 +25,13 @@ import {
 import { HugeiconsIcon } from "@hugeicons/react";
 import { ShortcutsDialog } from "@/actions/components/shortcuts-dialog";
 import { cn } from "@/utils/ui";
+import { ChevronLeft } from "lucide-react";
 
 export function EditorHeader() {
 	return (
 		<header className="bg-background flex h-[3.4rem] items-center justify-between px-3 pt-0.5">
 			<div className="flex items-center gap-1">
+				<BackToLibrary />
 				<ProjectDropdown />
 				<EditableProjectName />
 			</div>
@@ -37,6 +39,39 @@ export function EditorHeader() {
 				<ExportButton />
 			</nav>
 		</header>
+	);
+}
+
+function BackToLibrary() {
+	const router = useRouter();
+	const editor = useEditor();
+	const [exiting, setExiting] = useState(false);
+
+	const exit = async () => {
+		if (exiting) return;
+		setExiting(true);
+		try {
+			const discarded = await editor.project.discardIfEmpty();
+			if (!discarded) await editor.project.prepareExit();
+		} catch (error) {
+			console.error("Failed to prepare project exit:", error);
+		} finally {
+			editor.project.closeProject();
+			router.push("/projects");
+		}
+	};
+
+	return (
+		<Button
+			variant="ghost"
+			size="icon"
+			className="size-8 rounded-sm"
+			onClick={exit}
+			disabled={exiting}
+			aria-label="Back to library"
+		>
+			<ChevronLeft className="size-4" />
+		</Button>
 	);
 }
 
@@ -73,8 +108,9 @@ function ProjectDropdown() {
 		setIsExiting(true);
 
 		try {
-			await editor.project.prepareExit();
-			editor.project.closeProject();
+			// Untouched projects are discarded instead of saved as clutter.
+			const discarded = await editor.project.discardIfEmpty();
+			if (!discarded) await editor.project.prepareExit();
 		} catch (error) {
 			console.error("Failed to prepare project exit:", error);
 		} finally {

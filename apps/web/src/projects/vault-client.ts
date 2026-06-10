@@ -4,14 +4,14 @@ import { processMediaAssets } from "@/media/processing";
 
 export type VaultMedia = {
 	key: string;
-	type: "video" | "image" | "audio";
+	type: "video" | "image" | "audio" | "pdf";
 	ext?: string;
 	contentType?: string;
 };
 
 export type VaultItem = {
 	id: string;
-	kind: "video" | "audio" | "image" | "carousel";
+	kind: "video" | "audio" | "image" | "carousel" | "pdf";
 	name: string;
 	source: string;
 	durationSec?: number;
