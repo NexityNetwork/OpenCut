@@ -3,22 +3,14 @@
 // Interactive Text Particle — text rendered as a field of gradient particles
 // that scatter away from the cursor and spring back. Pure <canvas>.
 // Adapted from NexityNetwork/assets-claude animations/interactive-text-particle:
-// sized to its container (ResizeObserver) instead of the window, default
-// cursor kept, and SSR-safe.
+// sized to its container (ResizeObserver), rendered at devicePixelRatio for
+// crisp text, default cursor kept, SSR-safe.
 
 import React, { useEffect, useRef, useState } from "react";
 
 interface Pointer {
 	x?: number;
 	y?: number;
-}
-
-interface TextBox {
-	str: string;
-	x?: number;
-	y?: number;
-	w?: number;
-	h?: number;
 }
 
 export interface ParticleTextEffectProps {
@@ -34,21 +26,22 @@ class Particle {
 	oy: number;
 	cx: number;
 	cy: number;
-	or: number;
 	cr: number;
 	f: number;
-	rgb: number[];
+	fill: string;
 
-	constructor(x: number, y: number, rgb: number[], force: number) {
+	constructor(x: number, y: number, rgb: number[], force: number, dpr: number) {
 		const rand = (max = 1, min = 0) => min + Math.random() * (max - min);
 		this.ox = x;
 		this.oy = y;
 		this.cx = x;
 		this.cy = y;
-		this.or = rand(2.4, 0.8);
-		this.cr = this.or;
+		this.cr = rand(1.7, 1.05) * dpr;
 		this.f = rand(force + 15, force - 15);
-		this.rgb = rgb.map((c) => Math.max(0, c + rand(13, -13)));
+		const jitter = rgb.map((c) =>
+			Math.min(255, Math.max(0, c + rand(10, -10))),
+		);
+		this.fill = `rgb(${jitter.join(",")})`;
 	}
 
 	move(
@@ -72,12 +65,12 @@ class Particle {
 		const ody = this.oy - this.cy;
 		const od = Math.hypot(odx, ody);
 		if (od > 1) {
-			const restore = Math.min(od * 0.1, 3);
+			const restore = Math.min(od * 0.1, 4);
 			this.cx += (odx / od) * restore;
 			this.cy += (ody / od) * restore;
 		}
 
-		ctx.fillStyle = `rgb(${this.rgb.join(",")})`;
+		ctx.fillStyle = this.fill;
 		ctx.beginPath();
 		ctx.arc(this.cx, this.cy, this.cr, 0, 2 * Math.PI);
 		ctx.fill();
@@ -86,18 +79,10 @@ class Particle {
 
 export function ParticleTextEffect({
 	text = "HOVER!",
-	colors = [
-		"f1ebdc",
-		"e3d6b8",
-		"d9b98a",
-		"d49a6a",
-		"c7c0ae",
-		"a89f87",
-		"8b8676",
-	],
+	colors = ["f5efe0", "ead9b5", "ddb586", "d49a6a", "cdc6b4"],
 	className = "",
 	animationForce = 60,
-	particleDensity = 3,
+	particleDensity = 2,
 }: ParticleTextEffectProps) {
 	const wrapRef = useRef<HTMLDivElement>(null);
 	const canvasRef = useRef<HTMLCanvasElement>(null);
@@ -124,61 +109,62 @@ export function ParticleTextEffect({
 	useEffect(() => {
 		const canvas = canvasRef.current;
 		if (!canvas || size.width === 0 || size.height === 0) return;
-		const ctx = canvas.getContext("2d");
+		const ctx = canvas.getContext("2d", { willReadFrequently: true });
 		if (!ctx) return;
 
-		canvas.width = size.width;
-		canvas.height = size.height;
+		const dpr = Math.min(
+			typeof window !== "undefined" ? window.devicePixelRatio || 1 : 1,
+			2,
+		);
+		const W = Math.round(size.width * dpr);
+		const H = Math.round(size.height * dpr);
+		canvas.width = W;
+		canvas.height = H;
 
-		// Draw the gradient text once, sample it into particles.
-		const box: TextBox = { str: text };
-		const fitToWidth = Math.floor((size.width / text.length) * 1.7);
-		box.h = Math.min(Math.floor(size.height * 0.72), fitToWidth);
-		radiusRef.current = Math.max(50, box.h * 1.4);
-		ctx.font = `900 ${box.h}px Inter, Verdana, sans-serif`;
+		// Draw the gradient text once at device resolution, sample to particles.
+		const fitToWidth = Math.floor((W / text.length) * 1.78);
+		const fontPx = Math.min(Math.floor(H * 0.74), fitToWidth);
+		radiusRef.current = Math.max(50, fontPx * 1.3);
+		ctx.font = `900 ${fontPx}px Inter, Verdana, sans-serif`;
 		ctx.textAlign = "center";
 		ctx.textBaseline = "middle";
-		box.w = Math.round(ctx.measureText(box.str).width);
-		box.x = Math.max(0, 0.5 * (size.width - box.w));
-		box.y = Math.max(0, 0.5 * (size.height - box.h));
+		const textW = Math.min(Math.round(ctx.measureText(text).width), W);
+		const x0 = Math.max(0, Math.round(0.5 * (W - textW)));
+		const y0 = Math.max(0, Math.round(0.5 * (H - fontPx)));
 
-		const gradient = ctx.createLinearGradient(
-			box.x,
-			box.y,
-			box.x + box.w,
-			box.y + box.h,
-		);
+		const gradient = ctx.createLinearGradient(x0, y0, x0 + textW, y0 + fontPx);
 		const N = Math.max(1, colors.length - 1);
 		colors.forEach((c, i) => gradient.addColorStop(i / N, `#${c}`));
 		ctx.fillStyle = gradient;
-		ctx.fillText(box.str, 0.5 * size.width, 0.5 * size.height);
+		ctx.fillText(text, 0.5 * W, 0.5 * H);
 
-		const w = Math.min(box.w, size.width);
-		const data = ctx.getImageData(box.x, box.y, w, box.h).data;
+		const step = Math.max(1, Math.round(particleDensity * dpr * 0.75));
+		const data = ctx.getImageData(x0, y0, textW, fontPx).data;
 		const parts: Particle[] = [];
 		for (let i = 0; i < data.length; i += 4) {
-			const px = (i / 4) % w;
-			const py = Math.floor(i / 4 / w);
-			if (!data[i + 3] || px % particleDensity || py % particleDensity) continue;
+			const px = (i / 4) % textW;
+			const py = Math.floor(i / 4 / textW);
+			if (data[i + 3] < 128 || px % step || py % step) continue;
 			parts.push(
 				new Particle(
-					box.x + px,
-					box.y + py,
+					x0 + px,
+					y0 + py,
 					[data[i], data[i + 1], data[i + 2]],
 					animationForce,
+					dpr,
 				),
 			);
 		}
 		particlesRef.current = parts;
 
 		const animate = () => {
-			ctx.clearRect(0, 0, canvas.width, canvas.height);
+			ctx.clearRect(0, 0, W, H);
 			for (const p of particlesRef.current) {
 				p.move(ctx, pointerRef.current, hasPointerRef.current, radiusRef.current);
 			}
 			rafRef.current = requestAnimationFrame(animate);
 		};
-		ctx.clearRect(0, 0, canvas.width, canvas.height);
+		ctx.clearRect(0, 0, W, H);
 		animate();
 
 		return () => {

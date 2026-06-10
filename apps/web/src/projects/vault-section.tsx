@@ -277,9 +277,6 @@ export function VaultSection() {
 	const [appView, setAppView] = useState<"home" | "library" | "publish">(
 		"home",
 	);
-	const [homeModal, setHomeModal] = useState<null | "actions" | "channels">(
-		null,
-	);
 	// "Export & publish" hand-off from the editors: /projects?compose=<itemId>
 	const [composePrefill, setComposePrefill] = useState<string | null>(null);
 	useEffect(() => {
@@ -852,7 +849,6 @@ export function VaultSection() {
 			<div className="flex flex-col items-center pt-16 pb-2 sm:pt-24">
 				<ParticleTextEffect
 					text="What will you create today?"
-					colors={["d49a6a", "c89b6f", "b8a888", "a89f87", "8b8676"]}
 					className="mb-4 h-24 w-full max-w-3xl sm:h-28"
 				/>
 				<div className="w-full max-w-2xl">
@@ -864,16 +860,6 @@ export function VaultSection() {
 								: "border-border focus-within:border-foreground/30",
 						)}
 					>
-						<button
-							type="button"
-							onClick={() => fileInputRef.current?.click()}
-							disabled={busy}
-							aria-label="Upload files to your vault"
-							title="Upload files"
-							className="text-muted-foreground hover:text-foreground flex size-8 shrink-0 items-center justify-center rounded-full transition-colors disabled:opacity-50"
-						>
-							<Paperclip className="size-4" />
-						</button>
 						<input
 							ref={fileInputRef}
 							type="file"
@@ -896,7 +882,7 @@ export function VaultSection() {
 							}}
 							placeholder="Paste a link to import, or search your projects…"
 							disabled={busy}
-							className="placeholder:text-foreground/55 flex-1 bg-transparent py-1.5 text-base outline-none"
+							className="text-[var(--mono-ink)] placeholder:text-[var(--mono-ink-2)] flex-1 bg-transparent py-1.5 text-base outline-none"
 						/>
 						<button
 							type="button"
@@ -913,25 +899,56 @@ export function VaultSection() {
 							{busy ? <Spinner className="size-4" /> : <ArrowUp className="size-4" />}
 						</button>
 					</div>
-					<div className="mt-3 flex items-center justify-between gap-3">
-						<div className="flex items-center gap-1.5">
-							<HomeChip
-								Icon={Zap}
-								label="Quick actions"
-								onClick={() => setHomeModal("actions")}
-							/>
-							<HomeChip
-								Icon={Globe}
-								label="Channels"
-								onClick={() => setHomeModal("channels")}
-							/>
-							<HomeChip Icon={Plus} label="New" onClick={createBlankProject} />
-						</div>
-						<span className="flex items-center gap-2 text-xs text-[var(--mono-ink-3)]">
-							Monolith
-							<span className="text-[var(--mono-ink-2)]">Max</span>
-							<span className="size-1.5 animate-pulse rounded-full bg-green-500/80" />
-						</span>
+					<div className="mt-3 flex items-center gap-1.5">
+						<DropdownMenu>
+							<DropdownMenuTrigger asChild>
+								<button type="button" className={HOME_CHIP_CLS}>
+									<Zap className="size-3.5" />
+									Quick actions
+								</button>
+							</DropdownMenuTrigger>
+							<DropdownMenuContent align="start">
+								<DropdownMenuItem onClick={createBlankProject}>
+									<Plus className="size-4" /> New project
+								</DropdownMenuItem>
+								<DropdownMenuItem onClick={() => setNewCanvasOpen(true)}>
+									<Frame className="size-4" /> Create post
+								</DropdownMenuItem>
+								<DropdownMenuItem
+									onClick={() => fileInputRef.current?.click()}
+								>
+									<Paperclip className="size-4" /> Import media
+								</DropdownMenuItem>
+								<DropdownMenuItem onClick={() => setAppView("publish")}>
+									<Rocket className="size-4" /> Open Publish
+								</DropdownMenuItem>
+							</DropdownMenuContent>
+						</DropdownMenu>
+						<DropdownMenu>
+							<DropdownMenuTrigger asChild>
+								<button type="button" className={HOME_CHIP_CLS}>
+									<Globe className="size-3.5" />
+									Channels
+								</button>
+							</DropdownMenuTrigger>
+							<DropdownMenuContent align="start">
+								{PLATFORMS.map((p) => (
+									<DropdownMenuItem key={p.label}>
+										<p.Icon className="size-4" style={{ color: p.color }} />
+										{p.label}
+										<Check className="ml-auto size-3.5 text-green-500/90" />
+									</DropdownMenuItem>
+								))}
+							</DropdownMenuContent>
+						</DropdownMenu>
+						<button
+							type="button"
+							onClick={createBlankProject}
+							className={HOME_CHIP_CLS}
+						>
+							<Plus className="size-3.5" />
+							New
+						</button>
 					</div>
 				</div>
 			</div>
@@ -1124,32 +1141,7 @@ export function VaultSection() {
 				onCreate={createCanvas}
 			/>
 			<ConfirmDialog ask={confirmAsk} onClose={() => setConfirmAsk(null)} />
-			<HomeActionsModal
-				open={homeModal === "actions"}
-				onClose={() => setHomeModal(null)}
-				actions={[
-					{ label: "New project", Icon: Plus, run: createBlankProject },
-					{
-						label: "Create post",
-						Icon: Frame,
-						run: () => setNewCanvasOpen(true),
-					},
-					{
-						label: "Import media",
-						Icon: Paperclip,
-						run: () => fileInputRef.current?.click(),
-					},
-					{
-						label: "Open Publish",
-						Icon: Rocket,
-						run: () => setAppView("publish"),
-					},
-				]}
-			/>
-			<HomeChannelsModal
-				open={homeModal === "channels"}
-				onClose={() => setHomeModal(null)}
-			/>
+
 			</main>
 			{searchOpen && (
 				<SearchModal
@@ -1279,7 +1271,7 @@ function HomeDashboard({
 
 			<div className="mt-3 grid gap-3 lg:grid-cols-3">
 				{/* Analytics */}
-				<div className={cn(card, "p-4 lg:col-span-2")}>
+				<div className={cn(card, "flex flex-col p-4 lg:col-span-2")}>
 					<div className="flex items-center justify-between">
 						<span className="text-sm font-semibold text-[var(--mono-ink)]">
 							<BarChart3 className="mr-1.5 inline size-4" />
@@ -1313,7 +1305,7 @@ function HomeDashboard({
 							</div>
 						</div>
 					</div>
-					<div className="mt-4 flex h-28 items-end gap-1 opacity-60">
+					<div className="mt-4 flex min-h-28 flex-1 items-end gap-1 opacity-60">
 						{bars.map((h, i) => (
 							<div
 								key={`${i}-${h}`}
@@ -1358,106 +1350,8 @@ function HomeDashboard({
 	);
 }
 
-// Slim Claude-Code-style chip under the hero input.
-function HomeChip({
-	Icon,
-	label,
-	onClick,
-}: {
-	Icon: typeof Tag;
-	label: string;
-	onClick: () => void;
-}) {
-	return (
-		<button
-			type="button"
-			onClick={onClick}
-			className="flex items-center gap-1.5 rounded-lg border border-[var(--mono-line)] bg-[var(--mono-hover)] px-2.5 py-1.5 text-xs text-[var(--mono-ink-2)] transition-colors hover:bg-[var(--mono-active)] hover:text-[var(--mono-ink)]"
-		>
-			<Icon className="size-3.5" />
-			{label}
-		</button>
-	);
-}
-
-function HomeActionsModal({
-	open,
-	onClose,
-	actions,
-}: {
-	open: boolean;
-	onClose: () => void;
-	actions: { label: string; Icon: typeof Tag; run: () => void }[];
-}) {
-	return (
-		<Dialog open={open} onOpenChange={(o) => !o && onClose()}>
-			<DialogContent className="max-w-sm gap-0 rounded-2xl border-[var(--mono-line)] bg-[var(--mono-panel)] p-0 text-[var(--mono-ink)]">
-				<div className="border-b border-[var(--mono-line)] px-6 py-4">
-					<DialogTitle className="text-[15px] font-semibold text-[var(--mono-ink)]">
-						Quick actions
-					</DialogTitle>
-				</div>
-				<div className="grid grid-cols-2 gap-2 p-6">
-					{actions.map((a) => (
-						<button
-							key={a.label}
-							type="button"
-							onClick={() => {
-								onClose();
-								a.run();
-							}}
-							className="flex flex-col items-start gap-2 rounded-xl border border-[var(--mono-line)] p-3.5 text-left transition-colors hover:bg-[var(--mono-hover)]"
-						>
-							<a.Icon className="size-4 text-[var(--mono-ink-2)]" />
-							<span className="text-[13px] font-medium text-[var(--mono-ink)]">
-								{a.label}
-							</span>
-						</button>
-					))}
-				</div>
-			</DialogContent>
-		</Dialog>
-	);
-}
-
-function HomeChannelsModal({
-	open,
-	onClose,
-}: {
-	open: boolean;
-	onClose: () => void;
-}) {
-	return (
-		<Dialog open={open} onOpenChange={(o) => !o && onClose()}>
-			<DialogContent className="max-w-sm gap-0 rounded-2xl border-[var(--mono-line)] bg-[var(--mono-panel)] p-0 text-[var(--mono-ink)]">
-				<div className="border-b border-[var(--mono-line)] px-6 py-4">
-					<DialogTitle className="text-[15px] font-semibold text-[var(--mono-ink)]">
-						Channels
-					</DialogTitle>
-					<p className="mt-1 text-xs text-[var(--mono-ink-3)]">
-						Sources you can import from, all enabled.
-					</p>
-				</div>
-				<div className="p-3">
-					{PLATFORMS.map((p) => (
-						<div
-							key={p.label}
-							className="flex items-center gap-3 rounded-lg px-3 py-2 transition-colors hover:bg-[var(--mono-hover)]"
-						>
-							<span className="flex size-7 items-center justify-center rounded-md border border-[var(--mono-line)] bg-[var(--mono-hover)]">
-								<p.Icon className="size-3.5" style={{ color: p.color }} />
-							</span>
-							<span className="flex-1 text-[13px] text-[var(--mono-ink-2)]">
-								{p.label}
-							</span>
-							<Check className="size-3.5 text-green-500/90" />
-						</div>
-					))}
-				</div>
-			</DialogContent>
-		</Dialog>
-	);
-}
+const HOME_CHIP_CLS =
+	"flex items-center gap-1.5 rounded-lg border border-[var(--mono-line)] bg-[var(--mono-hover)] px-2.5 py-1.5 text-xs text-[var(--mono-ink-2)] transition-colors hover:bg-[var(--mono-active)] hover:text-[var(--mono-ink)]";
 
 function NewSectionDialog({
 	open,
