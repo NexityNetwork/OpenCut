@@ -5,8 +5,14 @@
 
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { toast } from "sonner";
-import { Plus, RotateCw, Search, Tag } from "lucide-react";
+import { ChevronDown, Plus, RotateCw, Search, Tag } from "lucide-react";
 import { cn } from "@/utils/ui";
+import {
+	DropdownMenu,
+	DropdownMenuContent,
+	DropdownMenuItem,
+	DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 
 type Contact = {
 	id: string;
@@ -43,7 +49,14 @@ const DEMO: Contact[] = [
 	{ id: "d3", username: "foundermode", name: null, status: "lead", source: "funnel", tags: ["funnel"], reachable: false, last_inbound_at: null, last_seen: Date.now() },
 ];
 
-export function ContactsView({ owner, preview }: { owner: string; preview: boolean }) {
+export function ContactsView({
+	owner,
+	preview,
+}: {
+	owner: string;
+	preview: boolean;
+	account?: string;
+}) {
 	const [contacts, setContacts] = useState<Contact[] | null>(null);
 	const [allTags, setAllTags] = useState<string[]>([]);
 	const [segments, setSegments] = useState<Segment[]>([]);
@@ -238,26 +251,20 @@ export function ContactsView({ owner, preview }: { owner: string; preview: boole
 						className="min-w-0 flex-1 bg-transparent text-sm text-[var(--mono-ink)] outline-none placeholder:text-[var(--mono-ink-2)]"
 					/>
 				</div>
-				<select
+				<FilterDropdown
+					label={status || "Any status"}
 					value={status}
-					onChange={(e) => setStatus(e.target.value)}
-					className="rounded-lg border border-[var(--mono-line)] bg-[var(--mono-field)] px-3 py-2 text-[13px] text-[var(--mono-ink-2)] outline-none"
-				>
-					<option value="">Any status</option>
-					{STATUSES.map((s) => (
-						<option key={s} value={s}>{s}</option>
-					))}
-				</select>
-				<select
+					options={["", ...STATUSES]}
+					optionLabel={(o) => o || "Any status"}
+					onSelect={setStatus}
+				/>
+				<FilterDropdown
+					label={tag || "Any tag"}
 					value={tag}
-					onChange={(e) => setTag(e.target.value)}
-					className="rounded-lg border border-[var(--mono-line)] bg-[var(--mono-field)] px-3 py-2 text-[13px] text-[var(--mono-ink-2)] outline-none"
-				>
-					<option value="">Any tag</option>
-					{allTags.map((t) => (
-						<option key={t} value={t}>{t}</option>
-					))}
-				</select>
+					options={["", ...allTags]}
+					optionLabel={(o) => o || "Any tag"}
+					onSelect={setTag}
+				/>
 				<button
 					type="button"
 					onClick={() => setReachable((v) => !v)}
@@ -331,20 +338,31 @@ export function ContactsView({ owner, preview }: { owner: string; preview: boole
 								</div>
 							</div>
 							<TagAdder onAdd={(t) => toggleTag(c, t)} existing={c.tags} />
-							<select
-								value={c.status}
-								onChange={(e) => setContactStatus(c, e.target.value)}
-								className={cn(
-									"shrink-0 rounded-md px-2 py-1 text-[11px] font-semibold outline-none",
-									STATUS_CLS[c.status] ?? STATUS_CLS.lead,
-								)}
-							>
-								{STATUSES.map((s) => (
-									<option key={s} value={s} className="bg-[var(--mono-panel)] text-[var(--mono-ink)]">
-										{s}
-									</option>
-								))}
-							</select>
+							<DropdownMenu>
+								<DropdownMenuTrigger asChild>
+									<button
+										type="button"
+										className={cn(
+											"flex shrink-0 items-center gap-1 rounded-md px-2 py-1 text-[11px] font-semibold capitalize",
+											STATUS_CLS[c.status] ?? STATUS_CLS.lead,
+										)}
+									>
+										{c.status}
+										<ChevronDown className="size-3 opacity-60" />
+									</button>
+								</DropdownMenuTrigger>
+								<DropdownMenuContent align="end">
+									{STATUSES.map((s) => (
+										<DropdownMenuItem
+											key={s}
+											onClick={() => setContactStatus(c, s)}
+											className="capitalize"
+										>
+											{s}
+										</DropdownMenuItem>
+									))}
+								</DropdownMenuContent>
+							</DropdownMenu>
 						</div>
 					))
 				)}
@@ -355,6 +373,44 @@ export function ContactsView({ owner, preview }: { owner: string; preview: boole
 				</div>
 			)}
 		</div>
+	);
+}
+
+function FilterDropdown({
+	label,
+	value,
+	options,
+	optionLabel,
+	onSelect,
+}: {
+	label: string;
+	value: string;
+	options: string[];
+	optionLabel: (o: string) => string;
+	onSelect: (v: string) => void;
+}) {
+	return (
+		<DropdownMenu>
+			<DropdownMenuTrigger asChild>
+				<button
+					type="button"
+					className={cn(
+						"flex items-center gap-1.5 rounded-lg border border-[var(--mono-line)] bg-[var(--mono-field)] px-3 py-2 text-[13px] capitalize transition-colors hover:bg-[var(--mono-hover)]",
+						value ? "text-[var(--mono-ink)]" : "text-[var(--mono-ink-2)]",
+					)}
+				>
+					{label}
+					<ChevronDown className="size-3.5 text-[var(--mono-ink-3)]" />
+				</button>
+			</DropdownMenuTrigger>
+			<DropdownMenuContent align="start" className="max-h-72 overflow-y-auto">
+				{options.map((o) => (
+					<DropdownMenuItem key={o || "any"} onClick={() => onSelect(o)} className="capitalize">
+						{optionLabel(o)}
+					</DropdownMenuItem>
+				))}
+			</DropdownMenuContent>
+		</DropdownMenu>
 	);
 }
 

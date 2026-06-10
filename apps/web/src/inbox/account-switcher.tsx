@@ -52,19 +52,9 @@ export function AccountSwitcher({
 	account: string;
 	onSelect: (id: string) => void;
 }) {
-	// Nothing to switch between with a single account — show it as a static pill.
+	// Always a picker, so switching accounts is one click.
 	const current = accounts.find((a) => a.id === account) ?? accounts[0];
-	if (!current) return null;
 	const label = (a: IgAccount) => (a.handle ? `@${a.handle}` : a.label);
-
-	if (accounts.length < 2) {
-		return (
-			<div className="flex items-center gap-1.5 rounded-lg border border-[var(--mono-line)] bg-[var(--mono-panel)] px-2.5 py-1.5 text-[13px] font-medium text-[var(--mono-ink-2)]">
-				<SiInstagram className="size-3.5" style={{ color: "#E4405F" }} />
-				{label(current)}
-			</div>
-		);
-	}
 
 	return (
 		<DropdownMenu>
@@ -74,11 +64,14 @@ export function AccountSwitcher({
 					className="flex items-center gap-1.5 rounded-lg border border-[var(--mono-line)] bg-[var(--mono-panel)] px-2.5 py-1.5 text-[13px] font-medium text-[var(--mono-ink)] transition-colors hover:bg-[var(--mono-hover)]"
 				>
 					<SiInstagram className="size-3.5" style={{ color: "#E4405F" }} />
-					{label(current)}
+					{current ? label(current) : "No account"}
 					<ChevronDown className="size-3.5 text-[var(--mono-ink-3)]" />
 				</button>
 			</DropdownMenuTrigger>
-			<DropdownMenuContent align="end" className="min-w-48">
+			<DropdownMenuContent align="end" className="min-w-52">
+				<div className="px-2 py-1 text-[10px] font-semibold tracking-wide text-[var(--mono-ink-3)] uppercase">
+					Instagram accounts
+				</div>
 				{accounts.map((a) => (
 					<DropdownMenuItem key={a.id} onClick={() => onSelect(a.id)}>
 						<SiInstagram className="size-3.5" style={{ color: "#E4405F" }} />
@@ -86,6 +79,9 @@ export function AccountSwitcher({
 						{a.id === account && <Check className="size-3.5" />}
 					</DropdownMenuItem>
 				))}
+				<div className="px-2 pt-1 pb-0.5 text-[11px] text-[var(--mono-ink-3)]">
+					Connect more from Publish → Channels
+				</div>
 			</DropdownMenuContent>
 		</DropdownMenu>
 	);

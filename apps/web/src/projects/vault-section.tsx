@@ -138,7 +138,7 @@ import type { TProjectMetadata, TProjectSortOption } from "@/project/types";
 import { BioBuilder } from "@/bio/bio-builder";
 import { ClipsStudio } from "@/clips/clips-studio";
 import { BrandKitView } from "@/brand/brand-kit";
-import { InboxView } from "@/inbox/inbox-view";
+import { InboxView, INBOX_TABS, type InboxTab } from "@/inbox/inbox-view";
 import { AssetDetail } from "@/projects/asset-detail";
 import { AddMediaAssetCommand } from "@/commands/media";
 import { InsertElementCommand } from "@/commands/timeline";
@@ -302,6 +302,12 @@ export function VaultSection() {
 	const [appView, setAppView] = useState<
 		"home" | "library" | "publish" | "bio" | "clips" | "brand" | "inbox"
 	>("home");
+	// Which SM Automation subsection is active (the sidebar drives it directly).
+	const [inboxTab, setInboxTab] = useState<InboxTab>("comments");
+	const selectInboxTab = (t: InboxTab) => {
+		setAppView("inbox");
+		setInboxTab(t);
+	};
 	// "Export & publish" hand-off from the editors: /projects?compose=<itemId>
 	const [composePrefill, setComposePrefill] = useState<string | null>(null);
 	useEffect(() => {
@@ -1202,7 +1208,8 @@ export function VaultSection() {
 				onSelectBio={() => setAppView("bio")}
 				onSelectClips={() => setAppView("clips")}
 					onSelectBrand={() => setAppView("brand")}
-					onSelectInbox={() => setAppView("inbox")}
+					inboxTab={inboxTab}
+					onSelectInboxTab={selectInboxTab}
 				navTabs={navTabs}
 				activeTab={activeTab}
 				onSelectTab={(k) => {
@@ -1263,7 +1270,8 @@ export function VaultSection() {
 				onSelectBio={() => setAppView("bio")}
 					onSelectClips={() => setAppView("clips")}
 					onSelectBrand={() => setAppView("brand")}
-					onSelectInbox={() => setAppView("inbox")}
+					inboxTab={inboxTab}
+					onSelectInboxTab={selectInboxTab}
 				navTabs={navTabs}
 				activeTab={activeTab}
 				onSelectTab={(k) => {
@@ -1328,7 +1336,7 @@ export function VaultSection() {
 				) : appView === "brand" ? (
 					<BrandKitView owner={owner} />
 				) : appView === "inbox" ? (
-					<InboxView owner={owner} preview={!isOwner} />
+					<InboxView owner={owner} preview={!isOwner} tab={inboxTab} />
 				) : appView === "clips" ? (
 					<ClipsStudio
 						items={visibleItems}
@@ -2236,6 +2244,45 @@ function SidebarItem({
 	);
 }
 
+function SidebarGroupLabel({ children }: { children: React.ReactNode }) {
+	return (
+		<div className="px-2 pt-3 pb-1 text-[10px] font-semibold tracking-wide text-[var(--mono-ink-3)] uppercase">
+			{children}
+		</div>
+	);
+}
+
+function CollapsibleGroup({
+	label,
+	open,
+	onToggle,
+	children,
+}: {
+	label: string;
+	open: boolean;
+	onToggle: () => void;
+	children: React.ReactNode;
+}) {
+	return (
+		<>
+			<button
+				type="button"
+				onClick={onToggle}
+				className="mt-2 flex w-full items-center gap-1 px-2 pt-1 pb-1 text-[10px] font-semibold tracking-wide text-[var(--mono-ink-3)] uppercase transition-colors hover:text-[var(--mono-ink-2)]"
+			>
+				<span className="flex-1 text-left">{label}</span>
+				<ChevronDown
+					className={cn(
+						"size-3.5 shrink-0 transition-transform",
+						!open && "-rotate-90",
+					)}
+				/>
+			</button>
+			{open && <div className="space-y-0.5">{children}</div>}
+		</>
+	);
+}
+
 function Avatar({
 	name,
 	image,
@@ -2272,7 +2319,8 @@ function LibrarySidebar({
 	onSelectBio,
 	onSelectClips,
 	onSelectBrand,
-	onSelectInbox,
+	inboxTab,
+	onSelectInboxTab,
 	navTabs,
 	activeTab,
 	onSelectTab,
@@ -2288,13 +2336,14 @@ function LibrarySidebar({
 	onToggleCollapse: () => void;
 	onOpenSearch: () => void;
 	appView: "home" | "library" | "publish" | "bio" | "clips" | "brand" | "inbox";
+	inboxTab: InboxTab;
+	onSelectInboxTab: (t: InboxTab) => void;
 	onSelectHome: () => void;
 	onSelectLibrary: () => void;
 	onSelectPublish: () => void;
 	onSelectBio: () => void;
 	onSelectClips: () => void;
 	onSelectBrand: () => void;
-	onSelectInbox: () => void;
 	navTabs: NavTab[];
 	activeTab: string;
 	onSelectTab: (k: string) => void;
@@ -2310,6 +2359,7 @@ function LibrarySidebar({
 	const user = session?.user;
 	const { resolvedTheme, setTheme } = useTheme();
 	const [moreOpen, setMoreOpen] = useState(false);
+	const [smOpen, setSmOpen] = useState(true);
 
 	if (collapsed) {
 		return (
@@ -2429,8 +2479,12 @@ function LibrarySidebar({
 					active={appView === "home"}
 					onClick={onSelectHome}
 				/>
+
+				<SidebarGroupLabel>Create</SidebarGroupLabel>
 				<SidebarItem icon={Plus} label="New project" onClick={onNewProject} />
 				<SidebarItem icon={Frame} label="Create post" onClick={onNewCanvas} />
+
+				<SidebarGroupLabel>Workspace</SidebarGroupLabel>
 				<SidebarItem
 					icon={LibraryIcon}
 					label="Library"
@@ -2444,47 +2498,47 @@ function LibrarySidebar({
 					active={appView === "publish"}
 					onClick={onSelectPublish}
 				/>
-				<button
-					type="button"
-					onClick={() => setMoreOpen((v) => !v)}
-					className="flex w-full items-center gap-2.5 rounded-lg px-2 py-1 text-[13px] text-[var(--mono-ink-2)] transition-colors hover:bg-[var(--mono-hover)] hover:text-[var(--mono-ink)]"
+
+				<CollapsibleGroup
+					label="SM Automation"
+					open={smOpen}
+					onToggle={() => setSmOpen((v) => !v)}
 				>
-					<ChevronDown
-						className={cn(
-							"size-[15px] shrink-0 transition-transform",
-							moreOpen && "rotate-180",
-						)}
+					{INBOX_TABS.map((t) => (
+						<SidebarItem
+							key={t.key}
+							icon={t.Icon}
+							label={t.label}
+							active={appView === "inbox" && inboxTab === t.key}
+							onClick={() => onSelectInboxTab(t.key)}
+						/>
+					))}
+				</CollapsibleGroup>
+
+				<CollapsibleGroup
+					label="More Tools"
+					open={moreOpen}
+					onToggle={() => setMoreOpen((v) => !v)}
+				>
+					<SidebarItem
+						icon={Link2}
+						label="Link in bio"
+						active={appView === "bio"}
+						onClick={onSelectBio}
 					/>
-					<span className="flex-1 text-left">More Tools</span>
-				</button>
-				{moreOpen && (
-					<div className="space-y-0.5">
-						<SidebarItem
-							icon={Link2}
-							label="Link in bio"
-							active={appView === "bio"}
-							onClick={onSelectBio}
-						/>
-						<SidebarItem
-							icon={Scissors}
-							label="AI Clips"
-							active={appView === "clips"}
-							onClick={onSelectClips}
-						/>
-						<SidebarItem
-							icon={MessagesSquare}
-							label="Inbox"
-							active={appView === "inbox"}
-							onClick={onSelectInbox}
-						/>
-						<SidebarItem
-							icon={Palette}
-							label="Brand kit"
-							active={appView === "brand"}
-							onClick={onSelectBrand}
-						/>
-					</div>
-				)}
+					<SidebarItem
+						icon={Scissors}
+						label="Clipping Engine"
+						active={appView === "clips"}
+						onClick={onSelectClips}
+					/>
+					<SidebarItem
+						icon={Palette}
+						label="Brand kit"
+						active={appView === "brand"}
+						onClick={onSelectBrand}
+					/>
+				</CollapsibleGroup>
 			</nav>
 
 			<div className="flex items-center justify-between px-4 pt-4 pb-1">
