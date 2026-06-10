@@ -131,6 +131,7 @@ import {
 import { useSession, signOut } from "@/auth/client";
 import { AuthButton } from "@/auth/auth-button";
 import type { TProjectMetadata, TProjectSortOption } from "@/project/types";
+import { BioBuilder } from "@/bio/bio-builder";
 import { ParticleTextEffect } from "@/components/home/particle-text";
 
 const PLATFORMS = [
@@ -275,9 +276,9 @@ export function VaultSection() {
 	const listView = isHydrated && viewMode === "list";
 	const [collapsed, setCollapsed] = useState(false);
 	const [searchOpen, setSearchOpen] = useState(false);
-	const [appView, setAppView] = useState<"home" | "library" | "publish">(
-		"home",
-	);
+	const [appView, setAppView] = useState<
+		"home" | "library" | "publish" | "bio"
+	>("home");
 	// "Export & publish" hand-off from the editors: /projects?compose=<itemId>
 	const [composePrefill, setComposePrefill] = useState<string | null>(null);
 	useEffect(() => {
@@ -797,6 +798,7 @@ export function VaultSection() {
 				onSelectHome={() => setAppView("home")}
 				onSelectLibrary={() => setAppView("library")}
 				onSelectPublish={() => setAppView("publish")}
+				onSelectBio={() => setAppView("bio")}
 				navTabs={navTabs}
 				activeTab={activeTab}
 				onSelectTab={(k) => {
@@ -836,6 +838,8 @@ export function VaultSection() {
 						isOwner={isOwner}
 						initialComposeItem={composePrefill}
 					/>
+				) : appView === "bio" ? (
+					<BioBuilder owner={owner} />
 				) : (
 					<div className="px-8 pb-12">
 						{appView === "library" && (
@@ -1680,6 +1684,7 @@ function LibrarySidebar({
 	onSelectHome,
 	onSelectLibrary,
 	onSelectPublish,
+	onSelectBio,
 	navTabs,
 	activeTab,
 	onSelectTab,
@@ -1694,10 +1699,11 @@ function LibrarySidebar({
 	collapsed: boolean;
 	onToggleCollapse: () => void;
 	onOpenSearch: () => void;
-	appView: "home" | "library" | "publish";
+	appView: "home" | "library" | "publish" | "bio";
 	onSelectHome: () => void;
 	onSelectLibrary: () => void;
 	onSelectPublish: () => void;
+	onSelectBio: () => void;
 	navTabs: NavTab[];
 	activeTab: string;
 	onSelectTab: (k: string) => void;
@@ -1862,7 +1868,12 @@ function LibrarySidebar({
 				</button>
 				{moreOpen && (
 					<div className="space-y-0.5">
-						<SidebarItem icon={Settings} label="Customize" onClick={() => {}} />
+						<SidebarItem
+							icon={Link2}
+							label="Link in bio"
+							active={appView === "bio"}
+							onClick={onSelectBio}
+						/>
 						<SidebarItem icon={HelpCircle} label="Get help" onClick={() => {}} />
 					</div>
 				)}
