@@ -397,19 +397,6 @@ class StorageService {
 		};
 	}
 
-	/** Ids of media already stored for a project (used by the Brain backup/
-	 * restore to diff local media against the durable R2 copy). */
-	async listProjectMediaIds({
-		projectId,
-	}: {
-		projectId: string;
-	}): Promise<string[]> {
-		const { mediaMetadataAdapter } = this.getProjectMediaAdapters({
-			projectId,
-		});
-		return mediaMetadataAdapter.list();
-	}
-
 	async loadAllMediaAssets({
 		projectId,
 	}: {

@@ -89,27 +89,11 @@ export class MediaManager {
 		this.notify();
 
 		try {
-			// Self-heal: pull any asset that's durable in R2 (the Brain's media
-			// registry) but missing from this device's cache — a fresh browser or
-			// a cleared OPFS. Best-effort; never blocks the editor.
-			try {
-				const { restoreMissingMedia } = await import("@/brain/media-sync");
-				await restoreMissingMedia(projectId);
-			} catch {
-				/* offline / signed out — load whatever is local */
-			}
-
 			const mediaAssets = await storageService.loadAllMediaAssets({
 				projectId,
 			});
 			this.assets = mediaAssets;
 			this.notify();
-
-			// Durably mirror anything not yet in R2 (media added before this device
-			// synced, or pre-dating the feature). Idempotent, fire-and-forget.
-			void import("@/brain/media-sync")
-				.then((m) => m.backupProjectMedia(projectId))
-				.catch(() => {});
 		} catch (error) {
 			console.error("Failed to load media assets:", error);
 		} finally {
