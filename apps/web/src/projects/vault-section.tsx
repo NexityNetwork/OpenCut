@@ -269,6 +269,16 @@ export function VaultSection() {
 	const [collapsed, setCollapsed] = useState(false);
 	const [searchOpen, setSearchOpen] = useState(false);
 	const [appView, setAppView] = useState<"library" | "publish">("library");
+	// "Export & publish" hand-off from the editors: /projects?compose=<itemId>
+	const [composePrefill, setComposePrefill] = useState<string | null>(null);
+	useEffect(() => {
+		const id = new URLSearchParams(window.location.search).get("compose");
+		if (id) {
+			setComposePrefill(id);
+			setAppView("publish");
+			window.history.replaceState(null, "", "/projects");
+		}
+	}, []);
 	const readSet = (k: string) => {
 		if (typeof window === "undefined") return new Set<string>();
 		try {
@@ -793,7 +803,12 @@ export function VaultSection() {
 				}}
 			>
 				{appView === "publish" ? (
-					<PublishPane items={visibleItems} owner={owner} isOwner={isOwner} />
+					<PublishPane
+						items={visibleItems}
+						owner={owner}
+						isOwner={isOwner}
+						initialComposeItem={composePrefill}
+					/>
 				) : (
 					<div className="px-8 pb-12">
 						<div className="flex justify-end pt-4">
@@ -2388,14 +2403,22 @@ function ComposePostModal({
 	items,
 	onClose,
 	onPosted,
+	initialItemId,
 }: {
 	owner: string;
 	items: VaultItem[];
 	onClose: () => void;
 	onPosted: () => void;
+	initialItemId?: string | null;
 }) {
+	// Videos and single images (canvas exports) are postable.
 	const videos = useMemo(
-		() => items.filter((i) => i.media?.some((m) => m.type === "video")),
+		() =>
+			items.filter(
+				(i) =>
+					i.kind !== "carousel" &&
+					i.media?.some((m) => m.type === "video" || m.type === "image"),
+			),
 		[items],
 	);
 	const [channels, setChannels] = useState<Channel[] | null>(null);
@@ -2470,9 +2493,25 @@ function ComposePostModal({
 		setPicked(it);
 		setTitle(it.name || "");
 		setCaption(it.caption || "");
+		// Photos can only go to Instagram.
+		if (!it.media?.some((m) => m.type === "video")) {
+			setSel(new Set(available.filter((p) => p === "instagram")));
+		}
 	};
 
+	// Open straight on a specific item (Export & publish hand-off).
+	useEffect(() => {
+		if (!initialItemId || picked) return;
+		const it = videos.find((v) => v.id === initialItemId);
+		if (it) choose(it);
+		// eslint-disable-next-line react-hooks/exhaustive-deps
+	}, [initialItemId, videos]);
+
 	const videoKey = picked?.media.find((m) => m.type === "video")?.key || "";
+	const imageKey = videoKey
+		? ""
+		: picked?.media.find((m) => m.type === "image")?.key || "";
+	const isImage = !!imageKey;
 
 	const submit = async () => {
 		if (!picked || busy) return;
@@ -2523,16 +2562,21 @@ function ComposePostModal({
 		}
 	};
 
-	const poster = (v: VaultItem) =>
-		v.thumbUrl ? (
+	const poster = (v: VaultItem) => {
+		if (v.thumbUrl)
 			// eslint-disable-next-line @next/next/no-img-element
-			<img src={v.thumbUrl} alt="" className="size-full object-cover" />
-		) : (
-			<VideoThumb
-				src={fileUrl(v.media.find((m) => m.type === "video")?.key || "")}
-				className="size-full object-cover"
-			/>
-		);
+			return <img src={v.thumbUrl} alt="" className="size-full object-cover" />;
+		const vid = v.media.find((m) => m.type === "video")?.key;
+		if (vid)
+			return <VideoThumb src={fileUrl(vid)} className="size-full object-cover" />;
+		const img = v.media.find((m) => m.type === "image")?.key;
+		if (img)
+			// eslint-disable-next-line @next/next/no-img-element
+			return (
+				<img src={fileUrl(img)} alt="" className="size-full object-cover" />
+			);
+		return null;
+	};
 
 	return (
 		<Dialog open onOpenChange={(o) => !o && onClose()}>
@@ -2621,19 +2665,28 @@ function ComposePostModal({
 								ref={stageRef}
 								className="absolute inset-5 flex items-center justify-center"
 							>
-								{box && videoKey && (
+								{box && (videoKey || imageKey) && (
 									<div
 										style={{ width: box.w, height: box.h }}
 										className="overflow-hidden rounded-xl bg-black shadow-2xl ring-1 ring-white/10"
 									>
-										{/* biome-ignore lint/a11y/useMediaCaption: preview only */}
-										<video
-											key={videoKey}
-											src={`${fileUrl(videoKey)}#t=0.1`}
-											controls
-											playsInline
-											className="size-full object-cover"
-										/>
+										{videoKey ? (
+											// biome-ignore lint/a11y/useMediaCaption: preview only
+											<video
+												key={videoKey}
+												src={`${fileUrl(videoKey)}#t=0.1`}
+												controls
+												playsInline
+												className="size-full object-cover"
+											/>
+										) : (
+											// eslint-disable-next-line @next/next/no-img-element
+											<img
+												src={fileUrl(imageKey)}
+												alt=""
+												className="size-full object-contain"
+											/>
+										)}
 									</div>
 								)}
 							</div>
@@ -2641,16 +2694,18 @@ function ComposePostModal({
 
 						{/* Fields */}
 						<div className="flex w-[26rem] shrink-0 flex-col gap-5 border-l border-[var(--mono-line)] p-6">
-							<div>
-								<label className={LABEL_CLS}>Title</label>
-								<input
-									value={title}
-									onChange={(e) => setTitle(e.target.value)}
-									maxLength={100}
-									placeholder="Add a title…"
-									className={cn(FIELD_CLS, "text-[15px]")}
-								/>
-							</div>
+							{!isImage && (
+								<div>
+									<label className={LABEL_CLS}>Title</label>
+									<input
+										value={title}
+										onChange={(e) => setTitle(e.target.value)}
+										maxLength={100}
+										placeholder="Add a title…"
+										className={cn(FIELD_CLS, "text-[15px]")}
+									/>
+								</div>
+							)}
 
 							<div className="flex min-h-0 flex-1 flex-col">
 								<label className={LABEL_CLS}>Caption</label>
@@ -2677,10 +2732,13 @@ function ComposePostModal({
 									<div className="flex flex-wrap gap-2">
 										{available.map((p) => {
 											const on = sel.has(p);
+											const blocked = isImage && p !== "instagram";
 											return (
 												<button
 													key={p}
 													type="button"
+													disabled={blocked}
+													title={blocked ? "Photos can only go to Instagram" : undefined}
 													onClick={() =>
 														setSel((s) => {
 															const n = new Set(s);
@@ -2693,6 +2751,7 @@ function ComposePostModal({
 														on
 															? "border-[var(--mono-strong)] bg-[var(--mono-active)] text-[var(--mono-ink)]"
 															: "border-[var(--mono-line)] text-[var(--mono-ink-2)] hover:bg-[var(--mono-hover)] hover:text-[var(--mono-ink)]",
+														blocked && "pointer-events-none opacity-35",
 													)}
 												>
 													{pubPlatformIcon(p)} {p}
@@ -2908,17 +2967,19 @@ function PublishPane({
 	items,
 	owner,
 	isOwner,
+	initialComposeItem,
 }: {
 	items: VaultItem[];
 	owner: string;
 	isOwner: boolean;
+	initialComposeItem?: string | null;
 }) {
 	const preview = !isOwner;
 	const [status, setStatus] = useState<PubStatus | null>(null);
 	const [queue, setQueue] = useState<QueueRow[] | null>(
 		preview ? (demoQueueRows() as QueueRow[]) : null,
 	);
-	const [composing, setComposing] = useState(false);
+	const [composing, setComposing] = useState(!preview && !!initialComposeItem);
 	const [detailId, setDetailId] = useState<string | null>(null);
 	const [pfilter, setPfilter] = useState("all");
 	const loadStatus = () => {
@@ -3125,6 +3186,7 @@ function PublishPane({
 					items={items}
 					onClose={() => setComposing(false)}
 					onPosted={reload}
+					initialItemId={initialComposeItem}
 				/>
 			)}
 			{!preview && detailId && (

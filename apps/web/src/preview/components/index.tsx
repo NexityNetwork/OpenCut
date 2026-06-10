@@ -301,7 +301,7 @@ function PreviewCanvas({
 	return (
 		<PreviewViewportProvider value={viewport}>
 			<div className="flex size-full min-h-0 min-w-0 flex-col">
-				<div className="flex min-h-0 min-w-0 flex-1 p-2 pb-0">
+				<div data-preview-frame className="flex min-h-0 min-w-0 flex-1 p-2 pb-0">
 					<ContextMenu>
 						<ContextMenuTrigger asChild>
 							<div

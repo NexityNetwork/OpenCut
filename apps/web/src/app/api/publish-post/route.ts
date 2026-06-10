@@ -104,15 +104,17 @@ export async function POST(request: Request) {
 		/* leave empty */
 	}
 	const videoKey = media.find((m) => m.type === "video")?.key;
-	if (!videoKey) {
+	const imageKey = videoKey ? null : media.find((m) => m.type === "image")?.key;
+	if (!videoKey && !imageKey) {
 		return Response.json(
-			{ error: "this item has no video to publish" },
+			{ error: "this item has no video or image to publish" },
 			{ status: 400 },
 		);
 	}
 
 	const base = (siteUrl || new URL(request.url).origin).replace(/\/+$/, "");
-	const videoUrl = `${base}/api/import-from-url/file?key=${encodeURIComponent(videoKey)}`;
+	const assetKey = (videoKey ?? imageKey) as string;
+	const videoUrl = `${base}/api/import-from-url/file?key=${encodeURIComponent(assetKey)}`;
 
 	const title = String(b.title || item.name || "Untitled").slice(0, 100);
 	const description = String(b.description ?? b.caption ?? item.caption ?? "");
@@ -128,6 +130,11 @@ export async function POST(request: Request) {
 	const skipped: { platform: string; reason: string }[] = [];
 
 	for (const platform of platforms) {
+		// Still images can only go out as Instagram photos.
+		if (imageKey && platform !== "instagram") {
+			skipped.push({ platform, reason: "photos can only go to Instagram" });
+			continue;
+		}
 		const channel = await d1Retry(() =>
 			publish
 				.prepare(
@@ -142,7 +149,14 @@ export async function POST(request: Request) {
 		}
 
 		let metadata: Record<string, unknown>;
-		if (platform === "youtube") {
+		if (imageKey) {
+			metadata = {
+				channel: channel.label,
+				media_type: "photo",
+				caption,
+				image_url: videoUrl,
+			};
+		} else if (platform === "youtube") {
 			metadata = {
 				channel: channel.label,
 				title,

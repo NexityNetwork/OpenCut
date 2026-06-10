@@ -32,6 +32,14 @@ import {
 } from "@/components/section";
 import { useEditor } from "@/editor/use-editor";
 import { DEFAULT_EXPORT_OPTIONS } from "@/export/defaults";
+import { toast } from "sonner";
+import { useRouter } from "next/navigation";
+import { useSession } from "@/auth/client";
+import { getVaultOwner } from "@/projects/vault-owner";
+import {
+	uploadExportToVault,
+	composeUrlFor,
+} from "@/canvas-editor/publish-export";
 
 function isExportFormat(value: string): value is ExportFormat {
 	return EXPORT_FORMAT_VALUES.some((formatValue) => formatValue === value);
@@ -90,6 +98,8 @@ function ExportPopover({
 	onOpenChange: (open: boolean) => void;
 }) {
 	const editor = useEditor();
+	const router = useRouter();
+	const { data: session } = useSession();
 	const activeProject = useEditor((e) => e.project.getActive());
 	const exportState = useEditor((e) => e.project.getExportState());
 	const { isExporting, progress, result: exportResult } = exportState;
@@ -129,6 +139,49 @@ function ExportPopover({
 
 			editor.project.clearExportState();
 			onOpenChange(false);
+		}
+	};
+
+	const handleExportAndPublish = async () => {
+		if (!activeProject) return;
+
+		const result = await editor.project.export({
+			options: {
+				format,
+				quality,
+				fps: activeProject.settings.fps,
+				includeAudio: shouldIncludeAudio,
+			},
+		});
+
+		if (result.cancelled) {
+			editor.project.clearExportState();
+			return;
+		}
+
+		if (result.success && result.buffer) {
+			const tid = toast.loading("Uploading export…");
+			try {
+				const ext = getExportFileExtension({ format }).replace(/^\./, "");
+				const owner = session?.user?.id || getVaultOwner();
+				const id = await uploadExportToVault({
+					owner,
+					name: activeProject.metadata.name,
+					data: result.buffer,
+					ext,
+					contentType: getExportMimeType({ format }),
+					kind: "video",
+				});
+				toast.success("Opening composer…", { id: tid });
+				editor.project.clearExportState();
+				onOpenChange(false);
+				router.push(composeUrlFor(id));
+			} catch (e) {
+				toast.error(e instanceof Error ? e.message : "Upload failed", {
+					id: tid,
+				});
+				editor.project.clearExportState();
+			}
 		}
 	};
 
@@ -244,10 +297,17 @@ function ExportPopover({
 									</Section>
 								</div>
 
-								<div className="p-3 pt-0">
+								<div className="flex flex-col gap-2 p-3 pt-0">
 									<Button onClick={handleExport} className="w-full gap-2">
 										<Download className="size-4" />
 										Export
+									</Button>
+									<Button
+										variant="outline"
+										onClick={handleExportAndPublish}
+										className="w-full rounded-md"
+									>
+										Export & publish…
 									</Button>
 								</div>
 							</>

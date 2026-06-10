@@ -55,6 +55,12 @@ import {
 	type CanvasExportFormat,
 } from "@/canvas-editor/export";
 import {
+	uploadExportToVault,
+	composeUrlFor,
+} from "@/canvas-editor/publish-export";
+import { useSession } from "@/auth/client";
+import { getVaultOwner } from "@/projects/vault-owner";
+import {
 	ArrowDown,
 	ArrowUp,
 	ChevronLeft,
@@ -104,7 +110,7 @@ function CanvasHeader() {
 
 	return (
 		<header className="bg-background flex h-[3.4rem] items-center justify-between px-3 pt-0.5">
-			<div className="flex items-center gap-1">
+			<div className="flex items-center gap-1.5">
 				<Button
 					variant="ghost"
 					size="icon"
@@ -117,7 +123,7 @@ function CanvasHeader() {
 				</Button>
 				<CanvasName />
 				{activeProject && (
-					<span className="text-muted-foreground ml-1 text-xs">
+					<span className="bg-muted/50 text-muted-foreground rounded-full px-2.5 py-0.5 text-[11px] tabular-nums">
 						{activeProject.settings.canvasSize.width} ×{" "}
 						{activeProject.settings.canvasSize.height}
 					</span>
@@ -156,13 +162,15 @@ function CanvasName() {
 			onBlur={save}
 			onKeyDown={(e) => e.key === "Enter" && inputRef.current?.blur()}
 			style={{ fieldSizing: "content" } as React.CSSProperties}
-			className="hover:bg-accent h-8 cursor-text rounded-sm bg-transparent px-2 py-1 text-[0.9rem] outline-none"
+			className="hover:bg-accent h-7 cursor-text rounded-sm bg-transparent px-2 text-sm font-medium outline-none"
 		/>
 	);
 }
 
 function DownloadButton() {
 	const editor = useEditor();
+	const router = useRouter();
+	const { data: session } = useSession();
 	const hasProject = !!useEditor((e) => e.project.getActiveOrNull());
 	const pageCount = useEditor((e) => e.scenes.getScenes().length);
 	const [open, setOpen] = useState(false);
@@ -170,6 +178,43 @@ function DownloadButton() {
 	const [scope, setScope] = useState<"current" | "all">("all");
 	const [busy, setBusy] = useState(false);
 	const [progress, setProgress] = useState("");
+
+	// Renders the current page and hands it to the Publishing composer.
+	const publish = async () => {
+		const project = editor.project.getActiveOrNull();
+		if (!project || busy) return;
+		setBusy(true);
+		setProgress("Rendering…");
+		try {
+			const scene = editor.scenes.getActiveScene();
+			const canvas = await renderPageToCanvas({
+				project,
+				scene,
+				mediaAssets: editor.media.getAssets(),
+			});
+			const blob: Blob = await new Promise((resolve, reject) =>
+				canvas.toBlob(
+					(b) => (b ? resolve(b) : reject(new Error("Render failed"))),
+					"image/png",
+				),
+			);
+			setProgress("Uploading…");
+			const owner = session?.user?.id || getVaultOwner();
+			const id = await uploadExportToVault({
+				owner,
+				name: project.metadata.name,
+				data: blob,
+				ext: "png",
+				contentType: "image/png",
+				kind: "image",
+			});
+			router.push(composeUrlFor(id));
+		} catch (e) {
+			toast.error(e instanceof Error ? e.message : "Couldn't publish");
+			setBusy(false);
+			setProgress("");
+		}
+	};
 
 	const run = async () => {
 		const project = editor.project.getActiveOrNull();
@@ -225,7 +270,7 @@ function DownloadButton() {
 					)}
 				>
 					<Download className="size-3.5" />
-					Download
+					Export
 				</button>
 			</PopoverTrigger>
 			<PopoverContent align="end" className="w-72 p-4">
@@ -286,6 +331,14 @@ function DownloadButton() {
 
 					<Button className="w-full" onClick={run} disabled={busy}>
 						{busy ? progress || "Rendering…" : "Download"}
+					</Button>
+					<Button
+						variant="outline"
+						className="w-full"
+						onClick={publish}
+						disabled={busy}
+					>
+						Publish current page…
 					</Button>
 				</div>
 			</PopoverContent>
@@ -774,7 +827,7 @@ function PagesStage() {
 							{isActive ? (
 								<div
 									style={{ aspectRatio: aspect }}
-									className="ring-primary/60 w-full overflow-hidden rounded-md ring-2 [&_[data-preview-toolbar]]:hidden"
+									className="ring-primary/60 w-full overflow-hidden rounded-md ring-2 [&_.panel]:rounded-none [&_.panel]:border-0 [&_[data-preview-frame]]:p-0 [&_[data-preview-toolbar]]:hidden"
 									// Page scroll wins over the preview's internal zoom/pan.
 									onWheelCapture={(e) => e.stopPropagation()}
 									onDrop={(e) => void handleDrop(e, scene)}
