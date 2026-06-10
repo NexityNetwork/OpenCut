@@ -10,8 +10,9 @@ import {
 	ArrowUpRight,
 	CornerDownRight,
 	Heart,
+	Loader2,
 	RotateCw,
-	Send,
+	SendHorizontal,
 	TriangleAlert,
 } from "lucide-react";
 import { SiInstagram, SiYoutube } from "react-icons/si";
@@ -89,6 +90,15 @@ const DEMO_COMMENTS: InboxComment[] = [
 	},
 ];
 
+// Slugs are often a UUID fragment (e.g. "92E704A8"); show a clean label instead.
+function postLabel(slug: string, platform: "instagram" | "youtube"): string {
+	const looksLikeHash = /^[0-9a-f]{6,}$/i.test(slug) || /^[0-9a-f-]{20,}$/i.test(slug);
+	if (!slug || looksLikeHash) {
+		return platform === "instagram" ? "Instagram post" : "YouTube video";
+	}
+	return slug.replace(/-[a-z0-9]{6,}$/i, "").replace(/-/g, " ");
+}
+
 function ago(ts: number | null): string {
 	if (!ts) return "";
 	const s = Math.max(1, Math.floor((Date.now() - ts) / 1000));
@@ -118,9 +128,8 @@ export function CommentInbox({ preview }: { preview: boolean }) {
 	const [errors, setErrors] = useState<Record<string, string>>({});
 	const [filter, setFilter] = useState<"all" | "instagram" | "youtube">("all");
 	const [loading, setLoading] = useState(false);
-	const [replyFor, setReplyFor] = useState<string | null>(null);
-	const [replyText, setReplyText] = useState("");
-	const [sending, setSending] = useState(false);
+	const [drafts, setDrafts] = useState<Record<string, string>>({});
+	const [sendingId, setSendingId] = useState<string | null>(null);
 
 	const load = useCallback(async () => {
 		if (preview) {
@@ -183,13 +192,13 @@ export function CommentInbox({ preview }: { preview: boolean }) {
 	}, [filtered]);
 
 	const sendReply = async (c: InboxComment) => {
-		const message = replyText.trim();
-		if (!message || sending) return;
+		const message = (drafts[c.comment_id] ?? "").trim();
+		if (!message || sendingId) return;
 		if (preview) {
 			toast.error("Preview only — request access to reply");
 			return;
 		}
-		setSending(true);
+		setSendingId(c.comment_id);
 		try {
 			const r = await fetch("/api/publish/comments/reply", {
 				method: "POST",
@@ -221,13 +230,16 @@ export function CommentInbox({ preview }: { preview: boolean }) {
 						: x,
 				),
 			);
-			setReplyFor(null);
-			setReplyText("");
+			setDrafts((d) => {
+				const next = { ...d };
+				delete next[c.comment_id];
+				return next;
+			});
 			toast.success("Reply sent");
 		} catch (e) {
 			toast.error(e instanceof Error ? e.message : "Reply failed");
 		} finally {
-			setSending(false);
+			setSendingId(null);
 		}
 	};
 
@@ -327,8 +339,8 @@ export function CommentInbox({ preview }: { preview: boolean }) {
 						<section key={g.key}>
 							<div className="mb-2 flex items-center gap-2 text-[13px] text-[var(--mono-ink-3)]">
 								{platformIcon(g.platform)}
-								<span className="font-medium text-[var(--mono-ink-2)]">
-									{g.slug}
+								<span className="font-medium capitalize text-[var(--mono-ink-2)]">
+									{postLabel(g.slug, g.platform)}
 								</span>
 								<span>· {g.items.length} comment{g.items.length === 1 ? "" : "s"}</span>
 								{g.url && (
@@ -372,7 +384,7 @@ export function CommentInbox({ preview }: { preview: boolean }) {
 												</p>
 
 												{c.replies.length > 0 && (
-													<div className="mt-2 space-y-1.5">
+													<div className="mt-2.5 space-y-1.5 border-l-2 border-[var(--mono-line)] pl-3">
 														{c.replies.map((rep) => (
 															<div
 																key={rep.comment_id}
@@ -392,46 +404,44 @@ export function CommentInbox({ preview }: { preview: boolean }) {
 													</div>
 												)}
 
-												{replyFor === c.comment_id ? (
-													<div className="mt-2.5 flex items-end gap-2">
-														<textarea
-															value={replyText}
-															onChange={(e) => setReplyText(e.target.value)}
+												{/* Persistent reply composer — type straight in, no click first */}
+												<div className="mt-2.5 flex items-center gap-2">
+													<div className="flex flex-1 items-center rounded-full border border-[var(--mono-line)] bg-[var(--mono-field)] px-3.5 transition-colors focus-within:border-[var(--mono-strong)]">
+														<input
+															value={drafts[c.comment_id] ?? ""}
+															onChange={(e) =>
+																setDrafts((d) => ({
+																	...d,
+																	[c.comment_id]: e.target.value,
+																}))
+															}
 															onKeyDown={(e) => {
-																if (e.key === "Enter" && !e.shiftKey) {
+																if (e.key === "Enter") {
 																	e.preventDefault();
 																	void sendReply(c);
 																}
-																if (e.key === "Escape") setReplyFor(null);
 															}}
-															// eslint-disable-next-line jsx-a11y/no-autofocus
-															autoFocus
-															rows={1}
 															placeholder={`Reply to ${c.author}…`}
-															className="min-h-9 flex-1 resize-none rounded-xl border border-[var(--mono-line)] bg-[var(--mono-field)] px-3 py-2 text-sm text-[var(--mono-ink)] outline-none placeholder:text-[var(--mono-ink-3)] focus:border-[var(--mono-strong)]"
+															className="h-9 min-w-0 flex-1 bg-transparent text-sm text-[var(--mono-ink)] outline-none placeholder:text-[var(--mono-ink-3)]"
 														/>
-														<button
-															type="button"
-															onClick={() => void sendReply(c)}
-															disabled={sending || !replyText.trim()}
-															aria-label="Send reply"
-															className="flex size-9 shrink-0 items-center justify-center rounded-xl border border-[var(--mono-strong)] bg-[var(--mono-active)] text-[var(--mono-ink)] transition-opacity disabled:opacity-40"
-														>
-															<Send className="size-4" />
-														</button>
 													</div>
-												) : (
 													<button
 														type="button"
-														onClick={() => {
-															setReplyFor(c.comment_id);
-															setReplyText("");
-														}}
-														className="mt-1.5 text-[12px] font-medium text-[var(--mono-ink-3)] transition-colors hover:text-[var(--mono-ink)]"
+														onClick={() => void sendReply(c)}
+														disabled={
+															sendingId === c.comment_id ||
+															!(drafts[c.comment_id] ?? "").trim()
+														}
+														aria-label="Send reply"
+														className="flex size-9 shrink-0 items-center justify-center rounded-xl bg-[var(--mono-ink)] text-[var(--mono-app)] transition hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-25"
 													>
-														Reply
+														{sendingId === c.comment_id ? (
+															<Loader2 className="size-4 animate-spin" />
+														) : (
+															<SendHorizontal className="size-4" />
+														)}
 													</button>
-												)}
+												</div>
 											</div>
 										</div>
 									</div>

@@ -5,7 +5,7 @@
 
 import { useCallback, useEffect, useRef, useState } from "react";
 import { toast } from "sonner";
-import { RotateCw, Send } from "lucide-react";
+import { Loader2, MessagesSquare, RotateCw, SendHorizontal } from "lucide-react";
 import { SiInstagram } from "react-icons/si";
 import { cn } from "@/utils/ui";
 
@@ -210,8 +210,8 @@ export function DmInbox({ preview }: { preview: boolean }) {
 							Loading…
 						</div>
 					) : convs.length === 0 ? (
-						<div className="px-4 py-6 text-[13px] text-[var(--mono-ink-3)]">
-							No conversations yet.
+						<div className="px-4 py-10 text-center text-[13px] text-[var(--mono-ink-3)]">
+							No conversations yet. They'll appear here as people DM you.
 						</div>
 					) : (
 						convs.map((c) => (
@@ -249,8 +249,17 @@ export function DmInbox({ preview }: { preview: boolean }) {
 			{/* Thread */}
 			<div className={cn("flex min-w-0 flex-1 flex-col", !active && "hidden sm:flex")}>
 				{!active ? (
-					<div className="flex flex-1 items-center justify-center text-sm text-[var(--mono-ink-3)]">
-						Pick a conversation
+					<div className="flex flex-1 flex-col items-center justify-center gap-3 px-8 text-center">
+						<div className="flex size-16 items-center justify-center rounded-2xl border border-[var(--mono-line)] bg-[var(--mono-elev)]">
+							<MessagesSquare className="size-7 text-[var(--mono-ink-3)]" strokeWidth={1.5} />
+						</div>
+						<div className="text-sm font-medium text-[var(--mono-ink-2)]">
+							Your Instagram DMs
+						</div>
+						<p className="max-w-xs text-[13px] text-[var(--mono-ink-3)]">
+							Pick a conversation on the left to read the thread and reply. New
+							messages from your funnels and followers land here.
+						</p>
 					</div>
 				) : (
 					<>
@@ -293,7 +302,7 @@ export function DmInbox({ preview }: { preview: boolean }) {
 											className={cn(
 												"max-w-[78%] rounded-2xl px-3.5 py-2 text-sm leading-relaxed break-words",
 												m.mine
-													? "bg-[var(--mono-strong)] text-[var(--mono-app)]"
+													? "bg-[var(--mono-ink)] text-[var(--mono-app)]"
 													: "border border-[var(--mono-line)] bg-[var(--mono-elev)] text-[var(--mono-ink)]",
 											)}
 										>
@@ -304,28 +313,33 @@ export function DmInbox({ preview }: { preview: boolean }) {
 							)}
 						</div>
 
-						<div className="flex items-end gap-2 border-t border-[var(--mono-line)] p-3">
-							<textarea
-								value={draft}
-								onChange={(e) => setDraft(e.target.value)}
-								onKeyDown={(e) => {
-									if (e.key === "Enter" && !e.shiftKey) {
-										e.preventDefault();
-										void send();
-									}
-								}}
-								rows={1}
-								placeholder={`Message ${active.with}…`}
-								className="min-h-9 flex-1 resize-none rounded-xl border border-[var(--mono-line)] bg-[var(--mono-field)] px-3.5 py-2 text-sm text-[var(--mono-ink)] outline-none placeholder:text-[var(--mono-ink-3)] focus:border-[var(--mono-strong)]"
-							/>
+						<div className="flex items-center gap-2 border-t border-[var(--mono-line)] p-3">
+							<div className="flex flex-1 items-center rounded-full border border-[var(--mono-line)] bg-[var(--mono-field)] px-4 transition-colors focus-within:border-[var(--mono-strong)]">
+								<input
+									value={draft}
+									onChange={(e) => setDraft(e.target.value)}
+									onKeyDown={(e) => {
+										if (e.key === "Enter") {
+											e.preventDefault();
+											void send();
+										}
+									}}
+									placeholder={`Message ${active.with}…`}
+									className="h-10 min-w-0 flex-1 bg-transparent text-sm text-[var(--mono-ink)] outline-none placeholder:text-[var(--mono-ink-3)]"
+								/>
+							</div>
 							<button
 								type="button"
 								onClick={() => void send()}
 								disabled={sending || !draft.trim()}
 								aria-label="Send"
-								className="flex size-9 shrink-0 items-center justify-center rounded-xl border border-[var(--mono-strong)] bg-[var(--mono-active)] text-[var(--mono-ink)] transition-opacity disabled:opacity-40"
+								className="flex size-10 shrink-0 items-center justify-center rounded-xl bg-[var(--mono-ink)] text-[var(--mono-app)] transition hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-25"
 							>
-								<Send className="size-4" />
+								{sending ? (
+									<Loader2 className="size-4 animate-spin" />
+								) : (
+									<SendHorizontal className="size-4" />
+								)}
 							</button>
 						</div>
 					</>

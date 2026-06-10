@@ -14,7 +14,7 @@ type Tab = "comments" | "dms" | "auto";
 const TABS: { key: Tab; label: string; Icon: typeof MessagesSquare }[] = [
 	{ key: "comments", label: "Comments", Icon: MessagesSquare },
 	{ key: "dms", label: "DMs", Icon: Send },
-	{ key: "auto", label: "Auto-DM", Icon: Zap },
+	{ key: "auto", label: "Funnels", Icon: Zap },
 ];
 
 export function InboxView({
