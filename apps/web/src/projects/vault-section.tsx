@@ -130,6 +130,7 @@ import {
 import { useSession, signOut } from "@/auth/client";
 import { AuthButton } from "@/auth/auth-button";
 import type { TProjectMetadata, TProjectSortOption } from "@/project/types";
+import { ParticleTextEffect } from "@/components/home/particle-text";
 
 const PLATFORMS = [
 	{ Icon: SiYoutube, label: "YouTube", color: "#FF0000" },
@@ -275,6 +276,9 @@ export function VaultSection() {
 	const [searchOpen, setSearchOpen] = useState(false);
 	const [appView, setAppView] = useState<"home" | "library" | "publish">(
 		"home",
+	);
+	const [homeModal, setHomeModal] = useState<null | "actions" | "channels">(
+		null,
 	);
 	// "Export & publish" hand-off from the editors: /projects?compose=<itemId>
 	const [composePrefill, setComposePrefill] = useState<string | null>(null);
@@ -846,9 +850,11 @@ export function VaultSection() {
 						{appView === "home" && (<>
 						{/* Hero */}
 			<div className="flex flex-col items-center pt-16 pb-2 sm:pt-24">
-				<h1 className="text-foreground mb-6 text-center text-3xl font-semibold tracking-tight sm:text-4xl">
-					What will you create today?
-				</h1>
+				<ParticleTextEffect
+					text="What will you create today?"
+					colors={["d49a6a", "c89b6f", "b8a888", "a89f87", "8b8676"]}
+					className="mb-4 h-24 w-full max-w-3xl sm:h-28"
+				/>
 				<div className="w-full max-w-2xl">
 					<div
 						className={cn(
@@ -908,25 +914,24 @@ export function VaultSection() {
 						</button>
 					</div>
 					<div className="mt-3 flex items-center justify-between gap-3">
-						<div className="flex flex-wrap items-center gap-2">
-							{PLATFORMS.map((p) => (
-								<span
-									key={p.label}
-									title={p.label}
-									className="bg-muted/70 hover:bg-muted flex size-8 items-center justify-center rounded-full transition-colors"
-								>
-									<p.Icon className="block size-4" style={{ color: p.color }} />
-								</span>
-							))}
+						<div className="flex items-center gap-1.5">
+							<HomeChip
+								Icon={Zap}
+								label="Quick actions"
+								onClick={() => setHomeModal("actions")}
+							/>
+							<HomeChip
+								Icon={Globe}
+								label="Channels"
+								onClick={() => setHomeModal("channels")}
+							/>
+							<HomeChip Icon={Plus} label="New" onClick={createBlankProject} />
 						</div>
-						<button
-							type="button"
-							onClick={createBlankProject}
-							className="bg-card hover:bg-muted text-foreground hidden shrink-0 items-center gap-1.5 rounded-full border px-4 py-2 text-sm font-medium transition-colors md:inline-flex"
-						>
-							<Plus className="size-4" />
-							New project
-						</button>
+						<span className="flex items-center gap-2 text-xs text-[var(--mono-ink-3)]">
+							Monolith
+							<span className="text-[var(--mono-ink-2)]">Max</span>
+							<span className="size-1.5 animate-pulse rounded-full bg-green-500/80" />
+						</span>
 					</div>
 				</div>
 			</div>
@@ -934,10 +939,6 @@ export function VaultSection() {
 			<HomeDashboard
 				assetCount={counts.all || 0}
 				projectCount={counts.projects || 0}
-				onNewProject={createBlankProject}
-				onNewCanvas={() => setNewCanvasOpen(true)}
-				onImport={() => fileInputRef.current?.click()}
-				onPublish={() => setAppView("publish")}
 				isOwner={isOwner}
 			/>
 			</>)}
@@ -1123,6 +1124,32 @@ export function VaultSection() {
 				onCreate={createCanvas}
 			/>
 			<ConfirmDialog ask={confirmAsk} onClose={() => setConfirmAsk(null)} />
+			<HomeActionsModal
+				open={homeModal === "actions"}
+				onClose={() => setHomeModal(null)}
+				actions={[
+					{ label: "New project", Icon: Plus, run: createBlankProject },
+					{
+						label: "Create post",
+						Icon: Frame,
+						run: () => setNewCanvasOpen(true),
+					},
+					{
+						label: "Import media",
+						Icon: Paperclip,
+						run: () => fileInputRef.current?.click(),
+					},
+					{
+						label: "Open Publish",
+						Icon: Rocket,
+						run: () => setAppView("publish"),
+					},
+				]}
+			/>
+			<HomeChannelsModal
+				open={homeModal === "channels"}
+				onClose={() => setHomeModal(null)}
+			/>
 			</main>
 			{searchOpen && (
 				<SearchModal
@@ -1187,23 +1214,15 @@ function ConfirmDialog({
 	);
 }
 
-// Cloudflare-style overview under the hero — quick actions now, the rest
-// wired up later (dummy data for layout).
+// Cloudflare-style overview under the hero. Analytics/audit are sample data
+// until they're wired.
 function HomeDashboard({
 	assetCount,
 	projectCount,
-	onNewProject,
-	onNewCanvas,
-	onImport,
-	onPublish,
 	isOwner,
 }: {
 	assetCount: number;
 	projectCount: number;
-	onNewProject: () => void;
-	onNewCanvas: () => void;
-	onImport: () => void;
-	onPublish: () => void;
 	isOwner: boolean;
 }) {
 	const [pub, setPub] = useState<{ published?: number; queued?: number }>({});
@@ -1216,61 +1235,52 @@ function HomeDashboard({
 	}, [isOwner]);
 
 	const card =
-		"rounded-xl border border-[var(--mono-line)] bg-[var(--mono-hover)] p-4";
+		"rounded-xl border border-[var(--mono-line)] bg-[var(--mono-hover)]";
 	const stats = [
-		{ label: "Library assets", value: assetCount },
-		{ label: "Projects", value: projectCount },
-		{ label: "Published", value: pub.published ?? "—" },
-		{ label: "Queued", value: pub.queued ?? "—" },
+		{ label: "Library assets", value: assetCount, sub: "across all sections" },
+		{ label: "Projects", value: projectCount, sub: "edits in progress" },
+		{ label: "Published", value: pub.published ?? "—", sub: "all-time posts" },
+		{ label: "Queued", value: pub.queued ?? "—", sub: "waiting to go out" },
 	];
-	const actions = [
-		{ label: "New project", Icon: Plus, run: onNewProject },
-		{ label: "Create post", Icon: Frame, run: onNewCanvas },
-		{ label: "Import media", Icon: Paperclip, run: onImport },
-		{ label: "Open Publish", Icon: Rocket, run: onPublish },
-	];
-	const bars = [34, 58, 41, 72, 66, 88, 53, 79, 61, 92, 70, 84];
+	const bars = [22, 38, 30, 52, 47, 64, 41, 58, 70, 55, 78, 62, 84, 71, 92, 80, 67, 88];
+	const days = ["May 24", "May 28", "Jun 1", "Jun 5", "Jun 9"];
 	const audit = [
 		{ what: "Scheduled 3 posts", who: "publish", when: "2h ago" },
 		{ what: "Exported Test.pdf", who: "canvas", when: "5h ago" },
+		{ what: "Rescheduled failed uploads", who: "publish", when: "8h ago" },
 		{ what: "Imported 4 clips", who: "library", when: "1d ago" },
+		{ what: "Created CTW Format section", who: "library", when: "1d ago" },
+		{ what: "Connected YouTube channel", who: "channels", when: "2d ago" },
 	];
 
 	return (
-		<div className="mx-auto mt-10 w-full max-w-4xl">
-			<div className="grid grid-cols-2 gap-3 lg:grid-cols-4">
+		<div className="mx-auto mt-12 w-full max-w-4xl">
+			{/* Stats strip */}
+			<div
+				className={cn(
+					card,
+					"grid grid-cols-2 divide-x divide-y divide-[var(--mono-line)] overflow-hidden lg:grid-cols-4 lg:divide-y-0",
+				)}
+			>
 				{stats.map((st) => (
-					<div key={st.label} className={card}>
-						<div className="text-xs text-[var(--mono-ink-3)]">{st.label}</div>
+					<div key={st.label} className="p-4">
+						<div className="text-[11px] font-semibold uppercase tracking-wide text-[var(--mono-ink-3)]">
+							{st.label}
+						</div>
 						<div className="mt-1.5 text-2xl font-semibold text-[var(--mono-ink)] tabular-nums">
 							{st.value}
+						</div>
+						<div className="mt-0.5 text-[11px] text-[var(--mono-ink-3)]">
+							{st.sub}
 						</div>
 					</div>
 				))}
 			</div>
 
 			<div className="mt-3 grid gap-3 lg:grid-cols-3">
-				<div className={card}>
-					<div className="mb-3 text-sm font-semibold text-[var(--mono-ink)]">
-						Quick actions
-					</div>
-					<div className="grid grid-cols-2 gap-2">
-						{actions.map((a) => (
-							<button
-								key={a.label}
-								type="button"
-								onClick={a.run}
-								className="flex items-center gap-2 rounded-lg border border-[var(--mono-line)] px-3 py-2.5 text-left text-[13px] text-[var(--mono-ink-2)] transition-colors hover:bg-[var(--mono-active)] hover:text-[var(--mono-ink)]"
-							>
-								<a.Icon className="size-4 shrink-0" />
-								{a.label}
-							</button>
-						))}
-					</div>
-				</div>
-
-				<div className={card}>
-					<div className="mb-1 flex items-center justify-between">
+				{/* Analytics */}
+				<div className={cn(card, "p-4 lg:col-span-2")}>
+					<div className="flex items-center justify-between">
 						<span className="text-sm font-semibold text-[var(--mono-ink)]">
 							<BarChart3 className="mr-1.5 inline size-4" />
 							Analytics
@@ -1279,22 +1289,49 @@ function HomeDashboard({
 							Soon
 						</span>
 					</div>
-					<div className="mt-4 flex h-24 items-end gap-1.5 opacity-50">
+					<div className="mt-4 flex items-center gap-4">
+						<div>
+							<div className="text-lg font-semibold text-[var(--mono-ink)]">
+								64.9k
+							</div>
+							<div className="text-[11px] text-[var(--mono-ink-3)]">
+								Views · 30d
+							</div>
+						</div>
+						<div>
+							<div className="text-lg font-semibold text-[var(--mono-ink)]">
+								3.2%
+							</div>
+							<div className="text-[11px] text-[var(--mono-ink-3)]">
+								Engagement
+							</div>
+						</div>
+						<div>
+							<div className="text-lg font-semibold text-green-500">+37%</div>
+							<div className="text-[11px] text-[var(--mono-ink-3)]">
+								vs last month
+							</div>
+						</div>
+					</div>
+					<div className="mt-4 flex h-28 items-end gap-1 opacity-60">
 						{bars.map((h, i) => (
 							<div
 								key={`${i}-${h}`}
 								style={{ height: `${h}%` }}
-								className="flex-1 rounded-sm bg-[var(--mono-strong)]"
+								className="flex-1 rounded-sm bg-[var(--mono-strong)] transition-[height]"
 							/>
 						))}
 					</div>
-					<div className="mt-2 text-[11px] text-[var(--mono-ink-3)]">
-						Views · last 12 days (sample)
+					<div className="mt-2 flex justify-between text-[10px] text-[var(--mono-ink-3)]">
+						{days.map((d) => (
+							<span key={d}>{d}</span>
+						))}
 					</div>
 				</div>
 
-				<div className={card}>
-					<div className="mb-1 flex items-center justify-between">
+				{/* Audit log */}
+				<div className={cn(card, "p-4")}>
+					<div className="flex items-center justify-between">
 						<span className="text-sm font-semibold text-[var(--mono-ink)]">
 							<ScrollText className="mr-1.5 inline size-4" />
 							Audit log
@@ -1303,22 +1340,122 @@ function HomeDashboard({
 							Soon
 						</span>
 					</div>
-					<div className="mt-3 space-y-2 opacity-60">
+					<div className="mt-3 divide-y divide-[var(--mono-line)] opacity-70">
 						{audit.map((a) => (
-							<div
-								key={a.what}
-								className="flex items-center gap-2 text-[13px] text-[var(--mono-ink-2)]"
-							>
-								<span className="flex-1 truncate">{a.what}</span>
-								<span className="text-[11px] text-[var(--mono-ink-3)]">
+							<div key={a.what} className="py-2 first:pt-0 last:pb-0">
+								<div className="truncate text-[13px] text-[var(--mono-ink-2)]">
+									{a.what}
+								</div>
+								<div className="mt-0.5 text-[11px] text-[var(--mono-ink-3)]">
 									{a.who} · {a.when}
-								</span>
+								</div>
 							</div>
 						))}
 					</div>
 				</div>
 			</div>
 		</div>
+	);
+}
+
+// Slim Claude-Code-style chip under the hero input.
+function HomeChip({
+	Icon,
+	label,
+	onClick,
+}: {
+	Icon: typeof Tag;
+	label: string;
+	onClick: () => void;
+}) {
+	return (
+		<button
+			type="button"
+			onClick={onClick}
+			className="flex items-center gap-1.5 rounded-lg border border-[var(--mono-line)] bg-[var(--mono-hover)] px-2.5 py-1.5 text-xs text-[var(--mono-ink-2)] transition-colors hover:bg-[var(--mono-active)] hover:text-[var(--mono-ink)]"
+		>
+			<Icon className="size-3.5" />
+			{label}
+		</button>
+	);
+}
+
+function HomeActionsModal({
+	open,
+	onClose,
+	actions,
+}: {
+	open: boolean;
+	onClose: () => void;
+	actions: { label: string; Icon: typeof Tag; run: () => void }[];
+}) {
+	return (
+		<Dialog open={open} onOpenChange={(o) => !o && onClose()}>
+			<DialogContent className="max-w-sm gap-0 rounded-2xl border-[var(--mono-line)] bg-[var(--mono-panel)] p-0 text-[var(--mono-ink)]">
+				<div className="border-b border-[var(--mono-line)] px-6 py-4">
+					<DialogTitle className="text-[15px] font-semibold text-[var(--mono-ink)]">
+						Quick actions
+					</DialogTitle>
+				</div>
+				<div className="grid grid-cols-2 gap-2 p-6">
+					{actions.map((a) => (
+						<button
+							key={a.label}
+							type="button"
+							onClick={() => {
+								onClose();
+								a.run();
+							}}
+							className="flex flex-col items-start gap-2 rounded-xl border border-[var(--mono-line)] p-3.5 text-left transition-colors hover:bg-[var(--mono-hover)]"
+						>
+							<a.Icon className="size-4 text-[var(--mono-ink-2)]" />
+							<span className="text-[13px] font-medium text-[var(--mono-ink)]">
+								{a.label}
+							</span>
+						</button>
+					))}
+				</div>
+			</DialogContent>
+		</Dialog>
+	);
+}
+
+function HomeChannelsModal({
+	open,
+	onClose,
+}: {
+	open: boolean;
+	onClose: () => void;
+}) {
+	return (
+		<Dialog open={open} onOpenChange={(o) => !o && onClose()}>
+			<DialogContent className="max-w-sm gap-0 rounded-2xl border-[var(--mono-line)] bg-[var(--mono-panel)] p-0 text-[var(--mono-ink)]">
+				<div className="border-b border-[var(--mono-line)] px-6 py-4">
+					<DialogTitle className="text-[15px] font-semibold text-[var(--mono-ink)]">
+						Channels
+					</DialogTitle>
+					<p className="mt-1 text-xs text-[var(--mono-ink-3)]">
+						Sources you can import from, all enabled.
+					</p>
+				</div>
+				<div className="p-3">
+					{PLATFORMS.map((p) => (
+						<div
+							key={p.label}
+							className="flex items-center gap-3 rounded-lg px-3 py-2 transition-colors hover:bg-[var(--mono-hover)]"
+						>
+							<span className="flex size-7 items-center justify-center rounded-md border border-[var(--mono-line)] bg-[var(--mono-hover)]">
+								<p.Icon className="size-3.5" style={{ color: p.color }} />
+							</span>
+							<span className="flex-1 text-[13px] text-[var(--mono-ink-2)]">
+								{p.label}
+							</span>
+							<Check className="size-3.5 text-green-500/90" />
+						</div>
+					))}
+				</div>
+			</DialogContent>
+		</Dialog>
 	);
 }
 
