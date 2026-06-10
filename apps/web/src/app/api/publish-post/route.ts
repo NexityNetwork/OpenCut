@@ -107,12 +107,6 @@ export async function POST(request: Request) {
 			}>(),
 	);
 	if (!item) return Response.json({ error: "item not found" }, { status: 404 });
-	if (item.kind === "carousel") {
-		return Response.json(
-			{ error: "carousel posts are coming soon" },
-			{ status: 400 },
-		);
-	}
 
 	let media: { key?: string; type?: string }[] = [];
 	try {
@@ -120,12 +114,28 @@ export async function POST(request: Request) {
 	} catch {
 		/* leave empty */
 	}
-	const videoKey = media.find((m) => m.type === "video")?.key;
+	// Carousels publish natively to Instagram (2-10 image children).
+	const isCarousel = item.kind === "carousel";
+	const carouselKeys = isCarousel
+		? media
+				.filter((m) => m.type === "image" && m.key)
+				.map((m) => m.key as string)
+				.slice(0, 10)
+		: [];
+	if (isCarousel && carouselKeys.length < 2) {
+		return Response.json(
+			{ error: "carousels need at least 2 images" },
+			{ status: 400 },
+		);
+	}
+	const videoKey = isCarousel ? null : media.find((m) => m.type === "video")?.key;
 	const pdfKey =
 		item.kind === "pdf" ? media.find((m) => m.type === "pdf")?.key : null;
 	const imageKey =
-		videoKey || pdfKey ? null : media.find((m) => m.type === "image")?.key;
-	if (!videoKey && !imageKey && !pdfKey) {
+		isCarousel || videoKey || pdfKey
+			? null
+			: media.find((m) => m.type === "image")?.key;
+	if (!videoKey && !imageKey && !pdfKey && !isCarousel) {
 		return Response.json(
 			{ error: "this item has nothing publishable" },
 			{ status: 400 },
@@ -133,8 +143,10 @@ export async function POST(request: Request) {
 	}
 
 	const base = (siteUrl || new URL(request.url).origin).replace(/\/+$/, "");
-	const assetKey = (videoKey ?? imageKey ?? pdfKey) as string;
-	const videoUrl = `${base}/api/import-from-url/file?key=${encodeURIComponent(assetKey)}`;
+	const fileUrl = (k: string) =>
+		`${base}/api/import-from-url/file?key=${encodeURIComponent(k)}`;
+	const assetKey = (videoKey ?? imageKey ?? pdfKey ?? carouselKeys[0]) as string;
+	const videoUrl = fileUrl(assetKey);
 
 	const title = String(b.title || item.name || "Untitled").slice(0, 100);
 	const description = String(b.description ?? b.caption ?? item.caption ?? "");
@@ -167,6 +179,10 @@ export async function POST(request: Request) {
 			skipped.push({ platform, reason: "PDFs publish to LinkedIn only" });
 			continue;
 		}
+		if (isCarousel && platform !== "instagram") {
+			skipped.push({ platform, reason: "carousels post to Instagram only" });
+			continue;
+		}
 		if (platform === "reddit" && !subreddit) {
 			skipped.push({ platform, reason: "subreddit required" });
 			continue;
@@ -185,7 +201,15 @@ export async function POST(request: Request) {
 		}
 
 		let metadata: Record<string, unknown>;
-		if (platform === "linkedin") {
+		if (isCarousel) {
+			metadata = {
+				channel: channel.label,
+				media_type: "carousel",
+				caption,
+				children_urls: carouselKeys.map(fileUrl),
+				image_url: fileUrl(carouselKeys[0]),
+			};
+		} else if (platform === "linkedin") {
 			// Direct LinkedIn app: native documents + images; videos as link posts.
 			metadata = pdfKey
 				? { channel: channel.label, title, caption, document_url: videoUrl }

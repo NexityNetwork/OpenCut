@@ -78,6 +78,7 @@ import {
 	BarChart3,
 	ScrollText,
 	Scissors,
+	MessagesSquare,
 } from "lucide-react";
 import { useTheme } from "next-themes";
 import {
@@ -137,6 +138,7 @@ import type { TProjectMetadata, TProjectSortOption } from "@/project/types";
 import { BioBuilder } from "@/bio/bio-builder";
 import { ClipsStudio } from "@/clips/clips-studio";
 import { BrandKitView } from "@/brand/brand-kit";
+import { CommentInbox } from "@/inbox/comment-inbox";
 import type { ClipSuggestion } from "@/app/api/clips/route";
 import { buildElementFromMedia } from "@/timeline/element-utils";
 import { mediaTimeFromSeconds } from "@/wasm";
@@ -288,7 +290,7 @@ export function VaultSection() {
 	const [mobileNav, setMobileNav] = useState(false);
 	const [searchOpen, setSearchOpen] = useState(false);
 	const [appView, setAppView] = useState<
-		"home" | "library" | "publish" | "bio" | "clips" | "brand"
+		"home" | "library" | "publish" | "bio" | "clips" | "brand" | "inbox"
 	>("home");
 	// "Export & publish" hand-off from the editors: /projects?compose=<itemId>
 	const [composePrefill, setComposePrefill] = useState<string | null>(null);
@@ -1024,6 +1026,7 @@ export function VaultSection() {
 				onSelectBio={() => setAppView("bio")}
 				onSelectClips={() => setAppView("clips")}
 					onSelectBrand={() => setAppView("brand")}
+					onSelectInbox={() => setAppView("inbox")}
 				navTabs={navTabs}
 				activeTab={activeTab}
 				onSelectTab={(k) => {
@@ -1084,6 +1087,7 @@ export function VaultSection() {
 				onSelectBio={() => setAppView("bio")}
 					onSelectClips={() => setAppView("clips")}
 					onSelectBrand={() => setAppView("brand")}
+					onSelectInbox={() => setAppView("inbox")}
 				navTabs={navTabs}
 				activeTab={activeTab}
 				onSelectTab={(k) => {
@@ -1130,6 +1134,8 @@ export function VaultSection() {
 					<BioBuilder owner={owner} />
 				) : appView === "brand" ? (
 					<BrandKitView owner={owner} />
+				) : appView === "inbox" ? (
+					<CommentInbox preview={!isOwner} />
 				) : appView === "clips" ? (
 					<ClipsStudio
 						items={visibleItems}
@@ -2073,6 +2079,7 @@ function LibrarySidebar({
 	onSelectBio,
 	onSelectClips,
 	onSelectBrand,
+	onSelectInbox,
 	navTabs,
 	activeTab,
 	onSelectTab,
@@ -2087,13 +2094,14 @@ function LibrarySidebar({
 	collapsed: boolean;
 	onToggleCollapse: () => void;
 	onOpenSearch: () => void;
-	appView: "home" | "library" | "publish" | "bio" | "clips" | "brand";
+	appView: "home" | "library" | "publish" | "bio" | "clips" | "brand" | "inbox";
 	onSelectHome: () => void;
 	onSelectLibrary: () => void;
 	onSelectPublish: () => void;
 	onSelectBio: () => void;
 	onSelectClips: () => void;
 	onSelectBrand: () => void;
+	onSelectInbox: () => void;
 	navTabs: NavTab[];
 	activeTab: string;
 	onSelectTab: (k: string) => void;
@@ -2269,6 +2277,12 @@ function LibrarySidebar({
 							label="AI Clips"
 							active={appView === "clips"}
 							onClick={onSelectClips}
+						/>
+						<SidebarItem
+							icon={MessagesSquare}
+							label="Comments"
+							active={appView === "inbox"}
+							onClick={onSelectInbox}
 						/>
 						<SidebarItem
 							icon={Palette}
@@ -3232,7 +3246,8 @@ function ComposePostModal({
 		setTitle(it.name || "");
 		setCaption(it.caption || "");
 		if (it.kind === "carousel") {
-			setSel(new Set());
+			// Native Instagram carousel (2-10 images).
+			setSel(new Set(available.filter((p) => p === "instagram")));
 		} else if (it.kind === "pdf") {
 			// Native LinkedIn document post.
 			setSel(new Set(available.filter((p) => p === "linkedin")));
@@ -3269,8 +3284,6 @@ function ComposePostModal({
 		? picked?.media.find((m) => m.type === "pdf")?.key || ""
 		: "";
 	const isImage = !isCarousel && !isPdf && !!imageKey;
-	// Carousels still need the multi-image flow; PDFs go to LinkedIn natively.
-	const linkedinOnly = isCarousel;
 
 	const submit = async (asDraft = false) => {
 		if (!picked || busy) return;
@@ -3517,7 +3530,7 @@ function ComposePostModal({
 										{available.map((p) => {
 											const on = sel.has(p);
 											const blocked =
-												linkedinOnly ||
+												(isCarousel && p !== "instagram") ||
 												(isPdf && p !== "linkedin") ||
 												(isImage &&
 													!["instagram", "linkedin", "reddit"].includes(p));
@@ -3526,7 +3539,15 @@ function ComposePostModal({
 													key={p}
 													type="button"
 													disabled={blocked}
-													title={blocked ? "Photos can only go to Instagram" : undefined}
+													title={
+														blocked
+															? isCarousel
+																? "Carousels post to Instagram"
+																: isPdf
+																	? "PDFs post to LinkedIn"
+																	: "Photos can't go to this platform"
+															: undefined
+													}
 													onClick={() =>
 														setSel((s) => {
 															const n = new Set(s);
@@ -3546,9 +3567,10 @@ function ComposePostModal({
 												</button>
 											);
 										})}
-										{linkedinOnly && (
+										{isCarousel && (
 											<span className="flex items-center gap-1.5 rounded-full border border-dashed border-[var(--mono-line)] px-3 py-1.5 text-[13px] text-[var(--mono-ink-3)]">
-												<Linkedin className="size-3.5" /> LinkedIn docs · soon
+												<Layers className="size-3.5" /> Posts as an Instagram
+												carousel
 											</span>
 										)}
 									</div>
