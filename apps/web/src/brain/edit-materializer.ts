@@ -18,6 +18,7 @@ import type { ProcessedMediaAsset } from "@/media/processing";
 import { buildElementFromMedia, buildTextElement } from "@/timeline/element-utils";
 import { mediaTimeFromSeconds, mediaTimeToSeconds } from "@/wasm";
 import { fetchVaultItem, fileUrl } from "@/projects/vault-client";
+import { storageService } from "@/services/storage/service";
 
 type Overlay = {
 	text: string;
@@ -48,6 +49,9 @@ type EditSpec = {
 	// the hook overlay (instead of building a new project).
 	editProjectId?: string;
 	introVisibleSec?: number;
+	// Thumbnail-only: set a draft's poster image (no load/render).
+	thumbnailOnly?: boolean;
+	thumbnailKey?: string;
 };
 type EditJob = {
 	id: string;
@@ -360,11 +364,25 @@ async function buildHookEdit(
 	return projectId;
 }
 
+// Set a draft's poster thumbnail to a representative image (its first slide),
+// without loading the project or rendering a frame.
+async function buildThumbnail(job: EditJob): Promise<string> {
+	const id = job.spec.editProjectId as string;
+	if (job.spec.thumbnailKey) {
+		await storageService.setProjectThumbnail({
+			id,
+			thumbnail: fileUrl(job.spec.thumbnailKey),
+		});
+	}
+	return id;
+}
+
 function buildOne(
 	editor: EditorCore,
 	job: EditJob,
 	cache: AssetCache,
 ): Promise<string> {
+	if (job.spec.thumbnailOnly) return buildThumbnail(job);
 	if (job.spec.editProjectId) return buildHookEdit(editor, job, cache);
 	return job.spec.intro || job.spec.perSlideSec
 		? buildCarousel(editor, job, cache)

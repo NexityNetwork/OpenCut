@@ -420,7 +420,18 @@ export function VaultSection() {
 	const [loading, setLoading] = useState(true);
 	const [text, setText] = useState("");
 	const [busy, setBusy] = useState(false);
-	const [activeTab, setActiveTab] = useState<string>("all");
+	// Remember the last open tab so returning from the editor lands back where
+	// you were (e.g. the "CTW Final" category) instead of resetting to "all".
+	const [activeTab, setActiveTab] = useState<string>(() =>
+		typeof window !== "undefined"
+			? sessionStorage.getItem("vault-active-tab") || "all"
+			: "all",
+	);
+	useEffect(() => {
+		if (typeof window !== "undefined") {
+			sessionStorage.setItem("vault-active-tab", activeTab);
+		}
+	}, [activeTab]);
 	// Asset detail opens inline (sidebar stays); cleared whenever you navigate.
 	const [selectedAsset, setSelectedAsset] = useState<VaultItem | null>(null);
 	const [renaming, setRenaming] = useState<{
@@ -1120,9 +1131,15 @@ export function VaultSection() {
 	);
 	const sectionIcon = (name: string) =>
 		customSections.find((s) => s.name === name)?.icon ?? "";
-	// Fall back to "All" if the selected category no longer exists.
+	// Fall back to "All" if the selected category no longer exists — but only
+	// once sections have loaded, so a restored tab isn't wiped during the
+	// initial (empty) render.
 	useEffect(() => {
-		if (activeTab.startsWith("cat:") && !sectionNames.includes(activeTab.slice(4))) {
+		if (
+			sectionNames.length > 0 &&
+			activeTab.startsWith("cat:") &&
+			!sectionNames.includes(activeTab.slice(4))
+		) {
 			setActiveTab("all");
 		}
 	}, [sectionNames, activeTab]);

@@ -303,6 +303,21 @@ class StorageService {
 		return raw ?? null;
 	}
 
+	/** Set a project's poster thumbnail without loading the whole project. */
+	async setProjectThumbnail({
+		id,
+		thumbnail,
+	}: {
+		id: string;
+		thumbnail: string;
+	}): Promise<boolean> {
+		const raw = await this.getRawProject(id);
+		if (!raw?.metadata) return false;
+		raw.metadata.thumbnail = thumbnail;
+		await this.projectsAdapter.set({ key: id, value: raw });
+		return true;
+	}
+
 	async saveMediaAsset({
 		projectId,
 		mediaAsset,
