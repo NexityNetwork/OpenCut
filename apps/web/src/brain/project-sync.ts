@@ -35,6 +35,11 @@ export function queueProjectSync(id: string): void {
 		window.setTimeout(() => {
 			timers.delete(id);
 			void push(id);
+			// Mirror any newly added media to R2 so it's durable promptly, not
+			// only on the next time the project is opened.
+			void import("./media-sync")
+				.then((m) => m.backupProjectMedia(id))
+				.catch(() => {});
 		}, DEBOUNCE_MS),
 	);
 }
