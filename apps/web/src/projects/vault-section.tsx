@@ -419,6 +419,7 @@ export function VaultSection() {
 			setText("");
 			setSearchQuery({ query: "" });
 			setAppView("library");
+			setActiveTab(item.kind);
 		} catch (e) {
 			toast.error(e instanceof Error ? e.message : "Import failed", { id: tid });
 		} finally {
@@ -440,6 +441,7 @@ export function VaultSection() {
 			setItems((prev) => [...added, ...prev]);
 			toast.success(`Added ${added.length} to your vault`, { id: tid });
 			setAppView("library");
+			if (added[0]) setActiveTab(added[0].kind);
 		} catch (e) {
 			toast.error(e instanceof Error ? e.message : "Upload failed", { id: tid });
 		} finally {
@@ -1047,62 +1049,87 @@ export function VaultSection() {
 								: "xs:grid-cols-2 grid grid-cols-1 gap-5 sm:grid-cols-3"
 						}
 					>
-						{shownProjects.map((p) => {
-							const props = {
-								project: p,
-								badge: p.isCanvas ? "Canvas" : "Project",
-								onOpen: () => router.push(projectHref(p)),
-								onRename: () =>
-									setRenaming({ id: p.id, name: p.name, kind: "project" as const }),
-								onDelete: () => deleteProject(p),
+						{(() => {
+							const projectCell = (p: TProjectMetadata) => {
+								const props = {
+									project: p,
+									badge: p.isCanvas ? "Canvas" : "Project",
+									onOpen: () => router.push(projectHref(p)),
+									onRename: () =>
+										setRenaming({ id: p.id, name: p.name, kind: "project" as const }),
+									onDelete: () => deleteProject(p),
+								};
+								return {
+									t: Number(new Date(p.updatedAt)) || 0,
+									node: listView ? (
+										<ProjectRow key={p.id} {...props} />
+									) : (
+										<ProjectCard key={p.id} {...props} />
+									),
+								};
 							};
-							return listView ? (
-								<ProjectRow key={p.id} {...props} />
-							) : (
-								<ProjectCard key={p.id} {...props} />
-							);
-						})}
-						{shownVault.map((item) => {
-							const props = {
-								item,
-								allCategories: categories,
-								onOpen: () =>
-									item.kind === "audio"
-									? togglePlay(item)
-									: item.kind === "pdf"
-										? window.open(fileUrl(item.media[0]?.key || ""), "_blank")
-										: setLightbox(item),
-								onAdd: () => addToProject(item),
-								onRename: () =>
-									setRenaming({ id: item.id, name: item.name, kind: "vault" as const }),
-								onRemove: () => remove(item),
-								onToggleCategory: (cat: string) => toggleCategory(item, cat),
-								onNewCategory: () => setCatFor(item),
-								onCaption: () => setCaptionItem(item),
-								onCopyCaption: () => copyCaption(item),
+							const vaultCell = (item: VaultItem) => {
+								const props = {
+									item,
+									allCategories: categories,
+									onOpen: () =>
+										item.kind === "audio"
+										? togglePlay(item)
+										: item.kind === "pdf"
+											? window.open(fileUrl(item.media[0]?.key || ""), "_blank")
+											: setLightbox(item),
+									onAdd: () => addToProject(item),
+									onRename: () =>
+										setRenaming({ id: item.id, name: item.name, kind: "vault" as const }),
+									onRemove: () => remove(item),
+									onToggleCategory: (cat: string) => toggleCategory(item, cat),
+									onNewCategory: () => setCatFor(item),
+									onCaption: () => setCaptionItem(item),
+									onCopyCaption: () => copyCaption(item),
+								};
+								return {
+									t: item.createdAt || 0,
+									node: listView ? (
+										<VaultRow key={item.id} {...props} />
+									) : (
+										<VaultTile
+											key={item.id}
+											{...props}
+											playing={playingId === item.id}
+										/>
+									),
+								};
 							};
-							return listView ? (
-								<VaultRow key={item.id} {...props} />
-							) : (
-								<VaultTile key={item.id} {...props} playing={playingId === item.id} />
-							);
-						})}
-						{shownTemplates.map((t) => {
-							const props = {
-								project: t,
-								badge: "Template",
-								openLabel: "Use template",
-								onOpen: () => useTemplate(t),
-								onRename: () =>
-									setRenaming({ id: t.id, name: t.name, kind: "project" as const }),
-								onDelete: () => deleteProject(t),
+							const templateCell = (t: TProjectMetadata) => {
+								const props = {
+									project: t,
+									badge: "Template",
+									openLabel: "Use template",
+									onOpen: () => useTemplate(t),
+									onRename: () =>
+										setRenaming({ id: t.id, name: t.name, kind: "project" as const }),
+									onDelete: () => deleteProject(t),
+								};
+								return {
+									t: Number(new Date(t.updatedAt)) || 0,
+									node: listView ? (
+										<ProjectRow key={t.id} {...props} />
+									) : (
+										<ProjectCard key={t.id} {...props} />
+									),
+								};
 							};
-							return listView ? (
-								<ProjectRow key={t.id} {...props} />
-							) : (
-								<ProjectCard key={t.id} {...props} />
-							);
-						})}
+							const cells = [
+								...shownProjects.map(projectCell),
+								...shownVault.map(vaultCell),
+								...shownTemplates.map(templateCell),
+							];
+							// "All" interleaves everything newest-first so fresh imports
+							// surface at the top instead of under the project pile;
+							// single-type tabs keep their existing order.
+							if (activeTab === "all") cells.sort((a, b) => b.t - a.t);
+							return cells.map((c) => c.node);
+						})()}
 					</div>
 				)}
 			</div>
