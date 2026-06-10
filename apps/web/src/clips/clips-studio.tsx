@@ -57,6 +57,8 @@ const fmt = (s: number) => {
 export function ClipsStudio({
 	items,
 	onMakeProject,
+	onClipQueue,
+	onImportLink,
 }: {
 	items: VaultItem[];
 	onMakeProject: (
@@ -67,7 +69,16 @@ export function ClipsStudio({
 			captions: boolean;
 			navigate: boolean;
 		},
-	) => Promise<void> | void;
+	) => Promise<string | null> | void;
+	onClipQueue: (
+		item: VaultItem,
+		clips: ClipSuggestion[],
+		opts: {
+			segments: { text: string; start: number; end: number }[];
+			captions: boolean;
+		},
+	) => Promise<void>;
+	onImportLink: (url: string) => Promise<VaultItem | null>;
 }) {
 	const videos = useMemo(
 		() =>
@@ -84,7 +95,37 @@ export function ClipsStudio({
 		{ text: string; start: number; end: number }[]
 	>([]);
 	const [withCaptions, setWithCaptions] = useState(true);
-	const [creating, setCreating] = useState<number | "all" | null>(null);
+	const [creating, setCreating] = useState<number | "all" | "queue" | null>(
+		null,
+	);
+	const [link, setLink] = useState("");
+	const [importing, setImporting] = useState(false);
+
+	const importLink = async () => {
+		const url = link.trim();
+		if (!url || importing) return;
+		setImporting(true);
+		const tid = toast.loading("Importing video…", {
+			description: "Long videos can take a couple of minutes.",
+		});
+		try {
+			const item = await onImportLink(url);
+			if (item) {
+				setLink("");
+				setPicked(item);
+				setClips(null);
+				if ((item.durationSec ?? 0) > 20 * 60) {
+					toast.warning("Heads up: 20min+ videos can be heavy to analyze in-browser", { id: tid });
+				} else {
+					toast.success("Imported — hit Analyze", { id: tid });
+				}
+			} else {
+				toast.dismiss(tid);
+			}
+		} finally {
+			setImporting(false);
+		}
+	};
 	const [shown, setShown] = useState(30);
 	const moreRef = useRef<HTMLDivElement | null>(null);
 	useEffect(() => {
@@ -182,6 +223,18 @@ export function ClipsStudio({
 
 			{!picked ? (
 				<div className="mt-6">
+					<div className="mb-4 flex max-w-xl gap-2">
+						<input
+							placeholder="Paste a YouTube link to clip a long video…"
+							value={link}
+							onChange={(e) => setLink(e.target.value)}
+							onKeyDown={(e) => e.key === "Enter" && importLink()}
+							className="min-w-0 flex-1 rounded-xl border border-[var(--mono-line)] bg-[var(--mono-field)] px-3.5 py-2.5 text-sm text-[var(--mono-ink)] outline-none placeholder:text-[var(--mono-ink-3)] focus:border-[var(--mono-strong)]"
+						/>
+						<Button onClick={importLink} disabled={importing || !link.trim()}>
+							{importing ? "Importing…" : "Import"}
+						</Button>
+					</div>
 					<input
 						placeholder="Search your videos…"
 						value={q}
@@ -289,6 +342,26 @@ export function ClipsStudio({
 										/>
 										Auto-captions {withCaptions ? "on" : "off"}
 									</button>
+									<Button
+										size="sm"
+										className="rounded-md"
+										disabled={creating !== null}
+										onClick={async () => {
+											setCreating("queue");
+											try {
+												await onClipQueue(picked, clips, {
+													segments,
+													captions: withCaptions,
+												});
+											} finally {
+												setCreating(null);
+											}
+										}}
+									>
+										{creating === "queue"
+											? "Exporting…"
+											: "Clip & queue drafts"}
+									</Button>
 									<Button
 										size="sm"
 										variant="outline"

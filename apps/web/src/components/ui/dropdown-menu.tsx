@@ -36,7 +36,7 @@ const DropdownMenuSub = DropdownMenuPrimitive.Sub;
 const DropdownMenuRadioGroup = DropdownMenuPrimitive.RadioGroup;
 
 const dropdownMenuItemVariants = cva(
-	"relative flex cursor-pointer select-none items-center gap-2.5 rounded-md px-2.5 py-1.5 text-[13px] text-[#d7d0c0] outline-hidden data-[highlighted]:bg-white/[0.07] data-[highlighted]:text-[#f1ebdc] data-disabled:pointer-events-none data-disabled:opacity-50 [&>svg]:size-4 [&>svg]:shrink-0 [&>svg]:text-[#8b8676]",
+	"relative flex cursor-pointer select-none items-center gap-2.5 rounded-md px-2.5 py-1.5 text-[13px] text-[var(--mono-ink-2)] outline-hidden data-[highlighted]:bg-[var(--mono-active)] data-[highlighted]:text-[var(--mono-ink)] data-disabled:pointer-events-none data-disabled:opacity-50 [&>svg]:size-4 [&>svg]:shrink-0 [&>svg]:text-[var(--mono-ink-3)]",
 	{
 		variants: {
 			variant: {
@@ -62,7 +62,7 @@ const DropdownMenuSubTrigger = React.forwardRef<
 		ref={ref}
 		className={cn(
 			dropdownMenuItemVariants({ variant }),
-			"data-[state=open]:bg-white/[0.07] data-[state=open]:text-[#f1ebdc]",
+			"data-[state=open]:bg-[var(--mono-active)] data-[state=open]:text-[var(--mono-ink)]",
 			inset && "pl-8",
 			className,
 		)}
@@ -82,7 +82,7 @@ const DropdownMenuSubContent = React.forwardRef<
 	<DropdownMenuPrimitive.SubContent
 		ref={ref}
 		className={cn(
-			"group/menu z-50 min-w-40 overflow-hidden rounded-xl border border-white/[0.08] bg-[#2a2623] p-1.5 text-popover-foreground shadow-xl shadow-black/40",
+			"group/menu z-50 min-w-40 overflow-hidden rounded-xl border border-[var(--mono-line)] bg-[var(--mono-elev)] p-1.5 text-[var(--mono-ink)] shadow-xl shadow-black/20",
 			className,
 		)}
 		{...props}
@@ -104,7 +104,7 @@ const DropdownMenuContent = React.forwardRef<
 				e.preventDefault();
 			}}
 			className={cn(
-				"group/menu z-50 min-w-40 overflow-hidden rounded-xl border border-white/[0.08] bg-[#2a2623] p-1.5 text-popover-foreground shadow-xl shadow-black/40",
+				"group/menu z-50 min-w-40 overflow-hidden rounded-xl border border-[var(--mono-line)] bg-[var(--mono-elev)] p-1.5 text-[var(--mono-ink)] shadow-xl shadow-black/20",
 				className,
 			)}
 			{...props}

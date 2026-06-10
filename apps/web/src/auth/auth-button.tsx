@@ -147,7 +147,7 @@ function LoginDialog({
 
 	return (
 		<Dialog open={open} onOpenChange={onOpenChange}>
-			<DialogContent className="max-w-sm p-8">
+			<DialogContent className="max-w-sm rounded-2xl border-[var(--mono-line)] bg-[var(--mono-panel)] p-8 text-[var(--mono-ink)]">
 				<div className="flex flex-col gap-1.5 text-center">
 					<DialogTitle className="text-2xl font-semibold">
 						{mode === "signin" ? "Log in or sign up" : "Create your account"}

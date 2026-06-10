@@ -138,6 +138,7 @@ import type { ClipSuggestion } from "@/app/api/clips/route";
 import { buildElementFromMedia } from "@/timeline/element-utils";
 import { mediaTimeFromSeconds } from "@/wasm";
 import { insertCaptionChunksAsTextTrack } from "@/subtitles/insert";
+import { uploadExportToVault } from "@/canvas-editor/publish-export";
 import { ParticleTextEffect } from "@/components/home/particle-text";
 
 const PLATFORMS = [
@@ -366,6 +367,7 @@ export function VaultSection() {
 	const { data: session } = useSession();
 	const userId = session?.user?.id;
 	const isOwner = session?.user?.email === OWNER_EMAIL;
+	const { resolvedTheme } = useTheme();
 	const [owner, setOwner] = useState("");
 	const [items, setItems] = useState<VaultItem[]>([]);
 	const [loading, setLoading] = useState(true);
@@ -413,7 +415,6 @@ export function VaultSection() {
 	const onChange = (v: string) => {
 		setText(v);
 		setSearchQuery({ query: isUrl(v) ? "" : v });
-		if (appView === "home" && v.trim() && !isUrl(v)) setAppView("library");
 	};
 
 	const submit = async () => {
@@ -654,7 +655,7 @@ export function VaultSection() {
 			captions: boolean;
 			navigate: boolean;
 		},
-	) => {
+	): Promise<string | null> => {
 		const tid = toast.loading(`Cutting "${clip.title}"…`);
 		try {
 			const name = (clip.title || item.name || "Clip").slice(0, 60);
@@ -715,10 +716,91 @@ export function VaultSection() {
 			await editor.project.saveCurrentProject();
 			toast.success("Clip ready", { id: tid });
 			if (opts.navigate) router.push(`/editor/${projectId}`);
+			return projectId;
 		} catch (e) {
 			toast.error(e instanceof Error ? e.message : "Couldn't create clip", {
 				id: tid,
 			});
+			return null;
+		}
+	};
+
+	// Straight-to-publish: build each clip project, export it headlessly,
+	// upload the mp4 to the vault and park platform DRAFTS in Publish.
+	const clipAndQueue = async (
+		item: VaultItem,
+		clips: ClipSuggestion[],
+		opts: {
+			segments: { text: string; start: number; end: number }[];
+			captions: boolean;
+		},
+	) => {
+		let queued = 0;
+		for (let i = 0; i < clips.length; i++) {
+			const clip = clips[i];
+			const pid = await makeClipProject(item, clip, {
+				...opts,
+				navigate: false,
+			});
+			if (!pid) continue;
+			const tid = toast.loading(
+				`Exporting ${i + 1}/${clips.length}: "${clip.title}"…`,
+			);
+			try {
+				const project = editor.project.getActive();
+				const result = await editor.project.export({
+					options: {
+						format: "mp4",
+						quality: "high",
+						fps: project.settings.fps,
+						includeAudio: true,
+					},
+				});
+				if (!result.success || !result.buffer) {
+					throw new Error(result.error || "Export failed");
+				}
+				const vaultId = await uploadExportToVault({
+					owner,
+					name: clip.title,
+					data: result.buffer,
+					ext: "mp4",
+					contentType: "video/mp4",
+					kind: "video",
+					durationSec: clip.end - clip.start,
+				});
+				const r = await fetch("/api/publish-post", {
+					method: "POST",
+					headers: { "content-type": "application/json" },
+					body: JSON.stringify({
+						owner,
+						itemId: vaultId,
+						platforms: ["youtube", "instagram"],
+						title: clip.title,
+						caption: clip.hook || clip.title,
+						description: clip.reason || clip.hook || clip.title,
+						scheduledFor: Date.now() + (queued + 1) * 86400_000,
+						draft: true,
+					}),
+				});
+				const d = (await r.json().catch(() => ({}))) as { error?: string };
+				if (!r.ok) throw new Error(d.error || "Couldn't queue draft");
+				queued++;
+				toast.success(`Drafted "${clip.title}"`, { id: tid });
+			} catch (e) {
+				toast.error(e instanceof Error ? e.message : "Failed", { id: tid });
+			} finally {
+				editor.project.clearExportState();
+			}
+		}
+		editor.project.closeProject();
+		const next = await fetchVault(owner).catch(() => null);
+		if (next) setItems(next);
+		if (queued > 0) {
+			toast.success(
+				`${queued} clip${queued === 1 ? "" : "s"} drafted — review them in Publish → Drafts`,
+				{ duration: 9000 },
+			);
+			setAppView("publish");
 		}
 	};
 
@@ -1008,7 +1090,23 @@ export function VaultSection() {
 				) : appView === "bio" ? (
 					<BioBuilder owner={owner} />
 				) : appView === "clips" ? (
-					<ClipsStudio items={visibleItems} onMakeProject={makeClipProject} />
+					<ClipsStudio
+						items={visibleItems}
+						onMakeProject={makeClipProject}
+						onClipQueue={clipAndQueue}
+						onImportLink={async (url) => {
+							try {
+								const item = await importLinkToVault(owner, url, "video");
+								setItems((prev) => [item, ...prev]);
+								return item;
+							} catch (e) {
+								toast.error(
+									e instanceof Error ? e.message : "Import failed",
+								);
+								return null;
+							}
+						}}
+					/>
 				) : (
 					<div className="px-4 pb-24 sm:px-8">
 						{appView === "library" && (
@@ -1024,7 +1122,13 @@ export function VaultSection() {
 						{/* Hero */}
 			<div className="flex flex-col items-center pt-16 pb-2 sm:pt-24">
 				<ParticleTextEffect
+					key={resolvedTheme}
 					text="What will you create today?"
+					colors={
+						resolvedTheme === "light"
+							? ["3c3326", "6b5234", "a8632e", "c98a4e", "55503f"]
+							: undefined
+					}
 					className="mb-4 h-24 w-full max-w-3xl sm:h-28"
 				/>
 				<div className="w-full max-w-2xl">
@@ -1051,10 +1155,10 @@ export function VaultSection() {
 							value={text}
 							onChange={(e) => onChange(e.target.value)}
 							onKeyDown={(e) => {
-								if (e.key === "Enter" && urlMode) {
-									e.preventDefault();
-									void submit();
-								}
+								if (e.key !== "Enter") return;
+								e.preventDefault();
+								if (urlMode) void submit();
+								else if (text.trim()) setAppView("library");
 							}}
 							placeholder="Paste a link to import, or search your projects…"
 							disabled={busy}
@@ -1119,11 +1223,11 @@ export function VaultSection() {
 						</DropdownMenu>
 						<button
 							type="button"
-							onClick={createBlankProject}
+							onClick={() => fileInputRef.current?.click()}
 							className={HOME_CHIP_CLS}
 						>
-							<Plus className="size-3.5" />
-							New
+							<Paperclip className="size-3.5" />
+							Import media
 						</button>
 					</div>
 				</div>
@@ -2370,10 +2474,10 @@ function SearchModal({
 			onClick={onClose}
 		>
 			<div
-				className="bg-popover border-border w-full max-w-xl overflow-hidden rounded-xl border shadow-2xl"
+				className="w-full max-w-xl overflow-hidden rounded-2xl border border-[var(--mono-line)] bg-[var(--mono-panel)] text-[var(--mono-ink)] shadow-2xl"
 				onClick={(e) => e.stopPropagation()}
 			>
-				<div className="border-border/60 flex items-center gap-2 border-b px-4">
+				<div className="flex items-center gap-2 border-b border-[var(--mono-line)] px-4">
 					<Search className="text-muted-foreground size-4" />
 					<input
 						autoFocus
