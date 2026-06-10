@@ -118,6 +118,8 @@ import { useEditor } from "@/editor/use-editor";
 import { processMediaAssets } from "@/media/processing";
 import { useProjectsStore } from "@/app/projects/store";
 import { getVaultOwner } from "@/projects/vault-owner";
+import { loadFonts } from "@/fonts/google-fonts";
+import { getElementFontFamilies } from "@/timeline/element-utils";
 import {
 	type VaultItem,
 	fetchVault,
@@ -146,9 +148,9 @@ const PLATFORMS = [
 	{ Icon: SiYoutubemusic, label: "YouTube Music", color: "#FF0000" },
 	{ Icon: SiSoundcloud, label: "SoundCloud", color: "#FF5500" },
 	{ Icon: SiInstagram, label: "Instagram", color: "#E4405F" },
-	{ Icon: SiTiktok, label: "TikTok", color: "#e8e8e8" },
+	{ Icon: SiTiktok, label: "TikTok", color: "" },
 	{ Icon: SiVimeo, label: "Vimeo", color: "#1AB7EA" },
-	{ Icon: SiX, label: "X", color: "#e8e8e8" },
+	{ Icon: SiX, label: "X", color: "" },
 ];
 
 // Single-tenant for now: publishing is wired to the owner account only.
@@ -412,10 +414,24 @@ export function VaultSection() {
 		};
 	}, [userId]);
 
+	const librarySearchRef = useRef<HTMLInputElement | null>(null);
 	const onChange = (v: string) => {
 		setText(v);
 		setSearchQuery({ query: isUrl(v) ? "" : v });
+		// Typing a search on Home flips straight into the library results;
+		// the library search box (same state) picks up focus so typing never
+		// gets interrupted.
+		if (appView === "home" && v.trim() && !isUrl(v)) setAppView("library");
 	};
+	useEffect(() => {
+		if (appView !== "library") return;
+		const el = librarySearchRef.current;
+		if (el && text.trim() && document.activeElement !== el) {
+			el.focus();
+			el.setSelectionRange(el.value.length, el.value.length);
+		}
+		// eslint-disable-next-line react-hooks/exhaustive-deps
+	}, [appView]);
 
 	const submit = async () => {
 		const link = text.trim();
@@ -746,8 +762,21 @@ export function VaultSection() {
 			const tid = toast.loading(
 				`Exporting ${i + 1}/${clips.length}: "${clip.title}"…`,
 			);
+			let step = "export";
 			try {
 				const project = editor.project.getActive();
+				// Captions need their fonts in document.fonts before rendering —
+				// outside the editor route nothing preloaded them.
+				await loadFonts({
+					families: [
+						...new Set(
+							getElementFontFamilies({
+								tracks: editor.scenes.getActiveScene().tracks,
+							}),
+						),
+					],
+				}).catch(() => {});
+				await new Promise((r) => setTimeout(r, 50));
 				const result = await editor.project.export({
 					options: {
 						format: "mp4",
@@ -759,6 +788,7 @@ export function VaultSection() {
 				if (!result.success || !result.buffer) {
 					throw new Error(result.error || "Export failed");
 				}
+				step = "upload";
 				const vaultId = await uploadExportToVault({
 					owner,
 					name: clip.title,
@@ -768,6 +798,7 @@ export function VaultSection() {
 					kind: "video",
 					durationSec: clip.end - clip.start,
 				});
+				step = "draft";
 				const r = await fetch("/api/publish-post", {
 					method: "POST",
 					headers: { "content-type": "application/json" },
@@ -787,7 +818,11 @@ export function VaultSection() {
 				queued++;
 				toast.success(`Drafted "${clip.title}"`, { id: tid });
 			} catch (e) {
-				toast.error(e instanceof Error ? e.message : "Failed", { id: tid });
+				console.error("clip&queue failed at", step, e);
+				toast.error(
+					`${step}: ${e instanceof Error ? e.message : "Failed"}`,
+					{ id: tid, duration: 10000 },
+				);
 			} finally {
 				editor.project.clearExportState();
 			}
@@ -1110,7 +1145,27 @@ export function VaultSection() {
 				) : (
 					<div className="px-4 pb-24 sm:px-8">
 						{appView === "library" && (
-							<div className="flex justify-end pt-4">
+							<div className="flex items-center gap-3 pt-4">
+								<div className="flex min-w-0 flex-1 items-center gap-2 rounded-full border border-[var(--mono-line)] bg-[var(--mono-hover)] px-4 py-2">
+									<Search className="size-4 shrink-0 text-[var(--mono-ink-3)]" />
+									<input
+										ref={librarySearchRef}
+										value={text}
+										onChange={(e) => onChange(e.target.value)}
+										placeholder="Search your library and projects…"
+										className="min-w-0 flex-1 bg-transparent text-sm text-[var(--mono-ink)] outline-none placeholder:text-[var(--mono-ink-3)]"
+									/>
+									{text && (
+										<button
+											type="button"
+											aria-label="Clear search"
+											onClick={() => onChange("")}
+											className="text-[var(--mono-ink-3)] hover:text-[var(--mono-ink)]"
+										>
+											<X className="size-4" />
+										</button>
+									)}
+								</div>
 								<ViewToggle
 									viewMode={viewMode}
 									setViewMode={setViewMode}
@@ -1214,7 +1269,7 @@ export function VaultSection() {
 							<DropdownMenuContent align="start">
 								{PLATFORMS.map((p) => (
 									<DropdownMenuItem key={p.label}>
-										<p.Icon className="size-4" style={{ color: p.color }} />
+										<p.Icon className="size-4" style={p.color ? { color: p.color } : undefined} />
 										{p.label}
 										<Check className="ml-auto size-3.5 text-green-500/90" />
 									</DropdownMenuItem>
