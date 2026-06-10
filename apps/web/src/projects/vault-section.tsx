@@ -138,7 +138,7 @@ import type { TProjectMetadata, TProjectSortOption } from "@/project/types";
 import { BioBuilder } from "@/bio/bio-builder";
 import { ClipsStudio } from "@/clips/clips-studio";
 import { BrandKitView } from "@/brand/brand-kit";
-import { CommentInbox } from "@/inbox/comment-inbox";
+import { InboxView } from "@/inbox/inbox-view";
 import type { ClipSuggestion } from "@/app/api/clips/route";
 import { buildElementFromMedia } from "@/timeline/element-utils";
 import { mediaTimeFromSeconds } from "@/wasm";
@@ -1135,7 +1135,7 @@ export function VaultSection() {
 				) : appView === "brand" ? (
 					<BrandKitView owner={owner} />
 				) : appView === "inbox" ? (
-					<CommentInbox preview={!isOwner} />
+					<InboxView owner={owner} preview={!isOwner} />
 				) : appView === "clips" ? (
 					<ClipsStudio
 						items={visibleItems}
@@ -2280,7 +2280,7 @@ function LibrarySidebar({
 						/>
 						<SidebarItem
 							icon={MessagesSquare}
-							label="Comments"
+							label="Inbox"
 							active={appView === "inbox"}
 							onClick={onSelectInbox}
 						/>

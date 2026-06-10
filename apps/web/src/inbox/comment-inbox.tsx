@@ -241,7 +241,7 @@ export function CommentInbox({ preview }: { preview: boolean }) {
 	}, [comments]);
 
 	return (
-		<div className="mx-auto max-w-3xl px-4 pt-16 pb-16 sm:px-8 lg:pt-10">
+		<div className="mx-auto max-w-3xl px-4 pt-6 pb-16 sm:px-8">
 			<div className="flex items-start justify-between gap-4">
 				<div>
 					<h1 className="text-2xl font-semibold tracking-tight">Comments</h1>
