@@ -77,6 +77,7 @@ import {
 	Home as HomeIcon,
 	BarChart3,
 	ScrollText,
+	Scissors,
 } from "lucide-react";
 import { useTheme } from "next-themes";
 import {
@@ -132,6 +133,10 @@ import { useSession, signOut } from "@/auth/client";
 import { AuthButton } from "@/auth/auth-button";
 import type { TProjectMetadata, TProjectSortOption } from "@/project/types";
 import { BioBuilder } from "@/bio/bio-builder";
+import { ClipsStudio } from "@/clips/clips-studio";
+import type { ClipSuggestion } from "@/app/api/clips/route";
+import { buildElementFromMedia } from "@/timeline/element-utils";
+import { mediaTimeFromSeconds } from "@/wasm";
 import { ParticleTextEffect } from "@/components/home/particle-text";
 
 const PLATFORMS = [
@@ -278,7 +283,7 @@ export function VaultSection() {
 	const [mobileNav, setMobileNav] = useState(false);
 	const [searchOpen, setSearchOpen] = useState(false);
 	const [appView, setAppView] = useState<
-		"home" | "library" | "publish" | "bio"
+		"home" | "library" | "publish" | "bio" | "clips"
 	>("home");
 	// "Export & publish" hand-off from the editors: /projects?compose=<itemId>
 	const [composePrefill, setComposePrefill] = useState<string | null>(null);
@@ -638,6 +643,57 @@ export function VaultSection() {
 		}
 	};
 
+	// AI Clips: new project containing the source video pre-trimmed to the
+	// suggested range, then straight into the editor.
+	const makeClipProject = async (item: VaultItem, clip: ClipSuggestion) => {
+		const tid = toast.loading("Cutting clip into a project…");
+		try {
+			const name = (clip.title || item.name || "Clip").slice(0, 60);
+			const projectId = await editor.project.createNewProject({ name });
+			const m = item.media.find((x) => x.type === "video");
+			if (!m) throw new Error("No video media on this item");
+			const blob = await (await fetch(fileUrl(m.key))).blob();
+			const file = new File([blob], `${name}.${m.ext || "mp4"}`, {
+				type: m.contentType || blob.type,
+			});
+			const [processed] = await processMediaAssets({ files: [file] });
+			if (!processed) throw new Error("Couldn't process the video");
+			const asset = await editor.media.addMediaAsset({
+				projectId,
+				asset: processed,
+			});
+			const assetId = (asset as { id?: string } | null)?.id ?? "";
+			if (!assetId) throw new Error("Couldn't add the video to the project");
+			const sourceDur = processed.duration ?? clip.end;
+			const start = Math.max(0, Math.min(clip.start, sourceDur));
+			const end = Math.max(start + 1, Math.min(clip.end, sourceDur));
+			const element = buildElementFromMedia({
+				mediaId: assetId,
+				mediaType: "video",
+				name,
+				duration: mediaTimeFromSeconds({ seconds: end - start }),
+				startTime: mediaTimeFromSeconds({ seconds: 0 }),
+			}) as ReturnType<typeof buildElementFromMedia> & {
+				trimStart?: unknown;
+				trimEnd?: unknown;
+				sourceDuration?: unknown;
+			};
+			element.trimStart = mediaTimeFromSeconds({ seconds: start });
+			element.trimEnd = mediaTimeFromSeconds({
+				seconds: Math.max(0, sourceDur - end),
+			});
+			element.sourceDuration = mediaTimeFromSeconds({ seconds: sourceDur });
+			editor.timeline.insertElement({ element, placement: { mode: "auto" } });
+			await editor.project.saveCurrentProject();
+			toast.success("Clip ready", { id: tid });
+			router.push(`/editor/${projectId}`);
+		} catch (e) {
+			toast.error(e instanceof Error ? e.message : "Couldn't create clip", {
+				id: tid,
+			});
+		}
+	};
+
 	const createBlankProject = async () => {
 		const id = await editor.project.createNewProject({ name: "New project" });
 		router.push(`/editor/${id}`);
@@ -820,6 +876,7 @@ export function VaultSection() {
 				onSelectLibrary={() => setAppView("library")}
 				onSelectPublish={() => setAppView("publish")}
 				onSelectBio={() => setAppView("bio")}
+				onSelectClips={() => setAppView("clips")}
 				navTabs={navTabs}
 				activeTab={activeTab}
 				onSelectTab={(k) => {
@@ -878,6 +935,7 @@ export function VaultSection() {
 				onSelectLibrary={() => setAppView("library")}
 				onSelectPublish={() => setAppView("publish")}
 				onSelectBio={() => setAppView("bio")}
+					onSelectClips={() => setAppView("clips")}
 				navTabs={navTabs}
 				activeTab={activeTab}
 				onSelectTab={(k) => {
@@ -921,6 +979,8 @@ export function VaultSection() {
 					/>
 				) : appView === "bio" ? (
 					<BioBuilder owner={owner} />
+				) : appView === "clips" ? (
+					<ClipsStudio items={visibleItems} onMakeProject={makeClipProject} />
 				) : (
 					<div className="px-4 pb-24 sm:px-8">
 						{appView === "library" && (
@@ -1773,6 +1833,7 @@ function LibrarySidebar({
 	onSelectLibrary,
 	onSelectPublish,
 	onSelectBio,
+	onSelectClips,
 	navTabs,
 	activeTab,
 	onSelectTab,
@@ -1787,11 +1848,12 @@ function LibrarySidebar({
 	collapsed: boolean;
 	onToggleCollapse: () => void;
 	onOpenSearch: () => void;
-	appView: "home" | "library" | "publish" | "bio";
+	appView: "home" | "library" | "publish" | "bio" | "clips";
 	onSelectHome: () => void;
 	onSelectLibrary: () => void;
 	onSelectPublish: () => void;
 	onSelectBio: () => void;
+	onSelectClips: () => void;
 	navTabs: NavTab[];
 	activeTab: string;
 	onSelectTab: (k: string) => void;
@@ -1952,7 +2014,7 @@ function LibrarySidebar({
 							moreOpen && "rotate-180",
 						)}
 					/>
-					<span className="flex-1 text-left">More</span>
+					<span className="flex-1 text-left">More Tools</span>
 				</button>
 				{moreOpen && (
 					<div className="space-y-0.5">
@@ -1962,7 +2024,12 @@ function LibrarySidebar({
 							active={appView === "bio"}
 							onClick={onSelectBio}
 						/>
-						<SidebarItem icon={HelpCircle} label="Get help" onClick={() => {}} />
+						<SidebarItem
+							icon={Scissors}
+							label="AI Clips"
+							active={appView === "clips"}
+							onClick={onSelectClips}
+						/>
 					</div>
 				)}
 			</nav>
