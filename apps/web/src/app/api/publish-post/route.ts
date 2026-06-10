@@ -136,6 +136,7 @@ export async function POST(request: Request) {
 		? privacyRaw
 		: "public";
 
+	const isDraft = b.draft === true;
 	const slug = `${slugify(title)}-${Date.now().toString(36)}`;
 	const created: { platform: string; channel: string; id: string }[] = [];
 	const skipped: { platform: string; reason: string }[] = [];
@@ -204,7 +205,7 @@ export async function POST(request: Request) {
            (id, channel_id, platform, slug, github_path, github_metadata_sha,
             github_video_path, github_thumbnail_path, metadata_json, status,
             scheduled_for, attempts, created_at, updated_at)
-           VALUES (?, ?, ?, ?, ?, ?, ?, NULL, ?, 'queued', ?, 0, ?, ?)`,
+           VALUES (?, ?, ?, ?, ?, ?, ?, NULL, ?, ?, ?, 0, ?, ?)`,
 				)
 				.bind(
 					id,
@@ -215,6 +216,7 @@ export async function POST(request: Request) {
 					crypto.randomUUID(),
 					JSON.stringify(videoUrl),
 					JSON.stringify(metadata),
+					isDraft ? "draft" : "queued",
 					scheduledFor,
 					now,
 					now,
@@ -237,4 +239,44 @@ export async function POST(request: Request) {
 		);
 	}
 	return Response.json({ ok: true, created, skipped, scheduledFor });
+}
+
+// Draft management: promote a draft into the live queue, or discard it.
+// The satellite's cron only dispatches status='queued', so drafts are inert
+// until promoted.
+export async function PATCH(request: Request) {
+	const b = (await request.json().catch(() => ({}))) as Record<string, unknown>;
+	const id = String(b.id || "").trim();
+	const action = String(b.action || "");
+	if (!id || !["schedule", "delete"].includes(action)) {
+		return Response.json({ error: "bad request" }, { status: 400 });
+	}
+	const { publish } = dbs();
+	if (!publish) {
+		return Response.json({ error: "publishing not configured" }, { status: 503 });
+	}
+	const now = Date.now();
+	if (action === "delete") {
+		await d1Retry(() =>
+			publish
+				.prepare("DELETE FROM content_queue WHERE id = ? AND status = 'draft'")
+				.bind(id)
+				.run(),
+		);
+		return Response.json({ ok: true });
+	}
+	// Keep a future schedule; past-dated drafts go out on the next cron tick.
+	await d1Retry(() =>
+		publish
+			.prepare(
+				`UPDATE content_queue
+         SET status = 'queued',
+             scheduled_for = CASE WHEN scheduled_for > ? THEN scheduled_for ELSE ? END,
+             updated_at = ?
+         WHERE id = ? AND status = 'draft'`,
+			)
+			.bind(now, now + 60_000, now, id)
+			.run(),
+	);
+	return Response.json({ ok: true });
 }

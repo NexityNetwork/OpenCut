@@ -74,6 +74,9 @@ import {
 	Frame,
 	FileText,
 	Linkedin,
+	Home as HomeIcon,
+	BarChart3,
+	ScrollText,
 } from "lucide-react";
 import { useTheme } from "next-themes";
 import {
@@ -270,7 +273,9 @@ export function VaultSection() {
 	const listView = isHydrated && viewMode === "list";
 	const [collapsed, setCollapsed] = useState(false);
 	const [searchOpen, setSearchOpen] = useState(false);
-	const [appView, setAppView] = useState<"library" | "publish">("library");
+	const [appView, setAppView] = useState<"home" | "library" | "publish">(
+		"home",
+	);
 	// "Export & publish" hand-off from the editors: /projects?compose=<itemId>
 	const [composePrefill, setComposePrefill] = useState<string | null>(null);
 	useEffect(() => {
@@ -398,6 +403,7 @@ export function VaultSection() {
 	const onChange = (v: string) => {
 		setText(v);
 		setSearchQuery({ query: isUrl(v) ? "" : v });
+		if (appView === "home" && v.trim() && !isUrl(v)) setAppView("library");
 	};
 
 	const submit = async () => {
@@ -411,6 +417,7 @@ export function VaultSection() {
 			toast.success(`Added "${item.name}" to your vault`, { id: tid });
 			setText("");
 			setSearchQuery({ query: "" });
+			setAppView("library");
 		} catch (e) {
 			toast.error(e instanceof Error ? e.message : "Import failed", { id: tid });
 		} finally {
@@ -431,6 +438,7 @@ export function VaultSection() {
 			const added = await uploadFilesToVault(owner, files);
 			setItems((prev) => [...added, ...prev]);
 			toast.success(`Added ${added.length} to your vault`, { id: tid });
+			setAppView("library");
 		} catch (e) {
 			toast.error(e instanceof Error ? e.message : "Upload failed", { id: tid });
 		} finally {
@@ -467,9 +475,20 @@ export function VaultSection() {
 		}
 	};
 
-	const deleteProject = async (p: TProjectMetadata) => {
-		if (!window.confirm(`Delete "${p.name}"? This can't be undone.`)) return;
-		await editor.project.deleteProjects({ ids: [p.id] });
+	const [confirmAsk, setConfirmAsk] = useState<{
+		title: string;
+		body: string;
+		confirmLabel: string;
+		onConfirm: () => void;
+	} | null>(null);
+
+	const deleteProject = (p: TProjectMetadata) => {
+		setConfirmAsk({
+			title: `Delete "${p.name}"?`,
+			body: "The project and its media are removed permanently. This can't be undone.",
+			confirmLabel: "Delete project",
+			onConfirm: () => void editor.project.deleteProjects({ ids: [p.id] }),
+		});
 	};
 
 	// Custom categories live as durable tags on each vault item (stored in D1).
@@ -518,21 +537,22 @@ export function VaultSection() {
 	// Remove a category from every item (items are kept; only the tag is dropped).
 	const deleteCategory = (name: string) => {
 		const n = catCounts[name] || 0;
-		if (
-			!window.confirm(
-				`Remove the "${name}" category from ${n} item${n === 1 ? "" : "s"}? The ${n === 1 ? "item stays" : "items stay"} — only the category label is removed.`,
-			)
-		)
-			return;
-		for (const i of items) {
-			if (!(i.tags ?? []).includes(name)) continue;
-			void setItemTags(
-				i.id,
-				(i.tags ?? []).filter((t) => t !== name),
-			);
-		}
-		setCustomSections((prev) => prev.filter((s) => s.name !== name));
-		if (activeTab === `cat:${name}`) setActiveTab("all");
+		setConfirmAsk({
+			title: `Remove the "${name}" category?`,
+			body: `${n} item${n === 1 ? "" : "s"} keep${n === 1 ? "s" : ""} their files — only the category label is removed.`,
+			confirmLabel: "Remove category",
+			onConfirm: () => {
+				for (const i of items) {
+					if (!(i.tags ?? []).includes(name)) continue;
+					void setItemTags(
+						i.id,
+						(i.tags ?? []).filter((t) => t !== name),
+					);
+				}
+				setCustomSections((prev) => prev.filter((sec) => sec.name !== name));
+				if (activeTab === `cat:${name}`) setActiveTab("all");
+			},
+		});
 	};
 
 	const copyCaption = async (item: VaultItem) => {
@@ -770,6 +790,7 @@ export function VaultSection() {
 				onToggleCollapse={() => setCollapsed((c) => !c)}
 				onOpenSearch={() => setSearchOpen(true)}
 				appView={appView}
+				onSelectHome={() => setAppView("home")}
 				onSelectLibrary={() => setAppView("library")}
 				onSelectPublish={() => setAppView("publish")}
 				navTabs={navTabs}
@@ -813,13 +834,16 @@ export function VaultSection() {
 					/>
 				) : (
 					<div className="px-8 pb-12">
-						<div className="flex justify-end pt-4">
-							<ViewToggle
-								viewMode={viewMode}
-								setViewMode={setViewMode}
-								isHydrated={isHydrated}
-							/>
-						</div>
+						{appView === "library" && (
+							<div className="flex justify-end pt-4">
+								<ViewToggle
+									viewMode={viewMode}
+									setViewMode={setViewMode}
+									isHydrated={isHydrated}
+								/>
+							</div>
+						)}
+						{appView === "home" && (<>
 						{/* Hero */}
 			<div className="flex flex-col items-center pt-16 pb-2 sm:pt-24">
 				<h1 className="text-foreground mb-6 text-center text-3xl font-semibold tracking-tight sm:text-4xl">
@@ -907,7 +931,19 @@ export function VaultSection() {
 				</div>
 			</div>
 
+			<HomeDashboard
+				assetCount={counts.all || 0}
+				projectCount={counts.projects || 0}
+				onNewProject={createBlankProject}
+				onNewCanvas={() => setNewCanvasOpen(true)}
+				onImport={() => fileInputRef.current?.click()}
+				onPublish={() => setAppView("publish")}
+				isOwner={isOwner}
+			/>
+			</>)}
+
 			{/* Library grid (navigation lives in the sidebar now) */}
+			{appView === "library" && (
 			<div className="mt-6">
 				<div className="hidden">
 					{navTabs.map((t) => {
@@ -1052,6 +1088,7 @@ export function VaultSection() {
 					</div>
 				)}
 			</div>
+			)}
 					</div>
 				)}
 
@@ -1085,6 +1122,7 @@ export function VaultSection() {
 				onOpenChange={setNewCanvasOpen}
 				onCreate={createCanvas}
 			/>
+			<ConfirmDialog ask={confirmAsk} onClose={() => setConfirmAsk(null)} />
 			</main>
 			{searchOpen && (
 				<SearchModal
@@ -1103,6 +1141,183 @@ export function VaultSection() {
 					}}
 				/>
 			)}
+		</div>
+	);
+}
+
+function ConfirmDialog({
+	ask,
+	onClose,
+}: {
+	ask: {
+		title: string;
+		body: string;
+		confirmLabel: string;
+		onConfirm: () => void;
+	} | null;
+	onClose: () => void;
+}) {
+	return (
+		<Dialog open={!!ask} onOpenChange={(o) => !o && onClose()}>
+			<DialogContent className="max-w-sm gap-0 rounded-2xl border-[var(--mono-line)] bg-[var(--mono-panel)] p-0 text-[var(--mono-ink)]">
+				<div className="p-6">
+					<DialogTitle className="text-[15px] font-semibold text-[var(--mono-ink)]">
+						{ask?.title}
+					</DialogTitle>
+					<p className="mt-2 text-sm leading-relaxed text-[var(--mono-ink-2)]">
+						{ask?.body}
+					</p>
+				</div>
+				<div className="flex items-center justify-end gap-3 border-t border-[var(--mono-line)] px-6 py-4">
+					<Button variant="ghost" onClick={onClose}>
+						Cancel
+					</Button>
+					<Button
+						variant="destructive"
+						onClick={() => {
+							ask?.onConfirm();
+							onClose();
+						}}
+					>
+						{ask?.confirmLabel}
+					</Button>
+				</div>
+			</DialogContent>
+		</Dialog>
+	);
+}
+
+// Cloudflare-style overview under the hero — quick actions now, the rest
+// wired up later (dummy data for layout).
+function HomeDashboard({
+	assetCount,
+	projectCount,
+	onNewProject,
+	onNewCanvas,
+	onImport,
+	onPublish,
+	isOwner,
+}: {
+	assetCount: number;
+	projectCount: number;
+	onNewProject: () => void;
+	onNewCanvas: () => void;
+	onImport: () => void;
+	onPublish: () => void;
+	isOwner: boolean;
+}) {
+	const [pub, setPub] = useState<{ published?: number; queued?: number }>({});
+	useEffect(() => {
+		if (!isOwner) return;
+		fetch("/api/publish/status")
+			.then((r) => (r.ok ? r.json() : null))
+			.then((d) => setPub(d?.counts ?? {}))
+			.catch(() => {});
+	}, [isOwner]);
+
+	const card =
+		"rounded-xl border border-[var(--mono-line)] bg-[var(--mono-hover)] p-4";
+	const stats = [
+		{ label: "Library assets", value: assetCount },
+		{ label: "Projects", value: projectCount },
+		{ label: "Published", value: pub.published ?? "—" },
+		{ label: "Queued", value: pub.queued ?? "—" },
+	];
+	const actions = [
+		{ label: "New project", Icon: Plus, run: onNewProject },
+		{ label: "Create post", Icon: Frame, run: onNewCanvas },
+		{ label: "Import media", Icon: Paperclip, run: onImport },
+		{ label: "Open Publish", Icon: Rocket, run: onPublish },
+	];
+	const bars = [34, 58, 41, 72, 66, 88, 53, 79, 61, 92, 70, 84];
+	const audit = [
+		{ what: "Scheduled 3 posts", who: "publish", when: "2h ago" },
+		{ what: "Exported Test.pdf", who: "canvas", when: "5h ago" },
+		{ what: "Imported 4 clips", who: "library", when: "1d ago" },
+	];
+
+	return (
+		<div className="mx-auto mt-10 w-full max-w-4xl">
+			<div className="grid grid-cols-2 gap-3 lg:grid-cols-4">
+				{stats.map((st) => (
+					<div key={st.label} className={card}>
+						<div className="text-xs text-[var(--mono-ink-3)]">{st.label}</div>
+						<div className="mt-1.5 text-2xl font-semibold text-[var(--mono-ink)] tabular-nums">
+							{st.value}
+						</div>
+					</div>
+				))}
+			</div>
+
+			<div className="mt-3 grid gap-3 lg:grid-cols-3">
+				<div className={card}>
+					<div className="mb-3 text-sm font-semibold text-[var(--mono-ink)]">
+						Quick actions
+					</div>
+					<div className="grid grid-cols-2 gap-2">
+						{actions.map((a) => (
+							<button
+								key={a.label}
+								type="button"
+								onClick={a.run}
+								className="flex items-center gap-2 rounded-lg border border-[var(--mono-line)] px-3 py-2.5 text-left text-[13px] text-[var(--mono-ink-2)] transition-colors hover:bg-[var(--mono-active)] hover:text-[var(--mono-ink)]"
+							>
+								<a.Icon className="size-4 shrink-0" />
+								{a.label}
+							</button>
+						))}
+					</div>
+				</div>
+
+				<div className={card}>
+					<div className="mb-1 flex items-center justify-between">
+						<span className="text-sm font-semibold text-[var(--mono-ink)]">
+							<BarChart3 className="mr-1.5 inline size-4" />
+							Analytics
+						</span>
+						<span className="rounded-full border border-[var(--mono-line)] px-2 py-0.5 text-[10px] uppercase tracking-wide text-[var(--mono-ink-3)]">
+							Soon
+						</span>
+					</div>
+					<div className="mt-4 flex h-24 items-end gap-1.5 opacity-50">
+						{bars.map((h, i) => (
+							<div
+								key={`${i}-${h}`}
+								style={{ height: `${h}%` }}
+								className="flex-1 rounded-sm bg-[var(--mono-strong)]"
+							/>
+						))}
+					</div>
+					<div className="mt-2 text-[11px] text-[var(--mono-ink-3)]">
+						Views · last 12 days (sample)
+					</div>
+				</div>
+
+				<div className={card}>
+					<div className="mb-1 flex items-center justify-between">
+						<span className="text-sm font-semibold text-[var(--mono-ink)]">
+							<ScrollText className="mr-1.5 inline size-4" />
+							Audit log
+						</span>
+						<span className="rounded-full border border-[var(--mono-line)] px-2 py-0.5 text-[10px] uppercase tracking-wide text-[var(--mono-ink-3)]">
+							Soon
+						</span>
+					</div>
+					<div className="mt-3 space-y-2 opacity-60">
+						{audit.map((a) => (
+							<div
+								key={a.what}
+								className="flex items-center gap-2 text-[13px] text-[var(--mono-ink-2)]"
+							>
+								<span className="flex-1 truncate">{a.what}</span>
+								<span className="text-[11px] text-[var(--mono-ink-3)]">
+									{a.who} · {a.when}
+								</span>
+							</div>
+						))}
+					</div>
+				</div>
+			</div>
 		</div>
 	);
 }
@@ -1403,6 +1618,7 @@ function LibrarySidebar({
 	onToggleCollapse,
 	onOpenSearch,
 	appView,
+	onSelectHome,
 	onSelectLibrary,
 	onSelectPublish,
 	navTabs,
@@ -1419,7 +1635,8 @@ function LibrarySidebar({
 	collapsed: boolean;
 	onToggleCollapse: () => void;
 	onOpenSearch: () => void;
-	appView: "library" | "publish";
+	appView: "home" | "library" | "publish";
+	onSelectHome: () => void;
 	onSelectLibrary: () => void;
 	onSelectPublish: () => void;
 	navTabs: NavTab[];
@@ -1448,6 +1665,19 @@ function LibrarySidebar({
 					className="text-muted-foreground hover:text-foreground hover:bg-muted flex size-9 items-center justify-center rounded-md"
 				>
 					<PanelLeft className="size-5" />
+				</button>
+				<button
+					type="button"
+					onClick={onSelectHome}
+					aria-label="Home"
+					className={cn(
+						"flex size-9 items-center justify-center rounded-md",
+						appView === "home"
+							? "bg-muted text-foreground"
+							: "text-muted-foreground hover:text-foreground hover:bg-muted",
+					)}
+				>
+					<HomeIcon className="size-5" />
 				</button>
 				<button
 					type="button"
@@ -1509,9 +1739,13 @@ function LibrarySidebar({
 	return (
 		<aside className="m-2 flex w-72 shrink-0 flex-col rounded-2xl border border-[var(--mono-line)] bg-[var(--mono-panel)] shadow-sm">
 			<div className="flex items-center justify-between px-4 py-4">
-				<span className="text-foreground text-xl font-semibold tracking-tight">
+				<button
+					type="button"
+					onClick={onSelectHome}
+					className="text-foreground text-xl font-semibold tracking-tight"
+				>
 					Ultron<span className="ml-1.5 font-normal">Monolith</span>
-				</span>
+				</button>
 				<div className="flex items-center gap-0.5">
 					<button
 						type="button"
@@ -1533,6 +1767,12 @@ function LibrarySidebar({
 			</div>
 
 			<nav className="space-y-0.5 px-2">
+				<SidebarItem
+					icon={HomeIcon}
+					label="Home"
+					active={appView === "home"}
+					onClick={onSelectHome}
+				/>
 				<SidebarItem icon={Plus} label="New project" onClick={onNewProject} />
 				<SidebarItem icon={Frame} label="Create post" onClick={onNewCanvas} />
 				<SidebarItem
@@ -2531,7 +2771,7 @@ function ComposePostModal({
 	// Carousels and PDF documents are LinkedIn formats — not connected yet.
 	const linkedinOnly = isCarousel || isPdf;
 
-	const submit = async () => {
+	const submit = async (asDraft = false) => {
 		if (!picked || busy) return;
 		const platforms = [...sel];
 		if (platforms.length === 0) {
@@ -2544,7 +2784,7 @@ function ComposePostModal({
 			return;
 		}
 		setBusy(true);
-		const tid = toast.loading("Scheduling…");
+		const tid = toast.loading(asDraft ? "Saving draft…" : "Scheduling…");
 		try {
 			const r = await fetch("/api/publish-post", {
 				method: "POST",
@@ -2558,6 +2798,7 @@ function ComposePostModal({
 					description: caption,
 					privacy: "public",
 					scheduledFor: ms,
+					draft: asDraft,
 				}),
 			});
 			const d = (await r.json().catch(() => ({}))) as {
@@ -2567,10 +2808,12 @@ function ComposePostModal({
 			};
 			if (!r.ok || !d.ok) throw new Error(d.error || "Couldn't schedule");
 			const n = d.created?.length ?? 0;
-			toast.success(`Scheduled to ${n} channel${n === 1 ? "" : "s"}`, {
-				id: tid,
-				description: pubWhen(ms),
-			});
+			toast.success(
+				asDraft
+					? `Draft saved for ${n} channel${n === 1 ? "" : "s"}`
+					: `Scheduled to ${n} channel${n === 1 ? "" : "s"}`,
+				{ id: tid, description: asDraft ? undefined : pubWhen(ms) },
+			);
 			onPosted();
 			onClose();
 		} catch (e) {
@@ -2821,8 +3064,15 @@ function ComposePostModal({
 						<Button variant="ghost" onClick={onClose} disabled={busy}>
 							Cancel
 						</Button>
-						<Button onClick={submit} disabled={busy || sel.size === 0}>
-							{busy ? "Scheduling…" : "Schedule post"}
+						<Button
+							variant="outline"
+							onClick={() => submit(true)}
+							disabled={busy || sel.size === 0}
+						>
+							Save draft
+						</Button>
+						<Button onClick={() => submit(false)} disabled={busy || sel.size === 0}>
+							{busy ? "Working…" : "Schedule post"}
 						</Button>
 					</div>
 				)}
@@ -3069,10 +3319,34 @@ function PublishPane({
 				.sort((a, b) => (a.scheduled_for || 0) - (b.scheduled_for || 0)),
 		[queue, pfilter],
 	);
+	const drafts = useMemo(
+		() =>
+			rows
+				.filter((r) => r.status === "draft" && matchP(r.platform))
+				.sort((a, b) => (b.scheduled_for || 0) - (a.scheduled_for || 0)),
+		[queue, pfilter],
+	);
+	const draftAction = async (id: string, action: "schedule" | "delete") => {
+		try {
+			const r = await fetch("/api/publish-post", {
+				method: "PATCH",
+				headers: { "content-type": "application/json" },
+				body: JSON.stringify({ id, action }),
+			});
+			if (!r.ok) throw new Error("Failed");
+			toast.success(action === "schedule" ? "Draft scheduled" : "Draft deleted");
+			reload();
+		} catch {
+			toast.error("Couldn't update draft");
+		}
+	};
 	const recent = useMemo(
 		() =>
 			rows
-				.filter((r) => r.status !== "queued" && matchP(r.platform))
+				.filter(
+					(r) =>
+						r.status !== "queued" && r.status !== "draft" && matchP(r.platform),
+				)
 				.sort(
 					(a, b) =>
 						(b.published_at || b.scheduled_for || 0) -
@@ -3144,6 +3418,44 @@ function PublishPane({
 					);
 				})}
 			</div>
+
+			{/* Drafts */}
+			{drafts.length > 0 && (
+				<div className="mt-5">
+					<h2 className="mb-2 text-sm font-semibold">Drafts</h2>
+					<div className="divide-y divide-[var(--mono-line)] overflow-hidden rounded-xl border border-[var(--mono-line)]">
+						{drafts.map((d) => (
+							<div
+								key={d.id}
+								className="flex w-full items-center gap-3 px-4 py-2.5"
+							>
+								{pubPlatformIcon(d.platform)}
+								<span className="flex-1 truncate text-[13px] text-[var(--mono-ink-2)]">
+									{d.slug}
+								</span>
+								<span className="text-xs capitalize text-[var(--mono-ink-3)]">
+									{d.platform}
+								</span>
+								<button
+									type="button"
+									onClick={() => draftAction(d.id, "schedule")}
+									className="rounded-full border border-[var(--mono-line)] px-2.5 py-1 text-xs text-[var(--mono-ink-2)] transition-colors hover:bg-[var(--mono-active)] hover:text-[var(--mono-ink)]"
+								>
+									Schedule
+								</button>
+								<button
+									type="button"
+									onClick={() => draftAction(d.id, "delete")}
+									aria-label="Delete draft"
+									className="text-[var(--mono-ink-3)] transition-colors hover:text-red-400"
+								>
+									<Trash2 className="size-3.5" />
+								</button>
+							</div>
+						))}
+					</div>
+				</div>
+			)}
 
 			{/* Upcoming */}
 			<div className="mt-5">
