@@ -448,31 +448,29 @@ export function VaultSection() {
 	// sessionStorage is the fallback when the URL has no tab.
 	const [activeTab, setActiveTab] = useState<string>(() => {
 		if (typeof window === "undefined") return "all";
-		const fromUrl = new URLSearchParams(window.location.search).get("tab");
-		return fromUrl || sessionStorage.getItem("vault-active-tab") || "all";
+		const p = new URLSearchParams(window.location.search);
+		const cat = p.get("cat");
+		if (cat) return `cat:${cat}`;
+		return p.get("tab") || sessionStorage.getItem("vault-active-tab") || "all";
 	});
 	// Mirror the current view + tab into the URL (and sessionStorage) so a
-	// refresh or a back-from-editor restores both.
+	// refresh or a back-from-editor restores both — building the query from
+	// scratch so we never leave a stale/contradictory param (e.g. a tab on the
+	// Home view). Home is the clean default "/projects".
 	useEffect(() => {
 		if (typeof window === "undefined") return;
 		sessionStorage.setItem("vault-active-tab", activeTab);
 		sessionStorage.setItem("vault-app-view", appView);
-		const params = new URLSearchParams(window.location.search);
-		let changed = false;
-		if ((params.get("view") || "") !== appView) {
-			params.set("view", appView);
-			changed = true;
+		const params = new URLSearchParams();
+		if (appView !== "home") params.set("view", appView);
+		if (appView === "library") {
+			if (activeTab.startsWith("cat:")) params.set("cat", activeTab.slice(4));
+			else if (activeTab !== "all") params.set("tab", activeTab);
 		}
-		if ((params.get("tab") || "") !== activeTab) {
-			params.set("tab", activeTab);
-			changed = true;
-		}
-		if (changed) {
-			window.history.replaceState(
-				null,
-				"",
-				`${window.location.pathname}?${params.toString()}`,
-			);
+		const qs = params.toString();
+		const next = qs ? `/projects?${qs}` : "/projects";
+		if (`${window.location.pathname}${window.location.search}` !== next) {
+			window.history.replaceState(null, "", next);
 		}
 	}, [activeTab, appView]);
 	// Asset detail opens inline (sidebar stays); cleared whenever you navigate.

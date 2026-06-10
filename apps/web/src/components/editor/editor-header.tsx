@@ -46,15 +46,17 @@ export function EditorHeader() {
 // both in sessionStorage), so back doesn't dump them on the Home dashboard or
 // the default "All" view.
 function libraryHref(): string {
-	if (typeof window === "undefined") return "/projects?view=library";
+	const base = "/projects?view=library";
+	if (typeof window === "undefined") return base;
 	try {
-		const view = sessionStorage.getItem("vault-app-view") || "library";
 		const tab = sessionStorage.getItem("vault-active-tab") || "";
-		const params = new URLSearchParams({ view });
-		if (tab) params.set("tab", tab);
-		return `/projects?${params.toString()}`;
+		if (tab.startsWith("cat:")) {
+			return `${base}&cat=${encodeURIComponent(tab.slice(4))}`;
+		}
+		if (tab && tab !== "all") return `${base}&tab=${encodeURIComponent(tab)}`;
+		return base;
 	} catch {
-		return "/projects?view=library";
+		return base;
 	}
 }
 
