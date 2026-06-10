@@ -385,9 +385,12 @@ export function VaultSection() {
 		[allTemplates, archived],
 	);
 	const isInitialized = useEditor((e) => e.project.getIsInitialized());
+	const { data: session } = useSession();
+	const userId = session?.user?.id;
 
-	// Brain: reconcile local project documents with the server mirror once the
-	// store is loaded (new/changed projects get pushed; everything else skips).
+	// Brain: reconcile local project documents with the server mirror, and
+	// materialize any AI-authored edit recipes into real projects, once the
+	// store is loaded.
 	const brainSyncedRef = useRef(false);
 	useEffect(() => {
 		if (!isInitialized || brainSyncedRef.current) return;
@@ -395,14 +398,23 @@ export function VaultSection() {
 			id: p.id,
 			updatedAt: p.updatedAt,
 		}));
-		if (metas.length === 0) return;
+		if (metas.length === 0 && !userId) return;
 		brainSyncedRef.current = true;
 		void import("@/brain/project-sync")
 			.then((m) => m.bulkSyncProjects(metas))
 			.catch(() => {});
-	}, [isInitialized, allProjects, allTemplates]);
-	const { data: session } = useSession();
-	const userId = session?.user?.id;
+		void import("@/brain/edit-materializer")
+			.then((m) => m.materializePendingEdits(editor, userId ?? ""))
+			.then((built) => {
+				if (built > 0) {
+					toast.success(
+						`Built ${built} AI edit${built === 1 ? "" : "s"} — check your projects`,
+					);
+					void editor.project.loadAllProjects();
+				}
+			})
+			.catch(() => {});
+	}, [isInitialized, allProjects, allTemplates, editor, userId]);
 	// Multi-tenant: every signed-in user gets their own Publish + inbox (each
 	// scoped to their own connected channels). Signed-out visitors see a preview.
 	const isOwner = !!session?.user?.id;
