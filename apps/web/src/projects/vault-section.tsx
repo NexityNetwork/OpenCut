@@ -87,6 +87,7 @@ import {
 	SiTiktok,
 	SiVimeo,
 	SiX,
+	SiReddit,
 } from "react-icons/si";
 import { Spinner } from "@/components/ui/spinner";
 import {
@@ -2253,6 +2254,8 @@ function pubPlatformIcon(p: string) {
 	if (k.includes("you")) return <SiYoutube style={{ color: "#FF0000" }} className="size-3.5" />;
 	if (k.includes("insta")) return <SiInstagram style={{ color: "#E4405F" }} className="size-3.5" />;
 	if (k.includes("tik")) return <SiTiktok className="size-3.5" />;
+	if (k.includes("linked")) return <Linkedin style={{ color: "#0A66C2" }} className="size-3.5" />;
+	if (k.includes("reddit")) return <SiReddit style={{ color: "#FF4500" }} className="size-3.5" />;
 	return <Send className="size-3.5" />;
 }
 function pubPlatformIconLg(p: string) {
@@ -2260,6 +2263,8 @@ function pubPlatformIconLg(p: string) {
 	if (k.includes("you")) return <SiYoutube style={{ color: "#FF0000" }} className="size-[18px]" />;
 	if (k.includes("insta")) return <SiInstagram style={{ color: "#E4405F" }} className="size-[18px]" />;
 	if (k.includes("tik")) return <SiTiktok className="size-[18px]" />;
+	if (k.includes("linked")) return <Linkedin style={{ color: "#0A66C2" }} className="size-[18px]" />;
+	if (k.includes("reddit")) return <SiReddit style={{ color: "#FF4500" }} className="size-[18px]" />;
 	return <Send className="size-[18px]" />;
 }
 const PLATFORM_FILTERS = [
@@ -2267,6 +2272,8 @@ const PLATFORM_FILTERS = [
 	{ k: "youtube", label: "YouTube" },
 	{ k: "instagram", label: "Instagram" },
 	{ k: "tiktok", label: "TikTok" },
+	{ k: "linkedin", label: "LinkedIn" },
+	{ k: "reddit", label: "Reddit" },
 ];
 function pubWhen(ts?: number) {
 	if (!ts) return "";
@@ -2477,6 +2484,12 @@ function ChannelsSection({ preview = false }: { preview?: boolean }) {
 								</DropdownMenuItem>
 								<DropdownMenuItem onClick={() => initiate("tiktok")}>
 									<SiTiktok /> TikTok
+								</DropdownMenuItem>
+								<DropdownMenuItem onClick={() => initiate("linkedin")}>
+									<Linkedin style={{ color: "#0A66C2" }} /> LinkedIn
+								</DropdownMenuItem>
+								<DropdownMenuItem onClick={() => initiate("reddit")}>
+									<SiReddit style={{ color: "#FF4500" }} /> Reddit
 								</DropdownMenuItem>
 							</DropdownMenuContent>
 						</DropdownMenu>
@@ -2740,7 +2753,9 @@ function ComposePostModal({
 				.filter((c) => c.status === "active")
 				.map((c) => c.platform.toLowerCase()),
 		);
-		return ["youtube", "instagram", "tiktok"].filter((p) => set.has(p));
+		return ["youtube", "instagram", "tiktok", "linkedin", "reddit"].filter(
+			(p) => set.has(p),
+		);
 	}, [channels]);
 
 	const [picked, setPicked] = useState<VaultItem | null>(null);
@@ -2748,6 +2763,7 @@ function ComposePostModal({
 	const [title, setTitle] = useState("");
 	const [caption, setCaption] = useState("");
 	const [sel, setSel] = useState<Set<string>>(new Set());
+	const [subreddit, setSubreddit] = useState("");
 	const [ratio, setRatio] = useState("9:16");
 	const init = useMemo(() => new Date(Date.now() + 60 * 60 * 1000), []);
 	const [date, setDate] = useState(
@@ -2803,8 +2819,14 @@ function ComposePostModal({
 			// LinkedIn formats — nothing postable until LinkedIn is connected.
 			setSel(new Set());
 		} else if (!it.media?.some((m) => m.type === "video")) {
-			// Photos can only go to Instagram.
-			setSel(new Set(available.filter((p) => p === "instagram")));
+			// Photos: IG natively; LinkedIn/Reddit as link posts.
+			setSel(
+				new Set(
+					available.filter((p) =>
+						["instagram", "linkedin", "reddit"].includes(p),
+					),
+				),
+			);
 		}
 	};
 
@@ -2841,6 +2863,10 @@ function ComposePostModal({
 			toast.error("Pick a valid date and time");
 			return;
 		}
+		if (sel.has("reddit") && !subreddit.trim()) {
+			toast.error("Pick a subreddit for the Reddit post");
+			return;
+		}
 		setBusy(true);
 		const tid = toast.loading(asDraft ? "Saving draft…" : "Scheduling…");
 		try {
@@ -2855,6 +2881,7 @@ function ComposePostModal({
 					caption,
 					description: caption,
 					privacy: "public",
+					subreddit: subreddit.trim(),
 					scheduledFor: ms,
 					draft: asDraft,
 				}),
@@ -3030,7 +3057,7 @@ function ComposePostModal({
 
 						{/* Fields */}
 						<div className="flex w-[26rem] shrink-0 flex-col gap-5 border-l border-[var(--mono-line)] p-6">
-							{!!videoKey && (
+							{(!!videoKey || sel.has("reddit")) && (
 								<div>
 									<label className={LABEL_CLS}>Title</label>
 									<input
@@ -3069,7 +3096,9 @@ function ComposePostModal({
 										{available.map((p) => {
 											const on = sel.has(p);
 											const blocked =
-												linkedinOnly || (isImage && p !== "instagram");
+												linkedinOnly ||
+												(isImage &&
+													!["instagram", "linkedin", "reddit"].includes(p));
 											return (
 												<button
 													key={p}
@@ -3097,12 +3126,24 @@ function ComposePostModal({
 										})}
 										{linkedinOnly && (
 											<span className="flex items-center gap-1.5 rounded-full border border-dashed border-[var(--mono-line)] px-3 py-1.5 text-[13px] text-[var(--mono-ink-3)]">
-												<Linkedin className="size-3.5" /> LinkedIn · soon
+												<Linkedin className="size-3.5" /> LinkedIn docs · soon
 											</span>
 										)}
 									</div>
 								)}
 							</div>
+
+							{sel.has("reddit") && (
+								<div>
+									<label className={LABEL_CLS}>Subreddit</label>
+									<input
+										value={subreddit}
+										onChange={(e) => setSubreddit(e.target.value)}
+										placeholder="e.g. SideProject (without r/)"
+										className={cn(FIELD_CLS, "text-sm")}
+									/>
+								</div>
+							)}
 
 							<div>
 								<label className={LABEL_CLS}>Publish at</label>

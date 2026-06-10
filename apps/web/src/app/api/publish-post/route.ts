@@ -58,8 +58,14 @@ function slugify(s: string): string {
 	);
 }
 
-type PlatformName = "youtube" | "instagram" | "tiktok";
-const PLATFORMS: PlatformName[] = ["youtube", "instagram", "tiktok"];
+type PlatformName = "youtube" | "instagram" | "tiktok" | "linkedin" | "reddit";
+const PLATFORMS: PlatformName[] = [
+	"youtube",
+	"instagram",
+	"tiktok",
+	"linkedin",
+	"reddit",
+];
 
 export async function POST(request: Request) {
 	const b = (await request.json().catch(() => ({}))) as Record<string, unknown>;
@@ -131,6 +137,9 @@ export async function POST(request: Request) {
 	const description = String(b.description ?? b.caption ?? item.caption ?? "");
 	const caption = String(b.caption ?? item.caption ?? "");
 	const tags = Array.isArray(b.tags) ? b.tags.map(String).slice(0, 15) : [];
+	const subreddit = String(b.subreddit || "")
+		.replace(/^\/?r\//i, "")
+		.trim();
 	const privacyRaw = String(b.privacy || "public");
 	const privacy = ["public", "unlisted", "private"].includes(privacyRaw)
 		? privacyRaw
@@ -142,9 +151,16 @@ export async function POST(request: Request) {
 	const skipped: { platform: string; reason: string }[] = [];
 
 	for (const platform of platforms) {
-		// Still images can only go out as Instagram photos.
-		if (imageKey && platform !== "instagram") {
-			skipped.push({ platform, reason: "photos can only go to Instagram" });
+		// Still images: IG natively; LinkedIn/Reddit carry them as link posts.
+		if (
+			imageKey &&
+			!["instagram", "linkedin", "reddit"].includes(platform)
+		) {
+			skipped.push({ platform, reason: "photos can't go to this platform" });
+			continue;
+		}
+		if (platform === "reddit" && !subreddit) {
+			skipped.push({ platform, reason: "subreddit required" });
 			continue;
 		}
 		const channel = await d1Retry(() =>
@@ -161,7 +177,23 @@ export async function POST(request: Request) {
 		}
 
 		let metadata: Record<string, unknown>;
-		if (imageKey) {
+		if (platform === "linkedin") {
+			// Composio's LinkedIn toolkit is text-only: caption + link preview.
+			metadata = {
+				channel: channel.label,
+				caption,
+				link_url: videoUrl,
+				visibility: "PUBLIC",
+			};
+		} else if (platform === "reddit") {
+			metadata = {
+				channel: channel.label,
+				title,
+				subreddit,
+				caption,
+				link_url: videoUrl,
+			};
+		} else if (imageKey) {
 			metadata = {
 				channel: channel.label,
 				media_type: "photo",
