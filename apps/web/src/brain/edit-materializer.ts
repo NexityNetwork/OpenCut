@@ -2,13 +2,18 @@
 // browser, using the exact builders the editor uses — so media binds (pulled
 // from R2, the durable source) and every produced document is valid.
 //
-// Headless side (the AI) decides the edit and enqueues a recipe via
-// /api/brain/edits. This runs when the library loads, turns each pending
-// recipe into a real project, and marks it done. The new project appears in
-// the library, openable, with the source video pulled from R2.
+// Two recipe shapes:
+//  - single edit: trim one source video + add branded text overlays.
+//  - carousel assembly: keep a template's intro video, then lay every slide of
+//    a carousel after it, each for a fixed duration (the "CTW Final" batch).
+//
+// The headless side decides the recipe and enqueues it via /api/brain/edits.
+// This runs when the library loads, turns each pending recipe into a real
+// project, and marks it done.
 
 import type { EditorCore } from "@/core";
 import { processMediaAssets } from "@/media/processing";
+import type { ProcessedMediaAsset } from "@/media/processing";
 import { buildElementFromMedia, buildTextElement } from "@/timeline/element-utils";
 import { mediaTimeFromSeconds } from "@/wasm";
 import { fetchVaultItem, fileUrl } from "@/projects/vault-client";
@@ -20,10 +25,19 @@ type Overlay = {
 	atSeconds?: number;
 	durationSeconds?: number;
 };
+type IntroSpec = {
+	vaultId: string;
+	visibleSec?: number;
+	trimStartSec?: number;
+};
 type EditSpec = {
 	trim?: { start?: number; end?: number };
 	overlays?: Overlay[];
 	canvasSize?: { width: number; height: number };
+	category?: string;
+	// Carousel assembly:
+	intro?: IntroSpec;
+	perSlideSec?: number;
 };
 type EditJob = {
 	id: string;
@@ -32,7 +46,144 @@ type EditJob = {
 	spec: EditSpec;
 };
 
-async function buildOne(editor: EditorCore, job: EditJob): Promise<string> {
+// Processed source media keyed by R2 key. The template intro is the same asset
+// across the whole batch, so it's downloaded + decoded once and reused.
+type AssetCache = Map<string, ProcessedMediaAsset | null>;
+
+async function processFromKey(
+	cache: AssetCache,
+	key: string,
+	name: string,
+	fallbackType: "video" | "image",
+): Promise<ProcessedMediaAsset | null> {
+	if (cache.has(key)) return cache.get(key) ?? null;
+	let processed: ProcessedMediaAsset | null = null;
+	try {
+		const blob = await (await fetch(fileUrl(key))).blob();
+		const ext = key.split(".").pop() || (fallbackType === "video" ? "mp4" : "png");
+		const file = new File([blob], `${name}.${ext}`, {
+			type:
+				blob.type ||
+				(fallbackType === "video" ? "video/mp4" : `image/${ext}`),
+		});
+		processed = (await processMediaAssets({ files: [file] }))[0] ?? null;
+	} catch {
+		processed = null;
+	}
+	cache.set(key, processed);
+	return processed;
+}
+
+// Assemble: template intro video (kept) + every carousel slide after it, each
+// for `perSlideSec`. Everything lands on the one main track, in sequence, just
+// like the template. Returns the new project id.
+async function buildCarousel(
+	editor: EditorCore,
+	job: EditJob,
+	cache: AssetCache,
+): Promise<string> {
+	const spec = job.spec;
+	const carousel = await fetchVaultItem(job.source_vault_id);
+	if (!carousel) throw new Error("carousel not found");
+	const slides = carousel.media.filter((m) => m.type === "image");
+	if (slides.length === 0) throw new Error("carousel has no slides");
+
+	const projectId = await editor.project.createNewProject({
+		name: job.name || carousel.name || "CTW Final",
+		canvasSize: spec.canvasSize ?? { width: 720, height: 1280 },
+		...(spec.category ? { category: spec.category } : {}),
+	});
+
+	// Place every clip on the project's single main video track, in order.
+	const mainTrackId = editor.scenes.getActiveSceneOrNull()?.tracks.main.id;
+	const place = (element: ReturnType<typeof buildElementFromMedia>) =>
+		editor.timeline.insertElement({
+			element,
+			placement: mainTrackId
+				? { mode: "explicit", trackId: mainTrackId }
+				: { mode: "auto" },
+		});
+
+	let cursorSec = 0;
+
+	// Intro video — the kept first element from the template.
+	if (spec.intro?.vaultId) {
+		const introItem = await fetchVaultItem(spec.intro.vaultId);
+		const vid = introItem?.media.find((m) => m.type === "video");
+		if (introItem && vid) {
+			const processed = await processFromKey(
+				cache,
+				vid.key,
+				introItem.name,
+				"video",
+			);
+			if (processed) {
+				const asset = await editor.media.addMediaAsset({
+					projectId,
+					asset: processed,
+				});
+				const assetId = (asset as { id?: string } | null)?.id ?? "";
+				if (assetId) {
+					const sourceDur = processed.duration ?? 0;
+					const start = Math.max(0, spec.intro.trimStartSec ?? 0);
+					const visible = Math.min(
+						spec.intro.visibleSec ?? sourceDur,
+						Math.max(0.1, sourceDur - start),
+					);
+					const el = buildElementFromMedia({
+						mediaId: assetId,
+						mediaType: "video",
+						name: introItem.name,
+						duration: mediaTimeFromSeconds({ seconds: visible }),
+						startTime: mediaTimeFromSeconds({ seconds: cursorSec }),
+					}) as ReturnType<typeof buildElementFromMedia> & {
+						trimStart?: unknown;
+						trimEnd?: unknown;
+						sourceDuration?: unknown;
+						params?: Record<string, unknown>;
+					};
+					el.trimStart = mediaTimeFromSeconds({ seconds: start });
+					el.trimEnd = mediaTimeFromSeconds({
+						seconds: Math.max(0, sourceDur - start - visible),
+					});
+					el.sourceDuration = mediaTimeFromSeconds({ seconds: sourceDur });
+					// Match the template: the intro hook plays silent.
+					el.params = { ...(el.params ?? {}), volume: 0 };
+					place(el);
+					cursorSec += visible;
+				}
+			}
+		}
+	}
+
+	// Slides — each image for the template's per-slide duration, back to back.
+	const perSlideSec = spec.perSlideSec ?? 0.5;
+	for (const m of slides) {
+		const processed = await processFromKey(cache, m.key, carousel.name, "image");
+		if (!processed) continue;
+		const asset = await editor.media.addMediaAsset({ projectId, asset: processed });
+		const assetId = (asset as { id?: string } | null)?.id ?? "";
+		if (!assetId) continue;
+		const el = buildElementFromMedia({
+			mediaId: assetId,
+			mediaType: "image",
+			name: carousel.name,
+			duration: mediaTimeFromSeconds({ seconds: perSlideSec }),
+			startTime: mediaTimeFromSeconds({ seconds: cursorSec }),
+		});
+		place(el);
+		cursorSec += perSlideSec;
+	}
+
+	await editor.project.saveCurrentProject();
+	return projectId;
+}
+
+// Single-source edit: trim one video + add branded text overlays.
+async function buildSingleEdit(
+	editor: EditorCore,
+	job: EditJob,
+): Promise<string> {
 	const item = await fetchVaultItem(job.source_vault_id);
 	if (!item) throw new Error("source asset not found");
 	const m = item.media.find((x) => x.type === "video") ?? item.media[0];
@@ -41,9 +192,9 @@ async function buildOne(editor: EditorCore, job: EditJob): Promise<string> {
 	const projectId = await editor.project.createNewProject({
 		name: job.name || `Edit of ${item.name}`,
 		...(job.spec.canvasSize ? { canvasSize: job.spec.canvasSize } : {}),
+		...(job.spec.category ? { category: job.spec.category } : {}),
 	});
 
-	// Pull the source bytes from R2 (the durable store) and ingest.
 	const blob = await (await fetch(fileUrl(m.key))).blob();
 	const file = new File([blob], `${item.name}.${m.ext || "mp4"}`, {
 		type: m.contentType || blob.type || "video/mp4",
@@ -77,7 +228,6 @@ async function buildOne(editor: EditorCore, job: EditJob): Promise<string> {
 	el.sourceDuration = mediaTimeFromSeconds({ seconds: sourceDur });
 	editor.timeline.insertElement({ element: el, placement: { mode: "auto" } });
 
-	// Text overlays — real text elements on their own track.
 	for (const ov of job.spec.overlays ?? []) {
 		if (!ov.text?.trim()) continue;
 		const textEl = buildTextElement({
@@ -103,6 +253,16 @@ async function buildOne(editor: EditorCore, job: EditJob): Promise<string> {
 	return projectId;
 }
 
+function buildOne(
+	editor: EditorCore,
+	job: EditJob,
+	cache: AssetCache,
+): Promise<string> {
+	return job.spec.intro || job.spec.perSlideSec
+		? buildCarousel(editor, job, cache)
+		: buildSingleEdit(editor, job);
+}
+
 /** Run any pending edit recipes for this owner. Returns how many were built. */
 export async function materializePendingEdits(
 	editor: EditorCore,
@@ -119,12 +279,13 @@ export async function materializePendingEdits(
 	}
 	if (jobs.length === 0) return 0;
 
+	const cache: AssetCache = new Map();
 	let built = 0;
 	for (const job of jobs) {
 		let result_project_id: string | null = null;
 		let error: string | null = null;
 		try {
-			result_project_id = await buildOne(editor, job);
+			result_project_id = await buildOne(editor, job, cache);
 			built++;
 		} catch (e) {
 			error = e instanceof Error ? e.message : "build failed";
@@ -147,7 +308,7 @@ export async function materializePendingEdits(
 				}),
 			});
 		} catch {
-			/* server will keep it pending; retried next load */
+			/* server keeps it pending; retried next load */
 		}
 	}
 	return built;

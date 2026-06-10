@@ -1104,11 +1104,16 @@ export function VaultSection() {
 		for (const i of visibleItems) {
 			for (const t of i.tags ?? []) cc[t] = (cc[t] || 0) + 1;
 		}
+		// Projects can be categorised too (e.g. a batch of "CTW Final" drafts),
+		// so a category tab can hold vault items, projects, or both.
+		for (const p of projects) {
+			if (p.category) cc[p.category] = (cc[p.category] || 0) + 1;
+		}
 		return {
 			categories: Object.keys(cc).sort((a, b) => a.localeCompare(b)),
 			catCounts: cc,
 		};
-	}, [visibleItems]);
+	}, [visibleItems, projects]);
 	// Merge tag-derived categories with user-created (possibly empty) sections.
 	const sectionNames = useMemo(
 		() =>
@@ -1138,7 +1143,11 @@ export function VaultSection() {
 		);
 	}, [visibleItems, activeTab, q]);
 	const shownProjects =
-		activeTab === "all" || activeTab === "projects" ? projects : [];
+		activeTab === "all" || activeTab === "projects"
+			? projects
+			: activeTab.startsWith("cat:")
+				? projects.filter((p) => p.category === activeTab.slice(4))
+				: [];
 	const shownTemplates =
 		activeTab === "templates"
 			? templates.filter((t) => !q || t.name.toLowerCase().includes(q))

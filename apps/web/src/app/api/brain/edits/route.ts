@@ -118,7 +118,7 @@ export async function GET(request: Request) {
 	const status = u.searchParams.get("status") || "pending";
 	const rows = await d
 		.prepare(
-			"SELECT * FROM brain_edit_jobs WHERE owner = ? AND status = ? ORDER BY created_at ASC LIMIT 25",
+			"SELECT * FROM brain_edit_jobs WHERE owner = ? AND status = ? ORDER BY created_at ASC LIMIT 100",
 		)
 		.bind(owner, status)
 		.all();

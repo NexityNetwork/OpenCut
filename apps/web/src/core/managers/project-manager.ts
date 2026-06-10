@@ -112,11 +112,13 @@ export class ProjectManager {
 		canvasSize,
 		isCanvas,
 		background,
+		category,
 	}: {
 		name: string;
 		canvasSize?: { width: number; height: number };
 		isCanvas?: boolean;
 		background?: TProject["settings"]["background"];
+		category?: string;
 	}): Promise<string> {
 		const mainScene = buildDefaultScene({
 			name: isCanvas ? "Page 1" : "Main scene",
@@ -130,6 +132,7 @@ export class ProjectManager {
 				createdAt: new Date(),
 				updatedAt: new Date(),
 				...(isCanvas ? { isCanvas: true } : {}),
+				...(category ? { category } : {}),
 			},
 			scenes: [mainScene],
 			currentSceneId: mainScene.id,

@@ -154,6 +154,7 @@ class StorageService {
 				isTemplate: project.metadata.isTemplate,
 				isCanvas: project.metadata.isCanvas,
 				publishedItemId: project.metadata.publishedItemId,
+				category: project.metadata.category,
 				createdAt: project.metadata.createdAt.toISOString(),
 				updatedAt: project.metadata.updatedAt.toISOString(),
 			},
@@ -217,6 +218,7 @@ class StorageService {
 				isTemplate: serializedProject.metadata.isTemplate,
 				isCanvas: serializedProject.metadata.isCanvas,
 				publishedItemId: serializedProject.metadata.publishedItemId,
+				category: serializedProject.metadata.category,
 				createdAt: new Date(serializedProject.metadata.createdAt),
 				updatedAt: new Date(serializedProject.metadata.updatedAt),
 			},
@@ -279,6 +281,7 @@ class StorageService {
 				isTemplate: serializedProject.metadata.isTemplate,
 				isCanvas: serializedProject.metadata.isCanvas,
 				publishedItemId: serializedProject.metadata.publishedItemId,
+				category: serializedProject.metadata.category,
 				createdAt: new Date(serializedProject.metadata.createdAt),
 				updatedAt: new Date(serializedProject.metadata.updatedAt),
 			});

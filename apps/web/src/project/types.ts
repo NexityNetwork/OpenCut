@@ -30,6 +30,8 @@ export interface TProjectMetadata {
 	isCanvas?: boolean;
 	/** Set when the project was exported into the library; without it the project is a draft. */
 	publishedItemId?: string;
+	/** Optional Browse category (e.g. "CTW Final") — groups projects in the library. */
+	category?: string;
 }
 
 export interface TProjectSettings {
