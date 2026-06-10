@@ -376,7 +376,7 @@ export function CommentInbox({ preview }: { preview: boolean }) {
 									<div
 										key={c.comment_id}
 										className={cn(
-											"px-4 py-3.5",
+											"px-4 py-3",
 											i > 0 && "border-t border-[var(--mono-line)]",
 										)}
 									>
@@ -396,7 +396,7 @@ export function CommentInbox({ preview }: { preview: boolean }) {
 														</span>
 													)}
 												</div>
-												<p className="mt-0.5 text-sm leading-relaxed break-words text-[var(--mono-ink-2)]">
+												<p className="mt-0.5 text-[13px] leading-relaxed break-words text-[var(--mono-ink-2)]">
 													{c.text}
 												</p>
 
@@ -421,43 +421,41 @@ export function CommentInbox({ preview }: { preview: boolean }) {
 													</div>
 												)}
 
-												{/* Persistent reply composer — type straight in, no click first */}
-												<div className="mt-2.5 flex items-center gap-2">
-													<div className="flex flex-1 items-center rounded-full border border-[var(--mono-line)] bg-[var(--mono-field)] px-3.5 transition-colors focus-within:border-[var(--mono-strong)]">
-														<input
-															value={drafts[c.comment_id] ?? ""}
-															onChange={(e) =>
-																setDrafts((d) => ({
-																	...d,
-																	[c.comment_id]: e.target.value,
-																}))
-															}
-															onKeyDown={(e) => {
-																if (e.key === "Enter") {
-																	e.preventDefault();
-																	void sendReply(c);
-																}
-															}}
-															placeholder={`Reply to ${c.author}…`}
-															className="h-9 min-w-0 flex-1 bg-transparent text-sm text-[var(--mono-ink)] outline-none placeholder:text-[var(--mono-ink-3)]"
-														/>
-													</div>
-													<button
-														type="button"
-														onClick={() => void sendReply(c)}
-														disabled={
-															sendingId === c.comment_id ||
-															!(drafts[c.comment_id] ?? "").trim()
+												{/* Light inline reply — type straight in, send arrow only when there's text */}
+												<div className="mt-1.5 flex items-center gap-2">
+													<input
+														value={drafts[c.comment_id] ?? ""}
+														onChange={(e) =>
+															setDrafts((d) => ({
+																...d,
+																[c.comment_id]: e.target.value,
+															}))
 														}
-														aria-label="Send reply"
-														className="flex size-9 shrink-0 items-center justify-center rounded-xl bg-[var(--mono-ink)] text-[var(--mono-app)] transition hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-25"
-													>
-														{sendingId === c.comment_id ? (
-															<Loader2 className="size-4 animate-spin" />
-														) : (
-															<SendHorizontal className="size-4" />
-														)}
-													</button>
+														onKeyDown={(e) => {
+															if (e.key === "Enter") {
+																e.preventDefault();
+																void sendReply(c);
+															}
+														}}
+														placeholder={`Reply to ${c.author}`}
+														className="h-7 min-w-0 flex-1 border-b border-transparent bg-transparent text-[13px] text-[var(--mono-ink)] outline-none transition-colors placeholder:text-[var(--mono-ink-3)] focus:border-[var(--mono-line)]"
+													/>
+													{((drafts[c.comment_id] ?? "").trim() ||
+														sendingId === c.comment_id) && (
+														<button
+															type="button"
+															onClick={() => void sendReply(c)}
+															disabled={sendingId === c.comment_id}
+															aria-label="Send reply"
+															className="flex size-7 shrink-0 items-center justify-center rounded-lg text-[var(--mono-ink-2)] transition-colors hover:bg-[var(--mono-hover)] hover:text-[var(--mono-ink)]"
+														>
+															{sendingId === c.comment_id ? (
+																<Loader2 className="size-4 animate-spin" />
+															) : (
+																<SendHorizontal className="size-4" />
+															)}
+														</button>
+													)}
 												</div>
 											</div>
 										</div>

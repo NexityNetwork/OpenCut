@@ -87,7 +87,7 @@ export function BroadcastsView({ owner, preview }: { owner: string; preview: boo
 	}
 
 	return (
-		<div className="mx-auto max-w-2xl px-4 pt-6 pb-16 sm:px-8">
+		<div className="mx-auto max-w-3xl px-4 pt-6 pb-16 sm:px-8">
 			<div className="flex items-start justify-between gap-4">
 				<div>
 					<h1 className="text-2xl font-semibold tracking-tight">Broadcasts</h1>
@@ -240,7 +240,7 @@ function BroadcastComposer({
 	};
 
 	return (
-		<div className="mx-auto max-w-2xl px-4 pt-6 pb-16 sm:px-8">
+		<div className="mx-auto max-w-3xl px-4 pt-6 pb-16 sm:px-8">
 			<button
 				type="button"
 				onClick={onCancel}

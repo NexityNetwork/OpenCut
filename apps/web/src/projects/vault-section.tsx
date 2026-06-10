@@ -139,6 +139,10 @@ import { BioBuilder } from "@/bio/bio-builder";
 import { ClipsStudio } from "@/clips/clips-studio";
 import { BrandKitView } from "@/brand/brand-kit";
 import { InboxView } from "@/inbox/inbox-view";
+import { AssetDetail } from "@/projects/asset-detail";
+import { AddMediaAssetCommand } from "@/commands/media";
+import { InsertElementCommand } from "@/commands/timeline";
+import { BatchCommand } from "@/commands";
 import type { ClipSuggestion } from "@/app/api/clips/route";
 import { buildElementFromMedia } from "@/timeline/element-utils";
 import { mediaTimeFromSeconds } from "@/wasm";
@@ -385,6 +389,8 @@ export function VaultSection() {
 	const [text, setText] = useState("");
 	const [busy, setBusy] = useState(false);
 	const [activeTab, setActiveTab] = useState<string>("all");
+	// Asset detail opens inline (sidebar stays); cleared whenever you navigate.
+	const [selectedAsset, setSelectedAsset] = useState<VaultItem | null>(null);
 	const [renaming, setRenaming] = useState<{
 		id: string;
 		name: string;
@@ -514,6 +520,8 @@ export function VaultSection() {
 
 	// biome-ignore lint/correctness/useExhaustiveDependencies: close the sheet on any navigation
 	useEffect(() => setMobileNav(false), [appView, activeTab]);
+	// Any navigation closes the inline asset detail.
+	useEffect(() => setSelectedAsset(null), [appView, activeTab]);
 	// Instagram-style incremental rendering for big libraries.
 	const [visibleCount, setVisibleCount] = useState(24);
 	const moreRef = useRef<HTMLDivElement | null>(null);
@@ -923,10 +931,12 @@ export function VaultSection() {
 
 			const next = await fetchVault(owner).catch(() => null);
 			if (next) setItems(next);
+			setAppView("library");
 			setActiveTab(kind === "video" ? "video" : kind);
 			toast.success("Published to your library", { id: tid });
-			// Straight to the asset page so the title/caption can be polished.
-			router.push(`/asset/${vaultId}`);
+			// Open the new item inline so its title/caption can be polished.
+			const fresh = next?.find((i) => i.id === vaultId) ?? null;
+			if (fresh) setTimeout(() => setSelectedAsset(fresh), 0);
 		} catch (e) {
 			toast.error(
 				e instanceof Error ? e.message : "Couldn't publish the project",
@@ -952,6 +962,74 @@ export function VaultSection() {
 			isCanvas: true,
 		});
 		router.push(`/canvas/${id}`);
+	};
+
+	// Open the inline asset detail. setAppView may fire the clear-on-nav effect,
+	// so set the asset on the next tick so it wins.
+	const openAsset = (i: VaultItem) => {
+		setAppView("library");
+		setTimeout(() => setSelectedAsset(i), 0);
+	};
+
+	// Carousel / image -> a static Canvas project: one page per image.
+	const openInCanvas = async (item: VaultItem) => {
+		const tid = toast.loading("Building canvas…");
+		try {
+			const imgs = item.media.filter((m) => m.type === "image");
+			if (imgs.length === 0) throw new Error("No images to place");
+			// Size the canvas to the first image so pages aren't letterboxed.
+			const size = await new Promise<{ width: number; height: number }>((resolve) => {
+				const im = new Image();
+				im.onload = () =>
+					resolve({ width: im.naturalWidth || 1080, height: im.naturalHeight || 1350 });
+				im.onerror = () => resolve({ width: 1080, height: 1350 });
+				im.src = fileUrl(imgs[0].key);
+			});
+			const id = await editor.project.createNewProject({
+				name: item.name || "Canvas",
+				canvasSize: size,
+				isCanvas: true,
+			});
+			const scenes = editor.scenes.getScenes();
+			let mainSceneId = scenes[0]?.id;
+			for (let i = 0; i < imgs.length; i++) {
+				const blob = await (await fetch(fileUrl(imgs[i].key))).blob();
+				const file = new File([blob], `page-${i + 1}.${imgs[i].ext || "png"}`, {
+					type: imgs[i].contentType || blob.type || "image/png",
+				});
+				const [asset] = await processMediaAssets({ files: [file] });
+				if (!asset) continue;
+				let sceneId = mainSceneId;
+				if (i > 0) {
+					sceneId = await editor.scenes.createScene({
+						name: `Page ${i + 1}`,
+						isMain: false,
+					});
+				}
+				if (sceneId) await editor.scenes.switchToScene({ sceneId });
+				const addCmd = new AddMediaAssetCommand({ projectId: id, asset });
+				const element = buildElementFromMedia({
+					mediaId: addCmd.getAssetId(),
+					mediaType: "image",
+					name: asset.name,
+					duration: mediaTimeFromSeconds({ seconds: 5 }),
+					startTime: mediaTimeFromSeconds({ seconds: 0 }),
+				});
+				const insertCmd = new InsertElementCommand({
+					element,
+					placement: { mode: "auto", trackType: "video" },
+				});
+				editor.command.execute({ command: new BatchCommand([addCmd, insertCmd]) });
+			}
+			if (mainSceneId) await editor.scenes.switchToScene({ sceneId: mainSceneId });
+			await editor.project.saveCurrentProject();
+			toast.success("Opening canvas…", { id: tid });
+			router.push(`/canvas/${id}`);
+		} catch (e) {
+			toast.error(e instanceof Error ? e.message : "Couldn't open in canvas", {
+				id: tid,
+			});
+		}
 	};
 
 	// Canvas projects open in the static design editor, everything else in /editor.
@@ -1091,7 +1169,7 @@ export function VaultSection() {
 				if (i.kind === "audio") {
 					setAppView("library");
 					togglePlay(i);
-				} else router.push(`/asset/${i.id}`);
+				} else openAsset(i);
 			},
 			onPin: () => togglePin(i.id),
 			onRename: () =>
@@ -1119,7 +1197,7 @@ export function VaultSection() {
 				onOpenSearch={() => setSearchOpen(true)}
 				appView={appView}
 				onSelectHome={() => setAppView("home")}
-				onSelectLibrary={() => setAppView("library")}
+				onSelectLibrary={() => { setSelectedAsset(null); setAppView("library"); }}
 				onSelectPublish={() => setAppView("publish")}
 				onSelectBio={() => setAppView("bio")}
 				onSelectClips={() => setAppView("clips")}
@@ -1180,7 +1258,7 @@ export function VaultSection() {
 				onOpenSearch={() => setSearchOpen(true)}
 				appView={appView}
 				onSelectHome={() => setAppView("home")}
-				onSelectLibrary={() => setAppView("library")}
+				onSelectLibrary={() => { setSelectedAsset(null); setAppView("library"); }}
 				onSelectPublish={() => setAppView("publish")}
 				onSelectBio={() => setAppView("bio")}
 					onSelectClips={() => setAppView("clips")}
@@ -1220,7 +1298,24 @@ export function VaultSection() {
 					void onFiles(e.dataTransfer.files);
 				}}
 			>
-				{appView === "publish" ? (
+				{selectedAsset ? (
+					<AssetDetail
+						item={selectedAsset}
+						owner={owner}
+						onBack={() => setSelectedAsset(null)}
+						onSaved={(u) => {
+							setItems((prev) => prev.map((i) => (i.id === u.id ? u : i)));
+							setSelectedAsset(u);
+						}}
+						onOpenEditor={addToProject}
+						onOpenCanvas={openInCanvas}
+						onCompose={(it) => {
+							setSelectedAsset(null);
+							setComposePrefill(it.id);
+							setAppView("publish");
+						}}
+					/>
+				) : appView === "publish" ? (
 					<PublishPane
 						items={visibleItems}
 						owner={owner}
@@ -1521,7 +1616,7 @@ export function VaultSection() {
 									onOpen: () =>
 										item.kind === "audio"
 											? togglePlay(item)
-											: router.push(`/asset/${item.id}`),
+											: openAsset(item),
 									onAdd: () => addToProject(item),
 									onRename: () =>
 										setRenaming({ id: item.id, name: item.name, kind: "vault" as const }),
@@ -1630,7 +1725,7 @@ export function VaultSection() {
 						if (i.kind === "audio") {
 							setAppView("library");
 							togglePlay(i);
-						} else router.push(`/asset/${i.id}`);
+						} else openAsset(i);
 					}}
 					onSelectProject={(p) => {
 						setSearchOpen(false);
