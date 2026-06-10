@@ -16,7 +16,7 @@ import type { EditorCore } from "@/core";
 import { processMediaAssets } from "@/media/processing";
 import type { ProcessedMediaAsset } from "@/media/processing";
 import { buildElementFromMedia, buildTextElement } from "@/timeline/element-utils";
-import { mediaTimeFromSeconds } from "@/wasm";
+import { mediaTimeFromSeconds, mediaTimeToSeconds } from "@/wasm";
 import { fetchVaultItem, fileUrl } from "@/projects/vault-client";
 
 type Overlay = {
@@ -44,6 +44,10 @@ type EditSpec = {
 	// static frame. When set, skipFirstSlide drops slide[0] from the sequence.
 	hookOverlayKey?: string;
 	skipFirstSlide?: boolean;
+	// In-place edit: load this existing draft and convert its first slide into
+	// the hook overlay (instead of building a new project).
+	editProjectId?: string;
+	introVisibleSec?: number;
 };
 type EditJob = {
 	id: string;
@@ -287,11 +291,81 @@ async function buildSingleEdit(
 	return projectId;
 }
 
+// In-place: load an existing draft, drop its first slide, re-lay the rest, and
+// put the keyed hook over the intro video — same project id, no duplicate.
+async function buildHookEdit(
+	editor: EditorCore,
+	job: EditJob,
+	cache: AssetCache,
+): Promise<string> {
+	const spec = job.spec;
+	const projectId = spec.editProjectId as string;
+	await editor.project.loadProject({ id: projectId });
+
+	const main = editor.scenes.getActiveSceneOrNull()?.tracks.main;
+	if (!main) throw new Error("project has no main track");
+	const els = [...main.elements].sort(
+		(a, b) => (a.startTime as number) - (b.startTime as number),
+	);
+	const video = els.find((e) => e.type === "video");
+	const introSec = video
+		? mediaTimeToSeconds({ time: video.duration })
+		: spec.introVisibleSec ?? 4.133333;
+	const perSlideSec = spec.perSlideSec ?? 0.5;
+
+	// Slides are the image elements; keep their media, re-place all but the first.
+	const slideEls = els.filter((e) => e.type === "image");
+	const slideMediaIds = slideEls
+		.map((e) => (e as { mediaId?: string }).mediaId)
+		.filter((id): id is string => !!id);
+	if (slideEls.length > 0) {
+		editor.timeline.deleteElements({
+			elements: slideEls.map((e) => ({ trackId: main.id, elementId: e.id })),
+		});
+	}
+	slideMediaIds.slice(1).forEach((mediaId, i) => {
+		const el = buildElementFromMedia({
+			mediaId,
+			mediaType: "image",
+			name: "Slide",
+			duration: mediaTimeFromSeconds({ seconds: perSlideSec }),
+			startTime: mediaTimeFromSeconds({ seconds: introSec + i * perSlideSec }),
+		});
+		editor.timeline.insertElement({
+			element: el,
+			placement: { mode: "explicit", trackId: main.id },
+		});
+	});
+
+	// The keyed hook, over the intro video, on its own (overlay) track.
+	if (spec.hookOverlayKey) {
+		const processed = await processFromKey(cache, spec.hookOverlayKey, "Hook", "image");
+		if (processed) {
+			const asset = await editor.media.addMediaAsset({ projectId, asset: processed });
+			const assetId = (asset as { id?: string } | null)?.id ?? "";
+			if (assetId) {
+				const el = buildElementFromMedia({
+					mediaId: assetId,
+					mediaType: "image",
+					name: "Hook overlay",
+					duration: mediaTimeFromSeconds({ seconds: introSec }),
+					startTime: mediaTimeFromSeconds({ seconds: 0 }),
+				});
+				editor.timeline.insertElement({ element: el, placement: { mode: "auto" } });
+			}
+		}
+	}
+
+	await editor.project.saveCurrentProject();
+	return projectId;
+}
+
 function buildOne(
 	editor: EditorCore,
 	job: EditJob,
 	cache: AssetCache,
 ): Promise<string> {
+	if (job.spec.editProjectId) return buildHookEdit(editor, job, cache);
 	return job.spec.intro || job.spec.perSlideSec
 		? buildCarousel(editor, job, cache)
 		: buildSingleEdit(editor, job);
