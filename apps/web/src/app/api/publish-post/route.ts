@@ -107,9 +107,9 @@ export async function POST(request: Request) {
 			}>(),
 	);
 	if (!item) return Response.json({ error: "item not found" }, { status: 404 });
-	if (item.kind === "carousel" || item.kind === "pdf") {
+	if (item.kind === "carousel") {
 		return Response.json(
-			{ error: "carousels and PDFs publish to LinkedIn — coming soon" },
+			{ error: "carousel posts are coming soon" },
 			{ status: 400 },
 		);
 	}
@@ -121,16 +121,19 @@ export async function POST(request: Request) {
 		/* leave empty */
 	}
 	const videoKey = media.find((m) => m.type === "video")?.key;
-	const imageKey = videoKey ? null : media.find((m) => m.type === "image")?.key;
-	if (!videoKey && !imageKey) {
+	const pdfKey =
+		item.kind === "pdf" ? media.find((m) => m.type === "pdf")?.key : null;
+	const imageKey =
+		videoKey || pdfKey ? null : media.find((m) => m.type === "image")?.key;
+	if (!videoKey && !imageKey && !pdfKey) {
 		return Response.json(
-			{ error: "this item has no video or image to publish" },
+			{ error: "this item has nothing publishable" },
 			{ status: 400 },
 		);
 	}
 
 	const base = (siteUrl || new URL(request.url).origin).replace(/\/+$/, "");
-	const assetKey = (videoKey ?? imageKey) as string;
+	const assetKey = (videoKey ?? imageKey ?? pdfKey) as string;
 	const videoUrl = `${base}/api/import-from-url/file?key=${encodeURIComponent(assetKey)}`;
 
 	const title = String(b.title || item.name || "Untitled").slice(0, 100);
@@ -151,12 +154,17 @@ export async function POST(request: Request) {
 	const skipped: { platform: string; reason: string }[] = [];
 
 	for (const platform of platforms) {
-		// Still images: IG natively; LinkedIn/Reddit carry them as link posts.
+		// Still images: IG + LinkedIn natively; Reddit as a link post.
 		if (
 			imageKey &&
 			!["instagram", "linkedin", "reddit"].includes(platform)
 		) {
 			skipped.push({ platform, reason: "photos can't go to this platform" });
+			continue;
+		}
+		// PDFs are LinkedIn document posts only.
+		if (pdfKey && platform !== "linkedin") {
+			skipped.push({ platform, reason: "PDFs publish to LinkedIn only" });
 			continue;
 		}
 		if (platform === "reddit" && !subreddit) {
@@ -178,13 +186,17 @@ export async function POST(request: Request) {
 
 		let metadata: Record<string, unknown>;
 		if (platform === "linkedin") {
-			// Composio's LinkedIn toolkit is text-only: caption + link preview.
-			metadata = {
-				channel: channel.label,
-				caption,
-				link_url: videoUrl,
-				visibility: "PUBLIC",
-			};
+			// Direct LinkedIn app: native documents + images; videos as link posts.
+			metadata = pdfKey
+				? { channel: channel.label, title, caption, document_url: videoUrl }
+				: imageKey
+					? { channel: channel.label, title, caption, image_url: videoUrl }
+					: {
+							channel: channel.label,
+							caption,
+							link_url: videoUrl,
+							visibility: "PUBLIC",
+						};
 		} else if (platform === "reddit") {
 			metadata = {
 				channel: channel.label,

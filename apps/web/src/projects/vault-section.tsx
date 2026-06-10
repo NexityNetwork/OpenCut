@@ -136,6 +136,7 @@ import { AuthButton } from "@/auth/auth-button";
 import type { TProjectMetadata, TProjectSortOption } from "@/project/types";
 import { BioBuilder } from "@/bio/bio-builder";
 import { ClipsStudio } from "@/clips/clips-studio";
+import { BrandKitView } from "@/brand/brand-kit";
 import type { ClipSuggestion } from "@/app/api/clips/route";
 import { buildElementFromMedia } from "@/timeline/element-utils";
 import { mediaTimeFromSeconds } from "@/wasm";
@@ -287,7 +288,7 @@ export function VaultSection() {
 	const [mobileNav, setMobileNav] = useState(false);
 	const [searchOpen, setSearchOpen] = useState(false);
 	const [appView, setAppView] = useState<
-		"home" | "library" | "publish" | "bio" | "clips"
+		"home" | "library" | "publish" | "bio" | "clips" | "brand"
 	>("home");
 	// "Export & publish" hand-off from the editors: /projects?compose=<itemId>
 	const [composePrefill, setComposePrefill] = useState<string | null>(null);
@@ -1022,6 +1023,7 @@ export function VaultSection() {
 				onSelectPublish={() => setAppView("publish")}
 				onSelectBio={() => setAppView("bio")}
 				onSelectClips={() => setAppView("clips")}
+					onSelectBrand={() => setAppView("brand")}
 				navTabs={navTabs}
 				activeTab={activeTab}
 				onSelectTab={(k) => {
@@ -1081,6 +1083,7 @@ export function VaultSection() {
 				onSelectPublish={() => setAppView("publish")}
 				onSelectBio={() => setAppView("bio")}
 					onSelectClips={() => setAppView("clips")}
+					onSelectBrand={() => setAppView("brand")}
 				navTabs={navTabs}
 				activeTab={activeTab}
 				onSelectTab={(k) => {
@@ -1121,9 +1124,12 @@ export function VaultSection() {
 						owner={owner}
 						isOwner={isOwner}
 						initialComposeItem={composePrefill}
+						categories={sectionNames}
 					/>
 				) : appView === "bio" ? (
 					<BioBuilder owner={owner} />
+				) : appView === "brand" ? (
+					<BrandKitView owner={owner} />
 				) : appView === "clips" ? (
 					<ClipsStudio
 						items={visibleItems}
@@ -1292,6 +1298,7 @@ export function VaultSection() {
 				assetCount={counts.all || 0}
 				projectCount={counts.projects || 0}
 				isOwner={isOwner}
+				owner={owner}
 			/>
 			</>)}
 
@@ -1573,25 +1580,39 @@ function ConfirmDialog({
 	);
 }
 
-// Cloudflare-style overview under the hero. Analytics/audit are sample data
-// until they're wired.
+// Real overview under the hero: live activity feed + publishing series.
 function HomeDashboard({
 	assetCount,
 	projectCount,
 	isOwner,
+	owner,
 }: {
 	assetCount: number;
 	projectCount: number;
 	isOwner: boolean;
+	owner: string;
 }) {
 	const [pub, setPub] = useState<{ published?: number; queued?: number }>({});
+	const [activity, setActivity] = useState<{
+		feed: { what: string; who: string; when: string }[];
+		series: { day: string; n: number }[];
+		counts: { published30: number; queued: number; failed30: number };
+	} | null>(null);
 	useEffect(() => {
-		if (!isOwner) return;
-		fetch("/api/publish/status")
+		if (isOwner) {
+			fetch("/api/publish/status")
+				.then((r) => (r.ok ? r.json() : null))
+				.then((d) => setPub(d?.counts ?? {}))
+				.catch(() => {});
+		}
+		if (!owner) return;
+		fetch(
+			`/api/activity?owner=${encodeURIComponent(owner)}&publish=${isOwner ? "1" : "0"}`,
+		)
 			.then((r) => (r.ok ? r.json() : null))
-			.then((d) => setPub(d?.counts ?? {}))
-			.catch(() => {});
-	}, [isOwner]);
+			.then((d) => setActivity(d))
+			.catch(() => setActivity(null));
+	}, [isOwner, owner]);
 
 	const card =
 		"rounded-xl border border-[var(--mono-line)] bg-[var(--mono-hover)]";
@@ -1601,20 +1622,30 @@ function HomeDashboard({
 		{ label: "Published", value: pub.published ?? "·", sub: "all-time posts" },
 		{ label: "Queued", value: pub.queued ?? "·", sub: "waiting to go out" },
 	];
-	const bars = [22, 38, 30, 52, 47, 64, 41, 58, 70, 55, 78, 62, 84, 71, 92, 80, 67, 88];
-	const days = ["May 24", "May 28", "Jun 1", "Jun 5", "Jun 9"];
-	const audit = [
-		{ what: "Scheduled 3 posts", who: "publish", when: "2h ago" },
-		{ what: "Exported Test.pdf", who: "canvas", when: "5h ago" },
-		{ what: "Rescheduled failed uploads", who: "publish", when: "8h ago" },
-		{ what: "Imported 4 clips", who: "library", when: "1d ago" },
-		{ what: "Created CTW Format section", who: "library", when: "1d ago" },
-		{ what: "Connected YouTube channel", who: "channels", when: "2d ago" },
-	];
+
+	// Pad the 30-day series so the chart always shows a full month.
+	const series = useMemo(() => {
+		const map = new Map(
+			(activity?.series ?? []).map((sd) => [sd.day, sd.n]),
+		);
+		const out: { day: string; n: number }[] = [];
+		for (let i = 29; i >= 0; i--) {
+			const d = new Date(Date.now() - i * 86400_000)
+				.toISOString()
+				.slice(0, 10);
+			out.push({ day: d, n: map.get(d) ?? 0 });
+		}
+		return out;
+	}, [activity]);
+	const maxDay = Math.max(1, ...series.map((sd) => sd.n));
+	const c30 = activity?.counts;
+	const successRate =
+		c30 && c30.published30 + c30.failed30 > 0
+			? Math.round((c30.published30 / (c30.published30 + c30.failed30)) * 100)
+			: null;
 
 	return (
 		<div className="mx-auto mt-12 w-full max-w-4xl">
-			{/* Stats strip */}
 			<div
 				className={cn(
 					card,
@@ -1637,79 +1668,99 @@ function HomeDashboard({
 			</div>
 
 			<div className="mt-3 grid gap-3 lg:grid-cols-3">
-				{/* Analytics */}
+				{/* Publishing activity (real) */}
 				<div className={cn(card, "flex flex-col p-4 lg:col-span-2")}>
 					<div className="flex items-center justify-between">
 						<span className="text-sm font-semibold text-[var(--mono-ink)]">
 							<BarChart3 className="mr-1.5 inline size-4" />
-							Analytics
+							Publishing activity
 						</span>
-						<span className="rounded-full border border-[var(--mono-line)] px-2 py-0.5 text-[10px] uppercase tracking-wide text-[var(--mono-ink-3)]">
-							Soon
+						<span className="text-[11px] text-[var(--mono-ink-3)]">
+							last 30 days
 						</span>
 					</div>
 					<div className="mt-4 flex items-center gap-4">
 						<div>
 							<div className="text-lg font-semibold text-[var(--mono-ink)]">
-								64.9k
+								{c30?.published30 ?? "·"}
 							</div>
 							<div className="text-[11px] text-[var(--mono-ink-3)]">
-								Views · 30d
+								Published · 30d
 							</div>
 						</div>
 						<div>
 							<div className="text-lg font-semibold text-[var(--mono-ink)]">
-								3.2%
+								{c30?.queued ?? "·"}
 							</div>
 							<div className="text-[11px] text-[var(--mono-ink-3)]">
-								Engagement
+								In queue
 							</div>
 						</div>
 						<div>
-							<div className="text-lg font-semibold text-green-500">+37%</div>
+							<div
+								className={cn(
+									"text-lg font-semibold",
+									successRate == null
+										? "text-[var(--mono-ink)]"
+										: successRate >= 90
+											? "text-green-500"
+											: "text-amber-400",
+								)}
+							>
+								{successRate == null ? "·" : `${successRate}%`}
+							</div>
 							<div className="text-[11px] text-[var(--mono-ink-3)]">
-								vs last month
+								Success rate
 							</div>
 						</div>
 					</div>
-					<div className="mt-4 flex min-h-28 flex-1 items-end gap-1 opacity-60">
-						{bars.map((h, i) => (
+					<div className="mt-4 flex min-h-28 flex-1 items-end gap-1">
+						{series.map((sd) => (
 							<div
-								key={`${i}-${h}`}
-								style={{ height: `${h}%` }}
-								className="flex-1 rounded-sm bg-[var(--mono-strong)] transition-[height]"
+								key={sd.day}
+								title={`${sd.day}: ${sd.n}`}
+								style={{ height: `${Math.max(3, (sd.n / maxDay) * 100)}%` }}
+								className={cn(
+									"flex-1 rounded-sm",
+									sd.n > 0
+										? "bg-[var(--mono-strong)]"
+										: "bg-[var(--mono-line)]",
+								)}
 							/>
 						))}
 					</div>
 					<div className="mt-2 flex justify-between text-[10px] text-[var(--mono-ink-3)]">
-						{days.map((d) => (
-							<span key={d}>{d}</span>
-						))}
+						<span>{series[0]?.day.slice(5)}</span>
+						<span>{series[14]?.day.slice(5)}</span>
+						<span>{series[29]?.day.slice(5)}</span>
 					</div>
 				</div>
 
-				{/* Audit log */}
+				{/* Activity feed (real) */}
 				<div className={cn(card, "p-4")}>
 					<div className="flex items-center justify-between">
 						<span className="text-sm font-semibold text-[var(--mono-ink)]">
 							<ScrollText className="mr-1.5 inline size-4" />
-							Audit log
-						</span>
-						<span className="rounded-full border border-[var(--mono-line)] px-2 py-0.5 text-[10px] uppercase tracking-wide text-[var(--mono-ink-3)]">
-							Soon
+							Activity
 						</span>
 					</div>
-					<div className="mt-3 divide-y divide-[var(--mono-line)] opacity-70">
-						{audit.map((a) => (
-							<div key={a.what} className="py-2 first:pt-0 last:pb-0">
-								<div className="truncate text-[13px] text-[var(--mono-ink-2)]">
-									{a.what}
-								</div>
-								<div className="mt-0.5 text-[11px] text-[var(--mono-ink-3)]">
-									{a.who} · {a.when}
-								</div>
+					<div className="mt-3 divide-y divide-[var(--mono-line)]">
+						{!activity || activity.feed.length === 0 ? (
+							<div className="py-4 text-sm text-[var(--mono-ink-3)]">
+								Nothing yet — import something or schedule a post.
 							</div>
-						))}
+						) : (
+							activity.feed.map((a, i) => (
+								<div key={`${a.what}-${i}`} className="py-2 first:pt-0 last:pb-0">
+									<div className="truncate text-[13px] text-[var(--mono-ink-2)]">
+										{a.what}
+									</div>
+									<div className="mt-0.5 text-[11px] text-[var(--mono-ink-3)]">
+										{a.who} · {a.when}
+									</div>
+								</div>
+							))
+						)}
 					</div>
 				</div>
 			</div>
@@ -2021,6 +2072,7 @@ function LibrarySidebar({
 	onSelectPublish,
 	onSelectBio,
 	onSelectClips,
+	onSelectBrand,
 	navTabs,
 	activeTab,
 	onSelectTab,
@@ -2035,12 +2087,13 @@ function LibrarySidebar({
 	collapsed: boolean;
 	onToggleCollapse: () => void;
 	onOpenSearch: () => void;
-	appView: "home" | "library" | "publish" | "bio" | "clips";
+	appView: "home" | "library" | "publish" | "bio" | "clips" | "brand";
 	onSelectHome: () => void;
 	onSelectLibrary: () => void;
 	onSelectPublish: () => void;
 	onSelectBio: () => void;
 	onSelectClips: () => void;
+	onSelectBrand: () => void;
 	navTabs: NavTab[];
 	activeTab: string;
 	onSelectTab: (k: string) => void;
@@ -2216,6 +2269,12 @@ function LibrarySidebar({
 							label="AI Clips"
 							active={appView === "clips"}
 							onClick={onSelectClips}
+						/>
+						<SidebarItem
+							icon={Palette}
+							label="Brand kit"
+							active={appView === "brand"}
+							onClick={onSelectBrand}
 						/>
 					</div>
 				)}
@@ -2754,6 +2813,10 @@ function ChannelsSection({ preview = false }: { preview?: boolean }) {
 		window.open(`${PUBLISH_ORIGIN}/oauth2/youtube/start`, "_blank", "noopener");
 		toast.message("Authorize YouTube in the new tab, then hit Refresh.");
 	};
+	const connectLinkedIn = () => {
+		window.open(`${PUBLISH_ORIGIN}/oauth2/linkedin/start`, "_blank", "noopener");
+		toast.message("Authorize LinkedIn in the new tab, then hit Refresh.");
+	};
 	const initiate = async (platform: string) => {
 		const label = window.prompt(`Name this ${platform} account`, "");
 		if (!label?.trim()) return;
@@ -2838,7 +2901,7 @@ function ChannelsSection({ preview = false }: { preview?: boolean }) {
 								<DropdownMenuItem onClick={() => initiate("tiktok")}>
 									<SiTiktok /> TikTok
 								</DropdownMenuItem>
-								<DropdownMenuItem onClick={() => initiate("linkedin")}>
+								<DropdownMenuItem onClick={connectLinkedIn}>
 									<Linkedin style={{ color: "#0A66C2" }} /> LinkedIn
 								</DropdownMenuItem>
 								<DropdownMenuItem onClick={() => initiate("reddit")}>
@@ -3168,9 +3231,11 @@ function ComposePostModal({
 		setPicked(it);
 		setTitle(it.name || "");
 		setCaption(it.caption || "");
-		if (it.kind === "carousel" || it.kind === "pdf") {
-			// LinkedIn formats — nothing postable until LinkedIn is connected.
+		if (it.kind === "carousel") {
 			setSel(new Set());
+		} else if (it.kind === "pdf") {
+			// Native LinkedIn document post.
+			setSel(new Set(available.filter((p) => p === "linkedin")));
 		} else if (!it.media?.some((m) => m.type === "video")) {
 			// Photos: IG natively; LinkedIn/Reddit as link posts.
 			setSel(
@@ -3200,9 +3265,12 @@ function ComposePostModal({
 	const imageKey = videoKey
 		? ""
 		: picked?.media.find((m) => m.type === "image")?.key || "";
+	const pdfKey = isPdf
+		? picked?.media.find((m) => m.type === "pdf")?.key || ""
+		: "";
 	const isImage = !isCarousel && !isPdf && !!imageKey;
-	// Carousels and PDF documents are LinkedIn formats — not connected yet.
-	const linkedinOnly = isCarousel || isPdf;
+	// Carousels still need the multi-image flow; PDFs go to LinkedIn natively.
+	const linkedinOnly = isCarousel;
 
 	const submit = async (asDraft = false) => {
 		if (!picked || busy) return;
@@ -3410,7 +3478,7 @@ function ComposePostModal({
 
 						{/* Fields */}
 						<div className="flex w-full shrink-0 flex-col gap-5 border-t border-[var(--mono-line)] p-6 lg:w-[26rem] lg:border-t-0 lg:border-l">
-							{(!!videoKey || sel.has("reddit")) && (
+							{(!!videoKey || isPdf || sel.has("reddit")) && (
 								<div>
 									<label className={LABEL_CLS}>Title</label>
 									<input
@@ -3450,6 +3518,7 @@ function ComposePostModal({
 											const on = sel.has(p);
 											const blocked =
 												linkedinOnly ||
+												(isPdf && p !== "linkedin") ||
 												(isImage &&
 													!["instagram", "linkedin", "reddit"].includes(p));
 											return (
@@ -3706,16 +3775,254 @@ function ReadOnlyPostModal({
 	);
 }
 
+// Recurring slots: "fill these times every day from this section". The
+// satellite cron does the filling; this manages the rules.
+type QueueRuleRow = {
+	id: string;
+	platform: string;
+	section: string;
+	slots: string[];
+	active: boolean;
+	filled: number;
+};
+
+function utcToLocal(hhmm: string): string {
+	const [h, m] = hhmm.split(":").map(Number);
+	const d = new Date();
+	d.setUTCHours(h, m, 0, 0);
+	return `${pad2(d.getHours())}:${pad2(d.getMinutes())}`;
+}
+function localToUtc(hhmm: string): string | null {
+	const m = /^([01]?\d|2[0-3]):([0-5]\d)$/.exec(hhmm.trim());
+	if (!m) return null;
+	const d = new Date();
+	d.setHours(Number(m[1]), Number(m[2]), 0, 0);
+	return `${pad2(d.getUTCHours())}:${pad2(d.getUTCMinutes())}`;
+}
+
+function QueueRulesSection({
+	owner,
+	categories,
+}: {
+	owner: string;
+	categories: string[];
+}) {
+	const [rules, setRules] = useState<QueueRuleRow[] | null>(null);
+	const [adding, setAdding] = useState(false);
+	const [platform, setPlatform] = useState("youtube");
+	const [section, setSection] = useState("");
+	const [times, setTimes] = useState("16:30, 20:30");
+	const [busy, setBusy] = useState(false);
+
+	const load = () => {
+		fetch(`/api/publish-rules?owner=${encodeURIComponent(owner)}`)
+			.then((r) => (r.ok ? r.json() : null))
+			.then((d) => setRules(d?.rules ?? []))
+			.catch(() => setRules([]));
+	};
+	// eslint-disable-next-line react-hooks/exhaustive-deps
+	useEffect(load, [owner]);
+
+	const create = async () => {
+		const slots = times
+			.split(",")
+			.map((t) => localToUtc(t))
+			.filter((t): t is string => !!t);
+		if (!section || slots.length === 0) {
+			toast.error("Pick a section and at least one valid time");
+			return;
+		}
+		setBusy(true);
+		try {
+			const r = await fetch("/api/publish-rules", {
+				method: "POST",
+				headers: { "content-type": "application/json" },
+				body: JSON.stringify({ owner, platform, section, slots }),
+			});
+			const d = (await r.json().catch(() => ({}))) as { error?: string };
+			if (!r.ok) throw new Error(d.error || "Failed");
+			toast.success("Queue rule active — the next slots fill automatically");
+			setAdding(false);
+			setSection("");
+			load();
+		} catch (e) {
+			toast.error(e instanceof Error ? e.message : "Failed");
+		} finally {
+			setBusy(false);
+		}
+	};
+
+	const toggle = async (rule: QueueRuleRow) => {
+		await fetch("/api/publish-rules", {
+			method: "PATCH",
+			headers: { "content-type": "application/json" },
+			body: JSON.stringify({ id: rule.id, active: !rule.active }),
+		});
+		load();
+	};
+	const removeRule = async (rule: QueueRuleRow) => {
+		await fetch(`/api/publish-rules?id=${encodeURIComponent(rule.id)}`, {
+			method: "DELETE",
+		});
+		load();
+	};
+
+	return (
+		<div className="mt-9">
+			<div className="mb-2 flex items-center justify-between">
+				<h2 className="text-sm font-semibold">Queues</h2>
+				<button
+					type="button"
+					onClick={() => setAdding((v) => !v)}
+					className="flex items-center gap-1.5 rounded-full border border-white/[0.1] px-3 py-1 text-xs font-medium text-[var(--mono-ink-2)] transition-colors hover:bg-[var(--mono-hover)] hover:text-[var(--mono-ink)]"
+				>
+					<Plus className="size-3.5" /> New rule
+				</button>
+			</div>
+
+			{adding && (
+				<div className="mb-3 rounded-xl border border-[var(--mono-line)] bg-[var(--mono-hover)] p-4">
+					<div className="grid gap-3 sm:grid-cols-3">
+						<div>
+							<div className="mb-1.5 text-[11px] font-semibold uppercase tracking-wide text-[var(--mono-ink-3)]">
+								Platform
+							</div>
+							<div className="flex flex-wrap gap-1.5">
+								{["youtube", "instagram", "tiktok", "linkedin"].map((p) => (
+									<button
+										key={p}
+										type="button"
+										onClick={() => setPlatform(p)}
+										className={cn(
+											"flex items-center gap-1.5 rounded-lg border px-2.5 py-1.5 text-xs capitalize transition-colors",
+											platform === p
+												? "border-[var(--mono-strong)] bg-[var(--mono-active)] text-[var(--mono-ink)]"
+												: "border-[var(--mono-line)] text-[var(--mono-ink-2)] hover:bg-[var(--mono-hover)]",
+										)}
+									>
+										{pubPlatformIcon(p)}
+									</button>
+								))}
+							</div>
+						</div>
+						<div>
+							<div className="mb-1.5 text-[11px] font-semibold uppercase tracking-wide text-[var(--mono-ink-3)]">
+								Section
+							</div>
+							<DropdownMenu>
+								<DropdownMenuTrigger asChild>
+									<button
+										type="button"
+										className="flex w-full items-center justify-between rounded-lg border border-[var(--mono-line)] bg-[var(--mono-field)] px-3 py-2 text-sm text-[var(--mono-ink)]"
+									>
+										{section || "Pick a section…"}
+										<ChevronDown className="size-3.5 text-[var(--mono-ink-3)]" />
+									</button>
+								</DropdownMenuTrigger>
+								<DropdownMenuContent align="start">
+									{categories.length === 0 ? (
+										<DropdownMenuItem disabled>
+											No sections yet — tag videos first
+										</DropdownMenuItem>
+									) : (
+										categories.map((c) => (
+											<DropdownMenuItem key={c} onClick={() => setSection(c)}>
+												<Hash className="size-4" /> {c}
+											</DropdownMenuItem>
+										))
+									)}
+								</DropdownMenuContent>
+							</DropdownMenu>
+						</div>
+						<div>
+							<div className="mb-1.5 text-[11px] font-semibold uppercase tracking-wide text-[var(--mono-ink-3)]">
+								Times (local, comma-sep)
+							</div>
+							<input
+								value={times}
+								onChange={(e) => setTimes(e.target.value)}
+								placeholder="16:30, 20:30"
+								className="w-full rounded-lg border border-[var(--mono-line)] bg-[var(--mono-field)] px-3 py-2 text-sm text-[var(--mono-ink)] outline-none placeholder:text-[var(--mono-ink-3)] focus:border-[var(--mono-strong)]"
+							/>
+						</div>
+					</div>
+					<div className="mt-3 flex justify-end gap-2">
+						<Button variant="ghost" onClick={() => setAdding(false)}>
+							Cancel
+						</Button>
+						<Button onClick={create} disabled={busy}>
+							{busy ? "Creating…" : "Create rule"}
+						</Button>
+					</div>
+				</div>
+			)}
+
+			{rules === null ? (
+				<div className="text-sm text-[var(--mono-ink-3)]">Loading…</div>
+			) : rules.length === 0 ? (
+				!adding && (
+					<div className="rounded-xl border border-dashed border-[var(--mono-line)] py-5 text-center text-sm text-[var(--mono-ink-3)]">
+						No standing queues. A rule auto-fills daily slots from a section —
+						set it once, keep the section stocked.
+					</div>
+				)
+			) : (
+				<div className="divide-y divide-[var(--mono-line)] overflow-hidden rounded-xl border border-[var(--mono-line)]">
+					{rules.map((r) => (
+						<div key={r.id} className="flex items-center gap-3 px-4 py-3">
+							{pubPlatformIcon(r.platform)}
+							<div className="min-w-0 flex-1">
+								<div className="truncate text-sm text-[var(--mono-ink)]">
+									<span className="font-medium">{r.section}</span>
+									<span className="text-[var(--mono-ink-3)]">
+										{" "}
+										· {r.slots.map(utcToLocal).join(", ")} daily
+									</span>
+								</div>
+								<div className="text-[11px] text-[var(--mono-ink-3)]">
+									{r.filled} filled so far
+								</div>
+							</div>
+							<button
+								type="button"
+								onClick={() => toggle(r)}
+								className={cn(
+									"rounded-full border px-2.5 py-1 text-xs transition-colors",
+									r.active
+										? "border-green-500/40 text-green-500"
+										: "border-[var(--mono-line)] text-[var(--mono-ink-3)]",
+								)}
+							>
+								{r.active ? "Active" : "Paused"}
+							</button>
+							<button
+								type="button"
+								onClick={() => removeRule(r)}
+								aria-label="Delete rule"
+								className="text-[var(--mono-ink-3)] transition-colors hover:text-red-400"
+							>
+								<Trash2 className="size-3.5" />
+							</button>
+						</div>
+					))}
+				</div>
+			)}
+		</div>
+	);
+}
+
 function PublishPane({
 	items,
 	owner,
 	isOwner,
 	initialComposeItem,
+	categories,
 }: {
 	items: VaultItem[];
 	owner: string;
 	isOwner: boolean;
 	initialComposeItem?: string | null;
+	categories: string[];
 }) {
 	const preview = !isOwner;
 	const [status, setStatus] = useState<PubStatus | null>(null);
@@ -3847,6 +4154,8 @@ function PublishPane({
 			</div>
 
 			<ChannelsSection preview={preview} />
+
+			{!preview && <QueueRulesSection owner={owner} categories={categories} />}
 
 			{/* Platform filter */}
 			<div className="mt-9 flex flex-wrap items-center gap-1.5">

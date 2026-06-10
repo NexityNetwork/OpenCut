@@ -28,7 +28,6 @@
     "NEXT_PUBLIC_SITE_URL": "https://edits.51ultron.com",
     "NEXT_PUBLIC_MARBLE_API_URL": "https://api.marblecms.com",
     "DATABASE_URL": "postgresql://opencut:opencut@localhost:5432/opencut",
-    "BETTER_AUTH_SECRET": "Vq3pX7sR2kLmN9wZ4tB8yJ6cH1dF5gA0eU7iO2nQ3xS",
     "UPSTASH_REDIS_REST_URL": "https://placeholder.example.com",
     "UPSTASH_REDIS_REST_TOKEN": "placeholder",
     "MARBLE_WORKSPACE_KEY": "placeholder",
