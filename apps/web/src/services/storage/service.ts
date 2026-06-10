@@ -293,6 +293,13 @@ class StorageService {
 		await this.projectsAdapter.remove(id);
 	}
 
+	/** Raw persisted document (already JSON-safe) — used by the Brain sync. */
+	async getRawProject(id: string): Promise<SerializedProject | null> {
+		await this.ensureMigrations();
+		const raw = await this.projectsAdapter.get(id);
+		return raw ?? null;
+	}
+
 	async saveMediaAsset({
 		projectId,
 		mediaAsset,

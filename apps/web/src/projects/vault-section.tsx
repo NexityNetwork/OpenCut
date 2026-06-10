@@ -385,6 +385,22 @@ export function VaultSection() {
 		[allTemplates, archived],
 	);
 	const isInitialized = useEditor((e) => e.project.getIsInitialized());
+
+	// Brain: reconcile local project documents with the server mirror once the
+	// store is loaded (new/changed projects get pushed; everything else skips).
+	const brainSyncedRef = useRef(false);
+	useEffect(() => {
+		if (!isInitialized || brainSyncedRef.current) return;
+		const metas = [...allProjects, ...allTemplates].map((p) => ({
+			id: p.id,
+			updatedAt: p.updatedAt,
+		}));
+		if (metas.length === 0) return;
+		brainSyncedRef.current = true;
+		void import("@/brain/project-sync")
+			.then((m) => m.bulkSyncProjects(metas))
+			.catch(() => {});
+	}, [isInitialized, allProjects, allTemplates]);
 	const { data: session } = useSession();
 	const userId = session?.user?.id;
 	// Multi-tenant: every signed-in user gets their own Publish + inbox (each

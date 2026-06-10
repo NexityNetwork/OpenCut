@@ -253,6 +253,14 @@ export class ProjectManager {
 			await storageService.saveProject({ project: updatedProject });
 			this.active = updatedProject;
 			this.updateMetadata(updatedProject);
+
+			// Mirror the document into the Brain (debounced, fire-and-forget —
+			// a failed sync must never affect the local save).
+			if (typeof window !== "undefined") {
+				void import("@/brain/project-sync")
+					.then((m) => m.queueProjectSync(updatedProject.metadata.id))
+					.catch(() => {});
+			}
 		} catch (error) {
 			console.error("Failed to save project:", error);
 		}
