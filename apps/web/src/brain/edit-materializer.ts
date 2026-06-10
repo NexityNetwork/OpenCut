@@ -39,6 +39,11 @@ type EditSpec = {
 	// Carousel assembly:
 	intro?: IntroSpec;
 	perSlideSec?: number;
+	// Hook overlay: an alpha-keyed PNG (the first slide with its background
+	// removed) laid over the intro video on its own track, instead of as a
+	// static frame. When set, skipFirstSlide drops slide[0] from the sequence.
+	hookOverlayKey?: string;
+	skipFirstSlide?: boolean;
 };
 type EditJob = {
 	id: string;
@@ -157,9 +162,37 @@ async function buildCarousel(
 		}
 	}
 
+	// Hook overlay — the first slide with its background keyed out, laid over
+	// the intro video on its own (overlay) track so the live video shows
+	// through. Auto placement puts an overlapping element above the main track.
+	if (spec.hookOverlayKey) {
+		const processed = await processFromKey(
+			cache,
+			spec.hookOverlayKey,
+			"Hook",
+			"image",
+		);
+		if (processed) {
+			const asset = await editor.media.addMediaAsset({ projectId, asset: processed });
+			const assetId = (asset as { id?: string } | null)?.id ?? "";
+			if (assetId) {
+				const el = buildElementFromMedia({
+					mediaId: assetId,
+					mediaType: "image",
+					name: "Hook overlay",
+					duration: mediaTimeFromSeconds({ seconds: cursorSec || 4 }),
+					startTime: mediaTimeFromSeconds({ seconds: 0 }),
+				});
+				editor.timeline.insertElement({ element: el, placement: { mode: "auto" } });
+			}
+		}
+	}
+
 	// Slides — each image for the template's per-slide duration, back to back.
+	// When the hook replaces the first slide, start the sequence from slide 2.
 	const perSlideSec = spec.perSlideSec ?? 0.5;
-	for (const m of slides) {
+	const slideList = spec.skipFirstSlide ? slides.slice(1) : slides;
+	for (const m of slideList) {
 		const processed = await processFromKey(cache, m.key, carousel.name, "image");
 		if (!processed) continue;
 		const asset = await editor.media.addMediaAsset({ projectId, asset: processed });
