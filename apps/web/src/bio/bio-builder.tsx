@@ -338,7 +338,7 @@ export function BioBuilder({ owner }: { owner: string }) {
 
 			{/* Editor column */}
 			<div className="min-w-0 flex-1 overflow-y-auto">
-				<div className="mx-auto max-w-xl px-8 py-8">
+				<div className="mx-auto max-w-xl px-4 pt-16 pb-8 sm:px-8 lg:pt-8">
 					<div className="flex items-start justify-between gap-4">
 						<div>
 							<h1 className="text-2xl font-semibold tracking-tight">Link in bio</h1>
@@ -363,7 +363,7 @@ export function BioBuilder({ owner }: { owner: string }) {
 
 					{!loggedIn && (
 						<div className="mt-3 rounded-lg border border-amber-500/30 bg-amber-500/10 px-3.5 py-2.5 text-sm text-amber-200/90">
-							You're editing as a guest — log in to publish and claim your handle.
+							You're editing as a guest. Log in to publish and claim your handle.
 						</div>
 					)}
 
@@ -483,7 +483,7 @@ export function BioBuilder({ owner }: { owner: string }) {
 							>
 								{data.links.length === 0 && (
 									<p className="text-sm text-[var(--mono-ink-3)]">
-										No blocks yet — add a link to get started.
+										No blocks yet. Add a link to get started.
 									</p>
 								)}
 								{data.links.map((l, i) => {
@@ -806,7 +806,7 @@ function Insights({
 				<div className="mb-3 text-sm font-semibold">Views</div>
 				{stats.views.length === 0 ? (
 					<div className="py-6 text-center text-sm text-[var(--mono-ink-3)]">
-						No views yet — share your link.
+						No views yet. Share your link.
 					</div>
 				) : (
 					<div className="flex h-20 items-end gap-1">
@@ -846,7 +846,7 @@ function Insights({
 				<div className={card}>
 					<div className="mb-2 text-sm font-semibold">Top referrers</div>
 					{stats.referrers.length === 0 ? (
-						<div className="text-sm text-[var(--mono-ink-3)]">—</div>
+						<div className="text-sm text-[var(--mono-ink-3)]">No data yet</div>
 					) : (
 						stats.referrers.map((r) => (
 							<div key={r.key} className="flex justify-between text-sm">
@@ -859,7 +859,7 @@ function Insights({
 				<div className={card}>
 					<div className="mb-2 text-sm font-semibold">Countries</div>
 					{stats.countries.length === 0 ? (
-						<div className="text-sm text-[var(--mono-ink-3)]">—</div>
+						<div className="text-sm text-[var(--mono-ink-3)]">No data yet</div>
 					) : (
 						stats.countries.map((r) => (
 							<div key={r.key} className="flex justify-between text-sm">
@@ -1053,7 +1053,7 @@ function CustomDomainSection() {
 			});
 			const d = (await r.json().catch(() => ({}))) as { error?: string };
 			if (!r.ok) throw new Error(d.error || "Failed");
-			toast.success("Domain registered — add the DNS record", { id: tid });
+			toast.success("Domain registered. Add the DNS record", { id: tid });
 			setInput("");
 			load();
 		} catch (e) {
@@ -1090,7 +1090,7 @@ function CustomDomainSection() {
 							</div>
 							<div className="mt-0.5 text-xs text-[var(--mono-ink-3)]">
 								{state.status === "active"
-									? "Active — your page is live on this domain"
+									? "Active. Your page is live on this domain"
 									: `Status: ${state.status ?? "pending"}${state.sslStatus ? ` · cert ${state.sslStatus}` : ""}`}
 							</div>
 						</div>

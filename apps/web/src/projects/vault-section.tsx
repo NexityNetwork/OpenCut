@@ -275,6 +275,7 @@ export function VaultSection() {
 	} = useProjectsStore();
 	const listView = isHydrated && viewMode === "list";
 	const [collapsed, setCollapsed] = useState(false);
+	const [mobileNav, setMobileNav] = useState(false);
 	const [searchOpen, setSearchOpen] = useState(false);
 	const [appView, setAppView] = useState<
 		"home" | "library" | "publish" | "bio"
@@ -479,6 +480,24 @@ export function VaultSection() {
 			/* ignore */
 		}
 	};
+
+	// biome-ignore lint/correctness/useExhaustiveDependencies: close the sheet on any navigation
+	useEffect(() => setMobileNav(false), [appView, activeTab]);
+	// Instagram-style incremental rendering for big libraries.
+	const [visibleCount, setVisibleCount] = useState(24);
+	const moreRef = useRef<HTMLDivElement | null>(null);
+	// biome-ignore lint/correctness/useExhaustiveDependencies: reset on tab change
+	useEffect(() => setVisibleCount(24), [activeTab, appView]);
+	useEffect(() => {
+		const el = moreRef.current;
+		if (!el) return;
+		const io = new IntersectionObserver(
+			(es) => es[0]?.isIntersecting && setVisibleCount((c) => c + 24),
+			{ rootMargin: "600px" },
+		);
+		io.observe(el);
+		return () => io.disconnect();
+	});
 
 	const [confirmAsk, setConfirmAsk] = useState<{
 		title: string;
@@ -790,7 +809,9 @@ export function VaultSection() {
 
 	return (
 		<div className="text-foreground flex h-screen overflow-hidden bg-[var(--mono-app)]">
-			<LibrarySidebar
+			{/* Desktop sidebar (inline) */}
+			<div className="hidden lg:contents">
+				<LibrarySidebar
 				collapsed={collapsed}
 				onToggleCollapse={() => setCollapsed((c) => !c)}
 				onOpenSearch={() => setSearchOpen(true)}
@@ -813,6 +834,66 @@ export function VaultSection() {
 				recents={recents}
 				categories={categories}
 			/>
+			</div>
+			{/* Mobile: floating opener + slide-over (overlays, never pushes) */}
+			{!mobileNav && (
+				<button
+					type="button"
+					onClick={() => setMobileNav(true)}
+					aria-label="Open menu"
+					className="fixed top-3 left-3 z-40 flex size-10 items-center justify-center rounded-full border border-[var(--mono-line)] bg-[var(--mono-panel)] text-[var(--mono-ink-2)] shadow-lg lg:hidden"
+				>
+					<PanelLeft className="size-4" />
+				</button>
+			)}
+			<div
+				className={cn(
+					"fixed inset-0 z-50 lg:hidden",
+					!mobileNav && "pointer-events-none",
+				)}
+			>
+				<div
+					className={cn(
+						"absolute inset-0 bg-black/60 transition-opacity duration-200",
+						mobileNav ? "opacity-100" : "opacity-0",
+					)}
+					onClick={() => setMobileNav(false)}
+					onKeyDown={(e) => e.key === "Escape" && setMobileNav(false)}
+					role="button"
+					tabIndex={-1}
+					aria-label="Close menu"
+				/>
+				<div
+					className={cn(
+						"absolute inset-y-0 left-0 flex transition-transform duration-200",
+						mobileNav ? "translate-x-0" : "-translate-x-full",
+					)}
+				>
+					<LibrarySidebar
+				collapsed={collapsed}
+				onToggleCollapse={() => setCollapsed((c) => !c)}
+				onOpenSearch={() => setSearchOpen(true)}
+				appView={appView}
+				onSelectHome={() => setAppView("home")}
+				onSelectLibrary={() => setAppView("library")}
+				onSelectPublish={() => setAppView("publish")}
+				onSelectBio={() => setAppView("bio")}
+				navTabs={navTabs}
+				activeTab={activeTab}
+				onSelectTab={(k) => {
+					setAppView("library");
+					setActiveTab(k);
+				}}
+				onNewProject={createBlankProject}
+				onNewCanvas={() => setNewCanvasOpen(true)}
+				onRenameCat={setRenamingCat}
+				onDeleteCat={deleteCategory}
+				onNewSection={() => setNewSectionOpen(true)}
+				recents={recents}
+				categories={categories}
+			/>
+				</div>
+			</div>
 			<main
 				className={cn(
 					"min-w-0 flex-1 overflow-y-auto transition-colors",
@@ -841,7 +922,7 @@ export function VaultSection() {
 				) : appView === "bio" ? (
 					<BioBuilder owner={owner} />
 				) : (
-					<div className="px-8 pb-12">
+					<div className="px-4 pb-24 sm:px-8">
 						{appView === "library" && (
 							<div className="flex justify-end pt-4">
 								<ViewToggle
@@ -1043,7 +1124,7 @@ export function VaultSection() {
 					shownVault.length === 0 &&
 					shownTemplates.length === 0 ? (
 					<div className="text-muted-foreground py-12 text-center text-sm">
-						Nothing here yet — paste a link, upload a file, or start a new
+						Nothing here yet. Paste a link, upload a file, or start a new
 						project.
 					</div>
 				) : (
@@ -1051,7 +1132,7 @@ export function VaultSection() {
 						className={
 							listView
 								? "flex flex-col gap-0.5"
-								: "xs:grid-cols-2 grid grid-cols-1 gap-5 sm:grid-cols-3"
+								: "grid grid-cols-2 gap-3 sm:gap-5 sm:grid-cols-3"
 						}
 					>
 						{(() => {
@@ -1133,7 +1214,14 @@ export function VaultSection() {
 							// surface at the top instead of under the project pile;
 							// single-type tabs keep their existing order.
 							if (activeTab === "all") cells.sort((a, b) => b.t - a.t);
-							return cells.map((c) => c.node);
+							return (
+								<>
+									{cells.slice(0, visibleCount).map((c) => c.node)}
+									{cells.length > visibleCount && (
+										<div ref={moreRef} className="col-span-full h-2" />
+									)}
+								</>
+							);
 						})()}
 					</div>
 				)}
@@ -1263,8 +1351,8 @@ function HomeDashboard({
 	const stats = [
 		{ label: "Library assets", value: assetCount, sub: "across all sections" },
 		{ label: "Projects", value: projectCount, sub: "edits in progress" },
-		{ label: "Published", value: pub.published ?? "—", sub: "all-time posts" },
-		{ label: "Queued", value: pub.queued ?? "—", sub: "waiting to go out" },
+		{ label: "Published", value: pub.published ?? "·", sub: "all-time posts" },
+		{ label: "Queued", value: pub.queued ?? "·", sub: "waiting to go out" },
 	];
 	const bars = [22, 38, 30, 52, 47, 64, 41, 58, 70, 55, 78, 62, 84, 71, 92, 80, 67, 88];
 	const days = ["May 24", "May 28", "Jun 1", "Jun 5", "Jun 9"];
@@ -2349,7 +2437,7 @@ const DEMO_TITLES = [
 	"3 tools that replaced my agency",
 	"POV: you shipped it in a weekend",
 	"The workflow nobody talks about",
-	"I tried this for 30 days — here's what happened",
+	"I tried this for 30 days. Here's what happened",
 	"Stop doing this in 2026",
 ];
 function demoQueueRows() {
@@ -2452,7 +2540,7 @@ function ChannelsSection({ preview = false }: { preview?: boolean }) {
 			});
 			const d = await r.json().catch(() => ({}));
 			if (!r.ok || !d.ok)
-				throw new Error(d.error || "Couldn't finish — did you approve it?");
+				throw new Error(d.error || "Couldn't finish. Did you approve it?");
 			toast.success(`${pending.platform} connected`);
 			setPending(null);
 			load();
@@ -2529,7 +2617,7 @@ function ChannelsSection({ preview = false }: { preview?: boolean }) {
 				<div className="text-sm text-[var(--mono-ink-3)]">Loading channels…</div>
 			) : channels.length === 0 ? (
 				<div className="rounded-xl border border-dashed border-[var(--mono-line)] py-6 text-center text-sm text-[var(--mono-ink-3)]">
-					No channels connected yet — use Connect.
+					No channels connected yet. Use Connect.
 				</div>
 			) : (
 				<div className="divide-y divide-[var(--mono-line)] overflow-hidden rounded-xl border border-[var(--mono-line)]">
@@ -2963,7 +3051,7 @@ function ComposePostModal({
 								No videos in your library yet.
 							</div>
 						) : (
-							<div className="grid min-h-0 flex-1 grid-cols-3 content-start gap-3 overflow-y-auto pr-1 sm:grid-cols-4 lg:grid-cols-6">
+							<div className="grid min-h-0 flex-1 grid-cols-2 content-start gap-3 overflow-y-auto pr-1 sm:grid-cols-4 lg:grid-cols-6">
 								{filtered.map((v) => (
 									<button
 										key={v.id}
@@ -2983,9 +3071,9 @@ function ComposePostModal({
 						)}
 					</div>
 				) : (
-					<div className="flex min-h-0 flex-1">
+					<div className="flex min-h-0 flex-1 flex-col overflow-y-auto lg:flex-row lg:overflow-visible">
 						{/* Aspect-ratio rail */}
-						<div className="flex w-44 shrink-0 flex-col gap-1 overflow-y-auto border-r border-[var(--mono-line)] p-3">
+						<div className="hidden w-44 shrink-0 flex-col gap-1 overflow-y-auto border-r border-[var(--mono-line)] p-3 lg:flex">
 							<div className="px-2 pb-1.5 text-[11px] font-semibold uppercase tracking-wide text-[var(--mono-ink-3)]">
 								Aspect ratio
 							</div>
@@ -3023,7 +3111,7 @@ function ComposePostModal({
 						</div>
 
 						{/* Centered preview */}
-						<div className="relative flex min-w-0 flex-1 bg-black/30">
+						<div className="relative flex min-h-[44vh] min-w-0 flex-1 bg-black/30">
 							<div
 								ref={stageRef}
 								className="absolute inset-5 flex items-center justify-center"
@@ -3067,7 +3155,7 @@ function ComposePostModal({
 						</div>
 
 						{/* Fields */}
-						<div className="flex w-[26rem] shrink-0 flex-col gap-5 border-l border-[var(--mono-line)] p-6">
+						<div className="flex w-full shrink-0 flex-col gap-5 border-t border-[var(--mono-line)] p-6 lg:w-[26rem] lg:border-t-0 lg:border-l">
 							{(!!videoKey || sel.has("reddit")) && (
 								<div>
 									<label className={LABEL_CLS}>Title</label>
@@ -3284,7 +3372,7 @@ function ReadOnlyPostModal({
 						{failed ? "Couldn't load this post." : "Loading…"}
 					</div>
 				) : (
-					<div className="flex min-h-0 flex-1">
+					<div className="flex min-h-0 flex-1 flex-col overflow-y-auto lg:flex-row lg:overflow-visible">
 						<div className="flex min-w-0 flex-1 items-center justify-center bg-black/30 p-6">
 							{videoUrl ? (
 								// biome-ignore lint/a11y/useMediaCaption: preview only
@@ -3298,7 +3386,7 @@ function ReadOnlyPostModal({
 								<div className="text-sm text-[var(--mono-ink-3)]">No preview</div>
 							)}
 						</div>
-						<div className="flex w-[24rem] shrink-0 flex-col gap-5 overflow-y-auto border-l border-[var(--mono-line)] p-6">
+						<div className="flex w-full shrink-0 flex-col gap-5 overflow-y-auto border-t border-[var(--mono-line)] p-6 lg:w-[24rem] lg:border-t-0 lg:border-l">
 							{title && (
 								<div>
 									<div className={LABEL_CLS}>Title</div>
@@ -3467,7 +3555,7 @@ function PublishPane({
 	const onRow = (id: string) => (preview ? requestAccess() : setDetailId(id));
 
 	return (
-		<div className="mx-auto max-w-3xl px-8 py-10">
+		<div className="mx-auto max-w-3xl px-4 pt-16 pb-12 sm:px-8 lg:pt-10">
 			<div className="flex items-start justify-between gap-4">
 				<div className="flex items-center gap-2.5">
 					<h1 className="text-2xl font-semibold tracking-tight">Publishing</h1>
