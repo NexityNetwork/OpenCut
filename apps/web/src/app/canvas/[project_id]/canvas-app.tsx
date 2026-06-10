@@ -26,7 +26,6 @@ import { PropertiesPanel } from "@/components/editor/panels/properties";
 import { PreviewPanel } from "@/preview/components";
 import { EditorProvider } from "@/components/providers/editor-provider";
 import { MigrationDialog } from "@/project/components/migration-dialog";
-import { MobileGate } from "@/components/editor/mobile-gate";
 import { useEditor } from "@/editor/use-editor";
 import { usePasteMedia } from "@/media/use-paste-media";
 import { processMediaAssets } from "@/media/processing";
@@ -45,6 +44,7 @@ import { AddMediaAssetCommand } from "@/commands/media";
 import { InsertElementCommand } from "@/commands/timeline";
 import { BatchCommand } from "@/commands";
 import { cn } from "@/utils/ui";
+import { useIsMobile } from "@/hooks/use-mobile";
 import { generateUUID } from "@/utils/id";
 import type { TScene, TimelineTrack } from "@/timeline/types";
 import type { TimelineDragData } from "@/timeline/drag";
@@ -78,7 +78,7 @@ export default function CanvasEditor() {
 	const projectId = params.project_id as string;
 
 	return (
-		<MobileGate>
+		<>
 			<EditorProvider projectId={projectId}>
 				<div className="bg-background flex h-screen w-screen flex-col overflow-hidden">
 					<CanvasHeader />
@@ -88,7 +88,7 @@ export default function CanvasEditor() {
 					<MigrationDialog />
 				</div>
 			</EditorProvider>
-		</MobileGate>
+		</>
 	);
 }
 
@@ -406,9 +406,14 @@ function DownloadButton() {
 
 const CANVAS_HIDDEN_TABS = ["sounds", "effects", "reels", "captions"] as const;
 
+const HIDE_VIDEO_TABS =
+	"[&_[aria-label=Captions]]:hidden [&_[aria-label=Effects]]:hidden [&_[aria-label=Generate]]:hidden [&_[aria-label=Sounds]]:hidden";
+
 function CanvasLayout() {
 	usePasteMedia();
 	const { activeTab, setActiveTab } = useAssetsPanelStore();
+	const isMobile = useIsMobile();
+	const [pane, setPane] = useState<"pages" | "add" | "style">("pages");
 
 	// Canvas works with Media / Text / Presets / Project — land on Media and
 	// keep the video-only tabs out of reach (they're CSS-hidden below too).
@@ -419,6 +424,54 @@ function CanvasLayout() {
 		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, []);
 
+	// Phones can't fit three side-by-side panels; swap between them instead.
+	// All three stay mounted so page snapshots / selections survive switches.
+	if (isMobile) {
+		const tabs = [
+			{ key: "pages" as const, label: "Pages" },
+			{ key: "add" as const, label: "Add" },
+			{ key: "style" as const, label: "Style" },
+		];
+		return (
+			<div className="flex size-full flex-col gap-2 px-2 pb-2">
+				<div className="flex shrink-0 justify-center">
+					<div className="flex gap-1 rounded-xl border border-[var(--mono-line)] bg-[var(--mono-panel)] p-1">
+						{tabs.map((t) => (
+							<button
+								key={t.key}
+								type="button"
+								onClick={() => setPane(t.key)}
+								className={cn(
+									"rounded-lg px-4 py-1.5 text-[13px] font-medium transition-colors",
+									pane === t.key
+										? "bg-[var(--mono-active)] text-[var(--mono-ink)]"
+										: "text-[var(--mono-ink-3)]",
+								)}
+							>
+								{t.label}
+							</button>
+						))}
+					</div>
+				</div>
+				<div
+					className={cn(
+						"min-h-0 flex-1",
+						HIDE_VIDEO_TABS,
+						pane !== "add" && "hidden",
+					)}
+				>
+					<AssetsPanel />
+				</div>
+				<div className={cn("min-h-0 flex-1", pane !== "pages" && "hidden")}>
+					<PagesStage />
+				</div>
+				<div className={cn("min-h-0 flex-1", pane !== "style" && "hidden")}>
+					<PropertiesPanel />
+				</div>
+			</div>
+		);
+	}
+
 	return (
 		<ResizablePanelGroup
 			direction="horizontal"
@@ -428,7 +481,7 @@ function CanvasLayout() {
 				defaultSize={22}
 				minSize={15}
 				maxSize={40}
-				className="min-w-0 [&_[aria-label=Captions]]:hidden [&_[aria-label=Effects]]:hidden [&_[aria-label=Generate]]:hidden [&_[aria-label=Sounds]]:hidden"
+				className={cn("min-w-0", HIDE_VIDEO_TABS)}
 			>
 				<AssetsPanel />
 			</ResizablePanel>

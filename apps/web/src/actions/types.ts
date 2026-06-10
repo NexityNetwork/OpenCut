@@ -1,5 +1,6 @@
 import type { MutableRefObject } from "react";
 import type { TAction } from "./definitions";
+import { ACTIONS } from "./definitions";
 
 export type { TAction };
 
@@ -23,6 +24,23 @@ export type TActionWithOptionalArgs =
 	| TKeysWithValueUndefined<TActionArgsMap>;
 
 export type TActionWithNoArgs = Exclude<TAction, TActionWithArgs>;
+
+// Actions whose args CANNOT be omitted — everything else is keybindable.
+const ACTIONS_WITH_REQUIRED_ARGS = new Set<string>([
+	"remove-media-asset",
+	"remove-media-assets",
+]);
+
+/** Runtime guard matching TActionWithOptionalArgs (used when decoding persisted keybindings). */
+export function isActionWithOptionalArgs(
+	v: unknown,
+): v is TActionWithOptionalArgs {
+	return (
+		typeof v === "string" &&
+		v in ACTIONS &&
+		!ACTIONS_WITH_REQUIRED_ARGS.has(v)
+	);
+}
 
 export type TArgOfAction<A extends TAction> = A extends TActionWithArgs
 	? TActionArgsMap[A]

@@ -247,7 +247,7 @@ export function DmInbox({ preview, account }: { preview: boolean; account?: stri
 	};
 
 	return (
-		<div className="flex h-[calc(100vh-7.5rem)] overflow-hidden rounded-2xl border border-[var(--mono-line)] bg-[var(--mono-panel)]">
+		<div className="flex h-[calc(100dvh-12rem)] overflow-hidden rounded-2xl lg:h-[calc(100vh-7.5rem)] border border-[var(--mono-line)] bg-[var(--mono-panel)]">
 			{/* Conversation list */}
 			<div
 				className={cn(

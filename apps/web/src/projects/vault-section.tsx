@@ -1360,7 +1360,7 @@ export function VaultSection() {
 				) : (
 					<div className="px-4 pb-24 sm:px-8">
 						{appView === "library" && (
-							<div className="flex items-center gap-3 pt-4">
+							<div className="flex items-center gap-3 pt-14 lg:pt-4">
 								<div className="flex min-w-0 flex-1 items-center gap-2 rounded-full border border-[var(--mono-line)] bg-[var(--mono-hover)] px-4 py-2">
 									<Search className="size-4 shrink-0 text-[var(--mono-ink-3)]" />
 									<input
@@ -1805,6 +1805,7 @@ function HomeDashboard({
 	const [activity, setActivity] = useState<{
 		feed: { what: string; who: string; when: string }[];
 		series: { day: string; n: number }[];
+		platforms?: { platform: string; n: number }[];
 		counts: { published30: number; queued: number; failed30: number };
 	} | null>(null);
 	useEffect(() => {
@@ -1922,6 +1923,21 @@ function HomeDashboard({
 								Success rate
 							</div>
 						</div>
+						<div>
+							<div
+								className={cn(
+									"text-lg font-semibold",
+									(c30?.failed30 ?? 0) > 0
+										? "text-red-400"
+										: "text-[var(--mono-ink)]",
+								)}
+							>
+								{c30?.failed30 ?? "·"}
+							</div>
+							<div className="text-[11px] text-[var(--mono-ink-3)]">
+								Failed · 30d
+							</div>
+						</div>
 					</div>
 					<div className="mt-4 flex min-h-28 flex-1 items-end gap-1">
 						{series.map((sd) => (
@@ -1943,6 +1959,20 @@ function HomeDashboard({
 						<span>{series[14]?.day.slice(5)}</span>
 						<span>{series[29]?.day.slice(5)}</span>
 					</div>
+					{(activity?.platforms?.length ?? 0) > 0 && (
+						<div className="mt-3 flex flex-wrap gap-1.5 border-t border-[var(--mono-line)] pt-3">
+							{activity?.platforms?.map((p) => (
+								<span
+									key={p.platform}
+									className="flex items-center gap-1.5 rounded-full border border-[var(--mono-line)] px-2.5 py-1 text-[11px] text-[var(--mono-ink-2)] capitalize"
+								>
+									{pubPlatformIcon(p.platform)}
+									{p.platform}
+									<span className="font-semibold text-[var(--mono-ink)] tabular-nums">{p.n}</span>
+								</span>
+							))}
+						</div>
+					)}
 				</div>
 
 				{/* Activity feed (real) */}
@@ -1953,7 +1983,7 @@ function HomeDashboard({
 							Activity
 						</span>
 					</div>
-					<div className="mt-3 divide-y divide-[var(--mono-line)]">
+					<div className="mt-3 max-h-[26rem] divide-y divide-[var(--mono-line)] overflow-y-auto pr-1">
 						{!activity || activity.feed.length === 0 ? (
 							<div className="py-4 text-sm text-[var(--mono-ink-3)]">
 								Nothing yet — import something or schedule a post.

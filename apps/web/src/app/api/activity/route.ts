@@ -40,7 +40,7 @@ export async function GET(request: Request) {
 	if (vault && owner) {
 		const items = await vault
 			.prepare(
-				"SELECT name, kind, source, created_at FROM vault_items WHERE owner = ? ORDER BY created_at DESC LIMIT 5",
+				"SELECT name, kind, source, created_at FROM vault_items WHERE owner = ? ORDER BY created_at DESC LIMIT 12",
 			)
 			.bind(owner)
 			.all();
@@ -54,6 +54,7 @@ export async function GET(request: Request) {
 	}
 
 	let series: { day: string; n: number }[] = [];
+	let platforms: { platform: string; n: number }[] = [];
 	let counts = { published30: 0, queued: 0, failed30: 0 };
 	if (publish && includePublish) {
 		const since = Date.now() - 30 * 86400_000;
@@ -61,7 +62,7 @@ export async function GET(request: Request) {
 			.prepare(
 				`SELECT kind, payload_json, ts FROM publish_events
          WHERE kind IN ('upload_success','upload_fail','enqueued')
-         ORDER BY ts DESC LIMIT 8`,
+         ORDER BY ts DESC LIMIT 25`,
 			)
 			.bind()
 			.all();
@@ -116,12 +117,26 @@ export async function GET(request: Request) {
 			queued: queued?.n ?? 0,
 			failed30: failed30?.n ?? 0,
 		};
+
+		const byPlatform = await publish
+			.prepare(
+				`SELECT platform, COUNT(*) AS n FROM content_queue
+         WHERE status='published' AND published_at > ?
+         GROUP BY platform ORDER BY n DESC`,
+			)
+			.bind(since)
+			.all();
+		platforms = (byPlatform.results ?? []).map((r) => ({
+			platform: String(r.platform),
+			n: Number(r.n) || 0,
+		}));
 	}
 
 	feed.sort((a, b) => b.ts - a.ts);
 	return Response.json({
-		feed: feed.slice(0, 8).map((f) => ({ ...f, when: ago(f.ts) })),
+		feed: feed.slice(0, 25).map((f) => ({ ...f, when: ago(f.ts) })),
 		series,
+		platforms,
 		counts,
 	});
 }

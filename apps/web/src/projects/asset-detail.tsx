@@ -97,7 +97,7 @@ export function AssetDetail({
 	};
 
 	return (
-		<div className="px-4 pt-4 pb-16 sm:px-8">
+		<div className="px-4 pt-14 pb-16 sm:px-8 lg:pt-4">
 			<div className="mb-4 flex items-center justify-between">
 				<button
 					type="button"
