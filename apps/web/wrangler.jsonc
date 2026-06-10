@@ -18,6 +18,10 @@
     {
       "pattern": "edits.51ultron.com",
       "custom_domain": true
+    },
+    {
+      "pattern": "bio-edge.51ultron.com",
+      "custom_domain": true
     }
   ],
   "vars": {
@@ -40,7 +44,9 @@
     "AZURE_OPENAI_DEPLOYMENT": "gpt-4.1-mini",
     "YTDLP_URL": "https://ultron-ytdlp-cf.catalin-932.workers.dev",
     "IG_FETCH_URL": "https://ultron-ytdlp.thankfulpond-16e98834.eastus.azurecontainerapps.io",
-    "APIFY_IG_REELS_ACTOR": "PCJOW9u5iF0aCbicy"
+    "APIFY_IG_REELS_ACTOR": "PCJOW9u5iF0aCbicy",
+    "CF_ZONE_BIO": "d7255f3dc3b1f8abb99a06d141af2b21",
+    "BIO_FALLBACK_HOST": "bio-edge.51ultron.com"
   },
   "r2_buckets": [
     { "binding": "REELS_R2", "bucket_name": "ultron-reels" }

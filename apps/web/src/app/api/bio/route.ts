@@ -1,44 +1,16 @@
-import { getCloudflareContext } from "@opennextjs/cloudflare";
+import {
+	bioDb,
+	ensureBioTables,
+	sessionUserId,
+	RESERVED_HANDLES,
+} from "@/bio/server";
 
 // Link-in-bio storage (VAULT_DB.bio_pages). One page per owner; handle is the
 // public slug used by /bio/[handle].
-
-type D1 = {
-	prepare: (q: string) => {
-		bind: (...a: unknown[]) => {
-			run: () => Promise<unknown>;
-			first: <T = Record<string, unknown>>() => Promise<T | null>;
-		};
-	};
-	exec?: (q: string) => Promise<unknown>;
-};
-
-function db(): D1 | undefined {
-	try {
-		const { env } = getCloudflareContext();
-		return (env as unknown as { VAULT_DB?: D1 }).VAULT_DB;
-	} catch {
-		return undefined;
-	}
-}
-
-let ensured = false;
-async function ensureTable(d: D1) {
-	if (ensured) return;
-	try {
-		await d
-			.prepare(
-				`CREATE TABLE IF NOT EXISTS bio_pages (
-           owner TEXT PRIMARY KEY, handle TEXT UNIQUE, data TEXT NOT NULL,
-           published INTEGER NOT NULL DEFAULT 0, updated_at INTEGER NOT NULL)`,
-			)
-			.bind()
-			.run();
-		ensured = true;
-	} catch {
-		/* table likely exists */
-	}
-}
+//
+// Ownership: when a session exists, the owner is ALWAYS the session user —
+// the client-supplied owner is ignored. Anonymous (device) owners may draft,
+// but publishing requires an account so public handles belong to accounts.
 
 function row(r: Record<string, unknown> | null) {
 	if (!r) return null;
@@ -60,45 +32,73 @@ export async function GET(request: Request) {
 	const u = new URL(request.url);
 	const handle = u.searchParams.get("handle");
 	const owner = u.searchParams.get("owner");
-	const d = db();
+	const d = bioDb();
 	if (!d) return Response.json({ error: "not configured" }, { status: 503 });
-	await ensureTable(d);
+	await ensureBioTables(d);
 
 	if (handle) {
 		const r = await d
 			.prepare(
 				"SELECT handle, data, published, updated_at FROM bio_pages WHERE handle = ? AND published = 1",
 			)
-			.bind(handle)
+			.bind(handle.toLowerCase())
 			.first();
 		const page = row(r);
 		if (!page) return Response.json({ error: "not found" }, { status: 404 });
 		return Response.json({ page });
 	}
-	if (owner) {
-		const r = await d
-			.prepare(
-				"SELECT handle, data, published, updated_at FROM bio_pages WHERE owner = ?",
-			)
-			.bind(owner)
-			.first();
-		return Response.json({ page: row(r) });
+
+	// Owner lookups prefer the session identity over the supplied one.
+	const sessionOwner = await sessionUserId(request);
+	const effectiveOwner = sessionOwner ?? owner;
+	if (!effectiveOwner) {
+		return Response.json({ error: "handle or owner required" }, { status: 400 });
 	}
-	return Response.json({ error: "handle or owner required" }, { status: 400 });
+	const r = await d
+		.prepare(
+			"SELECT handle, data, published, updated_at FROM bio_pages WHERE owner = ?",
+		)
+		.bind(effectiveOwner)
+		.first();
+	return Response.json({ page: row(r), owner: effectiveOwner });
 }
 
 export async function PUT(request: Request) {
 	const b = (await request.json().catch(() => ({}))) as Record<string, unknown>;
-	const owner = String(b.owner || "").trim();
-	const handle = String(b.handle || "").trim().toLowerCase();
-	if (!owner || !handle || !b.data) {
-		return Response.json({ error: "owner, handle, data required" }, { status: 400 });
+	const handle = String(b.handle || "")
+		.trim()
+		.toLowerCase();
+	if (!handle || !b.data) {
+		return Response.json({ error: "handle and data required" }, { status: 400 });
 	}
-	const d = db();
-	if (!d) return Response.json({ error: "not configured" }, { status: 503 });
-	await ensureTable(d);
+	if (handle.length < 3) {
+		return Response.json(
+			{ error: "Handle must be at least 3 characters" },
+			{ status: 400 },
+		);
+	}
+	if (RESERVED_HANDLES.has(handle)) {
+		return Response.json({ error: "That handle is reserved" }, { status: 409 });
+	}
 
-	// Enforce handle uniqueness across other owners.
+	const sessionOwner = await sessionUserId(request);
+	const owner = sessionOwner ?? String(b.owner || "").trim();
+	if (!owner) {
+		return Response.json({ error: "owner required" }, { status: 400 });
+	}
+	// Public handles belong to accounts: anonymous users can draft, not publish.
+	const wantsPublish = !!b.published;
+	if (wantsPublish && !sessionOwner) {
+		return Response.json(
+			{ error: "Log in to publish your page" },
+			{ status: 401 },
+		);
+	}
+
+	const d = bioDb();
+	if (!d) return Response.json({ error: "not configured" }, { status: 503 });
+	await ensureBioTables(d);
+
 	const clash = await d
 		.prepare("SELECT owner FROM bio_pages WHERE handle = ? AND owner != ?")
 		.bind(handle, owner)
@@ -115,13 +115,7 @@ export async function PUT(request: Request) {
          handle = excluded.handle, data = excluded.data,
          published = excluded.published, updated_at = excluded.updated_at`,
 		)
-		.bind(
-			owner,
-			handle,
-			JSON.stringify(b.data),
-			b.published ? 1 : 0,
-			Date.now(),
-		)
+		.bind(owner, handle, JSON.stringify(b.data), wantsPublish ? 1 : 0, Date.now())
 		.run();
-	return Response.json({ ok: true, handle });
+	return Response.json({ ok: true, handle, owner });
 }

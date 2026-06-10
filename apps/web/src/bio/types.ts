@@ -1,11 +1,17 @@
 // Link-in-bio ("Monolith Bio") — shared types for the builder and the public page.
 
+export type BioBlockKind = "link" | "header" | "youtube" | "image" | "email";
+
 export type BioLink = {
 	id: string;
+	/** block type — plain link by default */
+	kind?: BioBlockKind;
 	label: string;
 	url: string;
-	/** optional emoji/short glyph shown on the button */
+	/** "lucide:<key>" or a literal emoji */
 	icon?: string;
+	/** hidden blocks stay in the editor but don't render publicly */
+	hidden?: boolean;
 };
 
 export type BioSocial = {
