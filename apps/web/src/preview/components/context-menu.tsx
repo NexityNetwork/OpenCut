@@ -50,8 +50,59 @@ export function PreviewContextMenu({
 		}
 	};
 
+	const selected = editor.selection.getSelectedElements();
+	const hasSelection = selected.length > 0;
+
+	const centerSelection = (axis: "x" | "y" | "both") => {
+		editor.timeline.updateElements({
+			updates: selected.map(({ trackId, elementId }) => ({
+				trackId,
+				elementId,
+				patch: {
+					params: {
+						...(axis !== "y" ? { "transform.positionX": 0 } : {}),
+						...(axis !== "x" ? { "transform.positionY": 0 } : {}),
+					},
+				},
+			})),
+		});
+	};
+
 	return (
 		<ContextMenuContent className="w-56" container={container}>
+			{hasSelection && (
+				<>
+					<ContextMenuItem onClick={() => editor.clipboard.copy()} inset>
+						Copy
+					</ContextMenuItem>
+					<ContextMenuItem
+						onClick={() => editor.timeline.duplicateElements({ elements: selected })}
+						inset
+					>
+						Duplicate
+					</ContextMenuItem>
+					<ContextMenuItem
+						onClick={() => editor.timeline.deleteElements({ elements: selected })}
+						inset
+					>
+						Delete
+					</ContextMenuItem>
+					<ContextMenuSeparator />
+					<ContextMenuItem onClick={() => centerSelection("both")} inset>
+						Center on page
+					</ContextMenuItem>
+					<ContextMenuItem onClick={() => centerSelection("x")} inset>
+						Center horizontally
+					</ContextMenuItem>
+					<ContextMenuItem onClick={() => centerSelection("y")} inset>
+						Center vertically
+					</ContextMenuItem>
+					<ContextMenuSeparator />
+				</>
+			)}
+			<ContextMenuItem onClick={() => editor.clipboard.paste()} inset>
+				Paste
+			</ContextMenuItem>
 			<ContextMenuItem onClick={viewport.fitToScreen} inset>
 				Fit to screen
 			</ContextMenuItem>

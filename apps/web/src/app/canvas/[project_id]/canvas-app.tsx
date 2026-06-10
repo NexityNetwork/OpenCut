@@ -30,8 +30,16 @@ import { MobileGate } from "@/components/editor/mobile-gate";
 import { useEditor } from "@/editor/use-editor";
 import { usePasteMedia } from "@/media/use-paste-media";
 import { processMediaAssets } from "@/media/processing";
-import { buildElementFromMedia } from "@/timeline/element-utils";
-import { DEFAULT_NEW_ELEMENT_DURATION } from "@/timeline/creation";
+import {
+	buildElementFromMedia,
+	buildTextElement,
+	buildStickerElement,
+	buildGraphicElement,
+} from "@/timeline/element-utils";
+import {
+	DEFAULT_NEW_ELEMENT_DURATION,
+	toElementDurationTicks,
+} from "@/timeline/creation";
 import { mediaTimeFromSeconds } from "@/wasm";
 import { AddMediaAssetCommand } from "@/commands/media";
 import { InsertElementCommand } from "@/commands/timeline";
@@ -39,6 +47,7 @@ import { BatchCommand } from "@/commands";
 import { cn } from "@/utils/ui";
 import { generateUUID } from "@/utils/id";
 import type { TScene, TimelineTrack } from "@/timeline/types";
+import type { TimelineDragData } from "@/timeline/drag";
 import {
 	exportPagesAsImages,
 	exportPagesAsPdf,
@@ -46,10 +55,11 @@ import {
 	type CanvasExportFormat,
 } from "@/canvas-editor/export";
 import {
+	ArrowDown,
+	ArrowUp,
 	ChevronLeft,
 	Copy,
 	Download,
-	Pencil,
 	Plus,
 	Trash2,
 } from "lucide-react";
@@ -433,17 +443,39 @@ function PagesStage() {
 		}
 	};
 
-	const addPage = async () => {
+	// Append, or insert right below a given index when provided.
+	const addPage = async (belowIndex?: number) => {
 		if (active) await snapshot(active);
 		try {
 			const id = await editor.scenes.createScene({
 				name: `Page ${scenes.length + 1}`,
 				isMain: false,
 			});
+			if (belowIndex != null) {
+				const list = editor.scenes.getScenes();
+				const created = list.find((s) => s.id === id);
+				if (created) {
+					const without = list.filter((s) => s.id !== id);
+					without.splice(belowIndex + 1, 0, created);
+					editor.scenes.setScenes({ scenes: without, activeSceneId: id });
+					editor.save.markDirty({ force: true });
+					return;
+				}
+			}
 			await editor.scenes.switchToScene({ sceneId: id });
 		} catch (e) {
 			toast.error(e instanceof Error ? e.message : "Couldn't add page");
 		}
+	};
+
+	const movePage = (scene: TScene, dir: -1 | 1) => {
+		const index = scenes.findIndex((s) => s.id === scene.id);
+		const target = index + dir;
+		if (index < 0 || target < 0 || target >= scenes.length) return;
+		const next = [...scenes];
+		[next[index], next[target]] = [next[target], next[index]];
+		editor.scenes.setScenes({ scenes: next, activeSceneId: active?.id });
+		editor.save.markDirty({ force: true });
 	};
 
 	const duplicatePage = async (scene: TScene) => {
@@ -460,10 +492,14 @@ function PagesStage() {
 		}
 	};
 
-	const renamePage = async (scene: TScene) => {
-		const name = window.prompt("Rename page", scene.name);
-		if (!name?.trim() || name === scene.name) return;
-		await editor.scenes.renameScene({ sceneId: scene.id, name: name.trim() });
+	const setPageTitle = async (scene: TScene, index: number, title: string) => {
+		const name = title.trim() || `Page ${index + 1}`;
+		if (name === scene.name) return;
+		try {
+			await editor.scenes.renameScene({ sceneId: scene.id, name });
+		} catch {
+			toast.error("Couldn't rename page");
+		}
 	};
 
 	const deletePage = async (scene: TScene) => {
@@ -524,6 +560,89 @@ function PagesStage() {
 		}
 	};
 
+	// Drops that originate from the assets panel (media / text / stickers /
+	// shapes) — same element builders the timeline's drop controller uses.
+	const insertFromPanelDrag = (d: TimelineDragData) => {
+		const startTime = editor.playback.getCurrentTime();
+		switch (d.type) {
+			case "media": {
+				const asset = editor.media.getAssets().find((a) => a.id === d.id);
+				if (!asset) return;
+				editor.timeline.insertElement({
+					element: buildElementFromMedia({
+						mediaId: asset.id,
+						mediaType: asset.type,
+						name: asset.name,
+						duration: toElementDurationTicks({ seconds: asset.duration }),
+						startTime,
+					}),
+					placement: {
+						mode: "auto",
+						trackType: asset.type === "audio" ? "audio" : "video",
+					},
+				});
+				break;
+			}
+			case "text": {
+				editor.timeline.insertElement({
+					element: buildTextElement({
+						raw: { name: d.name ?? "", params: { content: d.content ?? "" } },
+						startTime,
+					}),
+					placement: { mode: "auto", trackType: "text" },
+				});
+				break;
+			}
+			case "sticker": {
+				editor.timeline.insertElement({
+					element: buildStickerElement({
+						stickerId: d.stickerId,
+						name: d.name,
+						startTime,
+					}),
+					placement: { mode: "auto", trackType: "graphic" },
+				});
+				break;
+			}
+			case "graphic": {
+				editor.timeline.insertElement({
+					element: buildGraphicElement({
+						definitionId: d.definitionId,
+						name: d.name,
+						startTime,
+						params: d.params,
+					}),
+					placement: { mode: "auto", trackType: "graphic" },
+				});
+				break;
+			}
+			case "effect":
+				toast.message("Drop effects onto a clip in the video editor");
+				break;
+		}
+	};
+
+	const isDropAccepted = (e: React.DragEvent) =>
+		editor.timeline.dragSource.isActive() ||
+		e.dataTransfer.types.includes("Files");
+
+	// One drop path for both sources; lands on `scene` (switching first) or
+	// on the active page when dropped on stage padding.
+	const handleDrop = async (e: React.DragEvent, scene?: TScene) => {
+		const panelDrag = editor.timeline.dragSource.getActive();
+		const hasFiles = e.dataTransfer.types.includes("Files");
+		if (!panelDrag && !hasFiles) return;
+		e.preventDefault();
+		e.stopPropagation();
+		setDragOver(false);
+		if (scene && scene.id !== active?.id) await selectPage(scene);
+		if (panelDrag) {
+			insertFromPanelDrag(panelDrag);
+		} else {
+			await insertFiles(Array.from(e.dataTransfer.files));
+		}
+	};
+
 	if (!project) {
 		return (
 			<div className="panel bg-background size-full rounded-sm border" />
@@ -533,6 +652,11 @@ function PagesStage() {
 	const { width, height } = project.settings.canvasSize;
 	const aspect = `${width} / ${height}`;
 
+	const isAutoName = (name: string) => /^Page \d+( copy)?$/.test(name);
+
+	const headerBtn =
+		"text-muted-foreground hover:text-foreground flex size-6 items-center justify-center rounded hover:bg-accent disabled:pointer-events-none disabled:opacity-30";
+
 	return (
 		<div
 			className={cn(
@@ -540,7 +664,7 @@ function PagesStage() {
 				dragOver && "ring-primary/50 ring-2 ring-inset",
 			)}
 			onDragOver={(e) => {
-				if (e.dataTransfer.types.includes("Files")) {
+				if (isDropAccepted(e)) {
 					e.preventDefault();
 					setDragOver(true);
 				}
@@ -548,15 +672,9 @@ function PagesStage() {
 			onDragLeave={(e) => {
 				if (e.currentTarget === e.target) setDragOver(false);
 			}}
-			onDrop={(e) => {
-				if (e.dataTransfer.types.includes("Files")) {
-					e.preventDefault();
-					setDragOver(false);
-					void insertFiles(Array.from(e.dataTransfer.files));
-				}
-			}}
+			onDrop={(e) => void handleDrop(e)}
 		>
-			<div className="mx-auto flex max-w-3xl flex-col gap-2 px-6 py-6">
+			<div className="mx-auto flex max-w-3xl flex-col gap-4 px-6 py-6">
 				{scenes.map((scene, i) => {
 					const isActive = active?.id === scene.id;
 					const snap = snaps[scene.id];
@@ -568,46 +686,88 @@ function PagesStage() {
 							}}
 							className="group/page"
 						>
-							<div className="flex h-7 items-center gap-1.5 px-0.5">
+							{/* Canva-style page header: number, inline title, actions */}
+							<div className="flex h-8 items-center gap-2 px-0.5">
 								<button
 									type="button"
 									onClick={() => selectPage(scene)}
 									className={cn(
-										"text-xs font-medium",
+										"shrink-0 text-xs font-semibold",
 										isActive
 											? "text-foreground"
 											: "text-muted-foreground hover:text-foreground",
 									)}
 								>
-									{i + 1} · {scene.name}
+									Page {i + 1}
 								</button>
-								<div className="flex items-center gap-0.5 opacity-0 transition-opacity group-hover/page:opacity-100">
+								<input
+									key={`${scene.id}:${scene.name}`}
+									type="text"
+									defaultValue={isAutoName(scene.name) ? "" : scene.name}
+									placeholder="Add page title"
+									onFocus={() => selectPage(scene)}
+									onBlur={(e) => setPageTitle(scene, i, e.target.value)}
+									onKeyDown={(e) =>
+										e.key === "Enter" && (e.target as HTMLInputElement).blur()
+									}
+									className="placeholder:text-muted-foreground/50 min-w-0 flex-1 bg-transparent text-xs outline-none"
+								/>
+								<div
+									className={cn(
+										"flex items-center gap-0.5 transition-opacity",
+										isActive
+											? "opacity-100"
+											: "opacity-0 group-hover/page:opacity-100",
+									)}
+								>
 									<button
 										type="button"
-										onClick={() => renamePage(scene)}
-										aria-label="Rename page"
-										className="text-muted-foreground hover:text-foreground flex size-6 items-center justify-center rounded hover:bg-accent"
+										onClick={() => movePage(scene, -1)}
+										disabled={i === 0}
+										aria-label="Move page up"
+										title="Move up"
+										className={headerBtn}
 									>
-										<Pencil className="size-3" />
+										<ArrowUp className="size-3.5" />
+									</button>
+									<button
+										type="button"
+										onClick={() => movePage(scene, 1)}
+										disabled={i === scenes.length - 1}
+										aria-label="Move page down"
+										title="Move down"
+										className={headerBtn}
+									>
+										<ArrowDown className="size-3.5" />
 									</button>
 									<button
 										type="button"
 										onClick={() => duplicatePage(scene)}
 										aria-label="Duplicate page"
-										className="text-muted-foreground hover:text-foreground flex size-6 items-center justify-center rounded hover:bg-accent"
+										title="Duplicate page"
+										className={headerBtn}
 									>
-										<Copy className="size-3" />
+										<Copy className="size-3.5" />
 									</button>
-									{!scene.isMain && (
-										<button
-											type="button"
-											onClick={() => deletePage(scene)}
-											aria-label="Delete page"
-											className="text-muted-foreground hover:text-destructive flex size-6 items-center justify-center rounded hover:bg-accent"
-										>
-											<Trash2 className="size-3" />
-										</button>
-									)}
+									<button
+										type="button"
+										onClick={() => deletePage(scene)}
+										disabled={scene.isMain}
+										aria-label="Delete page"
+										title={scene.isMain ? "The first page can't be deleted" : "Delete page"}
+										className={cn(headerBtn, "hover:text-destructive")}
+									>
+										<Trash2 className="size-3.5" />
+									</button>
+									<button
+										type="button"
+										onClick={() => addPage(i)}
+										aria-label="Add page below"
+										title="Add page below"
+										className={headerBtn}
+									>
+										<Plus className="size-3.5" />
+									</button>
 								</div>
 							</div>
 
@@ -615,6 +775,10 @@ function PagesStage() {
 								<div
 									style={{ aspectRatio: aspect }}
 									className="ring-primary/60 w-full overflow-hidden rounded-md ring-2 [&_[data-preview-toolbar]]:hidden"
+									// Page scroll wins over the preview's internal zoom/pan.
+									onWheelCapture={(e) => e.stopPropagation()}
+									onDrop={(e) => void handleDrop(e, scene)}
+									onDragOver={(e) => isDropAccepted(e) && e.preventDefault()}
 								>
 									<PreviewPanel
 										overlayControls={[]}
@@ -628,6 +792,8 @@ function PagesStage() {
 									onClick={() => selectPage(scene)}
 									style={{ aspectRatio: aspect }}
 									className="border-border hover:ring-primary/40 block w-full overflow-hidden rounded-md border bg-white transition-shadow hover:ring-2"
+									onDrop={(e) => void handleDrop(e, scene)}
+									onDragOver={(e) => isDropAccepted(e) && e.preventDefault()}
 								>
 									{snap ? (
 										// eslint-disable-next-line @next/next/no-img-element
@@ -646,8 +812,8 @@ function PagesStage() {
 
 				<button
 					type="button"
-					onClick={addPage}
-					className="text-muted-foreground hover:text-foreground border-border hover:bg-accent mt-3 flex w-full items-center justify-center gap-1.5 rounded-md border border-dashed py-3 text-sm transition-colors"
+					onClick={() => addPage()}
+					className="text-muted-foreground hover:text-foreground border-border hover:bg-accent mt-1 flex w-full items-center justify-center gap-1.5 rounded-md border border-dashed py-3 text-sm transition-colors"
 				>
 					<Plus className="size-4" /> Add page
 				</button>
