@@ -42,6 +42,18 @@ export function EditorHeader() {
 	);
 }
 
+// Return to the library on the tab the user came from (kept in sessionStorage
+// by the library), so back doesn't dump them on the default "All" view.
+function libraryHref(): string {
+	if (typeof window === "undefined") return "/projects";
+	try {
+		const tab = sessionStorage.getItem("vault-active-tab");
+		return tab ? `/projects?tab=${encodeURIComponent(tab)}` : "/projects";
+	} catch {
+		return "/projects";
+	}
+}
+
 function BackToLibrary() {
 	const router = useRouter();
 	const editor = useEditor();
@@ -57,7 +69,7 @@ function BackToLibrary() {
 			console.error("Failed to prepare project exit:", error);
 		} finally {
 			editor.project.closeProject();
-			router.push("/projects");
+			router.push(libraryHref());
 		}
 	};
 
@@ -115,7 +127,7 @@ function ProjectDropdown() {
 			console.error("Failed to prepare project exit:", error);
 		} finally {
 			editor.project.closeProject();
-			router.push("/projects");
+			router.push(libraryHref());
 		}
 	};
 
@@ -147,7 +159,7 @@ function ProjectDropdown() {
 				await editor.project.deleteProjects({
 					ids: [activeProject.metadata.id],
 				});
-				router.push("/projects");
+				router.push(libraryHref());
 			} catch (error) {
 				toast.error("Failed to delete project", {
 					description:

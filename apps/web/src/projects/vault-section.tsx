@@ -420,16 +420,25 @@ export function VaultSection() {
 	const [loading, setLoading] = useState(true);
 	const [text, setText] = useState("");
 	const [busy, setBusy] = useState(false);
-	// Remember the last open tab so returning from the editor lands back where
-	// you were (e.g. the "CTW Final" category) instead of resetting to "all".
-	const [activeTab, setActiveTab] = useState<string>(() =>
-		typeof window !== "undefined"
-			? sessionStorage.getItem("vault-active-tab") || "all"
-			: "all",
-	);
+	// The open tab lives in the URL (?tab=…) so a refresh or coming back from
+	// the editor lands on the same category instead of resetting to "all".
+	// sessionStorage is the fallback when the URL has no tab.
+	const [activeTab, setActiveTab] = useState<string>(() => {
+		if (typeof window === "undefined") return "all";
+		const fromUrl = new URLSearchParams(window.location.search).get("tab");
+		return fromUrl || sessionStorage.getItem("vault-active-tab") || "all";
+	});
 	useEffect(() => {
-		if (typeof window !== "undefined") {
-			sessionStorage.setItem("vault-active-tab", activeTab);
+		if (typeof window === "undefined") return;
+		sessionStorage.setItem("vault-active-tab", activeTab);
+		const params = new URLSearchParams(window.location.search);
+		if ((params.get("tab") || "") !== activeTab) {
+			params.set("tab", activeTab);
+			window.history.replaceState(
+				null,
+				"",
+				`${window.location.pathname}?${params.toString()}`,
+			);
 		}
 	}, [activeTab]);
 	// Asset detail opens inline (sidebar stays); cleared whenever you navigate.
@@ -1131,18 +1140,10 @@ export function VaultSection() {
 	);
 	const sectionIcon = (name: string) =>
 		customSections.find((s) => s.name === name)?.icon ?? "";
-	// Fall back to "All" if the selected category no longer exists — but only
-	// once sections have loaded, so a restored tab isn't wiped during the
-	// initial (empty) render.
-	useEffect(() => {
-		if (
-			sectionNames.length > 0 &&
-			activeTab.startsWith("cat:") &&
-			!sectionNames.includes(activeTab.slice(4))
-		) {
-			setActiveTab("all");
-		}
-	}, [sectionNames, activeTab]);
+	// Note: we intentionally do NOT auto-reset a "cat:" tab when it's missing
+	// from sectionNames — categories (vault tags vs project categories) load at
+	// different times, and that race was wiping a restored tab back to "All".
+	// Category deletion/rename are handled explicitly where they happen.
 	const q = isUrl(text) ? "" : text.trim().toLowerCase();
 	const shownVault = useMemo(() => {
 		if (activeTab === "projects") return [];
