@@ -56,6 +56,28 @@ const MAX_DOC_CHARS = 900_000; // stay well under D1's row ceiling
 
 type AnyRec = Record<string, unknown>;
 
+// A scene's `tracks` is an object keyed by lane — { overlay: Track[], main:
+// Track, audio: Track[] } — where some lanes are arrays of tracks and `main`
+// is a single track. (It can also be a bare array in older docs.) Flatten any
+// of those shapes into the list of track objects.
+function flattenTracks(tracks: unknown): AnyRec[] {
+	const out: AnyRec[] = [];
+	const add = (t: unknown) => {
+		if (t && typeof t === "object" && Array.isArray((t as AnyRec).elements)) {
+			out.push(t as AnyRec);
+		}
+	};
+	if (Array.isArray(tracks)) {
+		for (const t of tracks) add(t);
+	} else if (tracks && typeof tracks === "object") {
+		for (const lane of Object.values(tracks as AnyRec)) {
+			if (Array.isArray(lane)) for (const t of lane) add(t);
+			else add(lane);
+		}
+	}
+	return out;
+}
+
 // Walk scenes -> tracks -> elements and distill what makes a project
 // findable/editable by an AI: element mix, every text string, fonts used.
 function summarize(doc: AnyRec): AnyRec {
@@ -65,13 +87,12 @@ function summarize(doc: AnyRec): AnyRec {
 	const byType: Record<string, number> = {};
 	const texts: string[] = [];
 	const fonts = new Set<string>();
+	let elementCount = 0;
 	for (const scene of scenes) {
-		const tracks = Array.isArray(scene.tracks) ? (scene.tracks as AnyRec[]) : [];
-		for (const track of tracks) {
-			const elements = Array.isArray(track.elements)
-				? (track.elements as AnyRec[])
-				: [];
+		for (const track of flattenTracks(scene.tracks)) {
+			const elements = track.elements as AnyRec[];
 			for (const el of elements) {
+				elementCount++;
 				const t = String(el.type ?? "unknown");
 				byType[t] = (byType[t] ?? 0) + 1;
 				const params = (el.params ?? {}) as AnyRec;
@@ -88,6 +109,7 @@ function summarize(doc: AnyRec): AnyRec {
 		is_template: !!meta.isTemplate,
 		published_item_id: meta.publishedItemId ?? null,
 		scenes: scenes.length,
+		elements: elementCount,
 		elements_by_type: byType,
 		texts,
 		fonts: [...fonts],
