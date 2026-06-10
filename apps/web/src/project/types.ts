@@ -28,6 +28,8 @@ export interface TProjectMetadata {
 	isTemplate?: boolean;
 	/** Canvas projects are static multi-page designs, opened in /canvas. */
 	isCanvas?: boolean;
+	/** Set when the project was exported into the library; without it the project is a draft. */
+	publishedItemId?: string;
 }
 
 export interface TProjectSettings {

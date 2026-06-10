@@ -143,7 +143,11 @@ import type { ClipSuggestion } from "@/app/api/clips/route";
 import { buildElementFromMedia } from "@/timeline/element-utils";
 import { mediaTimeFromSeconds } from "@/wasm";
 import { insertCaptionChunksAsTextTrack } from "@/subtitles/insert";
-import { uploadExportToVault } from "@/canvas-editor/publish-export";
+import {
+	uploadExportToVault,
+	uploadCarouselToVault,
+} from "@/canvas-editor/publish-export";
+import { renderPagesToBlobs } from "@/canvas-editor/export";
 import { ParticleTextEffect } from "@/components/home/particle-text";
 
 const PLATFORMS = [
@@ -842,6 +846,99 @@ export function VaultSection() {
 		}
 	};
 
+	// Draft -> published: render the project (video for editor projects, image
+	// or carousel for canvas) into a real library item, then open it so the
+	// title/caption can be polished right away.
+	const publishingRef = useRef(false);
+	const publishProject = async (p: TProjectMetadata) => {
+		if (publishingRef.current) return;
+		publishingRef.current = true;
+		const tid = toast.loading(`Publishing "${p.name}"…`);
+		try {
+			await editor.project.loadProject({ id: p.id });
+			const project = editor.project.getActive();
+			let vaultId: string;
+			let kind: VaultItem["kind"];
+			if (p.isCanvas) {
+				const scenes = editor.scenes.getScenes();
+				const mediaAssets = editor.media.getAssets();
+				const blobs = await renderPagesToBlobs({
+					project,
+					scenes,
+					mediaAssets,
+					onProgress: (d, t) =>
+						toast.loading(`Rendering page ${d}/${t}…`, { id: tid }),
+				});
+				if (blobs.length === 0) throw new Error("Nothing to render yet");
+				if (blobs.length === 1) {
+					kind = "image";
+					vaultId = await uploadExportToVault({
+						owner,
+						name: p.name,
+						data: blobs[0],
+						ext: "png",
+						contentType: "image/png",
+						kind: "image",
+					});
+				} else {
+					kind = "carousel";
+					vaultId = await uploadCarouselToVault({
+						owner,
+						name: p.name,
+						pages: blobs,
+						onProgress: (d, t) =>
+							toast.loading(`Uploading ${d}/${t}…`, { id: tid }),
+					});
+				}
+			} else {
+				// loadProject already pulled the fonts; give layout one tick.
+				await new Promise((r) => setTimeout(r, 50));
+				const result = await editor.project.export({
+					options: {
+						format: "mp4",
+						quality: "high",
+						fps: project.settings.fps,
+						includeAudio: true,
+					},
+				});
+				if (!result.success || !result.buffer) {
+					throw new Error(result.error || "Export failed");
+				}
+				toast.loading("Uploading…", { id: tid });
+				kind = "video";
+				vaultId = await uploadExportToVault({
+					owner,
+					name: p.name,
+					data: result.buffer,
+					ext: "mp4",
+					contentType: "video/mp4",
+					kind: "video",
+				});
+			}
+
+			// Flip the project out of draft state.
+			editor.project.getActive().metadata.publishedItemId = vaultId;
+			await editor.project.saveCurrentProject();
+
+			const next = await fetchVault(owner).catch(() => null);
+			if (next) setItems(next);
+			toast.success("Published to your library", { id: tid });
+			setAppView("library");
+			setActiveTab(kind === "video" ? "video" : kind);
+			const fresh = next?.find((i) => i.id === vaultId);
+			if (fresh) setLightbox(fresh);
+		} catch (e) {
+			toast.error(
+				e instanceof Error ? e.message : "Couldn't publish the project",
+				{ id: tid },
+			);
+		} finally {
+			editor.project.clearExportState();
+			editor.project.closeProject();
+			publishingRef.current = false;
+		}
+	};
+
 	const createBlankProject = async () => {
 		const id = await editor.project.createNewProject({ name: "New project" });
 		router.push(`/editor/${id}`);
@@ -1165,7 +1262,7 @@ export function VaultSection() {
 										value={text}
 										onChange={(e) => onChange(e.target.value)}
 										placeholder="Search your library and projects…"
-										className="min-w-0 flex-1 bg-transparent text-sm text-[var(--mono-ink)] outline-none placeholder:text-[var(--mono-ink-3)]"
+										className="min-w-0 flex-1 bg-transparent text-sm text-[var(--mono-ink)] outline-none placeholder:text-[var(--mono-ink-2)]"
 									/>
 									{text && (
 										<button
@@ -1383,10 +1480,11 @@ export function VaultSection() {
 				) : shownProjects.length === 0 &&
 					shownVault.length === 0 &&
 					shownTemplates.length === 0 ? (
-					<div className="text-muted-foreground py-12 text-center text-sm">
-						Nothing here yet. Paste a link, upload a file, or start a new
-						project.
-					</div>
+					<LibraryEmptyState
+						tab={activeTab}
+						label={navTabs.find((t) => t.key === activeTab)?.label ?? activeTab}
+						query={text.trim()}
+					/>
 				) : (
 					<div
 						className={
@@ -1404,6 +1502,7 @@ export function VaultSection() {
 									onRename: () =>
 										setRenaming({ id: p.id, name: p.name, kind: "project" as const }),
 									onDelete: () => deleteProject(p),
+									onPublish: () => void publishProject(p),
 								};
 								return {
 									t: Number(new Date(p.updatedAt)) || 0,
@@ -1490,7 +1589,17 @@ export function VaultSection() {
 					</div>
 				)}
 
-			{lightbox && <Lightbox item={lightbox} onClose={() => setLightbox(null)} />}
+			{lightbox && (
+				<Lightbox
+					item={lightbox}
+					owner={owner}
+					onClose={() => setLightbox(null)}
+					onSaved={(u) => {
+						setItems((prev) => prev.map((i) => (i.id === u.id ? u : i)));
+						setLightbox(u);
+					}}
+				/>
+			)}
 			<RenameDialog
 				item={renaming}
 				onClose={() => setRenaming(null)}
@@ -2612,7 +2721,7 @@ function SearchModal({
 						value={q}
 						onChange={(e) => setQ(e.target.value)}
 						placeholder="Search your library and projects…"
-						className="flex-1 bg-transparent py-3.5 text-sm outline-none"
+						className="flex-1 bg-transparent py-3.5 text-sm outline-none placeholder:text-[var(--mono-ink-2)]"
 					/>
 					<button type="button" onClick={onClose} aria-label="Close">
 						<X className="text-muted-foreground hover:text-foreground size-4" />
@@ -4336,11 +4445,112 @@ function PublishPane({
 	);
 }
 
+const EMPTY_STATES: Record<
+	string,
+	{ Icon: typeof LayoutGrid; title: string; sub: string }
+> = {
+	all: {
+		Icon: LayoutGrid,
+		title: "Your library is empty",
+		sub: "Paste a link, upload a file, or start a new project.",
+	},
+	projects: {
+		Icon: Folder,
+		title: "No projects yet",
+		sub: "Hit New project in the sidebar to start editing.",
+	},
+	video: {
+		Icon: Film,
+		title: "No videos yet",
+		sub: "Import a video, or publish a project to see it here.",
+	},
+	carousel: {
+		Icon: Layers,
+		title: "No carousels yet",
+		sub: "Design one in Create post and publish it to the library.",
+	},
+	audio: {
+		Icon: AudioLines,
+		title: "No audio yet",
+		sub: "Paste a link or upload an audio file to keep it here.",
+	},
+	image: {
+		Icon: ImageIcon,
+		title: "No images yet",
+		sub: "Upload images, or publish a single page from Create post.",
+	},
+	templates: {
+		Icon: LayoutTemplate,
+		title: "No templates yet",
+		sub: "Save any project as a template to reuse it later.",
+	},
+};
+
+function LibraryEmptyState({
+	tab,
+	label,
+	query,
+}: {
+	tab: string;
+	label: string;
+	query: string;
+}) {
+	if (query) {
+		return (
+			<div className="flex flex-col items-center justify-center py-24 text-center">
+				<div className="mb-5 flex size-20 items-center justify-center rounded-3xl border border-[var(--mono-line)] bg-[var(--mono-panel)]">
+					<Search className="size-9 text-[var(--mono-ink-3)]" strokeWidth={1.5} />
+				</div>
+				<div className="text-[15px] font-semibold text-[var(--mono-ink)]">
+					No matches for "{query}"
+				</div>
+				<p className="mt-1 text-sm text-[var(--mono-ink-2)]">
+					Try a different name or clear the search.
+				</p>
+			</div>
+		);
+	}
+	const preset = EMPTY_STATES[tab] ?? {
+		Icon: Hash,
+		title: `Nothing in ${label} yet`,
+		sub: "Add items to this section from any card menu.",
+	};
+	return (
+		<div className="flex flex-col items-center justify-center py-24 text-center">
+			<div className="mb-5 flex size-20 items-center justify-center rounded-3xl border border-[var(--mono-line)] bg-[var(--mono-panel)]">
+				<preset.Icon
+					className="size-9 text-[var(--mono-ink-3)]"
+					strokeWidth={1.5}
+				/>
+			</div>
+			<div className="text-[15px] font-semibold text-[var(--mono-ink)]">
+				{preset.title}
+			</div>
+			<p className="mt-1 text-sm text-[var(--mono-ink-2)]">{preset.sub}</p>
+		</div>
+	);
+}
+
+function ProjectStatusChip({ project }: { project: TProjectMetadata }) {
+	if (project.isTemplate) return null;
+	return project.publishedItemId ? (
+		<span className="inline-flex items-center gap-1 rounded-md bg-[var(--mono-active)] px-1.5 py-0.5 text-[11px] font-medium text-[var(--mono-ink)]">
+			<Check className="size-3" />
+			Published
+		</span>
+	) : (
+		<span className="inline-flex items-center rounded-md border border-dashed border-[var(--mono-line)] px-1.5 py-0.5 text-[11px] font-medium text-[var(--mono-ink-3)]">
+			Draft
+		</span>
+	);
+}
+
 function ProjectCard({
 	project,
 	onOpen,
 	onRename,
 	onDelete,
+	onPublish,
 	badge = "Project",
 	openLabel = "Open",
 }: {
@@ -4348,6 +4558,7 @@ function ProjectCard({
 	onOpen: () => void;
 	onRename: () => void;
 	onDelete: () => void;
+	onPublish?: () => void;
 	badge?: string;
 	openLabel?: string;
 }) {
@@ -4387,6 +4598,14 @@ function ProjectCard({
 					</button>
 				</DropdownMenuTrigger>
 				<DropdownMenuContent align="end">
+					{onPublish && !project.isTemplate && (
+						<DropdownMenuItem onClick={onPublish}>
+							<LibraryIcon className="size-4" />
+							{project.publishedItemId
+								? "Publish again to library"
+								: "Publish to library"}
+						</DropdownMenuItem>
+					)}
 					<DropdownMenuItem onClick={onRename}>
 						<Pencil className="size-4" />
 						Rename
@@ -4410,9 +4629,12 @@ function ProjectCard({
 						Edited {fmtDate(project.updatedAt)}
 					</p>
 				</div>
-				<span className="bg-muted/70 text-muted-foreground shrink-0 rounded-md px-2 py-0.5 text-xs">
-					{badge}
-				</span>
+				<div className="flex shrink-0 items-center gap-1.5">
+					<ProjectStatusChip project={project} />
+					<span className="bg-muted/70 text-muted-foreground rounded-md px-2 py-0.5 text-xs">
+						{badge}
+					</span>
+				</div>
 			</div>
 		</div>
 	);
@@ -4634,12 +4856,14 @@ function ProjectRow({
 	onOpen,
 	onRename,
 	onDelete,
+	onPublish,
 	badge = "Project",
 }: {
 	project: TProjectMetadata;
 	onOpen: () => void;
 	onRename: () => void;
 	onDelete: () => void;
+	onPublish?: () => void;
 	badge?: string;
 	openLabel?: string;
 }) {
@@ -4672,6 +4896,9 @@ function ProjectRow({
 					</p>
 				</div>
 			</button>
+			<span className="hidden shrink-0 sm:block">
+				<ProjectStatusChip project={project} />
+			</span>
 			<span className="bg-muted/70 text-muted-foreground hidden shrink-0 rounded-md px-2 py-0.5 text-xs sm:block">
 				{badge}
 			</span>
@@ -4686,6 +4913,14 @@ function ProjectRow({
 					</button>
 				</DropdownMenuTrigger>
 				<DropdownMenuContent align="end">
+					{onPublish && !project.isTemplate && (
+						<DropdownMenuItem onClick={onPublish}>
+							<LibraryIcon className="size-4" />
+							{project.publishedItemId
+								? "Publish again to library"
+								: "Publish to library"}
+						</DropdownMenuItem>
+					)}
 					<DropdownMenuItem onClick={onRename}>
 						<Pencil className="size-4" />
 						Rename
@@ -4991,21 +5226,69 @@ function CaptionDialog({
 	);
 }
 
-function Lightbox({ item, onClose }: { item: VaultItem; onClose: () => void }) {
+function Lightbox({
+	item,
+	owner,
+	onClose,
+	onSaved,
+}: {
+	item: VaultItem;
+	owner?: string;
+	onClose: () => void;
+	onSaved?: (item: VaultItem) => void;
+}) {
 	const [i, setI] = useState(0);
 	const media = item.media;
 	const idx = Math.min(i, media.length - 1);
 	const cur = media[idx];
-	const copyCap = async () => {
-		if (!item.caption) return;
+	const editable = !!owner && !!onSaved;
+	const [title, setTitle] = useState(item.name);
+	const [caption, setCaption] = useState(item.caption ?? "");
+	const [saving, setSaving] = useState(false);
+	useEffect(() => {
+		setTitle(item.name);
+		setCaption(item.caption ?? "");
+	}, [item]);
+	const dirty =
+		editable && (title.trim() !== item.name || caption !== (item.caption ?? ""));
+	const save = async () => {
+		if (!owner || !onSaved || saving || !dirty) return;
+		setSaving(true);
 		try {
-			await navigator.clipboard.writeText(item.caption);
+			const r = await fetch("/api/vault", {
+				method: "PATCH",
+				headers: { "content-type": "application/json" },
+				body: JSON.stringify({
+					owner,
+					id: item.id,
+					name: title.trim() || item.name,
+					caption,
+				}),
+			});
+			if (!r.ok) throw new Error("Save failed");
+			onSaved({
+				...item,
+				name: title.trim() || item.name,
+				caption: caption.trim() ? caption : undefined,
+			});
+			toast.success("Saved");
+		} catch (e) {
+			toast.error(e instanceof Error ? e.message : "Save failed");
+		} finally {
+			setSaving(false);
+		}
+	};
+	const copyCap = async () => {
+		if (!caption) return;
+		try {
+			await navigator.clipboard.writeText(caption);
 			toast.success("Caption copied");
 		} catch {
 			toast.error("Couldn't copy caption");
 		}
 	};
-	const mediaMaxW = item.caption ? "max-w-[90vw] lg:max-w-[54vw]" : "max-w-[80vw]";
+	const showPanel = editable || !!item.caption;
+	const mediaMaxW = showPanel ? "max-w-[90vw] lg:max-w-[54vw]" : "max-w-[80vw]";
 
 	useEffect(() => {
 		for (const m of media) {
@@ -5018,7 +5301,10 @@ function Lightbox({ item, onClose }: { item: VaultItem; onClose: () => void }) {
 
 	useEffect(() => {
 		const onKey = (e: KeyboardEvent) => {
-			if (e.key === "Escape") onClose();
+			const tag = (e.target as HTMLElement | null)?.tagName;
+			const typing = tag === "INPUT" || tag === "TEXTAREA";
+			if (e.key === "Escape" && !typing) onClose();
+			if (typing) return;
 			if (media.length > 1 && e.key === "ArrowRight")
 				setI((p) => (p + 1) % media.length);
 			if (media.length > 1 && e.key === "ArrowLeft")
@@ -5091,22 +5377,65 @@ function Lightbox({ item, onClose }: { item: VaultItem; onClose: () => void }) {
 					</button>
 				)}
 
-				{item.caption && (
+				{showPanel && (
 					<aside className="hidden max-h-[85vh] w-80 shrink-0 flex-col overflow-hidden rounded-xl bg-neutral-900/95 ring-1 ring-white/10 lg:flex">
-						<div className="flex items-center justify-between border-b border-[var(--mono-line)] px-4 py-3">
-							<span className="text-sm font-semibold text-white">Caption</span>
-							<button
-								type="button"
-								onClick={copyCap}
-								className="flex items-center gap-1.5 rounded-md bg-white/10 px-2.5 py-1 text-xs font-medium text-white transition-colors hover:bg-white/20"
-							>
-								<Copy className="size-3.5" />
-								Copy
-							</button>
+						<div className="flex items-center justify-between border-b border-white/10 px-4 py-3">
+							<span className="text-sm font-semibold text-white">
+								{editable ? "Details" : "Caption"}
+							</span>
+							<div className="flex items-center gap-1.5">
+								{!!caption && (
+									<button
+										type="button"
+										onClick={copyCap}
+										className="flex items-center gap-1.5 rounded-md bg-white/10 px-2.5 py-1 text-xs font-medium text-white transition-colors hover:bg-white/20"
+									>
+										<Copy className="size-3.5" />
+										Copy
+									</button>
+								)}
+								{editable && (
+									<button
+										type="button"
+										onClick={() => void save()}
+										disabled={!dirty || saving}
+										className="rounded-md bg-white px-2.5 py-1 text-xs font-semibold text-black transition-opacity disabled:opacity-35"
+									>
+										{saving ? "Saving…" : "Save"}
+									</button>
+								)}
+							</div>
 						</div>
-						<div className="overflow-y-auto px-4 py-3 text-sm leading-relaxed whitespace-pre-wrap text-white/80">
-							{item.caption}
-						</div>
+						{editable ? (
+							<div className="flex min-h-0 flex-1 flex-col gap-3 overflow-y-auto px-4 py-3">
+								<div>
+									<span className="mb-1 block text-[11px] font-semibold tracking-wide text-white/40 uppercase">
+										Title
+									</span>
+									<input
+										value={title}
+										onChange={(e) => setTitle(e.target.value)}
+										placeholder="Add a title"
+										className="w-full rounded-lg border border-white/10 bg-white/5 px-3 py-2 text-sm text-white outline-none placeholder:text-white/30 focus:border-white/30"
+									/>
+								</div>
+								<div className="flex min-h-0 flex-1 flex-col">
+									<span className="mb-1 block text-[11px] font-semibold tracking-wide text-white/40 uppercase">
+										Caption
+									</span>
+									<textarea
+										value={caption}
+										onChange={(e) => setCaption(e.target.value)}
+										placeholder="Write the caption this post will use"
+										className="min-h-44 flex-1 resize-none rounded-lg border border-white/10 bg-white/5 px-3 py-2 text-sm leading-relaxed text-white outline-none placeholder:text-white/30 focus:border-white/30"
+									/>
+								</div>
+							</div>
+						) : (
+							<div className="overflow-y-auto px-4 py-3 text-sm leading-relaxed whitespace-pre-wrap text-white/80">
+								{item.caption}
+							</div>
+						)}
 					</aside>
 				)}
 			</div>
