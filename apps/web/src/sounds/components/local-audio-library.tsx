@@ -24,6 +24,9 @@ import {
 	type SavedAudioItem,
 } from "@/sounds/saved-audio";
 import { cn } from "@/utils/ui";
+import { useSession } from "@/auth/client";
+import { getVaultOwner } from "@/projects/vault-owner";
+import { fetchVault, fileUrl } from "@/projects/vault-client";
 import { UrlImport } from "@/media/url-import";
 import { Upload } from "lucide-react";
 import {
@@ -44,14 +47,18 @@ export function LocalAudioLibrary({
 }: {
 	manifestUrl?: string;
 	searchPlaceholder: string;
-	source?: "manifest" | "saved";
+	source?: "manifest" | "saved" | "vault";
 	urlImportMode?: "audio" | "video";
 }) {
 	const editor = useEditor();
 	const activeProject = useEditor((e) => e.project.getActiveOrNull());
+	const { data: session } = useSession();
+	const userId = session?.user?.id;
 
 	const [items, setItems] = useState<LibraryItem[]>([]);
-	const [loading, setLoading] = useState(source === "manifest");
+	const [loading, setLoading] = useState(
+		source === "manifest" || source === "vault",
+	);
 	const [query, setQuery] = useState("");
 	const [category, setCategory] = useState("all");
 	const [playingId, setPlayingId] = useState<string | null>(null);
@@ -68,6 +75,42 @@ export function LocalAudioLibrary({
 		if (source === "saved") {
 			setItems(getSavedAudio());
 			return subscribeSavedAudio(() => setItems(getSavedAudio()));
+		}
+		if (source === "vault") {
+			// Every audio file the user has imported into their library, so it's
+			// reachable from any project's Sounds panel.
+			let cancelled = false;
+			setLoading(true);
+			fetchVault(userId || getVaultOwner())
+				.then((vault) => {
+					if (cancelled) return;
+					const audio: LibraryItem[] = vault
+						.filter((v) => v.kind === "audio")
+						.map((v) => {
+							const key =
+								v.media.find((m) => m.type === "audio")?.key ??
+								v.media[0]?.key ??
+								"";
+							return {
+								id: v.id,
+								name: v.name,
+								category: "Imported",
+								file: key ? fileUrl(key) : "",
+							};
+						})
+						.filter((i) => i.file !== "");
+					setItems(audio);
+					setLoading(false);
+				})
+				.catch(() => {
+					if (!cancelled) {
+						setItems([]);
+						setLoading(false);
+					}
+				});
+			return () => {
+				cancelled = true;
+			};
 		}
 		if (!manifestUrl) return;
 		let cancelled = false;
@@ -89,7 +132,7 @@ export function LocalAudioLibrary({
 		return () => {
 			cancelled = true;
 		};
-	}, [manifestUrl, source]);
+	}, [manifestUrl, source, userId]);
 
 	useEffect(() => subscribeSavedAudio(() => setSavedTick((t) => t + 1)), []);
 	useEffect(
@@ -185,7 +228,7 @@ export function LocalAudioLibrary({
 					className="w-full"
 					containerClassName="w-full"
 				/>
-				{(showCategoryPicker || source !== "saved") && (
+				{source === "manifest" && (
 					<div className="flex items-center gap-2">
 						{showCategoryPicker && (
 							<Select value={category} onValueChange={setCategory}>
@@ -201,16 +244,14 @@ export function LocalAudioLibrary({
 								</SelectContent>
 							</Select>
 						)}
-						{source !== "saved" && (
-							<button
-								type="button"
-								onClick={openFilePicker}
-								title="Import your own audio"
-								className="border-input bg-accent text-muted-foreground hover:text-foreground flex size-9 shrink-0 items-center justify-center rounded-md border"
-							>
-								<Upload className="size-4" />
-							</button>
-						)}
+						<button
+							type="button"
+							onClick={openFilePicker}
+							title="Import your own audio"
+							className="border-input bg-accent text-muted-foreground hover:text-foreground flex size-9 shrink-0 items-center justify-center rounded-md border"
+						>
+							<Upload className="size-4" />
+						</button>
 					</div>
 				)}
 			</div>
@@ -228,7 +269,9 @@ export function LocalAudioLibrary({
 					<p className="text-muted-foreground py-8 text-center text-sm text-balance px-6">
 						{source === "saved"
 							? "No saved audio yet — tap the heart on any sound or track to save it here."
-							: "No results"}
+							: source === "vault"
+								? "No imported audio yet — import audio into your library and it shows up here, in every project."
+								: "No results"}
 					</p>
 				) : (
 					filtered.map((item) => {

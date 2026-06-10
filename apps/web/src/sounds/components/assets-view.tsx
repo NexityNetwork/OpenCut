@@ -47,6 +47,7 @@ export function SoundsView() {
 					<TabsList>
 						<TabsTrigger value="sound-effects">Sound effects</TabsTrigger>
 						<TabsTrigger value="music">Music</TabsTrigger>
+						<TabsTrigger value="library">Imported</TabsTrigger>
 						<TabsTrigger value="voiceover">Voiceover</TabsTrigger>
 						<TabsTrigger value="saved">Saved</TabsTrigger>
 					</TabsList>
@@ -69,6 +70,15 @@ export function SoundsView() {
 						manifestUrl="/audio/music/manifest.json"
 						searchPlaceholder="Search music"
 						urlImportMode="audio"
+					/>
+				</TabsContent>
+				<TabsContent
+					value="library"
+					className="mt-0 flex min-h-0 flex-1 flex-col"
+				>
+					<LocalAudioLibrary
+						source="vault"
+						searchPlaceholder="Search your imported audio"
 					/>
 				</TabsContent>
 				<TabsContent
