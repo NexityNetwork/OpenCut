@@ -406,12 +406,8 @@ export function VaultSection() {
 		void import("@/brain/edit-materializer")
 			.then((m) => m.materializePendingEdits(editor, userId ?? ""))
 			.then((built) => {
-				if (built > 0) {
-					toast.success(
-						`Built ${built} AI edit${built === 1 ? "" : "s"} — check your projects`,
-					);
-					void editor.project.loadAllProjects();
-				}
+				// The materializer owns the progress/success toast; just refresh.
+				if (built > 0) void editor.project.loadAllProjects();
 			})
 			.catch(() => {});
 	}, [isInitialized, allProjects, allTemplates, editor, userId]);

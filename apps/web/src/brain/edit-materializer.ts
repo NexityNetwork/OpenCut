@@ -11,6 +11,7 @@
 // This runs when the library loads, turns each pending recipe into a real
 // project, and marks it done.
 
+import { toast } from "sonner";
 import type { EditorCore } from "@/core";
 import { processMediaAssets } from "@/media/processing";
 import type { ProcessedMediaAsset } from "@/media/processing";
@@ -279,8 +280,15 @@ export async function materializePendingEdits(
 	}
 	if (jobs.length === 0) return 0;
 
+	// Visible progress — the build pulls media and can run a couple of minutes.
+	const tid = "materialize-edits";
+	toast.loading(`Building ${jobs.length} draft${jobs.length === 1 ? "" : "s"}…`, {
+		id: tid,
+	});
+
 	const cache: AssetCache = new Map();
 	let built = 0;
+	let failed = 0;
 	for (const job of jobs) {
 		let result_project_id: string | null = null;
 		let error: string | null = null;
@@ -289,7 +297,12 @@ export async function materializePendingEdits(
 			built++;
 		} catch (e) {
 			error = e instanceof Error ? e.message : "build failed";
+			failed++;
 		} finally {
+			toast.loading(
+				`Building drafts… ${built + failed}/${jobs.length}`,
+				{ id: tid },
+			);
 			try {
 				editor.project.closeProject();
 			} catch {
@@ -310,6 +323,17 @@ export async function materializePendingEdits(
 		} catch {
 			/* server keeps it pending; retried next load */
 		}
+	}
+
+	const cat = jobs.find((j) => j.spec.category)?.spec.category;
+	const where = cat ? ` — see the “${cat}” category` : "";
+	if (failed > 0) {
+		toast.error(`Built ${built}, ${failed} failed${where}`, { id: tid });
+	} else {
+		toast.success(
+			`Built ${built} draft${built === 1 ? "" : "s"}${where}`,
+			{ id: tid },
+		);
 	}
 	return built;
 }
