@@ -137,6 +137,7 @@ import { ClipsStudio } from "@/clips/clips-studio";
 import type { ClipSuggestion } from "@/app/api/clips/route";
 import { buildElementFromMedia } from "@/timeline/element-utils";
 import { mediaTimeFromSeconds } from "@/wasm";
+import { insertCaptionChunksAsTextTrack } from "@/subtitles/insert";
 import { ParticleTextEffect } from "@/components/home/particle-text";
 
 const PLATFORMS = [
@@ -645,8 +646,16 @@ export function VaultSection() {
 
 	// AI Clips: new project containing the source video pre-trimmed to the
 	// suggested range, then straight into the editor.
-	const makeClipProject = async (item: VaultItem, clip: ClipSuggestion) => {
-		const tid = toast.loading("Cutting clip into a project…");
+	const makeClipProject = async (
+		item: VaultItem,
+		clip: ClipSuggestion,
+		opts: {
+			segments: { text: string; start: number; end: number }[];
+			captions: boolean;
+			navigate: boolean;
+		},
+	) => {
+		const tid = toast.loading(`Cutting "${clip.title}"…`);
 		try {
 			const name = (clip.title || item.name || "Clip").slice(0, 60);
 			const projectId = await editor.project.createNewProject({ name });
@@ -684,9 +693,28 @@ export function VaultSection() {
 			});
 			element.sourceDuration = mediaTimeFromSeconds({ seconds: sourceDur });
 			editor.timeline.insertElement({ element, placement: { mode: "auto" } });
+
+			// Burn the transcript into auto-captions, re-timed to the clip.
+			if (opts.captions && opts.segments.length > 0) {
+				const cues = opts.segments
+					.filter((seg) => seg.end > start + 0.2 && seg.start < end - 0.2)
+					.map((seg) => {
+						const cueStart = Math.max(0, seg.start - start);
+						const cueEnd = Math.min(end - start, seg.end - start);
+						return {
+							text: seg.text,
+							startTime: cueStart,
+							duration: Math.max(0.4, cueEnd - cueStart),
+						};
+					});
+				if (cues.length > 0) {
+					insertCaptionChunksAsTextTrack({ editor, captions: cues });
+				}
+			}
+
 			await editor.project.saveCurrentProject();
 			toast.success("Clip ready", { id: tid });
-			router.push(`/editor/${projectId}`);
+			if (opts.navigate) router.push(`/editor/${projectId}`);
 		} catch (e) {
 			toast.error(e instanceof Error ? e.message : "Couldn't create clip", {
 				id: tid,

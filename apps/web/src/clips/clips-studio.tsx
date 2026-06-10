@@ -4,7 +4,7 @@
 // find the most clippable moments, then spin each suggestion into an editor
 // project pre-trimmed to that range. The editor does the actual cutting.
 
-import { useMemo, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { toast } from "sonner";
 import { Clapperboard, Play, Scissors, Sparkles, Timer } from "lucide-react";
 import { cn } from "@/utils/ui";
@@ -16,6 +16,37 @@ import {
 	toMono,
 	audioBufferToWav,
 } from "@/services/revoice/audio-utils";
+
+// Mount the <video> only when the tile nears the viewport — 200 eager video
+// tags is what made the picker crawl.
+function LazyVideoThumb({ src }: { src: string }) {
+	const ref = useRef<HTMLDivElement | null>(null);
+	const [inView, setInView] = useState(false);
+	useEffect(() => {
+		const el = ref.current;
+		if (!el) return;
+		const io = new IntersectionObserver(
+			(es) => es[0]?.isIntersecting && setInView(true),
+			{ rootMargin: "400px" },
+		);
+		io.observe(el);
+		return () => io.disconnect();
+	}, []);
+	return (
+		<div ref={ref} className="absolute inset-0">
+			{inView && (
+				// biome-ignore lint/a11y/useMediaCaption: thumbnail
+				<video
+					src={`${src}#t=0.1`}
+					preload="metadata"
+					muted
+					playsInline
+					className="size-full object-cover"
+				/>
+			)}
+		</div>
+	);
+}
 
 const fmt = (s: number) => {
 	const m = Math.floor(s / 60);
@@ -31,6 +62,11 @@ export function ClipsStudio({
 	onMakeProject: (
 		item: VaultItem,
 		clip: ClipSuggestion,
+		opts: {
+			segments: { text: string; start: number; end: number }[];
+			captions: boolean;
+			navigate: boolean;
+		},
 	) => Promise<void> | void;
 }) {
 	const videos = useMemo(
@@ -44,7 +80,23 @@ export function ClipsStudio({
 	const [q, setQ] = useState("");
 	const [busy, setBusy] = useState(false);
 	const [clips, setClips] = useState<ClipSuggestion[] | null>(null);
-	const [creating, setCreating] = useState<number | null>(null);
+	const [segments, setSegments] = useState<
+		{ text: string; start: number; end: number }[]
+	>([]);
+	const [withCaptions, setWithCaptions] = useState(true);
+	const [creating, setCreating] = useState<number | "all" | null>(null);
+	const [shown, setShown] = useState(30);
+	const moreRef = useRef<HTMLDivElement | null>(null);
+	useEffect(() => {
+		const el = moreRef.current;
+		if (!el) return;
+		const io = new IntersectionObserver(
+			(es) => es[0]?.isIntersecting && setShown((c) => c + 30),
+			{ rootMargin: "600px" },
+		);
+		io.observe(el);
+		return () => io.disconnect();
+	});
 	const videoRef = useRef<HTMLVideoElement | null>(null);
 
 	const filtered = useMemo(() => {
@@ -78,6 +130,7 @@ export function ClipsStudio({
 			if (!tr.ok) throw new Error(tdata.error || "Transcription failed");
 			if (!tdata.segments?.length)
 				throw new Error("No speech detected in this video");
+			setSegments(tdata.segments);
 
 			toast.loading("Scoring moments…", { id: tid });
 			const r = await fetch("/api/clips", {
@@ -141,7 +194,7 @@ export function ClipsStudio({
 						</div>
 					) : (
 						<div className="grid grid-cols-2 gap-3 sm:grid-cols-4 lg:grid-cols-5">
-							{filtered.slice(0, 40).map((v) => {
+							{filtered.slice(0, shown).map((v) => {
 								const k = v.media.find((m) => m.type === "video")?.key || "";
 								return (
 									<button
@@ -160,14 +213,7 @@ export function ClipsStudio({
 													loading="lazy"
 												/>
 											) : (
-												// biome-ignore lint/a11y/useMediaCaption: thumbnail
-												<video
-													src={`${fileUrl(k)}#t=0.1`}
-													preload="metadata"
-													muted
-													playsInline
-													className="size-full object-cover"
-												/>
+												<LazyVideoThumb src={fileUrl(k)} />
 											)}
 										</div>
 										<div className="mt-1.5 truncate text-xs text-[var(--mono-ink-2)]">
@@ -176,6 +222,9 @@ export function ClipsStudio({
 									</button>
 								);
 							})}
+							{filtered.length > shown && (
+								<div ref={moreRef} className="col-span-full h-2" />
+							)}
 						</div>
 					)}
 				</div>
@@ -202,7 +251,7 @@ export function ClipsStudio({
 							disabled={busy}
 						>
 							<Sparkles className="size-4" />
-							{busy ? "Analyzing…" : clips ? "Re-analyze" : "Find clips"}
+							{busy ? "Analyzing…" : clips ? "Re-analyze" : "Analyze video"}
 						</Button>
 					</div>
 
@@ -221,6 +270,53 @@ export function ClipsStudio({
 						)}
 						{clips && (
 							<div className="space-y-3">
+								<div className="flex flex-wrap items-center justify-between gap-2">
+									<button
+										type="button"
+										onClick={() => setWithCaptions((v) => !v)}
+										className={cn(
+											"flex items-center gap-2 rounded-lg border px-3 py-1.5 text-xs transition-colors",
+											withCaptions
+												? "border-[var(--mono-strong)] bg-[var(--mono-active)] text-[var(--mono-ink)]"
+												: "border-[var(--mono-line)] text-[var(--mono-ink-2)] hover:bg-[var(--mono-hover)]",
+										)}
+									>
+										<span
+											className={cn(
+												"size-1.5 rounded-full",
+												withCaptions ? "bg-green-500" : "bg-[var(--mono-ink-3)]",
+											)}
+										/>
+										Auto-captions {withCaptions ? "on" : "off"}
+									</button>
+									<Button
+										size="sm"
+										variant="outline"
+										className="rounded-md"
+										disabled={creating !== null}
+										onClick={async () => {
+											setCreating("all");
+											try {
+												for (const c of clips) {
+													await onMakeProject(picked, c, {
+														segments,
+														captions: withCaptions,
+														navigate: false,
+													});
+												}
+												toast.success(
+													`${clips.length} clip projects created — find them under Projects`,
+												);
+											} finally {
+												setCreating(null);
+											}
+										}}
+									>
+										{creating === "all"
+											? "Creating…"
+											: `Create all ${clips.length} projects`}
+									</Button>
+								</div>
 								{clips.map((c, i) => (
 									<div
 										key={`${c.start}-${c.end}`}
@@ -271,7 +367,11 @@ export function ClipsStudio({
 												onClick={async () => {
 													setCreating(i);
 													try {
-														await onMakeProject(picked, c);
+														await onMakeProject(picked, c, {
+															segments,
+															captions: withCaptions,
+															navigate: true,
+														});
 													} finally {
 														setCreating(null);
 													}
