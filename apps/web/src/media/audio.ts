@@ -11,6 +11,7 @@ import { applyAudioMasteringToBuffer } from "@/media/audio-mastering";
 import type { AudioCapableElement } from "@/timeline/audio-state";
 import {
 	hasAnimatedVolume,
+	hasFade,
 	isElementMuted,
 	resolveEffectiveAudioGain,
 } from "@/timeline/audio-state";
@@ -852,12 +853,14 @@ function mixAudioChannels({
 			const lowerIndex = Math.floor(sourceIndex);
 			const upperIndex = Math.min(sourceData.length - 1, lowerIndex + 1);
 			const fraction = sourceIndex - lowerIndex;
-			const gain = hasAnimatedVolume({ element: element.timelineElement })
-				? resolveEffectiveAudioGain({
-						element: element.timelineElement,
-						localTime: clipTime,
-					})
-				: element.volume;
+			const gainEl = element.timelineElement;
+			const gain =
+				hasAnimatedVolume({ element: gainEl }) || hasFade(gainEl)
+					? resolveEffectiveAudioGain({
+							element: gainEl,
+							localTime: clipTime,
+						})
+					: element.volume;
 			outputData[outputIndex] +=
 				(sourceData[lowerIndex] * (1 - fraction) +
 					sourceData[upperIndex] * fraction) *

@@ -49,6 +49,25 @@ export function hasAnimatedVolume({
 	});
 }
 
+function fadeValues(element: AudioCapableElement): {
+	fadeIn: number;
+	fadeOut: number;
+} {
+	return {
+		fadeIn:
+			typeof element.params.fadeIn === "number" ? element.params.fadeIn : 0,
+		fadeOut:
+			typeof element.params.fadeOut === "number" ? element.params.fadeOut : 0,
+	};
+}
+
+// True when the clip has a fade in or out — callers use this (alongside volume
+// keyframes) to take the time-varying gain path instead of a single constant.
+export function hasFade(element: AudioCapableElement): boolean {
+	const { fadeIn, fadeOut } = fadeValues(element);
+	return fadeIn > 0 || fadeOut > 0;
+}
+
 import { TICKS_PER_SECOND } from "@/wasm";
 
 export function resolveEffectiveAudioGain({
@@ -83,10 +102,7 @@ function fadeEnvelope({
 	element: AudioCapableElement;
 	localTime: number;
 }): number {
-	const fadeIn =
-		typeof element.params.fadeIn === "number" ? element.params.fadeIn : 0;
-	const fadeOut =
-		typeof element.params.fadeOut === "number" ? element.params.fadeOut : 0;
+	const { fadeIn, fadeOut } = fadeValues(element);
 	if (fadeIn <= 0 && fadeOut <= 0) return 1;
 	const durSec = element.duration / TICKS_PER_SECOND;
 	let factor = 1;

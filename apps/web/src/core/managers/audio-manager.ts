@@ -6,6 +6,7 @@ import { createAudioContext, collectAudioClips } from "@/media/audio";
 import {
 	buildAudioGainAutomation,
 	hasAnimatedVolume,
+	hasFade,
 } from "@/timeline/audio-state";
 import { createAudioMasteringChain } from "@/media/audio-mastering";
 import {
@@ -462,6 +463,7 @@ export class AudioManager {
 		return (
 			this.hasCurveRetime({ clip }) ||
 			hasAnimatedVolume({ element: clip.timelineElement }) ||
+			hasFade(clip.timelineElement) ||
 			shouldMaintainPitch({
 				rate: clip.retime?.rate ?? 1,
 				maintainPitch: clip.retime?.maintainPitch,
@@ -490,7 +492,10 @@ export class AudioManager {
 		clipGain.gain.cancelScheduledValues(startTimestamp);
 		clipGain.gain.setValueAtTime(clip.volume, startTimestamp);
 
-		if (!hasAnimatedVolume({ element: clip.timelineElement })) {
+		if (
+			!hasAnimatedVolume({ element: clip.timelineElement }) &&
+			!hasFade(clip.timelineElement)
+		) {
 			return;
 		}
 
