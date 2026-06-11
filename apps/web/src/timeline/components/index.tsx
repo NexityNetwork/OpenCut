@@ -37,6 +37,11 @@ import { TimelinePlayhead } from "./timeline-playhead";
 import { SelectionBox } from "@/selection/selection-box";
 import { useBoxSelect } from "@/selection/hooks/use-box-select";
 import { SnapIndicator } from "./snap-indicator";
+import { AlignmentGuides } from "./alignment-guides";
+
+// Stable identity for the "nothing excluded" case so AlignmentGuides' memo
+// doesn't recompute every render while idle.
+const EMPTY_ID_SET = new Set<string>();
 import type { SnapPoint } from "@/timeline/snapping";
 import type { TimelineTrack, TScene } from "@/timeline";
 import {
@@ -637,6 +642,18 @@ export function Timeline() {
 						}
 					/>
 				</div>
+				<AlignmentGuides
+					tracks={tracks}
+					zoomLevel={zoomLevel}
+					isVisible={isElementDragging || isResizing}
+					excludeIds={
+						dragView.kind === "dragging"
+							? new Set(dragView.memberTimeOffsets.keys())
+							: EMPTY_ID_SET
+					}
+					timelineRef={timelineRef}
+					tracksScrollRef={tracksScrollRef}
+				/>
 				<SnapIndicator
 					snapPoint={currentSnapPoint}
 					zoomLevel={zoomLevel}
