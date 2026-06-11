@@ -15,8 +15,16 @@ import { toast } from "sonner";
 import type { EditorCore } from "@/core";
 import { processMediaAssets } from "@/media/processing";
 import type { ProcessedMediaAsset } from "@/media/processing";
-import { buildElementFromMedia, buildTextElement } from "@/timeline/element-utils";
-import { mediaTimeFromSeconds, mediaTimeToSeconds } from "@/wasm";
+import {
+	buildElementFromMedia,
+	buildLibraryAudioElement,
+	buildTextElement,
+} from "@/timeline/element-utils";
+import {
+	mediaTimeFromSeconds,
+	mediaTimeToSeconds,
+	TICKS_PER_SECOND,
+} from "@/wasm";
 import { fetchVaultItem, fileUrl } from "@/projects/vault-client";
 import { storageService } from "@/services/storage/service";
 
@@ -52,6 +60,19 @@ type EditSpec = {
 	// Thumbnail-only: set a draft's poster image (no load/render).
 	thumbnailOnly?: boolean;
 	thumbnailKey?: string;
+	// Audio-attach: drop a music bed onto an existing draft. Loads the project,
+	// measures its length, then lays the track starting at `trimStartSec` (the
+	// song's drop) with fades. Replaces any existing audio so re-runs are
+	// idempotent and the assigned track always wins.
+	audio?: {
+		url: string;
+		name: string;
+		trimStartSec?: number;
+		startSec?: number;
+		fadeInSec?: number;
+		fadeOutSec?: number;
+		volumeDb?: number;
+	};
 };
 type EditJob = {
 	id: string;
@@ -364,6 +385,102 @@ async function buildHookEdit(
 	return projectId;
 }
 
+// Attach a music bed to an existing draft. Loads the project, measures its
+// length from the visual tracks, then lays one library-audio clip that opens
+// on the song's drop (trimStart) and runs the full reel, with fades. Any
+// existing audio is cleared first so the assigned track always wins.
+async function buildAudioAttach(
+	editor: EditorCore,
+	job: EditJob,
+): Promise<string> {
+	const spec = job.spec;
+	const a = spec.audio;
+	const projectId = spec.editProjectId as string;
+	if (!a?.url) throw new Error("audio.url required");
+	await editor.project.loadProject({ id: projectId });
+
+	const tracks = editor.scenes.getActiveSceneOrNull()?.tracks;
+	if (!tracks) throw new Error("project has no scene");
+
+	// Reel length = furthest edge across the visual tracks (ignore audio).
+	let maxEndTicks = 0;
+	for (const tr of [tracks.main, ...tracks.overlay]) {
+		for (const e of tr.elements) {
+			const end = Number(e.startTime) + Number(e.duration);
+			if (end > maxEndTicks) maxEndTicks = end;
+		}
+	}
+	const reelLen = maxEndTicks / TICKS_PER_SECOND;
+
+	// Clear any existing audio — the batch-assigned track replaces it.
+	for (const t of tracks.audio) {
+		if (t.elements.length) {
+			editor.timeline.deleteElements({
+				elements: t.elements.map((e) => ({ trackId: t.id, elementId: e.id })),
+			});
+		}
+	}
+
+	// Fetch + decode the whole song so trimStart can seek into it.
+	const resp = await fetch(a.url);
+	if (!resp.ok) throw new Error(`audio fetch failed: ${resp.status}`);
+	const arr = await resp.arrayBuffer();
+	const ctx = new AudioContext();
+	let buffer: AudioBuffer;
+	try {
+		buffer = await ctx.decodeAudioData(arr);
+	} finally {
+		try {
+			await ctx.close();
+		} catch {
+			/* ignore */
+		}
+	}
+
+	const sourceDur = buffer.duration;
+	const trimStart = Math.max(
+		0,
+		Math.min(a.trimStartSec ?? 0, Math.max(0, sourceDur - 1)),
+	);
+	const visible = Math.min(
+		reelLen || sourceDur,
+		Math.max(0.5, sourceDur - trimStart),
+	);
+
+	const el = buildLibraryAudioElement({
+		sourceUrl: a.url,
+		name: a.name,
+		duration: mediaTimeFromSeconds({ seconds: sourceDur }),
+		startTime: mediaTimeFromSeconds({ seconds: a.startSec ?? 0 }),
+		buffer,
+	}) as ReturnType<typeof buildLibraryAudioElement> & {
+		duration?: unknown;
+		trimStart?: unknown;
+		trimEnd?: unknown;
+		sourceDuration?: unknown;
+		params?: Record<string, unknown>;
+	};
+	el.duration = mediaTimeFromSeconds({ seconds: visible });
+	el.trimStart = mediaTimeFromSeconds({ seconds: trimStart });
+	el.trimEnd = mediaTimeFromSeconds({
+		seconds: Math.max(0, sourceDur - trimStart - visible),
+	});
+	el.sourceDuration = mediaTimeFromSeconds({ seconds: sourceDur });
+	el.params = {
+		...(el.params ?? {}),
+		volume: a.volumeDb ?? 0,
+		fadeIn: a.fadeInSec ?? 0,
+		fadeOut: a.fadeOutSec ?? 0,
+	};
+
+	editor.timeline.insertElement({
+		element: el,
+		placement: { mode: "auto", trackType: "audio" },
+	});
+	await editor.project.saveCurrentProject();
+	return projectId;
+}
+
 // Set a draft's poster thumbnail to a representative image (its first slide),
 // without loading the project or rendering a frame.
 async function buildThumbnail(job: EditJob): Promise<string> {
@@ -383,6 +500,7 @@ function buildOne(
 	cache: AssetCache,
 ): Promise<string> {
 	if (job.spec.thumbnailOnly) return buildThumbnail(job);
+	if (job.spec.audio) return buildAudioAttach(editor, job);
 	if (job.spec.editProjectId) return buildHookEdit(editor, job, cache);
 	return job.spec.intro || job.spec.perSlideSec
 		? buildCarousel(editor, job, cache)
