@@ -89,6 +89,7 @@ import {
 	MagicWand05Icon,
 	Clock01Icon,
 	EqualSignIcon,
+	ArrowHorizontalIcon,
 } from "@hugeicons/core-free-icons";
 import { HugeiconsIcon } from "@hugeicons/react";
 import { uppercase } from "@/utils/string";
@@ -420,6 +421,43 @@ export function TimelineElement({
 		}
 	};
 
+	// Stretch/trim this clip so it ends where the rest of the content does —
+	// the quickest way to fit music (or any layer) to the video's length.
+	const fitToContent = () => {
+		const scene = editor.scenes.getActiveSceneOrNull();
+		if (!scene) return;
+		const t = scene.tracks;
+		const tracks = [
+			...(Array.isArray(t.overlay) ? t.overlay : []),
+			t.main,
+			...(Array.isArray(t.audio) ? t.audio : []),
+		];
+		let maxEnd = 0;
+		for (const tr of tracks) {
+			for (const el of tr.elements) {
+				if (el.id === element.id) continue;
+				const end =
+					mediaTimeToSeconds({ time: el.startTime }) +
+					mediaTimeToSeconds({ time: el.duration });
+				if (end > maxEnd) maxEnd = end;
+			}
+		}
+		if (maxEnd <= 0) return;
+		const startSec = mediaTimeToSeconds({ time: element.startTime });
+		editor.timeline.updateElements({
+			updates: [
+				{
+					trackId: track.id,
+					elementId: element.id,
+					patch: durationPatch({
+						el: element,
+						seconds: Math.max(0.1, maxEnd - startSec),
+					}),
+				},
+			],
+		});
+	};
+
 	const isMuted = canElementHaveAudio(element) && isElementMuted({ element });
 	const canToggleCurrentSourceAudio =
 		selectedElements.length === 1 &&
@@ -620,6 +658,15 @@ export function TimelineElement({
 							Match duration ({selectedElements.length})
 						</ContextMenuItem>
 					)}
+					<ContextMenuItem
+						icon={<HugeiconsIcon icon={ArrowHorizontalIcon} />}
+						onClick={(event: React.MouseEvent) => {
+							event.stopPropagation();
+							fitToContent();
+						}}
+					>
+						Fit to content length
+					</ContextMenuItem>
 					<ContextMenuSeparator />
 					<DeleteMenuItem
 						isMultipleSelected={selectedElements.length > 1}

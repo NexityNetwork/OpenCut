@@ -71,7 +71,32 @@ export function resolveEffectiveAudioGain({
 		localTime: Math.round(localTime * TICKS_PER_SECOND),
 	});
 
-	return dBToLinear(resolvedDb);
+	return dBToLinear(resolvedDb) * fadeEnvelope({ element, localTime });
+}
+
+// Linear fade in/out applied on top of the volume, relative to the clip's
+// visible span. Returns a 0..1 multiplier.
+function fadeEnvelope({
+	element,
+	localTime,
+}: {
+	element: AudioCapableElement;
+	localTime: number;
+}): number {
+	const fadeIn =
+		typeof element.params.fadeIn === "number" ? element.params.fadeIn : 0;
+	const fadeOut =
+		typeof element.params.fadeOut === "number" ? element.params.fadeOut : 0;
+	if (fadeIn <= 0 && fadeOut <= 0) return 1;
+	const durSec = element.duration / TICKS_PER_SECOND;
+	let factor = 1;
+	if (fadeIn > 0 && localTime < fadeIn) {
+		factor *= Math.max(0, Math.min(1, localTime / fadeIn));
+	}
+	if (fadeOut > 0 && localTime > durSec - fadeOut) {
+		factor *= Math.max(0, Math.min(1, (durSec - localTime) / fadeOut));
+	}
+	return factor;
 }
 
 export function buildWaveformGainSamples({
