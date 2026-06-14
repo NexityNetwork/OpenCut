@@ -3,15 +3,16 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import { toast } from "sonner";
 import {
+	ArrowUp,
 	Check,
 	Clapperboard,
 	Film,
 	ImageIcon,
 	Loader2,
+	Play,
 	Plus,
 	Settings2,
-	Sparkles,
-	Wand2,
+	Zap,
 	X,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -32,8 +33,16 @@ import {
 	DialogHeader,
 	DialogTitle,
 } from "@/components/ui/dialog";
-import { FORMATS, THEMES, THEME_LABELS, type Scene, type Spec } from "@/hyperframes/builder";
+import {
+	FORMATS,
+	STUDIO_MODELS,
+	THEMES,
+	THEME_LABELS,
+	type Scene,
+	type Spec,
+} from "@/hyperframes/builder";
 import { FPS_PRESETS } from "@/fps/presets";
+import { cn } from "@/utils/ui";
 
 // Aspect ratios ported 1:1 from the editor canvas presets (DEFAULT_CANVAS_PRESETS).
 const FORMAT_LABELS: Record<string, string> = {
@@ -43,6 +52,10 @@ const FORMAT_LABELS: Record<string, string> = {
 	"4:3": "Classic",
 };
 const FORMAT_KEYS = Object.keys(FORMATS);
+
+// shared style so the in-composer selects read as quiet pills, not boxes
+const ghostTrigger =
+	"h-8 w-auto gap-1 rounded-lg border-0 bg-transparent px-2 text-sm font-medium text-[var(--mono-ink-2)] shadow-none hover:bg-[var(--mono-hover)] hover:text-[var(--mono-ink)] focus:ring-0 data-[state=open]:bg-[var(--mono-hover)]";
 
 type StudioRef = {
 	id: string;
@@ -56,8 +69,6 @@ type StudioRef = {
 type RenderJob = {
 	id: string;
 	name: string;
-	executionName: string | null;
-	outKey: string;
 	format: string;
 	status: "rendering" | "done" | "failed";
 	url?: string | null;
@@ -66,6 +77,7 @@ type Settings = {
 	theme: string;
 	format: string;
 	fps: number;
+	model: string;
 	instructions: string;
 	designNotes: string;
 	confirmBeforeGenerate: boolean;
@@ -75,6 +87,7 @@ const DEFAULTS: Settings = {
 	theme: "ultron",
 	format: "9:16",
 	fps: 30,
+	model: "gpt-5.4",
 	instructions: "",
 	designNotes: "",
 	confirmBeforeGenerate: true,
@@ -116,6 +129,7 @@ export function StudioPane({ owner }: { owner: string; isOwner: boolean }) {
 	const [theme, setTheme] = useState(DEFAULTS.theme);
 	const [format, setFormat] = useState(DEFAULTS.format);
 	const [fps, setFps] = useState(DEFAULTS.fps);
+	const [model, setModel] = useState(DEFAULTS.model);
 	const [instructions, setInstructions] = useState("");
 	const [designNotes, setDesignNotes] = useState("");
 	const [confirmBeforeGenerate, setConfirm] = useState(true);
@@ -139,6 +153,7 @@ export function StudioPane({ owner }: { owner: string; isOwner: boolean }) {
 				setTheme(s.theme);
 				setFormat(s.format);
 				setFps(s.fps);
+				setModel(s.model);
 				setInstructions(s.instructions);
 				setDesignNotes(s.designNotes);
 				setConfirm(s.confirmBeforeGenerate);
@@ -151,56 +166,34 @@ export function StudioPane({ owner }: { owner: string; isOwner: boolean }) {
 		};
 	}, []);
 
+	// persistent render list (survives leaving the tab; reconciled server-side)
+	const refreshRenders = useCallback(async () => {
+		try {
+			const res = await fetch("/api/hyperframes/renders");
+			const data = await res.json();
+			if (Array.isArray(data.renders)) setRenders(data.renders as RenderJob[]);
+		} catch {
+			/* transient */
+		}
+	}, []);
+
+	useEffect(() => {
+		void refreshRenders();
+	}, [refreshRenders]);
+
+	const hasPending = renders.some((r) => r.status === "rendering");
+	useEffect(() => {
+		if (!hasPending) return;
+		const id = setInterval(() => void refreshRenders(), 6000);
+		return () => clearInterval(id);
+	}, [hasPending, refreshRenders]);
+
 	const refsPayload = useCallback(
 		() =>
 			refs
 				.filter((r) => r.status === "ready")
 				.map((r) => ({ id: r.id, kind: r.kind, key: r.key, ext: r.ext })),
 		[refs],
-	);
-
-	const poll = useCallback(
-		(job: RenderJob) => {
-			let tries = 0;
-			const tick = async () => {
-				tries++;
-				try {
-					const res = await fetch(
-						`/api/hyperframes?exec=${encodeURIComponent(
-							job.executionName ?? "",
-						)}&outKey=${encodeURIComponent(job.outKey)}&name=${encodeURIComponent(
-							job.name,
-						)}&owner=${encodeURIComponent(owner)}`,
-					);
-					const data = await res.json();
-					if (data.status === "Succeeded") {
-						setRenders((prev) =>
-							prev.map((x) =>
-								x.id === job.id ? { ...x, status: "done", url: data.fileUrl } : x,
-							),
-						);
-						toast.success("Render added to your Library");
-						return;
-					}
-					if (data.status === "Failed" || data.status === "Cancelled") {
-						setRenders((prev) =>
-							prev.map((x) => (x.id === job.id ? { ...x, status: "failed" } : x)),
-						);
-						toast.error("Render failed");
-						return;
-					}
-				} catch {
-					/* transient — keep polling */
-				}
-				if (tries < 120) setTimeout(tick, 6000);
-				else
-					setRenders((prev) =>
-						prev.map((x) => (x.id === job.id ? { ...x, status: "failed" } : x)),
-					);
-			};
-			setTimeout(tick, 8000);
-		},
-		[owner],
 	);
 
 	const onAddFiles = useCallback(async (files: FileList | null) => {
@@ -260,6 +253,7 @@ export function StudioPane({ owner }: { owner: string; isOwner: boolean }) {
 						theme,
 						format,
 						fps,
+						model,
 						refs: refsPayload(),
 						...(spec ? { spec } : {}),
 						render: true,
@@ -268,25 +262,26 @@ export function StudioPane({ owner }: { owner: string; isOwner: boolean }) {
 				});
 				const data = await res.json();
 				if (!res.ok) throw new Error(data.error || "render failed");
-				const job: RenderJob = {
-					id: crypto.randomUUID(),
-					name,
-					executionName: data.executionName,
-					outKey: data.outKey,
-					format,
-					status: "rendering",
-				};
-				setRenders((prev) => [job, ...prev]);
-				poll(job);
 				setPlan(null);
-				toast.success("Rendering started — this takes a couple of minutes");
+				toast.success("Rendering started — it will land in your Library");
+				await refreshRenders();
 			} catch (e) {
 				toast.error((e as Error).message);
 			} finally {
 				setBusy(false);
 			}
 		},
-		[prompt, instructions, designNotes, theme, format, fps, refsPayload, poll],
+		[
+			prompt,
+			instructions,
+			designNotes,
+			theme,
+			format,
+			fps,
+			model,
+			refsPayload,
+			refreshRenders,
+		],
 	);
 
 	const onGenerate = useCallback(async () => {
@@ -314,6 +309,7 @@ export function StudioPane({ owner }: { owner: string; isOwner: boolean }) {
 					theme,
 					format,
 					fps,
+					model,
 					refs: refsPayload(),
 				}),
 			});
@@ -332,11 +328,34 @@ export function StudioPane({ owner }: { owner: string; isOwner: boolean }) {
 		theme,
 		format,
 		fps,
+		model,
 		refs,
 		confirmBeforeGenerate,
 		refsPayload,
 		startRender,
 	]);
+
+	const enhancePrompt = useCallback(async () => {
+		if (!prompt.trim()) {
+			toast.error("Write a rough idea first");
+			return;
+		}
+		setEnhancing(true);
+		try {
+			const res = await fetch("/api/hyperframes/enhance", {
+				method: "POST",
+				headers: { "content-type": "application/json" },
+				body: JSON.stringify({ prompt, instructions, designNotes, model }),
+			});
+			const data = await res.json();
+			if (!res.ok) throw new Error(data.error || "enhance failed");
+			setPrompt(data.enhanced);
+		} catch (e) {
+			toast.error((e as Error).message);
+		} finally {
+			setEnhancing(false);
+		}
+	}, [prompt, instructions, designNotes, model]);
 
 	const saveSettings = useCallback(async () => {
 		setSavingSettings(true);
@@ -348,6 +367,7 @@ export function StudioPane({ owner }: { owner: string; isOwner: boolean }) {
 					theme,
 					format,
 					fps,
+					model,
 					instructions,
 					designNotes,
 					confirmBeforeGenerate,
@@ -360,29 +380,7 @@ export function StudioPane({ owner }: { owner: string; isOwner: boolean }) {
 		} finally {
 			setSavingSettings(false);
 		}
-	}, [theme, format, fps, instructions, designNotes, confirmBeforeGenerate]);
-
-	const enhancePrompt = useCallback(async () => {
-		if (!prompt.trim()) {
-			toast.error("Write a rough idea first");
-			return;
-		}
-		setEnhancing(true);
-		try {
-			const res = await fetch("/api/hyperframes/enhance", {
-				method: "POST",
-				headers: { "content-type": "application/json" },
-				body: JSON.stringify({ prompt, instructions, designNotes }),
-			});
-			const data = await res.json();
-			if (!res.ok) throw new Error(data.error || "enhance failed");
-			setPrompt(data.enhanced);
-		} catch (e) {
-			toast.error((e as Error).message);
-		} finally {
-			setEnhancing(false);
-		}
-	}, [prompt, instructions, designNotes]);
+	}, [theme, format, fps, model, instructions, designNotes, confirmBeforeGenerate]);
 
 	return (
 		<div className="mx-auto max-w-3xl px-4 pb-28 pt-14 sm:px-6 lg:pt-8">
@@ -392,8 +390,8 @@ export function StudioPane({ owner }: { owner: string; isOwner: boolean }) {
 					<h1 className="text-2xl font-semibold tracking-tight text-[var(--mono-ink)]">
 						Studio
 					</h1>
-					<span className="rounded-full border border-[var(--mono-line)] px-2 py-0.5 text-[10px] font-medium uppercase tracking-wide text-[var(--mono-ink-2)]">
-						Beta
+					<span className="rounded-full bg-[var(--mono-ink)] px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-[var(--mono-panel)]">
+						New
 					</span>
 				</div>
 				<p className="mt-1.5 text-sm text-[var(--mono-ink-2)]">
@@ -403,20 +401,13 @@ export function StudioPane({ owner }: { owner: string; isOwner: boolean }) {
 			</header>
 
 			{/* composer */}
-			<div className="rounded-2xl border border-[var(--mono-line)] bg-[var(--mono-panel)] p-3 shadow-sm">
-				<Textarea
-					value={prompt}
-					onChange={(e) => setPrompt(e.target.value)}
-					placeholder="e.g. A punchy 6-scene reel explaining how our AI agent books meetings while you sleep. Confident, founder voice."
-					className="min-h-[120px] resize-none border-0 bg-transparent text-base text-[var(--mono-ink)] shadow-none focus-visible:ring-0"
-				/>
-
+			<div className="rounded-[26px] border border-[var(--mono-line)] bg-[var(--mono-panel)] p-2.5 shadow-sm transition focus-within:border-[var(--mono-ink-3)]">
 				{refs.length > 0 && (
-					<div className="mt-2 flex flex-wrap gap-2">
+					<div className="mb-1 flex flex-wrap gap-2 px-1.5 pt-1">
 						{refs.map((r) => (
 							<div
 								key={r.id}
-								className="group relative size-16 overflow-hidden rounded-lg border border-[var(--mono-line)] bg-[var(--mono-hover)]"
+								className="group relative size-14 overflow-hidden rounded-xl border border-[var(--mono-line)] bg-[var(--mono-hover)]"
 								title={`${r.name} (${r.kind === "video" ? "in-video clip" : "screenshot"})`}
 							>
 								{r.status === "uploading" ? (
@@ -424,16 +415,12 @@ export function StudioPane({ owner }: { owner: string; isOwner: boolean }) {
 										<Loader2 className="size-4 animate-spin text-[var(--mono-ink-2)]" />
 									</div>
 								) : r.kind === "video" ? (
-									<video
-										src={r.url}
-										muted
-										className="size-full object-cover"
-									/>
+									<video src={r.url} muted className="size-full object-cover" />
 								) : (
 									// eslint-disable-next-line @next/next/no-img-element
 									<img src={r.url} alt={r.name} className="size-full object-cover" />
 								)}
-								<span className="absolute bottom-0 left-0 flex items-center gap-0.5 rounded-tr bg-black/60 px-1 py-0.5 text-[9px] text-white">
+								<span className="absolute bottom-0 left-0 flex items-center gap-0.5 rounded-tr bg-black/60 px-1 py-0.5 text-white">
 									{r.kind === "video" ? (
 										<Film className="size-2.5" />
 									) : (
@@ -453,8 +440,21 @@ export function StudioPane({ owner }: { owner: string; isOwner: boolean }) {
 					</div>
 				)}
 
-				{/* toolbar */}
-				<div className="mt-3 flex flex-wrap items-center gap-2 border-t border-[var(--mono-line)] pt-3">
+				<Textarea
+					value={prompt}
+					onChange={(e) => setPrompt(e.target.value)}
+					onKeyDown={(e) => {
+						if (e.key === "Enter" && (e.metaKey || e.ctrlKey)) {
+							e.preventDefault();
+							void onGenerate();
+						}
+					}}
+					placeholder="Describe the video you want, or drop a rough idea and hit Enhance. Attach screenshots or clips to drop them in."
+					className="max-h-[280px] min-h-[88px] resize-none border-0 bg-transparent px-2 py-1.5 text-base text-[var(--mono-ink)] shadow-none focus-visible:ring-0"
+				/>
+
+				{/* actions */}
+				<div className="flex items-center gap-1 px-0.5 pt-1">
 					<input
 						ref={fileRef}
 						type="file"
@@ -466,34 +466,34 @@ export function StudioPane({ owner }: { owner: string; isOwner: boolean }) {
 							e.target.value = "";
 						}}
 					/>
-					<Button
+					<button
 						type="button"
-						variant="outline"
-						size="sm"
 						onClick={() => fileRef.current?.click()}
-						className="gap-1.5"
+						className="flex size-9 items-center justify-center rounded-lg text-[var(--mono-ink-2)] transition hover:bg-[var(--mono-hover)] hover:text-[var(--mono-ink)]"
+						aria-label="Add reference"
+						title="Add a screenshot or clip"
 					>
-						<Plus className="size-4" />
-						Reference
-					</Button>
-					<Button
+						<Plus className="size-5" />
+					</button>
+					<button
 						type="button"
-						variant="outline"
-						size="sm"
 						onClick={enhancePrompt}
 						disabled={enhancing}
-						className="gap-1.5"
+						className="flex h-9 items-center gap-1.5 rounded-lg px-2.5 text-sm font-medium text-[var(--mono-ink-2)] transition hover:bg-[var(--mono-hover)] hover:text-[var(--mono-ink)] disabled:opacity-50"
+						title="Rewrite your idea into a richer brief"
 					>
 						{enhancing ? (
 							<Loader2 className="size-4 animate-spin" />
 						) : (
-							<Wand2 className="size-4" />
+							<Zap className="size-4" />
 						)}
-						Enhance
-					</Button>
+						<span className="hidden sm:inline">Enhance</span>
+					</button>
+
+					<div className="mx-0.5 h-5 w-px bg-[var(--mono-line)]" />
 
 					<Select value={theme} onValueChange={setTheme}>
-						<SelectTrigger className="h-9 w-auto gap-1.5 text-sm">
+						<SelectTrigger className={ghostTrigger} aria-label="Design theme">
 							<SelectValue />
 						</SelectTrigger>
 						<SelectContent>
@@ -506,60 +506,74 @@ export function StudioPane({ owner }: { owner: string; isOwner: boolean }) {
 					</Select>
 
 					<Select value={format} onValueChange={setFormat}>
-						<SelectTrigger className="h-9 w-auto gap-1.5 text-sm">
+						<SelectTrigger className={ghostTrigger} aria-label="Aspect ratio">
 							<SelectValue />
 						</SelectTrigger>
 						<SelectContent>
 							{FORMAT_KEYS.map((k) => (
 								<SelectItem key={k} value={k}>
-									{FORMAT_LABELS[k] ?? k} · {k}
+									{FORMAT_LABELS[k] ?? k} {k}
 								</SelectItem>
 							))}
 						</SelectContent>
 					</Select>
 
-					<Button
+					<button
 						type="button"
-						variant="outline"
-						size="sm"
 						onClick={() => setSettingsOpen((v) => !v)}
-						className="gap-1.5"
+						className={cn(
+							"flex size-9 items-center justify-center rounded-lg text-[var(--mono-ink-2)] transition hover:bg-[var(--mono-hover)] hover:text-[var(--mono-ink)]",
+							settingsOpen && "bg-[var(--mono-hover)] text-[var(--mono-ink)]",
+						)}
 						aria-label="Studio settings"
+						title="Settings"
 					>
-						<Settings2 className="size-4" />
-					</Button>
+						<Settings2 className="size-[18px]" />
+					</button>
 
-					<div className="ml-auto">
-						<Button
-							type="button"
-							onClick={onGenerate}
-							disabled={busy}
-							className="gap-1.5"
-						>
-							{busy ? (
-								<Loader2 className="size-4 animate-spin" />
-							) : (
-								<Sparkles className="size-4" />
-							)}
-							Generate
-						</Button>
-					</div>
+					<button
+						type="button"
+						onClick={onGenerate}
+						disabled={busy}
+						className="ml-auto flex size-9 items-center justify-center rounded-full bg-[var(--mono-ink)] text-[var(--mono-panel)] transition hover:opacity-90 disabled:opacity-40"
+						aria-label="Generate"
+						title="Generate (Cmd/Ctrl + Enter)"
+					>
+						{busy ? (
+							<Loader2 className="size-4 animate-spin" />
+						) : (
+							<ArrowUp className="size-5" />
+						)}
+					</button>
 				</div>
 			</div>
 
 			{/* advanced settings */}
 			{settingsOpen && (
 				<div className="mt-3 space-y-4 rounded-2xl border border-[var(--mono-line)] bg-[var(--mono-panel)] p-4 shadow-sm">
-					<div className="flex items-center justify-between">
-						<div className="flex items-center gap-2">
-							<label className="text-sm font-medium text-[var(--mono-ink)]">
-								Frame rate
-							</label>
-						</div>
-						<Select
-							value={String(fps)}
-							onValueChange={(v) => setFps(Number(v))}
-						>
+					<div className="flex items-center justify-between gap-3">
+						<label className="text-sm font-medium text-[var(--mono-ink)]">
+							Model
+						</label>
+						<Select value={model} onValueChange={setModel}>
+							<SelectTrigger className="h-9 w-48 text-sm">
+								<SelectValue />
+							</SelectTrigger>
+							<SelectContent>
+								{STUDIO_MODELS.map((m) => (
+									<SelectItem key={m.value} value={m.value}>
+										{m.label}
+									</SelectItem>
+								))}
+							</SelectContent>
+						</Select>
+					</div>
+
+					<div className="flex items-center justify-between gap-3">
+						<label className="text-sm font-medium text-[var(--mono-ink)]">
+							Frame rate
+						</label>
+						<Select value={String(fps)} onValueChange={(v) => setFps(Number(v))}>
 							<SelectTrigger className="h-9 w-32 text-sm">
 								<SelectValue />
 							</SelectTrigger>
@@ -614,10 +628,7 @@ export function StudioPane({ owner }: { owner: string; isOwner: boolean }) {
 								Review the scene plan before spending a render.
 							</p>
 						</div>
-						<Switch
-							checked={confirmBeforeGenerate}
-							onCheckedChange={setConfirm}
-						/>
+						<Switch checked={confirmBeforeGenerate} onCheckedChange={setConfirm} />
 					</div>
 
 					<div className="flex justify-end">
@@ -696,8 +707,8 @@ export function StudioPane({ owner }: { owner: string; isOwner: boolean }) {
 					<DialogHeader>
 						<DialogTitle>Review the plan</DialogTitle>
 						<DialogDescription>
-							{plan?.scenes.length ?? 0} scenes ·{" "}
-							{FORMAT_LABELS[format] ?? format} · {THEME_LABELS[theme] ?? theme}
+							{plan?.scenes.length ?? 0} scenes · {FORMAT_LABELS[format] ?? format} ·{" "}
+							{THEME_LABELS[theme] ?? theme}
 						</DialogDescription>
 					</DialogHeader>
 					<div className="max-h-[50vh] space-y-2 overflow-y-auto">
@@ -728,7 +739,7 @@ export function StudioPane({ owner }: { owner: string; isOwner: boolean }) {
 							{busy ? (
 								<Loader2 className="size-4 animate-spin" />
 							) : (
-								<Sparkles className="size-4" />
+								<Play className="size-4" />
 							)}
 							Generate video
 						</Button>

@@ -5,6 +5,7 @@
 // Cloudflare Worker against Azure OpenAI (model is swappable via deployment).
 
 import type { Ref, Scene, Spec } from "./builder";
+import { callAoai } from "./aoai";
 
 const SYSTEM = `You are the composition planner for a vertical short-form video studio.
 Output ONLY JSON matching this TypeScript type:
@@ -82,30 +83,20 @@ export async function planSpec(args: PlanArgs): Promise<Spec> {
 		args.instructions?.trim() || "(none)"
 	}${designLine}\n\nTarget format: ${args.format ?? "9:16"}`;
 
-	const base = args.endpoint.replace(/\/$/, "");
-	const url = `${base}/openai/deployments/${args.deployment}/chat/completions?api-version=${
-		args.apiVersion ?? "2024-10-21"
-	}`;
-	const res = await fetch(url, {
-		method: "POST",
-		headers: { "api-key": args.key, "Content-Type": "application/json" },
-		body: JSON.stringify({
+	const raw =
+		(await callAoai({
+			endpoint: args.endpoint,
+			deployment: args.deployment,
+			key: args.key,
+			apiVersion: args.apiVersion,
 			messages: [
 				{ role: "system", content: SYSTEM },
 				{ role: "user", content: user },
 			],
-			response_format: { type: "json_object" },
+			json: true,
 			temperature: 0.5,
-			max_tokens: 1400,
-		}),
-	});
-	if (!res.ok) {
-		throw new Error(`composer ${res.status}: ${(await res.text()).slice(0, 300)}`);
-	}
-	const data = (await res.json()) as {
-		choices?: { message?: { content?: string } }[];
-	};
-	const raw = data.choices?.[0]?.message?.content ?? "{}";
+			maxTokens: 2000,
+		})) || "{}";
 	let parsed: Spec;
 	try {
 		parsed = JSON.parse(raw) as Spec;

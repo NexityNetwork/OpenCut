@@ -1,6 +1,7 @@
 import { getCloudflareContext } from "@opennextjs/cloudflare";
 import {
 	buildComposition,
+	resolveModel,
 	THEMES,
 	type Ref,
 	type Spec,
@@ -28,6 +29,19 @@ function reelsR2(): R2 | undefined {
 	try {
 		const { env } = getCloudflareContext();
 		return (env as unknown as { REELS_R2?: R2 }).REELS_R2;
+	} catch {
+		return undefined;
+	}
+}
+type D1 = {
+	prepare: (q: string) => {
+		bind: (...a: unknown[]) => { run: () => Promise<unknown> };
+	};
+};
+function vaultDb(): D1 | undefined {
+	try {
+		const { env } = getCloudflareContext();
+		return (env as unknown as { VAULT_DB?: D1 }).VAULT_DB;
 	} catch {
 		return undefined;
 	}
@@ -63,6 +77,7 @@ type Body = {
 	spec?: Spec;
 	render?: boolean;
 	name?: string;
+	model?: string;
 };
 
 const safeExt = (e?: string) =>
@@ -91,9 +106,8 @@ export async function POST(request: Request) {
 		spec = { ...b.spec, format: b.spec.format ?? format };
 	} else {
 		const endpoint = cfEnv("AZURE_OPENAI_ENDPOINT");
-		const deployment = cfEnv("AZURE_OPENAI_DEPLOYMENT");
 		const key = cfEnv("AZURE_OPENAI_KEY");
-		if (!endpoint || !deployment || !key) {
+		if (!endpoint || !key) {
 			return Response.json({ error: "composer not configured" }, { status: 503 });
 		}
 		if (!b.prompt?.trim()) {
@@ -102,7 +116,7 @@ export async function POST(request: Request) {
 		try {
 			spec = await planSpec({
 				endpoint,
-				deployment,
+				deployment: resolveModel(b.model),
 				key,
 				brief: b.prompt,
 				instructions: b.instructions,
@@ -158,13 +172,33 @@ export async function POST(request: Request) {
 		);
 	}
 
+	// persist so the render survives leaving the tab + can be reconciled later
+	const name = b.name?.trim() || "Studio render";
+	const d = vaultDb();
+	if (d && owner && executionName) {
+		try {
+			await d
+				.prepare(
+					`INSERT INTO studio_renders (id, owner, exec, out_key, name, format, status, created_at)
+					 VALUES (?, ?, ?, ?, ?, ?, 'rendering', ?)`,
+				)
+				.bind(stamp, owner, executionName, outKey, name, format, Date.now())
+				.run();
+		} catch {
+			/* table may not exist yet — non-fatal */
+		}
+	}
+
 	return Response.json({
+		id: stamp,
 		spec,
 		executionName,
 		outKey,
+		name,
+		format,
+		status: "rendering",
 		duration: built.duration,
 		width: built.width,
 		height: built.height,
-		name: b.name ?? null,
 	});
 }

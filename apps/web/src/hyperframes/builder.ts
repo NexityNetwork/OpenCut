@@ -88,10 +88,10 @@ export const THEMES: Record<string, Theme> = {
 };
 
 export const THEME_LABELS: Record<string, string> = {
-	ultron: "Ultron (dark / orange)",
-	mono: "Mono (dark / white)",
-	frost: "Frost (light / blue)",
-	gold: "Gold (dark / amber)",
+	ultron: "Ultron",
+	mono: "Mono",
+	frost: "Frost",
+	gold: "Gold",
 };
 
 export const FORMATS: Record<string, [number, number]> = {
@@ -100,6 +100,19 @@ export const FORMATS: Record<string, [number, number]> = {
 	"1:1": [1080, 1080],
 	"4:3": [1440, 1080],
 };
+
+// Composer model choices (Azure OpenAI deployments). Default to the strongest.
+export const STUDIO_MODELS: { value: string; label: string }[] = [
+	{ value: "gpt-5.4", label: "GPT-5.4 — best" },
+	{ value: "gpt-5.4-mini", label: "GPT-5.4 mini — fast" },
+	{ value: "gpt-4.1-mini", label: "GPT-4.1 mini — lite" },
+];
+export const DEFAULT_MODEL = "gpt-5.4";
+export function resolveModel(model?: string): string {
+	return STUDIO_MODELS.some((m) => m.value === model)
+		? (model as string)
+		: DEFAULT_MODEL;
+}
 
 const esc = (s: string) =>
 	String(s ?? "")

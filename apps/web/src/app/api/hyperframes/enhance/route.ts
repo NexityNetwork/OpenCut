@@ -1,4 +1,6 @@
 import { cfEnv } from "@/hyperframes/render-job";
+import { callAoai } from "@/hyperframes/aoai";
+import { resolveModel } from "@/hyperframes/builder";
 
 // "Enhance prompt": expands a beta-tester's short idea into a clearer, more
 // vivid brief for the composer. Pure text in / text out (no render), so it is
@@ -38,6 +40,7 @@ export async function POST(request: Request) {
 		prompt?: string;
 		instructions?: string;
 		designNotes?: string;
+		model?: string;
 	};
 	if (!b.prompt?.trim()) {
 		return Response.json({ error: "prompt required" }, { status: 400 });
@@ -57,32 +60,24 @@ export async function POST(request: Request) {
 		.join("\n");
 	const user = `${context ? `${context}\n\n` : ""}Idea: ${b.prompt.trim()}`;
 
-	const base = endpoint.replace(/\/$/, "");
-	const res = await fetch(
-		`${base}/openai/deployments/${deployment}/chat/completions?api-version=2024-10-21`,
-		{
-			method: "POST",
-			headers: { "api-key": key, "Content-Type": "application/json" },
-			body: JSON.stringify({
+	let enhanced = "";
+	try {
+		enhanced = (
+			await callAoai({
+				endpoint,
+				deployment: resolveModel(b.model) || deployment,
+				key,
 				messages: [
 					{ role: "system", content: SYSTEM },
 					{ role: "user", content: user },
 				],
 				temperature: 0.6,
-				max_tokens: 400,
-			}),
-		},
-	);
-	if (!res.ok) {
-		return Response.json(
-			{ error: `enhance ${res.status}` },
-			{ status: 502 },
-		);
+				maxTokens: 800,
+			})
+		).trim();
+	} catch (e) {
+		return Response.json({ error: (e as Error).message }, { status: 502 });
 	}
-	const data = (await res.json()) as {
-		choices?: { message?: { content?: string } }[];
-	};
-	const enhanced = (data.choices?.[0]?.message?.content ?? "").trim();
 	if (!enhanced) return Response.json({ error: "no output" }, { status: 502 });
 	return Response.json({ enhanced });
 }

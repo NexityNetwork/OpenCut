@@ -37,6 +37,7 @@ const DEFAULTS = {
 	theme: "ultron",
 	format: "9:16",
 	fps: 30,
+	model: "gpt-5.4",
 	instructions: "",
 	designNotes: "",
 	confirmBeforeGenerate: true,
@@ -69,6 +70,7 @@ export async function PUT(request: Request) {
 		theme: typeof body.theme === "string" ? body.theme : DEFAULTS.theme,
 		format: typeof body.format === "string" ? body.format : DEFAULTS.format,
 		fps: typeof body.fps === "number" ? body.fps : DEFAULTS.fps,
+		model: typeof body.model === "string" ? body.model : DEFAULTS.model,
 		instructions:
 			typeof body.instructions === "string"
 				? body.instructions.slice(0, 4000)

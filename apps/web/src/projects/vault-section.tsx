@@ -2627,7 +2627,7 @@ function LibrarySidebar({
 				<SidebarItem
 					icon={Clapperboard}
 					label="Studio"
-					badge="Beta"
+					badge="New"
 					active={appView === "studio"}
 					onClick={onSelectStudio}
 				/>
