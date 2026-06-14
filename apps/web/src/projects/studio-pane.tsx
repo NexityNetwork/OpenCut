@@ -18,18 +18,14 @@ import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { Switch } from "@/components/ui/switch";
 import {
-	Select,
-	SelectContent,
-	SelectItem,
-	SelectTrigger,
-	SelectValue,
-} from "@/components/ui/select";
-import {
 	DropdownMenu,
 	DropdownMenuContent,
 	DropdownMenuItem,
+	DropdownMenuLabel,
 	DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import { ParticleTextEffect } from "@/components/home/particle-text";
+import { useTheme } from "next-themes";
 import {
 	FORMATS,
 	STUDIO_MODELS,
@@ -53,6 +49,9 @@ const FORMAT_KEYS = Object.keys(FORMATS);
 // same chip style the Home composer uses, for design consistency
 const CHIP =
 	"flex items-center gap-1.5 rounded-lg border border-[var(--mono-line)] bg-[var(--mono-hover)] px-2.5 py-1.5 text-xs text-[var(--mono-ink-2)] transition-colors hover:bg-[var(--mono-active)] hover:text-[var(--mono-ink)]";
+// settings select-style trigger (DropdownMenu so the popover matches the rest)
+const SELECT_TRIGGER =
+	"flex h-9 w-40 items-center justify-between rounded-lg border border-[var(--mono-line)] bg-[var(--mono-hover)] px-3 text-sm text-[var(--mono-ink)] transition-colors hover:bg-[var(--mono-active)]";
 
 // fake-but-plausible progress so a render does not just sit on one label
 const STAGES = [
@@ -186,6 +185,25 @@ async function extractFrames(file: File, count = 6): Promise<string[]> {
 	});
 }
 
+// a tiny mockup of a theme: its background, an accent bar and an ink bar, so the
+// picker shows what the visual style actually looks like.
+function ThemeSwatch({ id }: { id: string }) {
+	const t = THEMES[id];
+	if (!t) return null;
+	return (
+		<div
+			className="flex h-7 w-10 shrink-0 flex-col justify-center gap-1 rounded-md border border-[var(--mono-line)] px-1.5"
+			style={{ background: t.bg }}
+		>
+			<div className="h-1 w-4 rounded-full" style={{ background: t.accent }} />
+			<div
+				className="h-1 w-6 rounded-full"
+				style={{ background: t.ink, opacity: 0.55 }}
+			/>
+		</div>
+	);
+}
+
 export function StudioPane({
 	owner,
 	onRenderAction,
@@ -194,6 +212,7 @@ export function StudioPane({
 	isOwner: boolean;
 	onRenderAction?: (action: string, vaultId: string) => void;
 }) {
+	const { resolvedTheme } = useTheme();
 	const [prompt, setPrompt] = useState("");
 	const [refs, setRefs] = useState<StudioRef[]>([]);
 	const [theme, setTheme] = useState(DEFAULTS.theme);
@@ -479,20 +498,24 @@ export function StudioPane({
 	}, [theme, format, fps, model, instructions, designNotes, confirmBeforeGenerate]);
 
 	return (
-		<div className="flex flex-col items-center px-4 pb-28 pt-16 sm:px-6 sm:pt-20">
+		<div className="flex flex-col items-center px-4 pb-28 pt-16 sm:px-6 sm:pt-24">
+			<ParticleTextEffect
+				key={resolvedTheme}
+				text="Turn a reference into a reel"
+				colors={
+					resolvedTheme === "light"
+						? ["3c3326", "6b5234", "a8632e", "c98a4e", "55503f"]
+						: undefined
+				}
+				className="mb-3 h-20 w-full max-w-3xl sm:h-24"
+			/>
+			<p className="mb-6 max-w-xl text-center text-sm text-[var(--mono-ink-2)]">
+				Describe a video, attach screenshots, or drop a clip to recreate. It renders
+				on brand straight into your Library.
+			</p>
 			<div className="w-full max-w-2xl">
-				<div className="mb-6 text-center">
-					<h1 className="text-2xl font-semibold tracking-tight text-[var(--mono-ink)]">
-						What should the Studio build?
-					</h1>
-					<p className="mt-2 text-sm text-[var(--mono-ink-2)]">
-						Describe a video, attach screenshots or clips to drop in, or a clip to
-						recreate. It renders on brand straight into your Library.
-					</p>
-				</div>
-
 				{/* composer (Home composer styling) */}
-				<div className="rounded-[1.75rem] border border-[var(--mono-line)] bg-[var(--mono-panel)] px-4 py-3 shadow-sm transition-colors focus-within:border-[var(--mono-ink-3)]">
+				<div className="bg-card focus-within:border-foreground/30 rounded-[1.75rem] border border-border px-4 py-3 shadow-sm transition-colors">
 					{refs.length > 0 && (
 						<div className="mb-2 flex flex-wrap gap-2">
 							{refs.map((r) => (
@@ -561,13 +584,13 @@ export function StudioPane({
 								}
 							}}
 							placeholder="Describe the video you want, or drop a rough idea and hit Enhance."
-							className="max-h-[260px] min-h-[64px] flex-1 resize-none border-0 bg-transparent px-1 py-1 text-base text-[var(--mono-ink)] shadow-none focus-visible:ring-0"
+							className="max-h-[260px] min-h-[64px] flex-1 resize-none border-0 bg-transparent px-1 py-1 text-base text-[var(--mono-ink)] shadow-none focus-visible:ring-0 dark:bg-transparent"
 						/>
 						<button
 							type="button"
 							onClick={onGenerate}
 							disabled={busy}
-							className="flex size-9 shrink-0 items-center justify-center rounded-full bg-[var(--mono-ink)] text-[var(--mono-panel)] transition hover:opacity-90 disabled:opacity-40"
+							className="bg-primary text-primary-foreground flex size-9 shrink-0 items-center justify-center rounded-full transition hover:opacity-90 disabled:opacity-40"
 							aria-label="Generate"
 							title="Generate (Cmd/Ctrl + Enter)"
 						>
@@ -609,7 +632,7 @@ export function StudioPane({
 
 					<DropdownMenu>
 						<DropdownMenuTrigger asChild>
-							<button type="button" className={CHIP}>
+							<button type="button" className={CHIP} title="Visual style of the video">
 								<span
 									className="size-2.5 rounded-full"
 									style={{ background: THEMES[theme]?.accent ?? "#888" }}
@@ -618,15 +641,13 @@ export function StudioPane({
 								<ChevronDown className="size-3.5" />
 							</button>
 						</DropdownMenuTrigger>
-						<DropdownMenuContent align="start">
+						<DropdownMenuContent align="start" className="w-52">
+							<DropdownMenuLabel>Visual style</DropdownMenuLabel>
 							{Object.keys(THEMES).map((k) => (
-								<DropdownMenuItem key={k} onClick={() => setTheme(k)}>
-									<span
-										className="size-2.5 rounded-full"
-										style={{ background: THEMES[k]?.accent }}
-									/>
-									{THEME_LABELS[k] ?? k}
-									{theme === k && <Check className="ml-auto size-3.5" />}
+								<DropdownMenuItem key={k} onClick={() => setTheme(k)} className="gap-2.5">
+									<ThemeSwatch id={k} />
+									<span className="flex-1">{THEME_LABELS[k] ?? k}</span>
+									{theme === k && <Check className="size-3.5" />}
 								</DropdownMenuItem>
 							))}
 						</DropdownMenuContent>
@@ -639,11 +660,14 @@ export function StudioPane({
 								<ChevronDown className="size-3.5" />
 							</button>
 						</DropdownMenuTrigger>
-						<DropdownMenuContent align="start">
+						<DropdownMenuContent align="start" className="w-44">
+							<DropdownMenuLabel>Aspect ratio</DropdownMenuLabel>
 							{FORMAT_KEYS.map((k) => (
 								<DropdownMenuItem key={k} onClick={() => setFormat(k)}>
-									{FORMAT_LABELS[k] ?? k} {k}
-									{format === k && <Check className="ml-auto size-3.5" />}
+									<span className="flex-1">
+										{FORMAT_LABELS[k] ?? k} {k}
+									</span>
+									{format === k && <Check className="size-3.5" />}
 								</DropdownMenuItem>
 							))}
 						</DropdownMenuContent>
@@ -663,35 +687,46 @@ export function StudioPane({
 					<div className="mt-3 space-y-4 rounded-2xl border border-[var(--mono-line)] bg-[var(--mono-panel)] p-4 shadow-sm">
 						<div className="flex items-center justify-between gap-3">
 							<label className="text-sm font-medium text-[var(--mono-ink)]">Model</label>
-							<Select value={model} onValueChange={setModel}>
-								<SelectTrigger className="h-9 w-40 text-sm">
-									<SelectValue />
-								</SelectTrigger>
-								<SelectContent>
+							<DropdownMenu>
+								<DropdownMenuTrigger asChild>
+									<button type="button" className={SELECT_TRIGGER}>
+										{STUDIO_MODELS.find((m) => m.value === model)?.label ?? "Best"}
+										<ChevronDown className="size-3.5 opacity-70" />
+									</button>
+								</DropdownMenuTrigger>
+								<DropdownMenuContent align="end" className="w-40">
 									{STUDIO_MODELS.map((m) => (
-										<SelectItem key={m.value} value={m.value}>
-											{m.label}
-										</SelectItem>
+										<DropdownMenuItem key={m.value} onClick={() => setModel(m.value)}>
+											<span className="flex-1">{m.label}</span>
+											{model === m.value && <Check className="size-3.5" />}
+										</DropdownMenuItem>
 									))}
-								</SelectContent>
-							</Select>
+								</DropdownMenuContent>
+							</DropdownMenu>
 						</div>
 						<div className="flex items-center justify-between gap-3">
 							<label className="text-sm font-medium text-[var(--mono-ink)]">
 								Frame rate
 							</label>
-							<Select value={String(fps)} onValueChange={(v) => setFps(Number(v))}>
-								<SelectTrigger className="h-9 w-40 text-sm">
-									<SelectValue />
-								</SelectTrigger>
-								<SelectContent>
+							<DropdownMenu>
+								<DropdownMenuTrigger asChild>
+									<button type="button" className={SELECT_TRIGGER}>
+										{fps} fps
+										<ChevronDown className="size-3.5 opacity-70" />
+									</button>
+								</DropdownMenuTrigger>
+								<DropdownMenuContent align="end" className="w-40">
 									{FPS_PRESETS.map((f) => (
-										<SelectItem key={f.value} value={f.value}>
-											{f.label}
-										</SelectItem>
+										<DropdownMenuItem
+											key={f.value}
+											onClick={() => setFps(Number(f.value))}
+										>
+											<span className="flex-1">{f.label}</span>
+											{String(fps) === f.value && <Check className="size-3.5" />}
+										</DropdownMenuItem>
 									))}
-								</SelectContent>
-							</Select>
+								</DropdownMenuContent>
+							</DropdownMenu>
 						</div>
 						<div>
 							<label className="text-sm font-medium text-[var(--mono-ink)]">
