@@ -33,6 +33,7 @@ import {
 } from "@/components/ui/dialog";
 import { ParticleTextEffect } from "@/components/home/particle-text";
 import { fetchVault, fileUrl, type VaultItem } from "@/projects/vault-client";
+import { VideoThumb } from "@/projects/video-thumb";
 import { useTheme } from "next-themes";
 import {
 	FORMATS,
@@ -1114,7 +1115,7 @@ export function StudioPane({
 											onClick={() => addLibraryVideo(v)}
 											className="group overflow-hidden rounded-lg border border-[var(--mono-line)] bg-[var(--mono-hover)] text-left transition-colors hover:border-[var(--mono-ink-3)]"
 										>
-											<div className="aspect-[9/16] w-full overflow-hidden bg-black">
+											<div className="relative aspect-[9/16] w-full overflow-hidden bg-black">
 												{v.thumbUrl ? (
 													// eslint-disable-next-line @next/next/no-img-element
 													<img
@@ -1123,11 +1124,10 @@ export function StudioPane({
 														className="size-full object-cover"
 													/>
 												) : (
-													<video
+													<VideoThumb
 														src={fileUrl(
 															v.media.find((m) => m.type === "video")?.key || "",
 														)}
-														muted
 														className="size-full object-cover"
 													/>
 												)}

@@ -84,7 +84,11 @@ export async function POST(request: Request) {
 	if (!chosen.length) {
 		return Response.json({ error: "no valid variants" }, { status: 400 });
 	}
-	const base = (b.name?.trim() || "Repost").slice(0, 50);
+	// scraped names can carry junk prefixes (emoji/symbols stripped to "| ~ +");
+	// clean leading non-alphanumerics so the variant titles read cleanly.
+	const base =
+		((b.name || "").replace(/^[^A-Za-z0-9]+/, "").replace(/\s+/g, " ").trim() ||
+			"Repost").slice(0, 50);
 	const d = vaultDb();
 	const started: { id: string; label: string; exec: string | null }[] = [];
 

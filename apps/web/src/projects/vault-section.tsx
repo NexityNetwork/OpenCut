@@ -140,6 +140,7 @@ import { BioBuilder } from "@/bio/bio-builder";
 import { ClipsStudio } from "@/clips/clips-studio";
 import { BrandKitView } from "@/brand/brand-kit";
 import { StudioPane } from "@/projects/studio-pane";
+import { VideoThumb } from "@/projects/video-thumb";
 import { InboxView, INBOX_TABS, type InboxTab } from "@/inbox/inbox-view";
 import { AssetDetail } from "@/projects/asset-detail";
 import { AddMediaAssetCommand } from "@/commands/media";
@@ -262,49 +263,8 @@ function fmtDur(s?: number) {
 // it once scrolled well away. A one-way latch leaked hundreds of live <video>
 // elements as you scrolled a 200-clip library, which starved the browser's
 // decoders and made opening any single video stutter badly.
-function useInView<T extends Element>(rootMargin = "300px") {
-	const ref = useRef<T | null>(null);
-	const [inView, setInView] = useState(false);
-	useEffect(() => {
-		const el = ref.current;
-		if (!el) return;
-		const io = new IntersectionObserver(
-			(entries) => {
-				const e = entries[0];
-				if (e) setInView(e.isIntersecting);
-			},
-			{ rootMargin },
-		);
-		io.observe(el);
-		return () => io.disconnect();
-	}, [rootMargin]);
-	return { ref, inView };
-}
-
-// Lazy first-frame preview for videos with no poster — only mounts the <video>
-// (which triggers a metadata fetch + decode) once it's near the viewport, so a
-// gallery of 100+ clips doesn't try to decode them all at once.
-function VideoThumb({ src, className }: { src: string; className?: string }) {
-	const { ref, inView } = useInView<HTMLDivElement>();
-	return (
-		<div ref={ref} className="absolute inset-0">
-			{inView ? (
-				// biome-ignore lint/a11y/useMediaCaption: thumbnail preview only
-				<video
-					src={`${src}#t=0.1`}
-					preload="metadata"
-					muted
-					playsInline
-					className={className}
-				/>
-			) : (
-				<div className="bg-muted text-muted-foreground flex size-full items-center justify-center">
-					<VideoIcon className="size-9" />
-				</div>
-			)}
-		</div>
-	);
-}
+// VideoThumb + useInView moved to ./video-thumb so the Studio picker reuses the
+// exact same lazy thumbnail as the Library grid (no duplicate picker).
 
 export function VaultSection() {
 	const editor = useEditor();
