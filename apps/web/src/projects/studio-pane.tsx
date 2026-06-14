@@ -76,7 +76,8 @@ type StudioRef = {
 	key: string;
 	url: string;
 	status: "uploading" | "ready";
-	mode: "clip" | "recreate"; // videos: rebuild the look, or drop the clip in
+	// videos: rebuild the look, drop the clip in, or recolor for reposting
+	mode: "clip" | "recreate" | "recolor";
 	file?: File; // kept in memory for client-side frame extraction
 	frames?: string[]; // cached sampled frames (data URLs)
 };
@@ -332,11 +333,13 @@ export function StudioPane({
 		}
 	}, []);
 
-	// builder refs = clip videos + images (recreate videos are rebuilt, not dropped in)
+	// builder refs = clip videos + images (recreate/recolor videos are not dropped in)
 	const builderRefs = useCallback(
 		() =>
 			refs
-				.filter((r) => r.status === "ready" && !(r.kind === "video" && r.mode === "recreate"))
+				.filter(
+					(r) => r.status === "ready" && !(r.kind === "video" && r.mode !== "clip"),
+				)
 				.map((r) => ({ id: r.id, kind: r.kind, key: r.key, ext: r.ext })),
 		[refs],
 	);
@@ -395,12 +398,42 @@ export function StudioPane({
 	);
 
 	const onGenerate = useCallback(async () => {
-		if (!prompt.trim()) {
-			toast.error("Describe the video you want first");
-			return;
-		}
 		if (refs.some((r) => r.status === "uploading")) {
 			toast.error("Hold on, references are still uploading");
+			return;
+		}
+		// recolor path: make repost variants of the user's own clip(s), no prompt
+		const recolorRefs = refs.filter(
+			(r) => r.status === "ready" && r.kind === "video" && r.mode === "recolor",
+		);
+		if (recolorRefs.length) {
+			setBusy(true);
+			try {
+				let n = 0;
+				for (const r of recolorRefs) {
+					const res = await fetch("/api/hyperframes/recolor", {
+						method: "POST",
+						headers: { "content-type": "application/json" },
+						body: JSON.stringify({ key: r.key, name: r.name.replace(/\.[^.]+$/, "") }),
+					});
+					const data = await res.json();
+					if (res.ok) n += data.count ?? 0;
+					else throw new Error(data.error || "recolor failed");
+				}
+				toast.success(`Started ${n} repost variants, they will land in your Library`);
+				await refreshRenders();
+			} catch (e) {
+				toast.error((e as Error).message);
+			} finally {
+				setBusy(false);
+			}
+			return;
+		}
+		const hasRecreate = refs.some(
+			(r) => r.status === "ready" && r.kind === "video" && r.mode === "recreate",
+		);
+		if (!prompt.trim() && !hasRecreate) {
+			toast.error("Describe the video, or drop a clip to recreate");
 			return;
 		}
 		setBusy(true);
@@ -557,15 +590,27 @@ export function StudioPane({
 												setRefs((p) =>
 													p.map((x) =>
 														x.id === r.id
-															? { ...x, mode: x.mode === "recreate" ? "clip" : "recreate" }
+															? {
+																	...x,
+																	mode:
+																		x.mode === "recreate"
+																			? "clip"
+																			: x.mode === "clip"
+																				? "recolor"
+																				: "recreate",
+																}
 															: x,
 													),
 												)
 											}
 											className="rounded-md px-1 py-0.5 text-[10px] font-medium text-[var(--mono-ink-2)] hover:bg-[var(--mono-hover)] hover:text-[var(--mono-ink)]"
-											title="Recreate rebuilds the look; Use clip drops the footage in"
+											title="Recreate rebuilds the look; Use clip drops the footage in; Recolor makes repost variants of this video"
 										>
-											{r.mode === "recreate" ? "Recreate" : "Use clip"}
+											{r.mode === "recreate"
+												? "Recreate"
+												: r.mode === "clip"
+													? "Use clip"
+													: "Recolor"}
 										</button>
 									)}
 								</div>

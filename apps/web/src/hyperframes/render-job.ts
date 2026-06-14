@@ -54,10 +54,12 @@ export async function azureToken(): Promise<string> {
 }
 
 // Start a render execution. Returns the execution name (for polling).
+// `env` adds/overrides extra container env vars (e.g. MODE/RECOLOR_FILTER).
 export async function startRender(opts: {
 	inKey: string;
 	outKey: string;
 	jobId?: string;
+	env?: Record<string, string>;
 }): Promise<string | null> {
 	const token = await azureToken();
 	const base = armBase();
@@ -84,6 +86,10 @@ export async function startRender(opts: {
 	setEnv("IN_KEY", opts.inKey);
 	setEnv("OUT_KEY", opts.outKey);
 	setEnv("JOB_ID", opts.jobId ?? `hf-${Date.now()}`);
+	// MODE defaults to render; recolor jobs override it. Always set it so a
+	// reused container does not carry a stale MODE from a prior execution.
+	setEnv("MODE", opts.env?.MODE ?? "render");
+	for (const [k, v] of Object.entries(opts.env ?? {})) setEnv(k, v);
 
 	const startRes = await fetch(`${base}/start?api-version=${API_VERSION}`, {
 		method: "POST",
