@@ -351,7 +351,7 @@ export function StudioPane({
 			if (r.kind !== "video" || r.mode !== "recreate") continue;
 			let frames = r.frames;
 			if (!frames && r.file) {
-				frames = await extractFrames(r.file, 8);
+				frames = await extractFrames(r.file, 14);
 				setRefs((prev) =>
 					prev.map((x) => (x.id === r.id ? { ...x, frames } : x)),
 				);

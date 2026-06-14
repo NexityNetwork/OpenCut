@@ -14,11 +14,13 @@ const READER_SYSTEM = `You analyze frames sampled IN ORDER from a short vertical
 Output ONLY JSON: { "beats": Beat[], "overall": { "vibe": string, "palette": string, "density": "sparse"|"medium"|"busy" } }
 Beat is: { "role": "title"|"list"|"stat"|"quote"|"cta"|"transition", "text"?: string, "items"?: {"title":string,"desc"?:string}[], "value"?: string, "label"?: string, "sub"?: string, "emphasis"?: string }
 Rules:
-- One beat per DISTINCT on-screen moment. Merge near-duplicate consecutive frames into one beat.
-- Transcribe the on-screen text VERBATIM into text (or items for a list, value+label for a stat). Fix only obvious OCR slips. Text fidelity is the most important thing.
-- emphasis = the word or two that are visually emphasized (color, size, italic).
-- role: the opening big title is "title"; a set of bullets/steps is "list"; one big number/metric is "stat"; a pulled sentence is "quote"; the closing ask is "cta"; pure motion with no new text is "transition".
-- overall.vibe = short style description; palette = the dominant colors; density = how much is on screen.
+- Read ALL on-screen text in each frame, including small caption lines, not just the big emphasized word.
+- TALKING-HEAD / SCREEN-RECORDING with rolling captions: if the big text changes word-by-word across frames (a spoken caption), it is ONE continuous script. Concatenate the caption text across frames IN ORDER, then segment it into the few KEY POINTS being made. Each key point is a beat (role "list" item or "quote"), never a single-word fragment. Capture the MESSAGE, not isolated words.
+- TEXT-CARD video: each distinct card is one beat. Merge near-duplicate consecutive frames.
+- Put transcribed copy in text (or items for a list, value+label for a stat). Fix only obvious OCR slips.
+- emphasis = the word or two visually emphasized (color, size, italic).
+- role: the opening line/title is "title"; a set of points/steps is "list"; one big number is "stat"; a pulled sentence is "quote"; the closing ask is "cta"; pure motion with no new text is "transition".
+- overall.vibe = short style description; palette = dominant colors; density = how much is on screen.
 Return strictly the JSON object, no prose.`;
 
 const DIRECTOR_SYSTEM = `You turn an observed timeline of a reference video into a production spec for our studio, faithful to the original but cleaned and on brand.
@@ -33,6 +35,7 @@ Rules:
 - Keep the SAME order and roughly the same number of beats. Drop only "transition" beats.
 - Map each beat: title -> hook ; list -> cards ; stat -> stat ; quote -> quote ; cta -> cta.
 - If several title beats cluster at the start (intro cards), they are redundant openings: choose the SINGLE most specific and compelling one as the hook (not necessarily the first; prefer a concrete benefit-led line over a generic one), and drop the weaker duplicates.
+- If the beats were reconstructed from a rolling caption script (a talking head or screen recording), DISTILL the message into a tight reel: a strong hook from the opening idea, 3 to 5 key points as cards, and the closing CTA. Never output single-word or fragment scenes; every scene must read as a complete thought.
 - Reuse the observed text as the copy VERBATIM where possible; clean spelling only. Use the observed emphasis as the accent (a 1-2 word phrase taken from the title).
 - theme: pick the one of ultron|mono|frost|gold that best matches overall.palette and vibe.
 - Apply the user's brand notes and brief for TONE only; do not drift from the reference content.
@@ -49,7 +52,7 @@ Return ONLY the corrected JSON spec object, no prose.`;
 
 type ImgPart = { type: "image_url"; image_url: { url: string } };
 const imgs = (frames: string[]): ImgPart[] =>
-	frames.slice(0, 8).map((url) => ({ type: "image_url", image_url: { url } }));
+	frames.slice(0, 16).map((url) => ({ type: "image_url", image_url: { url } }));
 
 export type SwarmArgs = {
 	endpoint: string;
