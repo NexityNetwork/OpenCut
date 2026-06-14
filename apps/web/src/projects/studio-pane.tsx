@@ -11,6 +11,7 @@ import {
 	Plus,
 	Settings2,
 	Sparkles,
+	Wand2,
 	X,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -121,6 +122,7 @@ export function StudioPane({ owner }: { owner: string; isOwner: boolean }) {
 	const [settingsOpen, setSettingsOpen] = useState(false);
 	const [savingSettings, setSavingSettings] = useState(false);
 	const [busy, setBusy] = useState(false);
+	const [enhancing, setEnhancing] = useState(false);
 	const [plan, setPlan] = useState<Spec | null>(null);
 	const [renders, setRenders] = useState<RenderJob[]>([]);
 	const fileRef = useRef<HTMLInputElement>(null);
@@ -360,6 +362,28 @@ export function StudioPane({ owner }: { owner: string; isOwner: boolean }) {
 		}
 	}, [theme, format, fps, instructions, designNotes, confirmBeforeGenerate]);
 
+	const enhancePrompt = useCallback(async () => {
+		if (!prompt.trim()) {
+			toast.error("Write a rough idea first");
+			return;
+		}
+		setEnhancing(true);
+		try {
+			const res = await fetch("/api/hyperframes/enhance", {
+				method: "POST",
+				headers: { "content-type": "application/json" },
+				body: JSON.stringify({ prompt, instructions, designNotes }),
+			});
+			const data = await res.json();
+			if (!res.ok) throw new Error(data.error || "enhance failed");
+			setPrompt(data.enhanced);
+		} catch (e) {
+			toast.error((e as Error).message);
+		} finally {
+			setEnhancing(false);
+		}
+	}, [prompt, instructions, designNotes]);
+
 	return (
 		<div className="mx-auto max-w-3xl px-4 pb-28 pt-14 sm:px-6 lg:pt-8">
 			<header className="mb-6">
@@ -451,6 +475,21 @@ export function StudioPane({ owner }: { owner: string; isOwner: boolean }) {
 					>
 						<Plus className="size-4" />
 						Reference
+					</Button>
+					<Button
+						type="button"
+						variant="outline"
+						size="sm"
+						onClick={enhancePrompt}
+						disabled={enhancing}
+						className="gap-1.5"
+					>
+						{enhancing ? (
+							<Loader2 className="size-4 animate-spin" />
+						) : (
+							<Wand2 className="size-4" />
+						)}
+						Enhance
 					</Button>
 
 					<Select value={theme} onValueChange={setTheme}>
