@@ -9,13 +9,20 @@ import { cfEnv, isAzureConfigured, startRender } from "@/hyperframes/render-job"
 
 export const dynamic = "force-dynamic";
 
-// color-only ffmpeg filters (no speed, no zoom)
-export const RECOLOR_PRESETS: { id: string; label: string; filter: string }[] = [
-	{ id: "warm", label: "Warm", filter: "eq=saturation=1.12:contrast=1.05:gamma=0.99,colorbalance=rm=0.06:bs=-0.05" },
-	{ id: "cool", label: "Cool", filter: "eq=saturation=1.08:contrast=1.04,colorbalance=rs=-0.05:bs=0.07" },
-	{ id: "punchy", label: "Punchy", filter: "eq=saturation=1.22:contrast=1.10:gamma=0.96" },
-	{ id: "muted", label: "Muted", filter: "eq=saturation=0.88:contrast=1.05:gamma=1.03" },
-	{ id: "film", label: "Film", filter: "eq=saturation=1.0:contrast=1.07,colorbalance=rs=0.04:gm=0.02:bs=-0.05" },
+// Each variant = a distinct color grade (video) + a pitch/timbre shift (audio),
+// no speed or zoom. Different look AND different voice fingerprint, in sync, so
+// the same clip reads as a separate upload across accounts.
+export const RECOLOR_PRESETS: {
+	id: string;
+	label: string;
+	filter: string;
+	audio: string;
+}[] = [
+	{ id: "warm", label: "Warm", filter: "eq=saturation=1.12:contrast=1.05:gamma=0.99,colorbalance=rm=0.06:bs=-0.05", audio: "aresample=44100,asetrate=41895,aresample=44100,atempo=1.053" },
+	{ id: "cool", label: "Cool", filter: "eq=saturation=1.08:contrast=1.04,colorbalance=rs=-0.05:bs=0.07", audio: "aresample=44100,asetrate=46305,aresample=44100,atempo=0.952" },
+	{ id: "punchy", label: "Punchy", filter: "eq=saturation=1.22:contrast=1.10:gamma=0.96", audio: "aresample=44100,asetrate=40572,aresample=44100,atempo=1.087" },
+	{ id: "muted", label: "Muted", filter: "eq=saturation=0.88:contrast=1.05:gamma=1.03", audio: "aresample=44100,asetrate=45423,aresample=44100,atempo=0.971" },
+	{ id: "film", label: "Film", filter: "eq=saturation=1.0:contrast=1.07,colorbalance=rs=0.04:gm=0.02:bs=-0.05", audio: "aresample=44100,asetrate=42777,aresample=44100,atempo=1.031" },
 ];
 
 type D1 = {
@@ -89,7 +96,11 @@ export async function POST(request: Request) {
 				inKey: b.key,
 				outKey,
 				jobId: `recolor-${stamp}`,
-				env: { MODE: "recolor", RECOLOR_FILTER: preset.filter },
+				env: {
+					MODE: "recolor",
+					RECOLOR_FILTER: preset.filter,
+					RECOLOR_AUDIO: preset.audio,
+				},
 			});
 		} catch {
 			continue; // skip a variant that fails to start, keep the rest

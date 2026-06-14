@@ -604,13 +604,13 @@ export function StudioPane({
 												)
 											}
 											className="rounded-md px-1 py-0.5 text-[10px] font-medium text-[var(--mono-ink-2)] hover:bg-[var(--mono-hover)] hover:text-[var(--mono-ink)]"
-											title="Recreate rebuilds the look; Use clip drops the footage in; Recolor makes repost variants of this video"
+											title="Remix makes repost-safe variants (new color + new voice) of this exact video; Use clip drops the footage in; Recreate rebuilds the look"
 										>
 											{r.mode === "recreate"
 												? "Recreate"
 												: r.mode === "clip"
 													? "Use clip"
-													: "Recolor"}
+													: "Remix"}
 										</button>
 									)}
 								</div>
