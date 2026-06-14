@@ -172,9 +172,12 @@ function renderScene(
 	refs: Record<string, Ref>,
 ): { html: string; anim: string } {
 	const id = `s${i}`;
-	const out = t1 - 0.3;
-	const enter = `tl.fromTo("#${id}",{opacity:0,y:46},{opacity:1,y:0,duration:.55,ease:"power3.out"},${t0.toFixed(2)});`;
-	const exit = `tl.to("#${id}",{opacity:0,duration:.3},${out.toFixed(2)});`;
+	const out = t1 - 0.4;
+	// Enter: arrive with an ease-out lift and a blur-to-sharp focus (motion
+	// cookbook). Exit: subtler, an ease-in lift + blur so it does not compete
+	// with the next scene.
+	const enter = `tl.fromTo("#${id}",{opacity:0,y:40,filter:"blur(10px)"},{opacity:1,y:0,filter:"blur(0px)",duration:.6,ease:"power3.out"},${t0.toFixed(2)});`;
+	const exit = `tl.to("#${id}",{opacity:0,y:-14,filter:"blur(6px)",duration:.4,ease:"power2.in"},${out.toFixed(2)});`;
 	let inner = "";
 	let extra = "";
 	switch (s.type) {
