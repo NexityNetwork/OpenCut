@@ -1148,7 +1148,7 @@ export function StudioPane({
 				open={refModal === "library"}
 				onOpenChange={(o) => !o && setRefModal("closed")}
 			>
-				<DialogContent className="max-w-lg">
+				<DialogContent className="flex max-h-[80vh] max-w-lg flex-col">
 					<DialogHeader>
 						<DialogTitle>Add from library</DialogTitle>
 					</DialogHeader>
@@ -1162,35 +1162,48 @@ export function StudioPane({
 								value={libSearch}
 								onChange={(e) => setLibSearch(e.target.value)}
 								placeholder="Search your videos…"
-								className="mb-2 w-full rounded-lg border border-[var(--mono-line)] bg-[var(--mono-hover)] px-3 py-2 text-sm text-[var(--mono-ink)] outline-none placeholder:text-[var(--mono-ink-3)]"
+								className="w-full shrink-0 rounded-lg border border-[var(--mono-line)] bg-[var(--mono-hover)] px-3 py-2 text-sm text-[var(--mono-ink)] outline-none placeholder:text-[var(--mono-ink-3)]"
 							/>
-							<div className="grid max-h-[50vh] grid-cols-3 gap-2 overflow-y-auto">
+							<div className="mt-2 grid min-h-0 flex-1 grid-cols-3 gap-2 overflow-y-auto">
 								{libVideos
-									.filter((v) => v.name.toLowerCase().includes(libSearch.toLowerCase()))
+									.filter((v) =>
+										v.name.toLowerCase().includes(libSearch.toLowerCase()),
+									)
+									.slice(0, 30)
 									.map((v) => (
 										<button
 											key={v.id}
 											type="button"
 											onClick={() => addLibraryVideo(v)}
-											className="group overflow-hidden rounded-lg border border-[var(--mono-line)] bg-[var(--mono-hover)] text-left transition-colors hover:border-[var(--mono-ink-3)]"
+											className="group block text-left"
 										>
-											<div className="relative aspect-[9/16] w-full overflow-hidden bg-black">
+											<div className="bg-muted relative aspect-[4/5] overflow-hidden rounded-lg border border-[var(--mono-line)] transition group-hover:border-[var(--mono-strong)]">
 												{v.thumbUrl ? (
 													// eslint-disable-next-line @next/next/no-img-element
-													<img src={v.thumbUrl} alt={v.name} className="size-full object-cover" />
+													<img
+														src={v.thumbUrl}
+														alt={v.name}
+														loading="lazy"
+														className="absolute inset-0 size-full object-cover"
+													/>
 												) : (
 													<VideoThumb
-														src={fileUrl(v.media.find((m) => m.type === "video")?.key || "")}
-														className="size-full object-cover"
+														src={fileUrl(
+															v.media.find((m) => m.type === "video")?.key || "",
+														)}
+														className="absolute inset-0 size-full object-cover"
 													/>
 												)}
 											</div>
-											<div className="truncate px-1.5 py-1 text-[10px] text-[var(--mono-ink-2)]">
+											<div className="truncate pt-1 text-[10px] text-[var(--mono-ink-2)]">
 												{v.name}
 											</div>
 										</button>
 									))}
 							</div>
+							<p className="mt-2 shrink-0 text-center text-[11px] text-[var(--mono-ink-3)]">
+								Showing up to 30. Search to narrow it down.
+							</p>
 						</>
 					) : (
 						<div className="flex h-40 items-center justify-center text-sm text-[var(--mono-ink-2)]">
