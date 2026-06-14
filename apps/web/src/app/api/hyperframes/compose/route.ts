@@ -7,6 +7,7 @@ import {
 	type Spec,
 } from "@/hyperframes/builder";
 import { planSpec } from "@/hyperframes/composer";
+import { recreateSwarm } from "@/hyperframes/swarm";
 import { cfEnv, isAzureConfigured, startRender } from "@/hyperframes/render-job";
 
 // The Studio composer endpoint. Two modes:
@@ -101,8 +102,11 @@ export async function POST(request: Request) {
 	}));
 	const format = b.format ?? "9:16";
 
-	// 1) get the plan (spec): either supplied (user-edited) or from the model
+	// 1) get the plan (spec): either supplied (user-edited), recreated from a
+	// reference video (the swarm), or generated from the prompt.
 	let spec: Spec;
+	let themeOverride: string | undefined;
+	const frames = Array.isArray(b.recreateFrames) ? b.recreateFrames : [];
 	if (b.spec && Array.isArray(b.spec.scenes)) {
 		spec = { ...b.spec, format: b.spec.format ?? format };
 	} else {
@@ -111,21 +115,35 @@ export async function POST(request: Request) {
 		if (!endpoint || !key) {
 			return Response.json({ error: "composer not configured" }, { status: 503 });
 		}
-		if (!b.prompt?.trim()) {
+		if (!frames.length && !b.prompt?.trim()) {
 			return Response.json({ error: "prompt required" }, { status: 400 });
 		}
 		try {
-			spec = await planSpec({
-				endpoint,
-				deployment: resolveModel(b.model),
-				key,
-				brief: b.prompt,
-				instructions: b.instructions,
-				designNotes: b.designNotes,
-				refs,
-				recreateFrames: Array.isArray(b.recreateFrames) ? b.recreateFrames : undefined,
-				format,
-			});
+			if (frames.length) {
+				const out = await recreateSwarm({
+					endpoint,
+					deployment: resolveModel(b.model),
+					key,
+					frames,
+					brief: b.prompt,
+					instructions: b.instructions,
+					designNotes: b.designNotes,
+					format,
+				});
+				spec = out.spec;
+				themeOverride = out.themeId; // recreation matches the reference look
+			} else {
+				spec = await planSpec({
+					endpoint,
+					deployment: resolveModel(b.model),
+					key,
+					brief: b.prompt ?? "",
+					instructions: b.instructions,
+					designNotes: b.designNotes,
+					refs,
+					format,
+				});
+			}
 		} catch (e) {
 			return Response.json(
 				{ error: (e as Error).message || "compose failed" },
@@ -138,7 +156,7 @@ export async function POST(request: Request) {
 
 	// plan-only mode: hand back the spec for the user to review/edit
 	if (!b.render) {
-		return Response.json({ spec });
+		return Response.json({ spec, theme: themeOverride ?? b.theme ?? null });
 	}
 
 	// 2) render mode: build the composition + manifest, push to R2, start job
@@ -148,7 +166,7 @@ export async function POST(request: Request) {
 	const r2 = reelsR2();
 	if (!r2) return Response.json({ error: "R2 not bound" }, { status: 503 });
 
-	const theme = THEMES[b.theme ?? "ultron"] ?? THEMES.ultron;
+	const theme = THEMES[themeOverride ?? b.theme ?? "ultron"] ?? THEMES.ultron;
 	const built = buildComposition({ spec, theme, refs });
 	const manifest = {
 		html: built.html,
