@@ -12,6 +12,7 @@ import {
 	Loader2,
 	MoreHorizontal,
 	Paperclip,
+	Upload,
 	X,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -24,7 +25,14 @@ import {
 	DropdownMenuLabel,
 	DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import {
+	Dialog,
+	DialogContent,
+	DialogHeader,
+	DialogTitle,
+} from "@/components/ui/dialog";
 import { ParticleTextEffect } from "@/components/home/particle-text";
+import { fetchVault, fileUrl, type VaultItem } from "@/projects/vault-client";
 import { useTheme } from "next-themes";
 import {
 	FORMATS,
@@ -231,6 +239,11 @@ export function StudioPane({
 	const [renders, setRenders] = useState<RenderJob[]>([]);
 	const [preview, setPreview] = useState<string | null>(null);
 	const [, setTick] = useState(0); // drives the staged-status label
+	const [refModal, setRefModal] = useState<"closed" | "choose" | "library">(
+		"closed",
+	);
+	const [libVideos, setLibVideos] = useState<VaultItem[]>([]);
+	const [libLoading, setLibLoading] = useState(false);
 	const fileRef = useRef<HTMLInputElement>(null);
 
 	useEffect(() => {
@@ -333,6 +346,45 @@ export function StudioPane({
 		}
 	}, []);
 
+	// open the "add from library" view and load the owner's videos
+	const openLibrary = useCallback(async () => {
+		setRefModal("library");
+		setLibLoading(true);
+		try {
+			const items = await fetchVault(owner);
+			setLibVideos(
+				items.filter(
+					(i) => i.kind === "video" && i.media.some((m) => m.type === "video"),
+				),
+			);
+		} catch {
+			toast.error("Could not load your library");
+		} finally {
+			setLibLoading(false);
+		}
+	}, [owner]);
+
+	// add a library video as a reference (defaults to remix, the repost lane)
+	const addLibraryVideo = useCallback((it: VaultItem) => {
+		const m = it.media.find((x) => x.type === "video");
+		if (!m) return;
+		const id = `r${crypto.randomUUID().slice(0, 8)}`;
+		setRefs((prev) => [
+			...prev,
+			{
+				id,
+				kind: "video",
+				ext: m.ext || "mp4",
+				name: it.name,
+				key: m.key,
+				url: fileUrl(m.key),
+				status: "ready",
+				mode: "recolor", // the "Remix" path
+			},
+		]);
+		setRefModal("closed");
+	}, []);
+
 	// builder refs = clip videos + images (recreate/recolor videos are not dropped in)
 	const builderRefs = useCallback(
 		() =>
@@ -350,11 +402,23 @@ export function StudioPane({
 		for (const r of refs) {
 			if (r.kind !== "video" || r.mode !== "recreate") continue;
 			let frames = r.frames;
-			if (!frames && r.file) {
-				frames = await extractFrames(r.file, 14);
-				setRefs((prev) =>
-					prev.map((x) => (x.id === r.id ? { ...x, frames } : x)),
-				);
+			if (!frames) {
+				// library videos have no File in memory; fetch the bytes first
+				let file = r.file;
+				if (!file && r.url) {
+					try {
+						const blob = await (await fetch(r.url)).blob();
+						file = new File([blob], `${r.id}.${r.ext}`, { type: blob.type });
+					} catch {
+						/* ignore */
+					}
+				}
+				if (file) {
+					frames = await extractFrames(file, 14);
+					setRefs((prev) =>
+						prev.map((x) => (x.id === r.id ? { ...x, frames } : x)),
+					);
+				}
 			}
 			if (frames) out.push(...frames);
 		}
@@ -661,9 +725,14 @@ export function StudioPane({
 							e.target.value = "";
 						}}
 					/>
-					<button type="button" onClick={() => fileRef.current?.click()} className={CHIP}>
+					<button
+						type="button"
+						onClick={() => setRefModal("choose")}
+						className={CHIP}
+					>
 						<Paperclip className="size-3.5" />
 						Reference
+						<ChevronDown className="size-3.5" />
 					</button>
 					<button
 						type="button"
@@ -979,6 +1048,105 @@ export function StudioPane({
 					</div>
 				)}
 			</div>
+
+			{/* reference source modal: import a video or pick one from the library */}
+			<Dialog
+				open={refModal !== "closed"}
+				onOpenChange={(o) => !o && setRefModal("closed")}
+			>
+				<DialogContent className="max-w-lg">
+					<DialogHeader>
+						<DialogTitle>
+							{refModal === "library" ? "Add from library" : "Add a reference"}
+						</DialogTitle>
+					</DialogHeader>
+					{refModal === "choose" ? (
+						<div className="grid grid-cols-2 gap-3">
+							<button
+								type="button"
+								onClick={() => {
+									setRefModal("closed");
+									fileRef.current?.click();
+								}}
+								className="flex flex-col items-start gap-2 rounded-xl border border-[var(--mono-line)] bg-[var(--mono-panel)] p-4 text-left transition-colors hover:bg-[var(--mono-hover)]"
+							>
+								<Upload className="size-5 text-[var(--mono-ink)]" />
+								<span className="text-sm font-medium text-[var(--mono-ink)]">
+									Import video
+								</span>
+								<span className="text-xs text-[var(--mono-ink-2)]">
+									Upload a screenshot or clip from your device
+								</span>
+							</button>
+							<button
+								type="button"
+								onClick={() => void openLibrary()}
+								className="flex flex-col items-start gap-2 rounded-xl border border-[var(--mono-line)] bg-[var(--mono-panel)] p-4 text-left transition-colors hover:bg-[var(--mono-hover)]"
+							>
+								<Film className="size-5 text-[var(--mono-ink)]" />
+								<span className="text-sm font-medium text-[var(--mono-ink)]">
+									Add from library
+								</span>
+								<span className="text-xs text-[var(--mono-ink-2)]">
+									Pick a video you already have
+								</span>
+							</button>
+						</div>
+					) : (
+						<div>
+							<button
+								type="button"
+								onClick={() => setRefModal("choose")}
+								className="mb-3 text-xs font-medium text-[var(--mono-ink-2)] hover:text-[var(--mono-ink)]"
+							>
+								&larr; Back
+							</button>
+							{libLoading ? (
+								<div className="flex h-40 items-center justify-center">
+									<Loader2 className="size-5 animate-spin text-[var(--mono-ink-2)]" />
+								</div>
+							) : libVideos.length ? (
+								<div className="grid max-h-[55vh] grid-cols-3 gap-2 overflow-y-auto">
+									{libVideos.map((v) => (
+										<button
+											key={v.id}
+											type="button"
+											onClick={() => addLibraryVideo(v)}
+											className="group overflow-hidden rounded-lg border border-[var(--mono-line)] bg-[var(--mono-hover)] text-left transition-colors hover:border-[var(--mono-ink-3)]"
+										>
+											<div className="aspect-[9/16] w-full overflow-hidden bg-black">
+												{v.thumbUrl ? (
+													// eslint-disable-next-line @next/next/no-img-element
+													<img
+														src={v.thumbUrl}
+														alt={v.name}
+														className="size-full object-cover"
+													/>
+												) : (
+													<video
+														src={fileUrl(
+															v.media.find((m) => m.type === "video")?.key || "",
+														)}
+														muted
+														className="size-full object-cover"
+													/>
+												)}
+											</div>
+											<div className="truncate px-1.5 py-1 text-[10px] text-[var(--mono-ink-2)]">
+												{v.name}
+											</div>
+										</button>
+									))}
+								</div>
+							) : (
+								<div className="flex h-40 items-center justify-center text-sm text-[var(--mono-ink-2)]">
+									No videos in your library yet
+								</div>
+							)}
+						</div>
+					)}
+				</DialogContent>
+			</Dialog>
 		</div>
 	);
 }

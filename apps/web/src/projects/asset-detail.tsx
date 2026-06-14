@@ -16,6 +16,7 @@ import {
 	Frame,
 	Loader2,
 	Rocket,
+	Shuffle,
 } from "lucide-react";
 import { cn } from "@/utils/ui";
 import { Button } from "@/components/ui/button";
@@ -93,6 +94,30 @@ export function AssetDetail({
 			await (kind === "editor" ? onOpenEditor(item) : onOpenCanvas(item));
 		} finally {
 			setBusy(null);
+		}
+	};
+
+	const [remixing, setRemixing] = useState(false);
+	const remix = async () => {
+		if (remixing) return;
+		const key = item.media.find((m) => m.type === "video")?.key;
+		if (!key) return;
+		setRemixing(true);
+		try {
+			const r = await fetch("/api/hyperframes/recolor", {
+				method: "POST",
+				headers: { "content-type": "application/json" },
+				body: JSON.stringify({ key, name: item.name }),
+			});
+			const d = await r.json();
+			if (!r.ok) throw new Error(d.error || "Remix failed");
+			toast.success(
+				`Remixing into ${d.count ?? 3} variants, they will land in your Library`,
+			);
+		} catch (e) {
+			toast.error(e instanceof Error ? e.message : "Remix failed");
+		} finally {
+			setRemixing(false);
 		}
 	};
 
@@ -240,6 +265,15 @@ export function AssetDetail({
 							sub="Schedule or publish to your channels"
 							onClick={() => onCompose(item)}
 						/>
+						{isVideo && (
+							<ActionRow
+								icon={remixing ? <Loader2 className="size-4 animate-spin" /> : <Shuffle className="size-4" />}
+								title="Remix for reposting"
+								sub="Recolor and revoice into variants for multiple accounts"
+								onClick={() => void remix()}
+								disabled={remixing}
+							/>
+						)}
 						<a
 							href={fileUrl(item.media[0]?.key || "")}
 							download={item.name}
