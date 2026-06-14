@@ -412,15 +412,14 @@ export function VaultSection() {
 	const [loading, setLoading] = useState(true);
 	const [text, setText] = useState("");
 	const [busy, setBusy] = useState(false);
-	// Batch import queue: paste many links, sort them into a category up front,
-	// and import them one at a time.
+	// Batch import queue: one row per link with a + to add more, sorted into a
+	// category chosen up front.
 	const [queueOpen, setQueueOpen] = useState(false);
-	const [queueText, setQueueText] = useState("");
 	const [queueCat, setQueueCat] = useState("");
 	const [queueNewCat, setQueueNewCat] = useState("");
-	const [queue, setQueue] = useState<
-		{ url: string; status: "pending" | "importing" | "done" | "failed" }[]
-	>([]);
+	const [queueRows, setQueueRows] = useState<
+		{ url: string; status: "" | "pending" | "importing" | "done" | "failed" }[]
+	>([{ url: "", status: "" }]);
 	const [queueRunning, setQueueRunning] = useState(false);
 	// The open tab lives in the URL (?tab=…) so a refresh or coming back from
 	// the editor lands on the same category instead of resetting to "all".
@@ -558,22 +557,24 @@ export function VaultSection() {
 		}
 	};
 
-	// Import a list of links one at a time, tagging each with the chosen category.
+	// Import each row's link one at a time, tagging each with the chosen category.
 	const runQueue = async () => {
 		const cat = (queueNewCat.trim() || queueCat).trim();
-		const urls = queueText
-			.split(/[\n,]/)
-			.map((u) => u.trim())
-			.filter((u) => isUrl(u));
-		if (!urls.length || queueRunning || !owner) return;
+		const targets = queueRows
+			.map((r, i) => ({ i, url: r.url.trim() }))
+			.filter((r) => isUrl(r.url));
+		if (!targets.length || queueRunning || !owner) return;
 		setQueueRunning(true);
-		setQueue(urls.map((url) => ({ url, status: "pending" })));
-		for (let i = 0; i < urls.length; i++) {
-			setQueue((q) =>
-				q.map((x, k) => (k === i ? { ...x, status: "importing" } : x)),
+		setQueueRows((rows) =>
+			rows.map((r) => (isUrl(r.url.trim()) ? { ...r, status: "pending" } : r)),
+		);
+		let ok = 0;
+		for (const { i, url } of targets) {
+			setQueueRows((rows) =>
+				rows.map((r, k) => (k === i ? { ...r, status: "importing" } : r)),
 			);
 			try {
-				const item = await importLinkToVault(owner, urls[i], "video");
+				const item = await importLinkToVault(owner, url, "video");
 				if (cat) {
 					try {
 						await setVaultItemTags(owner, item.id, [cat]);
@@ -581,21 +582,19 @@ export function VaultSection() {
 						/* tagging is best-effort */
 					}
 				}
-				const tagged = cat ? { ...item, tags: [cat] } : item;
-				setItems((prev) => [tagged, ...prev]);
-				setQueue((q) =>
-					q.map((x, k) => (k === i ? { ...x, status: "done" } : x)),
+				setItems((prev) => [cat ? { ...item, tags: [cat] } : item, ...prev]);
+				setQueueRows((rows) =>
+					rows.map((r, k) => (k === i ? { ...r, status: "done" } : r)),
 				);
+				ok++;
 			} catch {
-				setQueue((q) =>
-					q.map((x, k) => (k === i ? { ...x, status: "failed" } : x)),
+				setQueueRows((rows) =>
+					rows.map((r, k) => (k === i ? { ...r, status: "failed" } : r)),
 				);
 			}
 		}
 		setQueueRunning(false);
-		const done = queueText.split(/[\n,]/).filter((u) => isUrl(u.trim())).length;
-		toast.success(`Queue finished (${done} link${done === 1 ? "" : "s"})`);
-		setQueueText("");
+		toast.success(`Imported ${ok} of ${targets.length}`);
 		if (cat) {
 			setCustomSections((prev) =>
 				prev.some((s) => s.name === cat) ? prev : [...prev, { name: cat, icon: "" }],
@@ -1682,41 +1681,86 @@ export function VaultSection() {
 						</button>
 					</div>
 					{queueOpen && (
-						<div className="mt-3 space-y-3 rounded-2xl border border-[var(--mono-line)] bg-[var(--mono-panel)] p-4 text-left shadow-sm">
-							<div className="flex items-center justify-between gap-3">
-								<label className="text-sm font-medium text-[var(--mono-ink)]">
-									Sort into category
-								</label>
-								<select
-									value={queueCat}
-									onChange={(e) => setQueueCat(e.target.value)}
-									className="h-9 rounded-lg border border-[var(--mono-line)] bg-[var(--mono-hover)] px-2 text-sm text-[var(--mono-ink)] outline-none"
-								>
-									<option value="">No category</option>
-									{sectionNames.map((s) => (
-										<option key={s} value={s}>
-											{s}
-										</option>
-									))}
-								</select>
+						<div className="mt-3 rounded-2xl border border-[var(--mono-line)] bg-[var(--mono-panel)] p-3 text-left shadow-sm">
+							<div className="mb-3 flex flex-wrap items-center gap-2">
+								<span className="text-xs font-medium text-[var(--mono-ink-2)]">Category</span>
+								<DropdownMenu>
+									<DropdownMenuTrigger asChild>
+										<button type="button" className={HOME_CHIP_CLS}>
+											{queueNewCat.trim() || queueCat || "No category"}
+											<ChevronDown className="size-3.5" />
+										</button>
+									</DropdownMenuTrigger>
+									<DropdownMenuContent align="start" className="max-h-64 overflow-y-auto">
+										<DropdownMenuItem onClick={() => { setQueueCat(""); setQueueNewCat(""); }}>
+											No category
+										</DropdownMenuItem>
+										{sectionNames.map((s) => (
+											<DropdownMenuItem key={s} onClick={() => { setQueueCat(s); setQueueNewCat(""); }}>
+												{s}
+												{queueCat === s && !queueNewCat && <Check className="ml-auto size-3.5" />}
+											</DropdownMenuItem>
+										))}
+									</DropdownMenuContent>
+								</DropdownMenu>
+								<input
+									value={queueNewCat}
+									onChange={(e) => setQueueNewCat(e.target.value)}
+									placeholder="or new category"
+									className="h-8 min-w-[140px] flex-1 rounded-lg border border-[var(--mono-line)] bg-[var(--mono-hover)] px-3 text-sm text-[var(--mono-ink)] outline-none placeholder:text-[var(--mono-ink-3)]"
+								/>
 							</div>
-							<input
-								value={queueNewCat}
-								onChange={(e) => setQueueNewCat(e.target.value)}
-								placeholder="or type a new category name"
-								className="w-full rounded-lg border border-[var(--mono-line)] bg-[var(--mono-hover)] px-3 py-2 text-sm text-[var(--mono-ink)] outline-none placeholder:text-[var(--mono-ink-3)]"
-							/>
-							<textarea
-								value={queueText}
-								onChange={(e) => setQueueText(e.target.value)}
-								placeholder="Paste links, one per line"
-								className="min-h-[120px] w-full resize-none rounded-lg border border-[var(--mono-line)] bg-[var(--mono-hover)] px-3 py-2 text-sm text-[var(--mono-ink)] outline-none placeholder:text-[var(--mono-ink-3)]"
-							/>
-							<div className="flex items-center justify-between">
-								<span className="text-xs text-[var(--mono-ink-3)]">
-									{queue.length > 0 &&
-										`${queue.filter((q) => q.status === "done").length}/${queue.length} done`}
-								</span>
+							<div className="space-y-2">
+								{queueRows.map((r, i) => (
+									<div key={i} className="flex items-center gap-2">
+										{r.status && (
+											<span
+												className={cn(
+													"size-1.5 shrink-0 rounded-full",
+													r.status === "done"
+														? "bg-emerald-500"
+														: r.status === "failed"
+															? "bg-red-500"
+															: r.status === "importing"
+																? "bg-amber-500"
+																: "bg-[var(--mono-ink-3)]",
+												)}
+											/>
+										)}
+										<input
+											value={r.url}
+											onChange={(e) =>
+												setQueueRows((rows) =>
+													rows.map((x, k) => (k === i ? { ...x, url: e.target.value } : x)),
+												)
+											}
+											placeholder="Paste a link"
+											className="h-9 flex-1 rounded-lg border border-[var(--mono-line)] bg-[var(--mono-hover)] px-3 text-sm text-[var(--mono-ink)] outline-none placeholder:text-[var(--mono-ink-3)]"
+										/>
+										<button
+											type="button"
+											onClick={() =>
+												setQueueRows((rows) =>
+													rows.length > 1 ? rows.filter((_, k) => k !== i) : rows,
+												)
+											}
+											disabled={queueRows.length === 1}
+											className="flex size-8 shrink-0 items-center justify-center rounded-lg text-[var(--mono-ink-3)] transition-colors hover:bg-[var(--mono-hover)] hover:text-[var(--mono-ink)] disabled:opacity-30"
+											aria-label="Remove link"
+										>
+											<X className="size-4" />
+										</button>
+									</div>
+								))}
+							</div>
+							<div className="mt-3 flex items-center justify-between">
+								<button
+									type="button"
+									onClick={() => setQueueRows((rows) => [...rows, { url: "", status: "" }])}
+									className="flex items-center gap-1.5 text-xs font-medium text-[var(--mono-ink-2)] hover:text-[var(--mono-ink)]"
+								>
+									<Plus className="size-3.5" /> Add link
+								</button>
 								<button
 									type="button"
 									onClick={() => void runQueue()}
@@ -1726,30 +1770,6 @@ export function VaultSection() {
 									{queueRunning ? "Importing…" : "Start queue"}
 								</button>
 							</div>
-							{queue.length > 0 && (
-								<div className="max-h-44 space-y-1 overflow-y-auto">
-									{queue.map((q, i) => (
-										<div key={i} className="flex items-center gap-2 text-xs">
-											<span
-												className={cn(
-													"size-1.5 shrink-0 rounded-full",
-													q.status === "done"
-														? "bg-emerald-500"
-														: q.status === "failed"
-															? "bg-red-500"
-															: q.status === "importing"
-																? "bg-amber-500"
-																: "bg-[var(--mono-ink-3)]",
-												)}
-											/>
-											<span className="truncate text-[var(--mono-ink-2)]">{q.url}</span>
-											<span className="ml-auto shrink-0 text-[var(--mono-ink-3)]">
-												{q.status}
-											</span>
-										</div>
-									))}
-								</div>
-							)}
 						</div>
 					)}
 				</div>
