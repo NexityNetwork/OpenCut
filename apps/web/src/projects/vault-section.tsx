@@ -3116,6 +3116,22 @@ const DEMO_COUNTS: Record<string, number> = {
 	uploading: 1,
 	failed: 0,
 };
+
+// Loading placeholder rows for the publish view, so we show shimmer instead of
+// misleading empty/zero state while channels + queue + status are fetching.
+function PubSkeletonRows({ rows = 4 }: { rows?: number }) {
+	return (
+		<div className="divide-y divide-[var(--mono-line)] overflow-hidden rounded-xl border border-[var(--mono-line)]">
+			{Array.from({ length: rows }).map((_, i) => (
+				<div key={i} className="flex items-center gap-3 px-4 py-3">
+					<div className="size-4 shrink-0 animate-pulse rounded bg-[var(--mono-line)]" />
+					<div className="h-3.5 flex-1 animate-pulse rounded bg-[var(--mono-line)]" />
+					<div className="h-3 w-16 shrink-0 animate-pulse rounded bg-[var(--mono-line)]" />
+				</div>
+			))}
+		</div>
+	);
+}
 const DEMO_CHANNELS: Channel[] = [
 	{ id: "demo-yt", platform: "youtube", label: "your-channel", platform_handle: "@yourbrand", status: "active" },
 	{ id: "demo-ig", platform: "instagram", label: "your-ig", platform_handle: "@yourbrand", status: "active" },
@@ -3311,7 +3327,7 @@ function ChannelsSection({ preview = false }: { preview?: boolean }) {
 			)}
 
 			{channels === null ? (
-				<div className="text-sm text-[var(--mono-ink-3)]">Loading channels…</div>
+				<PubSkeletonRows rows={2} />
 			) : channels.length === 0 ? (
 				<div className="rounded-xl border border-dashed border-[var(--mono-line)] py-6 text-center text-sm text-[var(--mono-ink-3)]">
 					No channels connected yet. Use Connect.
@@ -4424,8 +4440,8 @@ function PublishPane({
 		if (preview) return;
 		fetch("/api/publish/status")
 			.then((r) => (r.ok ? r.json() : null))
-			.then((d) => setStatus(d))
-			.catch(() => setStatus(null));
+			.then((d) => setStatus(d ?? { counts: {} }))
+			.catch(() => setStatus({ counts: {} }));
 	};
 	const loadQueue = () => {
 		if (preview) return;
@@ -4451,6 +4467,7 @@ function PublishPane({
 		});
 
 	const c = preview ? DEMO_COUNTS : status?.counts ?? {};
+	const statusLoading = !preview && status === null;
 	const stat = [
 		{ label: "Published", value: c.published, color: "text-green-500" },
 		{ label: "Queued", value: c.queued, color: "text-[var(--mono-ink)]" },
@@ -4534,9 +4551,13 @@ function PublishPane({
 						className="rounded-xl border border-[var(--mono-line)] bg-[var(--mono-hover)] p-4"
 					>
 						<div className="text-xs text-[var(--mono-ink-3)]">{s.label}</div>
-						<div className={cn("mt-1.5 text-2xl font-semibold", s.color)}>
-							{s.value ?? 0}
-						</div>
+						{statusLoading ? (
+							<div className="mt-2 h-7 w-10 animate-pulse rounded-md bg-[var(--mono-line)]" />
+						) : (
+							<div className={cn("mt-1.5 text-2xl font-semibold", s.color)}>
+								{s.value ?? 0}
+							</div>
+						)}
 					</div>
 				))}
 			</div>
@@ -4610,9 +4631,7 @@ function PublishPane({
 			<div className="mt-5">
 				<h2 className="mb-2 text-sm font-semibold">Upcoming</h2>
 				{queue === null ? (
-					<div className="rounded-xl border border-dashed border-[var(--mono-line)] py-8 text-center text-sm text-[var(--mono-ink-3)]">
-						Loading…
-					</div>
+					<PubSkeletonRows />
 				) : upcoming.length === 0 ? (
 					<div className="rounded-xl border border-dashed border-[var(--mono-line)] py-8 text-center text-sm text-[var(--mono-ink-3)]">
 						Nothing scheduled.
@@ -4646,9 +4665,7 @@ function PublishPane({
 			<div className="mt-8">
 				<h2 className="mb-2 text-sm font-semibold">Recent</h2>
 				{queue === null ? (
-					<div className="rounded-xl border border-dashed border-[var(--mono-line)] py-8 text-center text-sm text-[var(--mono-ink-3)]">
-						Loading…
-					</div>
+					<PubSkeletonRows />
 				) : recent.length === 0 ? (
 					<div className="rounded-xl border border-dashed border-[var(--mono-line)] py-8 text-center text-sm text-[var(--mono-ink-3)]">
 						No posts yet.
