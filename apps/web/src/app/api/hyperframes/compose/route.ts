@@ -6,7 +6,7 @@ import {
 	type Ref,
 	type Spec,
 } from "@/hyperframes/builder";
-import { planSpec } from "@/hyperframes/composer";
+import { planSpec, refineSpec } from "@/hyperframes/composer";
 import { recreateSwarm } from "@/hyperframes/swarm";
 import { cfEnv, isAzureConfigured, startRender } from "@/hyperframes/render-job";
 
@@ -77,6 +77,7 @@ type Body = {
 	refs?: InRef[];
 	recreateFrames?: string[]; // data URLs sampled from a reference video to rebuild
 	spec?: Spec;
+	change?: string; // iteration loop: a single change to apply to spec
 	render?: boolean;
 	name?: string;
 	model?: string;
@@ -107,7 +108,30 @@ export async function POST(request: Request) {
 	let spec: Spec;
 	let themeOverride: string | undefined;
 	const frames = Array.isArray(b.recreateFrames) ? b.recreateFrames : [];
-	if (b.spec && Array.isArray(b.spec.scenes)) {
+	if (b.spec && Array.isArray(b.spec.scenes) && b.change?.trim()) {
+		// iteration loop: edit ONLY what the change asks, keep the rest intact
+		const endpoint = cfEnv("AZURE_OPENAI_ENDPOINT");
+		const key = cfEnv("AZURE_OPENAI_KEY");
+		if (!endpoint || !key) {
+			return Response.json({ error: "composer not configured" }, { status: 503 });
+		}
+		try {
+			const out = await refineSpec({
+				endpoint,
+				deployment: resolveModel(b.model),
+				key,
+				spec: { ...b.spec, format: b.spec.format ?? format },
+				change: b.change,
+			});
+			spec = out.spec;
+			if (out.theme) themeOverride = out.theme;
+		} catch (e) {
+			return Response.json(
+				{ error: (e as Error).message || "refine failed" },
+				{ status: 502 },
+			);
+		}
+	} else if (b.spec && Array.isArray(b.spec.scenes)) {
 		spec = { ...b.spec, format: b.spec.format ?? format };
 	} else {
 		const endpoint = cfEnv("AZURE_OPENAI_ENDPOINT");
@@ -199,10 +223,22 @@ export async function POST(request: Request) {
 		try {
 			await d
 				.prepare(
-					`INSERT INTO studio_renders (id, owner, exec, out_key, name, format, status, created_at)
-					 VALUES (?, ?, ?, ?, ?, ?, 'rendering', ?)`,
+					`INSERT INTO studio_renders (id, owner, exec, out_key, name, format, status, created_at, spec, theme, fps, refs)
+					 VALUES (?, ?, ?, ?, ?, ?, 'rendering', ?, ?, ?, ?, ?)`,
 				)
-				.bind(stamp, owner, executionName, outKey, name, format, Date.now())
+				.bind(
+					stamp,
+					owner,
+					executionName,
+					outKey,
+					name,
+					format,
+					Date.now(),
+					JSON.stringify(spec),
+					themeOverride ?? b.theme ?? "ultron",
+					spec.fps ?? b.fps ?? 30,
+					JSON.stringify(inRefs),
+				)
 				.run();
 		} catch {
 			/* table may not exist yet — non-fatal */

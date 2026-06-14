@@ -98,6 +98,9 @@ type RenderJob = {
 	createdAt?: number;
 	url?: string | null;
 	vaultId?: string | null;
+	spec?: Spec | null;
+	theme?: string | null;
+	fps?: number | null;
 };
 type Settings = {
 	theme: string;
@@ -239,6 +242,9 @@ export function StudioPane({
 	const [plan, setPlan] = useState<Spec | null>(null);
 	const [renders, setRenders] = useState<RenderJob[]>([]);
 	const [preview, setPreview] = useState<string | null>(null);
+	const [refineId, setRefineId] = useState<string | null>(null);
+	const [refineText, setRefineText] = useState("");
+	const [refineBusy, setRefineBusy] = useState(false);
 	const [, setTick] = useState(0); // drives the staged-status label
 	const [refModal, setRefModal] = useState<"closed" | "choose" | "library">(
 		"closed",
@@ -594,6 +600,41 @@ export function StudioPane({
 			setSavingSettings(false);
 		}
 	}, [theme, format, fps, model, instructions, designNotes, confirmBeforeGenerate]);
+
+	// iteration loop: apply one described change to a render's spec, keep the rest
+	const submitRefine = useCallback(
+		async (r: RenderJob) => {
+			if (!refineText.trim() || !r.spec) return;
+			setRefineBusy(true);
+			try {
+				const res = await fetch("/api/hyperframes/compose", {
+					method: "POST",
+					headers: { "content-type": "application/json" },
+					body: JSON.stringify({
+						spec: r.spec,
+						change: refineText.trim(),
+						theme: r.theme ?? theme,
+						format: r.format,
+						fps: r.fps ?? fps,
+						model,
+						render: true,
+						name: r.name,
+					}),
+				});
+				const data = await res.json();
+				if (!res.ok) throw new Error(data.error || "refine failed");
+				toast.success("Applying your change, the new version will land in your Library");
+				setRefineId(null);
+				setRefineText("");
+				await refreshRenders();
+			} catch (e) {
+				toast.error((e as Error).message);
+			} finally {
+				setRefineBusy(false);
+			}
+		},
+		[refineText, theme, fps, model, refreshRenders],
+	);
 
 	return (
 		<div className="flex flex-col items-center px-4 pb-28 pt-16 sm:px-6 sm:pt-24">
@@ -994,6 +1035,18 @@ export function StudioPane({
 												>
 													{preview === r.id ? "Hide" : "Preview"}
 												</button>
+												{r.spec && (
+													<button
+														type="button"
+														onClick={() => {
+															setRefineId((p) => (p === r.id ? null : r.id));
+															setRefineText("");
+														}}
+														className="rounded-md px-2 py-1 text-xs font-medium text-[var(--mono-ink-2)] hover:bg-[var(--mono-hover)] hover:text-[var(--mono-ink)]"
+													>
+														{refineId === r.id ? "Close" : "Refine"}
+													</button>
+												)}
 												{onRenderAction && r.vaultId && (
 													<DropdownMenu>
 														<DropdownMenuTrigger asChild>
@@ -1041,6 +1094,35 @@ export function StudioPane({
 												autoPlay
 												className="w-full rounded-lg border border-[var(--mono-line)] bg-black"
 											/>
+										</div>
+									)}
+									{refineId === r.id && (
+										<div className="border-t border-[var(--mono-line)] px-3 py-3">
+											<p className="mb-1.5 text-xs text-[var(--mono-ink-2)]">
+												Describe one change. Everything else stays the same.
+											</p>
+											<div className="flex items-end gap-2">
+												<Textarea
+													value={refineText}
+													onChange={(e) => setRefineText(e.target.value)}
+													onKeyDown={(e) => {
+														if (e.key === "Enter" && (e.metaKey || e.ctrlKey)) {
+															e.preventDefault();
+															void submitRefine(r);
+														}
+													}}
+													placeholder="e.g. shorter hook, make scene 2 a stat, switch to gold, punch up the CTA"
+													className="max-h-[120px] min-h-[44px] flex-1 resize-none border border-[var(--mono-line)] bg-[var(--mono-hover)] text-sm dark:bg-[var(--mono-hover)]"
+												/>
+												<Button
+													size="sm"
+													onClick={() => void submitRefine(r)}
+													disabled={refineBusy || !refineText.trim()}
+												>
+													{refineBusy && <Loader2 className="size-4 animate-spin" />}
+													Apply
+												</Button>
+											</div>
 										</div>
 									)}
 								</div>

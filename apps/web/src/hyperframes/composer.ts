@@ -94,6 +94,60 @@ function clampScenes(scenes: Scene[], refs: Ref[]): Scene[] {
 	return [hook, ...middles.slice(0, 5), cta];
 }
 
+const REFINE_SYSTEM = `You edit an existing short-video spec. The user describes ONE change. Apply ONLY that change and keep everything else byte-identical: same scenes, same order, same wording, same types, unless the change explicitly asks otherwise.
+Output ONLY JSON: { "format"?: "9:16"|"16:9"|"1:1"|"4:3", "theme"?: "ultron"|"mono"|"frost"|"gold", "scenes": Scene[] }
+Scene types: hook{kicker,title,sub?,accent}, cards{kicker?,items[{title,desc?}]}, stat{kicker?,value,label}, quote{quote,attribution?}, cta{title,keyword}.
+Rules:
+- Return the COMPLETE spec (every scene), not just the changed part. Do NOT rewrite scenes the change did not mention.
+- The user may target a scene by position or role ("scene 2", "the hook", "the cta", "the list"). Edit only that one.
+- If the change asks for a different color look, set "theme" (ultron|mono|frost|gold). If it asks for a different aspect ratio, set "format".
+- Keep the copy rules: no hashtags, emojis, markdown, em dashes, quotes around words, dollar signs; title <= 6 words, desc <= 12 words; first scene hook, last scene cta.
+Return strictly the JSON object, no prose.`;
+
+// Apply a single natural-language change to an existing spec, keeping the rest
+// intact. Returns the edited spec and an optional theme override.
+export async function refineSpec(args: {
+	endpoint: string;
+	deployment: string;
+	key: string;
+	spec: Spec;
+	change: string;
+	apiVersion?: string;
+}): Promise<{ spec: Spec; theme?: string }> {
+	const raw =
+		(await callAoai({
+			endpoint: args.endpoint,
+			deployment: args.deployment,
+			key: args.key,
+			apiVersion: args.apiVersion,
+			messages: [
+				{ role: "system", content: REFINE_SYSTEM },
+				{
+					role: "user",
+					content: `Current spec:\n${JSON.stringify(args.spec)}\n\nChange: ${args.change.trim()}`,
+				},
+			],
+			json: true,
+			temperature: 0.2,
+			maxTokens: 2500,
+		})) || "{}";
+	let parsed: { format?: Spec["format"]; theme?: string; scenes?: Scene[] };
+	try {
+		parsed = JSON.parse(raw);
+	} catch {
+		return { spec: args.spec };
+	}
+	const scenes = Array.isArray(parsed.scenes) ? parsed.scenes : args.spec.scenes;
+	return {
+		spec: {
+			format: parsed.format ?? args.spec.format ?? "9:16",
+			fps: args.spec.fps,
+			scenes: clampScenes(scenes, []),
+		},
+		theme: parsed.theme,
+	};
+}
+
 export async function planSpec(args: PlanArgs): Promise<Spec> {
 	const refs = args.refs ?? [];
 	const frames = args.recreateFrames ?? [];

@@ -50,7 +50,7 @@ export async function GET(request: Request) {
 	try {
 		const { results } = await d
 			.prepare(
-				"SELECT id, exec, out_key, name, format, status, vault_id, created_at FROM studio_renders WHERE owner = ? ORDER BY created_at DESC LIMIT 20",
+				"SELECT id, exec, out_key, name, format, status, vault_id, created_at, spec, theme, fps FROM studio_renders WHERE owner = ? ORDER BY created_at DESC LIMIT 20",
 			)
 			.bind(owner)
 			.all();
@@ -120,14 +120,25 @@ export async function GET(request: Request) {
 	}
 
 	return Response.json({
-		renders: rows.map((r) => ({
-			id: r.id,
-			name: r.name,
-			format: r.format,
-			status: r.status,
-			createdAt: r.created_at,
-			vaultId: r.vault_id ?? null,
-			url: r.status === "done" ? fileUrl(String(r.out_key)) : null,
-		})),
+		renders: rows.map((r) => {
+			let spec: unknown = null;
+			try {
+				spec = r.spec ? JSON.parse(String(r.spec)) : null;
+			} catch {
+				spec = null;
+			}
+			return {
+				id: r.id,
+				name: r.name,
+				format: r.format,
+				status: r.status,
+				createdAt: r.created_at,
+				vaultId: r.vault_id ?? null,
+				url: r.status === "done" ? fileUrl(String(r.out_key)) : null,
+				spec,
+				theme: r.theme ?? null,
+				fps: r.fps ?? null,
+			};
+		}),
 	});
 }
