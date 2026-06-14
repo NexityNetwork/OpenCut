@@ -40,6 +40,7 @@ import {
 	LayoutTemplate,
 	Hash,
 	Library as LibraryIcon,
+	Loader2,
 	Rocket,
 	Pin,
 	Link2,
@@ -519,6 +520,34 @@ export function VaultSection() {
 		};
 	}, [userId]);
 
+	// Poll for in-flight Studio renders so the sidebar shows a spinner while
+	// something is cooking, even when you are on another tab.
+	const [studioBusy, setStudioBusy] = useState(false);
+	useEffect(() => {
+		let alive = true;
+		const check = async () => {
+			try {
+				const res = await fetch("/api/hyperframes/renders");
+				const data = await res.json();
+				if (alive && Array.isArray(data.renders)) {
+					setStudioBusy(
+						data.renders.some(
+							(r: { status?: string }) => r.status === "rendering",
+						),
+					);
+				}
+			} catch {
+				/* ignore */
+			}
+		};
+		void check();
+		const id = setInterval(check, 10000);
+		return () => {
+			alive = false;
+			clearInterval(id);
+		};
+	}, []);
+
 	const librarySearchRef = useRef<HTMLInputElement | null>(null);
 	const onChange = (v: string) => {
 		setText(v);
@@ -765,6 +794,31 @@ export function VaultSection() {
 			toast.error(e instanceof Error ? e.message : "Couldn't create project", {
 				id: tid,
 			});
+		}
+	};
+
+	// Quick actions on a finished Studio render (operates on its Library item).
+	const handleRenderAction = async (action: string, vaultId: string) => {
+		if (action === "schedule") {
+			setComposePrefill(vaultId);
+			setAppView("publish");
+			return;
+		}
+		let item = items.find((i) => i.id === vaultId);
+		if (!item) {
+			const fresh = await fetchVault(owner).catch(() => [] as VaultItem[]);
+			if (fresh.length) setItems(fresh);
+			item = fresh.find((i) => i.id === vaultId);
+		}
+		if (!item) {
+			toast.error("Render is not in your Library yet");
+			return;
+		}
+		if (action === "editor") void addToProject(item);
+		else if (action === "category") setCatFor(item);
+		else if (action === "library") {
+			setSelectedAsset(item);
+			setAppView("library");
 		}
 	};
 
@@ -1298,6 +1352,7 @@ export function VaultSection() {
 				onSelectLibrary={() => { setSelectedAsset(null); setAppView("library"); }}
 				onSelectPublish={() => setAppView("publish")}
 				onSelectStudio={() => setAppView("studio")}
+				studioBusy={studioBusy}
 				onSelectBio={() => setAppView("bio")}
 				onSelectClips={() => setAppView("clips")}
 					onSelectBrand={() => setAppView("brand")}
@@ -1361,6 +1416,7 @@ export function VaultSection() {
 				onSelectLibrary={() => { setSelectedAsset(null); setAppView("library"); }}
 				onSelectPublish={() => setAppView("publish")}
 				onSelectStudio={() => setAppView("studio")}
+				studioBusy={studioBusy}
 				onSelectBio={() => setAppView("bio")}
 					onSelectClips={() => setAppView("clips")}
 					onSelectBrand={() => setAppView("brand")}
@@ -1418,7 +1474,11 @@ export function VaultSection() {
 						}}
 					/>
 				) : appView === "studio" ? (
-					<StudioPane owner={owner} isOwner={isOwner} />
+					<StudioPane
+						owner={owner}
+						isOwner={isOwner}
+						onRenderAction={handleRenderAction}
+					/>
 				) : appView === "publish" ? (
 					<PublishPane
 						items={visibleItems}
@@ -2341,12 +2401,14 @@ function SidebarItem({
 	onClick,
 	active,
 	badge,
+	busy,
 }: {
 	icon: typeof Tag;
 	label: string;
 	onClick: () => void;
 	active?: boolean;
 	badge?: string;
+	busy?: boolean;
 }) {
 	return (
 		<button
@@ -2359,8 +2421,15 @@ function SidebarItem({
 					: "text-[var(--mono-ink-2)] hover:bg-[var(--mono-hover)] hover:text-[var(--mono-ink)]",
 			)}
 		>
-			<Icon className="size-[15px] shrink-0" strokeWidth={1.75} />
+			{busy ? (
+				<Loader2 className="size-[15px] shrink-0 animate-spin" />
+			) : (
+				<Icon className="size-[15px] shrink-0" strokeWidth={1.75} />
+			)}
 			<span className="flex-1 text-left">{label}</span>
+			{busy && !badge && (
+				<span className="text-[10px] text-[var(--mono-ink-3)]">rendering</span>
+			)}
 			{badge && (
 				<span className="bg-primary/15 text-primary rounded px-1.5 py-0.5 text-[10px] font-semibold tracking-wide">
 					{badge}
@@ -2443,6 +2512,7 @@ function LibrarySidebar({
 	onSelectLibrary,
 	onSelectPublish,
 	onSelectStudio,
+	studioBusy,
 	onSelectBio,
 	onSelectClips,
 	onSelectBrand,
@@ -2469,6 +2539,7 @@ function LibrarySidebar({
 	onSelectLibrary: () => void;
 	onSelectPublish: () => void;
 	onSelectStudio: () => void;
+	studioBusy?: boolean;
 	onSelectBio: () => void;
 	onSelectClips: () => void;
 	onSelectBrand: () => void;
@@ -2574,7 +2645,11 @@ function LibrarySidebar({
 							: "text-muted-foreground hover:text-foreground hover:bg-muted",
 					)}
 				>
-					<Clapperboard className="size-5" />
+					{studioBusy ? (
+						<Loader2 className="size-5 animate-spin" />
+					) : (
+						<Clapperboard className="size-5" />
+					)}
 				</button>
 				<div className="mt-auto">
 					<Avatar name={user?.name} image={user?.image} size={8} />
@@ -2627,7 +2702,8 @@ function LibrarySidebar({
 				<SidebarItem
 					icon={Clapperboard}
 					label="Studio"
-					badge="New"
+					badge={studioBusy ? undefined : "New"}
+					busy={studioBusy}
 					active={appView === "studio"}
 					onClick={onSelectStudio}
 				/>

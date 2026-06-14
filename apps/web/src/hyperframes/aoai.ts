@@ -2,11 +2,18 @@
 // reject `max_tokens` (they require `max_completion_tokens`), so normalize that
 // here and keep both the composer and the enhancer on the same code path.
 
+export type AoaiContent =
+	| string
+	| (
+			| { type: "text"; text: string }
+			| { type: "image_url"; image_url: { url: string } }
+	  )[];
+
 export type AoaiArgs = {
 	endpoint: string; // AZURE_OPENAI_ENDPOINT (trailing slash ok)
 	deployment: string; // deployment / model name
 	key: string;
-	messages: { role: "system" | "user" | "assistant"; content: string }[];
+	messages: { role: "system" | "user" | "assistant"; content: AoaiContent }[];
 	temperature?: number;
 	maxTokens?: number;
 	json?: boolean;

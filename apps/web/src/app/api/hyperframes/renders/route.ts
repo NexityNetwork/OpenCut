@@ -126,6 +126,7 @@ export async function GET(request: Request) {
 			format: r.format,
 			status: r.status,
 			createdAt: r.created_at,
+			vaultId: r.vault_id ?? null,
 			url: r.status === "done" ? fileUrl(String(r.out_key)) : null,
 		})),
 	});

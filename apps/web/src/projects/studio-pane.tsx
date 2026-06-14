@@ -5,14 +5,13 @@ import { toast } from "sonner";
 import {
 	ArrowUp,
 	Check,
+	ChevronDown,
 	Clapperboard,
 	Film,
 	ImageIcon,
 	Loader2,
-	Play,
-	Plus,
-	Settings2,
-	Zap,
+	MoreHorizontal,
+	Paperclip,
 	X,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -26,13 +25,11 @@ import {
 	SelectValue,
 } from "@/components/ui/select";
 import {
-	Dialog,
-	DialogContent,
-	DialogDescription,
-	DialogFooter,
-	DialogHeader,
-	DialogTitle,
-} from "@/components/ui/dialog";
+	DropdownMenu,
+	DropdownMenuContent,
+	DropdownMenuItem,
+	DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 import {
 	FORMATS,
 	STUDIO_MODELS,
@@ -53,9 +50,24 @@ const FORMAT_LABELS: Record<string, string> = {
 };
 const FORMAT_KEYS = Object.keys(FORMATS);
 
-// shared style so the in-composer selects read as quiet pills, not boxes
-const ghostTrigger =
-	"h-8 w-auto gap-1 rounded-lg border-0 bg-transparent px-2 text-sm font-medium text-[var(--mono-ink-2)] shadow-none hover:bg-[var(--mono-hover)] hover:text-[var(--mono-ink)] focus:ring-0 data-[state=open]:bg-[var(--mono-hover)]";
+// same chip style the Home composer uses, for design consistency
+const CHIP =
+	"flex items-center gap-1.5 rounded-lg border border-[var(--mono-line)] bg-[var(--mono-hover)] px-2.5 py-1.5 text-xs text-[var(--mono-ink-2)] transition-colors hover:bg-[var(--mono-active)] hover:text-[var(--mono-ink)]";
+
+// fake-but-plausible progress so a render does not just sit on one label
+const STAGES = [
+	"Reading your brief",
+	"Writing the script",
+	"Laying out the scenes",
+	"Rendering the frames",
+	"Encoding the video",
+	"Almost done",
+];
+function stageFor(createdAt?: number): string {
+	if (!createdAt) return STAGES[0];
+	const elapsed = (Date.now() - createdAt) / 1000;
+	return STAGES[Math.min(Math.floor(elapsed / 16), STAGES.length - 1)];
+}
 
 type StudioRef = {
 	id: string;
@@ -65,13 +77,18 @@ type StudioRef = {
 	key: string;
 	url: string;
 	status: "uploading" | "ready";
+	mode: "clip" | "recreate"; // videos: rebuild the look, or drop the clip in
+	file?: File; // kept in memory for client-side frame extraction
+	frames?: string[]; // cached sampled frames (data URLs)
 };
 type RenderJob = {
 	id: string;
 	name: string;
 	format: string;
 	status: "rendering" | "done" | "failed";
+	createdAt?: number;
 	url?: string | null;
+	vaultId?: string | null;
 };
 type Settings = {
 	theme: string;
@@ -82,7 +99,6 @@ type Settings = {
 	designNotes: string;
 	confirmBeforeGenerate: boolean;
 };
-
 const DEFAULTS: Settings = {
 	theme: "ultron",
 	format: "9:16",
@@ -104,12 +120,9 @@ function sceneSummary(s: Scene): { tag: string; text: string } {
 		case "hook":
 			return { tag: "Hook", text: s.title };
 		case "cards":
-			return {
-				tag: "List",
-				text: (s.items ?? []).map((i) => i.title).join(" · "),
-			};
+			return { tag: "List", text: (s.items ?? []).map((i) => i.title).join(", ") };
 		case "stat":
-			return { tag: "Stat", text: `${s.value} — ${s.label}` };
+			return { tag: "Stat", text: `${s.value} ${s.label}` };
 		case "quote":
 			return { tag: "Quote", text: s.quote };
 		case "image":
@@ -123,7 +136,64 @@ function sceneSummary(s: Scene): { tag: string; text: string } {
 	}
 }
 
-export function StudioPane({ owner }: { owner: string; isOwner: boolean }) {
+// sample evenly spaced frames from a video File for vision recreation
+async function extractFrames(file: File, count = 6): Promise<string[]> {
+	return new Promise((resolve) => {
+		try {
+			const url = URL.createObjectURL(file);
+			const video = document.createElement("video");
+			video.muted = true;
+			video.src = url;
+			const frames: string[] = [];
+			let done = false;
+			const finish = () => {
+				if (done) return;
+				done = true;
+				URL.revokeObjectURL(url);
+				resolve(frames);
+			};
+			video.addEventListener("error", finish);
+			video.addEventListener("loadeddata", async () => {
+				const dur = video.duration && isFinite(video.duration) ? video.duration : 1;
+				const canvas = document.createElement("canvas");
+				const W = 512;
+				const ratio = video.videoHeight / (video.videoWidth || 1) || 1.777;
+				canvas.width = W;
+				canvas.height = Math.round(W * ratio);
+				const ctx = canvas.getContext("2d");
+				for (let i = 0; i < count; i++) {
+					const t = (dur * (i + 0.5)) / count;
+					await new Promise<void>((res) => {
+						const onSeek = () => {
+							video.removeEventListener("seeked", onSeek);
+							try {
+								ctx?.drawImage(video, 0, 0, canvas.width, canvas.height);
+								frames.push(canvas.toDataURL("image/jpeg", 0.7));
+							} catch {
+								/* ignore a bad frame */
+							}
+							res();
+						};
+						video.addEventListener("seeked", onSeek);
+						video.currentTime = Math.min(t, Math.max(0, dur - 0.05));
+					});
+				}
+				finish();
+			});
+		} catch {
+			resolve([]);
+		}
+	});
+}
+
+export function StudioPane({
+	owner,
+	onRenderAction,
+}: {
+	owner: string;
+	isOwner: boolean;
+	onRenderAction?: (action: string, vaultId: string) => void;
+}) {
 	const [prompt, setPrompt] = useState("");
 	const [refs, setRefs] = useState<StudioRef[]>([]);
 	const [theme, setTheme] = useState(DEFAULTS.theme);
@@ -139,9 +209,10 @@ export function StudioPane({ owner }: { owner: string; isOwner: boolean }) {
 	const [enhancing, setEnhancing] = useState(false);
 	const [plan, setPlan] = useState<Spec | null>(null);
 	const [renders, setRenders] = useState<RenderJob[]>([]);
+	const [preview, setPreview] = useState<string | null>(null);
+	const [, setTick] = useState(0); // drives the staged-status label
 	const fileRef = useRef<HTMLInputElement>(null);
 
-	// load persisted defaults
 	useEffect(() => {
 		let cancelled = false;
 		(async () => {
@@ -166,7 +237,6 @@ export function StudioPane({ owner }: { owner: string; isOwner: boolean }) {
 		};
 	}, []);
 
-	// persistent render list (survives leaving the tab; reconciled server-side)
 	const refreshRenders = useCallback(async () => {
 		try {
 			const res = await fetch("/api/hyperframes/renders");
@@ -184,17 +254,12 @@ export function StudioPane({ owner }: { owner: string; isOwner: boolean }) {
 	const hasPending = renders.some((r) => r.status === "rendering");
 	useEffect(() => {
 		if (!hasPending) return;
-		const id = setInterval(() => void refreshRenders(), 6000);
+		const id = setInterval(() => {
+			setTick((t) => t + 1); // advance the staged label between polls
+			void refreshRenders();
+		}, 5000);
 		return () => clearInterval(id);
 	}, [hasPending, refreshRenders]);
-
-	const refsPayload = useCallback(
-		() =>
-			refs
-				.filter((r) => r.status === "ready")
-				.map((r) => ({ id: r.id, kind: r.kind, key: r.key, ext: r.ext })),
-		[refs],
-	);
 
 	const onAddFiles = useCallback(async (files: FileList | null) => {
 		if (!files?.length) return;
@@ -206,7 +271,17 @@ export function StudioPane({ owner }: { owner: string; isOwner: boolean }) {
 				: "image";
 			setRefs((prev) => [
 				...prev,
-				{ id, kind, ext, name: file.name, key: "", url: "", status: "uploading" },
+				{
+					id,
+					kind,
+					ext,
+					name: file.name,
+					key: "",
+					url: "",
+					status: "uploading",
+					mode: kind === "video" ? "recreate" : "clip",
+					file,
+				},
 			]);
 			try {
 				const res = await fetch(
@@ -238,6 +313,32 @@ export function StudioPane({ owner }: { owner: string; isOwner: boolean }) {
 		}
 	}, []);
 
+	// builder refs = clip videos + images (recreate videos are rebuilt, not dropped in)
+	const builderRefs = useCallback(
+		() =>
+			refs
+				.filter((r) => r.status === "ready" && !(r.kind === "video" && r.mode === "recreate"))
+				.map((r) => ({ id: r.id, kind: r.kind, key: r.key, ext: r.ext })),
+		[refs],
+	);
+
+	// gather frames for any video set to "recreate"
+	const recreateFrames = useCallback(async (): Promise<string[]> => {
+		const out: string[] = [];
+		for (const r of refs) {
+			if (r.kind !== "video" || r.mode !== "recreate") continue;
+			let frames = r.frames;
+			if (!frames && r.file) {
+				frames = await extractFrames(r.file, 8);
+				setRefs((prev) =>
+					prev.map((x) => (x.id === r.id ? { ...x, frames } : x)),
+				);
+			}
+			if (frames) out.push(...frames);
+		}
+		return out.slice(0, 8);
+	}, [refs]);
+
 	const startRender = useCallback(
 		async (spec?: Spec) => {
 			setBusy(true);
@@ -254,7 +355,7 @@ export function StudioPane({ owner }: { owner: string; isOwner: boolean }) {
 						format,
 						fps,
 						model,
-						refs: refsPayload(),
+						refs: builderRefs(),
 						...(spec ? { spec } : {}),
 						render: true,
 						name,
@@ -263,7 +364,7 @@ export function StudioPane({ owner }: { owner: string; isOwner: boolean }) {
 				const data = await res.json();
 				if (!res.ok) throw new Error(data.error || "render failed");
 				setPlan(null);
-				toast.success("Rendering started — it will land in your Library");
+				toast.success("Rendering started, it will land in your Library");
 				await refreshRenders();
 			} catch (e) {
 				toast.error((e as Error).message);
@@ -271,17 +372,7 @@ export function StudioPane({ owner }: { owner: string; isOwner: boolean }) {
 				setBusy(false);
 			}
 		},
-		[
-			prompt,
-			instructions,
-			designNotes,
-			theme,
-			format,
-			fps,
-			model,
-			refsPayload,
-			refreshRenders,
-		],
+		[prompt, instructions, designNotes, theme, format, fps, model, builderRefs, refreshRenders],
 	);
 
 	const onGenerate = useCallback(async () => {
@@ -290,15 +381,12 @@ export function StudioPane({ owner }: { owner: string; isOwner: boolean }) {
 			return;
 		}
 		if (refs.some((r) => r.status === "uploading")) {
-			toast.error("Hold on — references are still uploading");
-			return;
-		}
-		if (!confirmBeforeGenerate) {
-			await startRender();
+			toast.error("Hold on, references are still uploading");
 			return;
 		}
 		setBusy(true);
 		try {
+			const frames = await recreateFrames();
 			const res = await fetch("/api/hyperframes/compose", {
 				method: "POST",
 				headers: { "content-type": "application/json" },
@@ -310,12 +398,19 @@ export function StudioPane({ owner }: { owner: string; isOwner: boolean }) {
 					format,
 					fps,
 					model,
-					refs: refsPayload(),
+					refs: builderRefs(),
+					recreateFrames: frames,
+					...(confirmBeforeGenerate ? {} : { render: true, name: deriveName(prompt) }),
 				}),
 			});
 			const data = await res.json();
 			if (!res.ok) throw new Error(data.error || "compose failed");
-			setPlan(data.spec as Spec);
+			if (confirmBeforeGenerate) {
+				setPlan(data.spec as Spec);
+			} else {
+				toast.success("Rendering started, it will land in your Library");
+				await refreshRenders();
+			}
 		} catch (e) {
 			toast.error((e as Error).message);
 		} finally {
@@ -331,8 +426,9 @@ export function StudioPane({ owner }: { owner: string; isOwner: boolean }) {
 		model,
 		refs,
 		confirmBeforeGenerate,
-		refsPayload,
-		startRender,
+		builderRefs,
+		recreateFrames,
+		refreshRenders,
 	]);
 
 	const enhancePrompt = useCallback(async () => {
@@ -383,78 +479,109 @@ export function StudioPane({ owner }: { owner: string; isOwner: boolean }) {
 	}, [theme, format, fps, model, instructions, designNotes, confirmBeforeGenerate]);
 
 	return (
-		<div className="mx-auto max-w-3xl px-4 pb-28 pt-14 sm:px-6 lg:pt-8">
-			<header className="mb-6">
-				<div className="flex items-center gap-2">
-					<Clapperboard className="size-6 text-[var(--mono-ink)]" />
+		<div className="flex flex-col items-center px-4 pb-28 pt-16 sm:px-6 sm:pt-20">
+			<div className="w-full max-w-2xl">
+				<div className="mb-6 text-center">
 					<h1 className="text-2xl font-semibold tracking-tight text-[var(--mono-ink)]">
-						Studio
+						What should the Studio build?
 					</h1>
-					<span className="rounded-full bg-[var(--mono-ink)] px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-[var(--mono-panel)]">
-						New
-					</span>
+					<p className="mt-2 text-sm text-[var(--mono-ink-2)]">
+						Describe a video, attach screenshots or clips to drop in, or a clip to
+						recreate. It renders on brand straight into your Library.
+					</p>
 				</div>
-				<p className="mt-1.5 text-sm text-[var(--mono-ink-2)]">
-					Describe a video, attach the screenshots and clips you want inside it, and
-					generate an on-brand reel straight into your Library.
-				</p>
-			</header>
 
-			{/* composer */}
-			<div className="rounded-[26px] border border-[var(--mono-line)] bg-[var(--mono-panel)] p-2.5 shadow-sm transition focus-within:border-[var(--mono-ink-3)]">
-				{refs.length > 0 && (
-					<div className="mb-1 flex flex-wrap gap-2 px-1.5 pt-1">
-						{refs.map((r) => (
-							<div
-								key={r.id}
-								className="group relative size-14 overflow-hidden rounded-xl border border-[var(--mono-line)] bg-[var(--mono-hover)]"
-								title={`${r.name} (${r.kind === "video" ? "in-video clip" : "screenshot"})`}
-							>
-								{r.status === "uploading" ? (
-									<div className="flex size-full items-center justify-center">
-										<Loader2 className="size-4 animate-spin text-[var(--mono-ink-2)]" />
+				{/* composer (Home composer styling) */}
+				<div className="rounded-[1.75rem] border border-[var(--mono-line)] bg-[var(--mono-panel)] px-4 py-3 shadow-sm transition-colors focus-within:border-[var(--mono-ink-3)]">
+					{refs.length > 0 && (
+						<div className="mb-2 flex flex-wrap gap-2">
+							{refs.map((r) => (
+								<div key={r.id} className="flex flex-col gap-1">
+									<div
+										className="group relative size-14 overflow-hidden rounded-xl border border-[var(--mono-line)] bg-[var(--mono-hover)]"
+										title={r.name}
+									>
+										{r.status === "uploading" ? (
+											<div className="flex size-full items-center justify-center">
+												<Loader2 className="size-4 animate-spin text-[var(--mono-ink-2)]" />
+											</div>
+										) : r.kind === "video" ? (
+											<video src={r.url} muted className="size-full object-cover" />
+										) : (
+											// eslint-disable-next-line @next/next/no-img-element
+											<img src={r.url} alt={r.name} className="size-full object-cover" />
+										)}
+										<span className="absolute bottom-0 left-0 flex items-center rounded-tr bg-black/60 px-1 py-0.5 text-white">
+											{r.kind === "video" ? (
+												<Film className="size-2.5" />
+											) : (
+												<ImageIcon className="size-2.5" />
+											)}
+										</span>
+										<button
+											type="button"
+											onClick={() => setRefs((p) => p.filter((x) => x.id !== r.id))}
+											className="absolute right-0.5 top-0.5 rounded-full bg-black/60 p-0.5 text-white opacity-0 transition group-hover:opacity-100"
+											aria-label="Remove"
+										>
+											<X className="size-3" />
+										</button>
 									</div>
-								) : r.kind === "video" ? (
-									<video src={r.url} muted className="size-full object-cover" />
-								) : (
-									// eslint-disable-next-line @next/next/no-img-element
-									<img src={r.url} alt={r.name} className="size-full object-cover" />
-								)}
-								<span className="absolute bottom-0 left-0 flex items-center gap-0.5 rounded-tr bg-black/60 px-1 py-0.5 text-white">
-									{r.kind === "video" ? (
-										<Film className="size-2.5" />
-									) : (
-										<ImageIcon className="size-2.5" />
+									{r.kind === "video" && (
+										<button
+											type="button"
+											onClick={() =>
+												setRefs((p) =>
+													p.map((x) =>
+														x.id === r.id
+															? { ...x, mode: x.mode === "recreate" ? "clip" : "recreate" }
+															: x,
+													),
+												)
+											}
+											className="rounded-md px-1 py-0.5 text-[10px] font-medium text-[var(--mono-ink-2)] hover:bg-[var(--mono-hover)] hover:text-[var(--mono-ink)]"
+											title="Recreate rebuilds the look; Use clip drops the footage in"
+										>
+											{r.mode === "recreate" ? "Recreate" : "Use clip"}
+										</button>
 									)}
-								</span>
-								<button
-									type="button"
-									onClick={() => setRefs((prev) => prev.filter((x) => x.id !== r.id))}
-									className="absolute right-0.5 top-0.5 rounded-full bg-black/60 p-0.5 text-white opacity-0 transition group-hover:opacity-100"
-									aria-label="Remove reference"
-								>
-									<X className="size-3" />
-								</button>
-							</div>
-						))}
+								</div>
+							))}
+						</div>
+					)}
+
+					<div className="flex items-end gap-2">
+						<Textarea
+							value={prompt}
+							onChange={(e) => setPrompt(e.target.value)}
+							onKeyDown={(e) => {
+								if (e.key === "Enter" && (e.metaKey || e.ctrlKey)) {
+									e.preventDefault();
+									void onGenerate();
+								}
+							}}
+							placeholder="Describe the video you want, or drop a rough idea and hit Enhance."
+							className="max-h-[260px] min-h-[64px] flex-1 resize-none border-0 bg-transparent px-1 py-1 text-base text-[var(--mono-ink)] shadow-none focus-visible:ring-0"
+						/>
+						<button
+							type="button"
+							onClick={onGenerate}
+							disabled={busy}
+							className="flex size-9 shrink-0 items-center justify-center rounded-full bg-[var(--mono-ink)] text-[var(--mono-panel)] transition hover:opacity-90 disabled:opacity-40"
+							aria-label="Generate"
+							title="Generate (Cmd/Ctrl + Enter)"
+						>
+							{busy ? (
+								<Loader2 className="size-4 animate-spin" />
+							) : (
+								<ArrowUp className="size-4" />
+							)}
+						</button>
 					</div>
-				)}
+				</div>
 
-				<Textarea
-					value={prompt}
-					onChange={(e) => setPrompt(e.target.value)}
-					onKeyDown={(e) => {
-						if (e.key === "Enter" && (e.metaKey || e.ctrlKey)) {
-							e.preventDefault();
-							void onGenerate();
-						}
-					}}
-					placeholder="Describe the video you want, or drop a rough idea and hit Enhance. Attach screenshots or clips to drop them in."
-					className="max-h-[280px] min-h-[88px] resize-none border-0 bg-transparent px-2 py-1.5 text-base text-[var(--mono-ink)] shadow-none focus-visible:ring-0"
-				/>
-
-				{/* actions */}
-				<div className="flex items-center gap-1 px-0.5 pt-1">
+				{/* action chips (below the box, like Home) */}
+				<div className="mt-3 flex flex-wrap items-center gap-1.5">
 					<input
 						ref={fileRef}
 						type="file"
@@ -466,286 +593,312 @@ export function StudioPane({ owner }: { owner: string; isOwner: boolean }) {
 							e.target.value = "";
 						}}
 					/>
-					<button
-						type="button"
-						onClick={() => fileRef.current?.click()}
-						className="flex size-9 items-center justify-center rounded-lg text-[var(--mono-ink-2)] transition hover:bg-[var(--mono-hover)] hover:text-[var(--mono-ink)]"
-						aria-label="Add reference"
-						title="Add a screenshot or clip"
-					>
-						<Plus className="size-5" />
+					<button type="button" onClick={() => fileRef.current?.click()} className={CHIP}>
+						<Paperclip className="size-3.5" />
+						Reference
 					</button>
 					<button
 						type="button"
 						onClick={enhancePrompt}
 						disabled={enhancing}
-						className="flex h-9 items-center gap-1.5 rounded-lg px-2.5 text-sm font-medium text-[var(--mono-ink-2)] transition hover:bg-[var(--mono-hover)] hover:text-[var(--mono-ink)] disabled:opacity-50"
-						title="Rewrite your idea into a richer brief"
+						className={cn(CHIP, "disabled:opacity-50")}
 					>
-						{enhancing ? (
-							<Loader2 className="size-4 animate-spin" />
-						) : (
-							<Zap className="size-4" />
-						)}
-						<span className="hidden sm:inline">Enhance</span>
+						{enhancing && <Loader2 className="size-3.5 animate-spin" />}
+						Enhance
 					</button>
 
-					<div className="mx-0.5 h-5 w-px bg-[var(--mono-line)]" />
-
-					<Select value={theme} onValueChange={setTheme}>
-						<SelectTrigger className={ghostTrigger} aria-label="Design theme">
-							<SelectValue />
-						</SelectTrigger>
-						<SelectContent>
+					<DropdownMenu>
+						<DropdownMenuTrigger asChild>
+							<button type="button" className={CHIP}>
+								<span
+									className="size-2.5 rounded-full"
+									style={{ background: THEMES[theme]?.accent ?? "#888" }}
+								/>
+								{THEME_LABELS[theme] ?? theme}
+								<ChevronDown className="size-3.5" />
+							</button>
+						</DropdownMenuTrigger>
+						<DropdownMenuContent align="start">
 							{Object.keys(THEMES).map((k) => (
-								<SelectItem key={k} value={k}>
+								<DropdownMenuItem key={k} onClick={() => setTheme(k)}>
+									<span
+										className="size-2.5 rounded-full"
+										style={{ background: THEMES[k]?.accent }}
+									/>
 									{THEME_LABELS[k] ?? k}
-								</SelectItem>
+									{theme === k && <Check className="ml-auto size-3.5" />}
+								</DropdownMenuItem>
 							))}
-						</SelectContent>
-					</Select>
+						</DropdownMenuContent>
+					</DropdownMenu>
 
-					<Select value={format} onValueChange={setFormat}>
-						<SelectTrigger className={ghostTrigger} aria-label="Aspect ratio">
-							<SelectValue />
-						</SelectTrigger>
-						<SelectContent>
+					<DropdownMenu>
+						<DropdownMenuTrigger asChild>
+							<button type="button" className={CHIP}>
+								{FORMAT_LABELS[format] ?? format} {format}
+								<ChevronDown className="size-3.5" />
+							</button>
+						</DropdownMenuTrigger>
+						<DropdownMenuContent align="start">
 							{FORMAT_KEYS.map((k) => (
-								<SelectItem key={k} value={k}>
+								<DropdownMenuItem key={k} onClick={() => setFormat(k)}>
 									{FORMAT_LABELS[k] ?? k} {k}
-								</SelectItem>
+									{format === k && <Check className="ml-auto size-3.5" />}
+								</DropdownMenuItem>
 							))}
-						</SelectContent>
-					</Select>
+						</DropdownMenuContent>
+					</DropdownMenu>
 
 					<button
 						type="button"
 						onClick={() => setSettingsOpen((v) => !v)}
-						className={cn(
-							"flex size-9 items-center justify-center rounded-lg text-[var(--mono-ink-2)] transition hover:bg-[var(--mono-hover)] hover:text-[var(--mono-ink)]",
-							settingsOpen && "bg-[var(--mono-hover)] text-[var(--mono-ink)]",
-						)}
-						aria-label="Studio settings"
-						title="Settings"
+						className={cn(CHIP, settingsOpen && "bg-[var(--mono-active)] text-[var(--mono-ink)]")}
 					>
-						<Settings2 className="size-[18px]" />
-					</button>
-
-					<button
-						type="button"
-						onClick={onGenerate}
-						disabled={busy}
-						className="ml-auto flex size-9 items-center justify-center rounded-full bg-[var(--mono-ink)] text-[var(--mono-panel)] transition hover:opacity-90 disabled:opacity-40"
-						aria-label="Generate"
-						title="Generate (Cmd/Ctrl + Enter)"
-					>
-						{busy ? (
-							<Loader2 className="size-4 animate-spin" />
-						) : (
-							<ArrowUp className="size-5" />
-						)}
+						Settings
 					</button>
 				</div>
-			</div>
 
-			{/* advanced settings */}
-			{settingsOpen && (
-				<div className="mt-3 space-y-4 rounded-2xl border border-[var(--mono-line)] bg-[var(--mono-panel)] p-4 shadow-sm">
-					<div className="flex items-center justify-between gap-3">
-						<label className="text-sm font-medium text-[var(--mono-ink)]">
-							Model
-						</label>
-						<Select value={model} onValueChange={setModel}>
-							<SelectTrigger className="h-9 w-48 text-sm">
-								<SelectValue />
-							</SelectTrigger>
-							<SelectContent>
-								{STUDIO_MODELS.map((m) => (
-									<SelectItem key={m.value} value={m.value}>
-										{m.label}
-									</SelectItem>
-								))}
-							</SelectContent>
-						</Select>
-					</div>
-
-					<div className="flex items-center justify-between gap-3">
-						<label className="text-sm font-medium text-[var(--mono-ink)]">
-							Frame rate
-						</label>
-						<Select value={String(fps)} onValueChange={(v) => setFps(Number(v))}>
-							<SelectTrigger className="h-9 w-32 text-sm">
-								<SelectValue />
-							</SelectTrigger>
-							<SelectContent>
-								{FPS_PRESETS.map((f) => (
-									<SelectItem key={f.value} value={f.value}>
-										{f.label}
-									</SelectItem>
-								))}
-							</SelectContent>
-						</Select>
-					</div>
-
-					<div>
-						<label className="text-sm font-medium text-[var(--mono-ink)]">
-							Agent instructions
-						</label>
-						<p className="mb-1.5 text-xs text-[var(--mono-ink-2)]">
-							Persistent guidance applied to every generation (voice, do's and
-							don'ts, recurring CTAs).
-						</p>
-						<Textarea
-							value={instructions}
-							onChange={(e) => setInstructions(e.target.value)}
-							placeholder="e.g. Always speak in first person. No hashtags. End with Comment BUILD."
-							className="min-h-[80px] resize-none text-sm"
-						/>
-					</div>
-
-					<div>
-						<label className="text-sm font-medium text-[var(--mono-ink)]">
-							Design notes (design.md)
-						</label>
-						<p className="mb-1.5 text-xs text-[var(--mono-ink-2)]">
-							Brand voice and copy direction. The visual theme above owns colors and
-							layout.
-						</p>
-						<Textarea
-							value={designNotes}
-							onChange={(e) => setDesignNotes(e.target.value)}
-							placeholder="e.g. Tone: bold, technical, no fluff. Audience: founders. Avoid buzzwords."
-							className="min-h-[80px] resize-none text-sm"
-						/>
-					</div>
-
-					<div className="flex items-center justify-between">
+				{/* settings */}
+				{settingsOpen && (
+					<div className="mt-3 space-y-4 rounded-2xl border border-[var(--mono-line)] bg-[var(--mono-panel)] p-4 shadow-sm">
+						<div className="flex items-center justify-between gap-3">
+							<label className="text-sm font-medium text-[var(--mono-ink)]">Model</label>
+							<Select value={model} onValueChange={setModel}>
+								<SelectTrigger className="h-9 w-40 text-sm">
+									<SelectValue />
+								</SelectTrigger>
+								<SelectContent>
+									{STUDIO_MODELS.map((m) => (
+										<SelectItem key={m.value} value={m.value}>
+											{m.label}
+										</SelectItem>
+									))}
+								</SelectContent>
+							</Select>
+						</div>
+						<div className="flex items-center justify-between gap-3">
+							<label className="text-sm font-medium text-[var(--mono-ink)]">
+								Frame rate
+							</label>
+							<Select value={String(fps)} onValueChange={(v) => setFps(Number(v))}>
+								<SelectTrigger className="h-9 w-40 text-sm">
+									<SelectValue />
+								</SelectTrigger>
+								<SelectContent>
+									{FPS_PRESETS.map((f) => (
+										<SelectItem key={f.value} value={f.value}>
+											{f.label}
+										</SelectItem>
+									))}
+								</SelectContent>
+							</Select>
+						</div>
 						<div>
 							<label className="text-sm font-medium text-[var(--mono-ink)]">
-								Confirm before generating
+								Agent instructions
 							</label>
-							<p className="text-xs text-[var(--mono-ink-2)]">
-								Review the scene plan before spending a render.
+							<p className="mb-1.5 text-xs text-[var(--mono-ink-2)]">
+								Persistent guidance for every generation (voice, do's and don'ts,
+								recurring CTAs).
 							</p>
+							<Textarea
+								value={instructions}
+								onChange={(e) => setInstructions(e.target.value)}
+								placeholder="e.g. Always speak in first person. No hashtags. End with Comment BUILD."
+								className="min-h-[80px] resize-none text-sm"
+							/>
 						</div>
-						<Switch checked={confirmBeforeGenerate} onCheckedChange={setConfirm} />
-					</div>
-
-					<div className="flex justify-end">
-						<Button
-							type="button"
-							variant="outline"
-							size="sm"
-							onClick={saveSettings}
-							disabled={savingSettings}
-							className="gap-1.5"
-						>
-							{savingSettings ? (
-								<Loader2 className="size-4 animate-spin" />
-							) : (
-								<Check className="size-4" />
-							)}
-							Save as defaults
-						</Button>
-					</div>
-				</div>
-			)}
-
-			{/* renders */}
-			{renders.length > 0 && (
-				<div className="mt-8">
-					<h2 className="mb-3 text-sm font-semibold uppercase tracking-wide text-[var(--mono-ink-2)]">
-						Renders
-					</h2>
-					<div className="space-y-2">
-						{renders.map((r) => (
-							<div
-								key={r.id}
-								className="flex items-center gap-3 rounded-xl border border-[var(--mono-line)] bg-[var(--mono-panel)] px-3 py-2.5"
+						<div>
+							<label className="text-sm font-medium text-[var(--mono-ink)]">
+								Design notes (design.md)
+							</label>
+							<p className="mb-1.5 text-xs text-[var(--mono-ink-2)]">
+								Brand voice and copy direction. The theme above owns colors and layout.
+							</p>
+							<Textarea
+								value={designNotes}
+								onChange={(e) => setDesignNotes(e.target.value)}
+								placeholder="e.g. Tone: bold, technical, no fluff. Audience: founders."
+								className="min-h-[80px] resize-none text-sm"
+							/>
+						</div>
+						<div className="flex items-center justify-between">
+							<div>
+								<label className="text-sm font-medium text-[var(--mono-ink)]">
+									Confirm before generating
+								</label>
+								<p className="text-xs text-[var(--mono-ink-2)]">
+									Review the scene plan before spending a render.
+								</p>
+							</div>
+							<Switch checked={confirmBeforeGenerate} onCheckedChange={setConfirm} />
+						</div>
+						<div className="flex justify-end">
+							<Button
+								type="button"
+								variant="outline"
+								size="sm"
+								onClick={saveSettings}
+								disabled={savingSettings}
 							>
-								<div className="flex size-9 shrink-0 items-center justify-center rounded-lg bg-[var(--mono-hover)]">
-									{r.status === "rendering" ? (
-										<Loader2 className="size-4 animate-spin text-[var(--mono-ink-2)]" />
-									) : r.status === "done" ? (
-										<Check className="size-4 text-emerald-500" />
-									) : (
-										<X className="size-4 text-red-500" />
+								{savingSettings && <Loader2 className="size-4 animate-spin" />}
+								Save as defaults
+							</Button>
+						</div>
+					</div>
+				)}
+
+				{/* inline plan review (no popup) */}
+				{plan && (
+					<div className="mt-4 rounded-2xl border border-[var(--mono-line)] bg-[var(--mono-panel)] p-4 shadow-sm">
+						<div className="mb-3 flex items-center justify-between">
+							<div>
+								<div className="text-sm font-semibold text-[var(--mono-ink)]">
+									Review the plan
+								</div>
+								<div className="text-xs text-[var(--mono-ink-2)]">
+									{plan.scenes.length} scenes · {FORMAT_LABELS[format] ?? format} ·{" "}
+									{THEME_LABELS[theme] ?? theme}
+								</div>
+							</div>
+							<button
+								type="button"
+								onClick={() => setPlan(null)}
+								className="text-[var(--mono-ink-3)] hover:text-[var(--mono-ink)]"
+								aria-label="Discard plan"
+							>
+								<X className="size-4" />
+							</button>
+						</div>
+						<div className="space-y-2">
+							{plan.scenes.map((s, i) => {
+								const sum = sceneSummary(s);
+								return (
+									<div
+										key={i}
+										className="flex items-start gap-3 rounded-lg border border-[var(--mono-line)] px-3 py-2"
+									>
+										<span className="mt-0.5 shrink-0 rounded bg-[var(--mono-hover)] px-1.5 py-0.5 text-[10px] font-medium uppercase tracking-wide text-[var(--mono-ink-2)]">
+											{sum.tag}
+										</span>
+										<span className="text-sm text-[var(--mono-ink)]">{sum.text}</span>
+									</div>
+								);
+							})}
+						</div>
+						<div className="mt-3 flex justify-end gap-2">
+							<Button variant="outline" size="sm" onClick={() => setPlan(null)} disabled={busy}>
+								Cancel
+							</Button>
+							<Button size="sm" onClick={() => plan && startRender(plan)} disabled={busy}>
+								{busy && <Loader2 className="size-4 animate-spin" />}
+								Generate video
+							</Button>
+						</div>
+					</div>
+				)}
+
+				{/* renders */}
+				{renders.length > 0 && (
+					<div className="mt-8">
+						<h2 className="mb-3 text-xs font-semibold uppercase tracking-wide text-[var(--mono-ink-2)]">
+							Renders
+						</h2>
+						<div className="space-y-2">
+							{renders.map((r) => (
+								<div
+									key={r.id}
+									className="rounded-xl border border-[var(--mono-line)] bg-[var(--mono-panel)]"
+								>
+									<div className="flex items-center gap-3 px-3 py-2.5">
+										<div className="flex size-9 shrink-0 items-center justify-center rounded-lg bg-[var(--mono-hover)]">
+											{r.status === "rendering" ? (
+												<Loader2 className="size-4 animate-spin text-[var(--mono-ink-2)]" />
+											) : r.status === "done" ? (
+												<Check className="size-4 text-emerald-500" />
+											) : (
+												<X className="size-4 text-red-500" />
+											)}
+										</div>
+										<div className="min-w-0 flex-1">
+											<div className="truncate text-sm font-medium text-[var(--mono-ink)]">
+												{r.name}
+											</div>
+											<div className="text-xs text-[var(--mono-ink-2)]">
+												{r.status === "rendering"
+													? `${stageFor(r.createdAt)}…`
+													: r.status === "done"
+														? "Added to your Library"
+														: "Render failed"}{" "}
+												· {FORMAT_LABELS[r.format] ?? r.format}
+											</div>
+										</div>
+										{r.status === "done" && r.url && (
+											<>
+												<button
+													type="button"
+													onClick={() =>
+														setPreview((p) => (p === r.id ? null : r.id))
+													}
+													className="rounded-md px-2 py-1 text-xs font-medium text-[var(--mono-ink-2)] hover:bg-[var(--mono-hover)] hover:text-[var(--mono-ink)]"
+												>
+													{preview === r.id ? "Hide" : "Preview"}
+												</button>
+												{onRenderAction && r.vaultId && (
+													<DropdownMenu>
+														<DropdownMenuTrigger asChild>
+															<button
+																type="button"
+																className="flex size-7 items-center justify-center rounded-md text-[var(--mono-ink-2)] hover:bg-[var(--mono-hover)] hover:text-[var(--mono-ink)]"
+																aria-label="Actions"
+															>
+																<MoreHorizontal className="size-4" />
+															</button>
+														</DropdownMenuTrigger>
+														<DropdownMenuContent align="end">
+															<DropdownMenuItem
+																onClick={() => onRenderAction("editor", r.vaultId!)}
+															>
+																Open in editor
+															</DropdownMenuItem>
+															<DropdownMenuItem
+																onClick={() => onRenderAction("category", r.vaultId!)}
+															>
+																Add to a category
+															</DropdownMenuItem>
+															<DropdownMenuItem
+																onClick={() => onRenderAction("schedule", r.vaultId!)}
+															>
+																Schedule
+															</DropdownMenuItem>
+															<DropdownMenuItem
+																onClick={() => onRenderAction("library", r.vaultId!)}
+															>
+																View in Library
+															</DropdownMenuItem>
+														</DropdownMenuContent>
+													</DropdownMenu>
+												)}
+											</>
+										)}
+									</div>
+									{preview === r.id && r.url && (
+										<div className="px-3 pb-3">
+											{/* eslint-disable-next-line jsx-a11y/media-has-caption */}
+											<video
+												src={r.url}
+												controls
+												autoPlay
+												className="w-full rounded-lg border border-[var(--mono-line)] bg-black"
+											/>
+										</div>
 									)}
 								</div>
-								<div className="min-w-0 flex-1">
-									<div className="truncate text-sm font-medium text-[var(--mono-ink)]">
-										{r.name}
-									</div>
-									<div className="text-xs text-[var(--mono-ink-2)]">
-										{r.status === "rendering"
-											? "Rendering…"
-											: r.status === "done"
-												? "Added to your Library"
-												: "Render failed"}{" "}
-										· {FORMAT_LABELS[r.format] ?? r.format}
-									</div>
-								</div>
-								{r.status === "done" && r.url && (
-									<a
-										href={r.url}
-										target="_blank"
-										rel="noreferrer"
-										className="text-xs font-medium text-[var(--mono-ink)] underline-offset-2 hover:underline"
-									>
-										Preview
-									</a>
-								)}
-							</div>
-						))}
+							))}
+						</div>
 					</div>
-				</div>
-			)}
-
-			{/* confirm-before-generate plan dialog */}
-			<Dialog open={!!plan} onOpenChange={(o) => !o && setPlan(null)}>
-				<DialogContent className="max-w-lg">
-					<DialogHeader>
-						<DialogTitle>Review the plan</DialogTitle>
-						<DialogDescription>
-							{plan?.scenes.length ?? 0} scenes · {FORMAT_LABELS[format] ?? format} ·{" "}
-							{THEME_LABELS[theme] ?? theme}
-						</DialogDescription>
-					</DialogHeader>
-					<div className="max-h-[50vh] space-y-2 overflow-y-auto">
-						{(plan?.scenes ?? []).map((s, i) => {
-							const sum = sceneSummary(s);
-							return (
-								<div
-									key={i}
-									className="flex items-start gap-3 rounded-lg border border-[var(--mono-line)] px-3 py-2"
-								>
-									<span className="mt-0.5 shrink-0 rounded bg-[var(--mono-hover)] px-1.5 py-0.5 text-[10px] font-medium uppercase tracking-wide text-[var(--mono-ink-2)]">
-										{sum.tag}
-									</span>
-									<span className="text-sm text-[var(--mono-ink)]">{sum.text}</span>
-								</div>
-							);
-						})}
-					</div>
-					<DialogFooter>
-						<Button variant="outline" onClick={() => setPlan(null)} disabled={busy}>
-							Cancel
-						</Button>
-						<Button
-							onClick={() => plan && startRender(plan)}
-							disabled={busy}
-							className="gap-1.5"
-						>
-							{busy ? (
-								<Loader2 className="size-4 animate-spin" />
-							) : (
-								<Play className="size-4" />
-							)}
-							Generate video
-						</Button>
-					</DialogFooter>
-				</DialogContent>
-			</Dialog>
+				)}
+			</div>
 		</div>
 	);
 }

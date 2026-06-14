@@ -103,9 +103,9 @@ export const FORMATS: Record<string, [number, number]> = {
 
 // Composer model choices (Azure OpenAI deployments). Default to the strongest.
 export const STUDIO_MODELS: { value: string; label: string }[] = [
-	{ value: "gpt-5.4", label: "GPT-5.4 — best" },
-	{ value: "gpt-5.4-mini", label: "GPT-5.4 mini — fast" },
-	{ value: "gpt-4.1-mini", label: "GPT-4.1 mini — lite" },
+	{ value: "gpt-5.4", label: "Best" },
+	{ value: "gpt-5.4-mini", label: "Fast" },
+	{ value: "gpt-4.1-mini", label: "Lite" },
 ];
 export const DEFAULT_MODEL = "gpt-5.4";
 export function resolveModel(model?: string): string {

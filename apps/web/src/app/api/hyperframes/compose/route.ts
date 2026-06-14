@@ -74,6 +74,7 @@ type Body = {
 	format?: Spec["format"];
 	fps?: number;
 	refs?: InRef[];
+	recreateFrames?: string[]; // data URLs sampled from a reference video to rebuild
 	spec?: Spec;
 	render?: boolean;
 	name?: string;
@@ -122,6 +123,7 @@ export async function POST(request: Request) {
 				instructions: b.instructions,
 				designNotes: b.designNotes,
 				refs,
+				recreateFrames: Array.isArray(b.recreateFrames) ? b.recreateFrames : undefined,
 				format,
 			});
 		} catch (e) {

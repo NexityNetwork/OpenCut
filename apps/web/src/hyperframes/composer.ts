@@ -27,6 +27,29 @@ Rules:
 - Honor the brand/design notes for tone and word choice. Keep titles concrete, benefit-led.
 Return strictly the JSON object, no prose.`;
 
+// Recreation mode: rebuild a reference video from sampled frames using OUR
+// native scene types (NOT by overlaying the original clip). The model reads the
+// on-screen text and structure and reproduces it.
+const RECREATE_SYSTEM = `You recreate a reference short-form video as a structured spec for our studio.
+You are given ordered frames sampled from the reference video. Rebuild it natively using OUR scene types below; DO NOT use image or videoBg scenes (we are reconstructing, not overlaying the original footage).
+Output ONLY JSON: { "format": "9:16"|"16:9"|"1:1"|"4:3", "scenes": Scene[] }
+Scene is one of:
+ { "type":"hook", "kicker":string, "title":string, "sub"?:string, "accent":string }
+ { "type":"cards", "kicker"?:string, "items":{ "title":string, "desc"?:string }[] }
+ { "type":"stat", "kicker"?:string, "value":string, "label":string }
+ { "type":"quote", "quote":string, "attribution"?:string }
+ { "type":"cta", "title":string, "keyword":string }
+
+How to recreate:
+- Read the ACTUAL on-screen text in the frames and reuse it as the copy verbatim (clean spelling only). The biggest text in the early frames is the hook title; reuse it and set accent to 1-2 words taken from that exact title. Do not invent a generic hook.
+- Mirror the structure and order: opening title -> the points/sections shown -> closing call to action. One scene per distinct on-screen moment.
+- Pick the scene type that matches each moment: a big opening title -> hook; a list of points -> cards; a single big number/metric -> stat; a pulled sentence -> quote; the closing ask -> cta.
+- Match the pacing: similar number of scenes to the reference.
+- Apply the user's brief and brand notes for tone, but keep it faithful to the reference.
+- Copy is punchy and spoken-plain. No hashtags, no emojis, no markdown, no em dashes, no quotes around words, no dollar signs. Title <= 6 words; desc <= 12 words.
+- First scene must be a hook (set kicker AND accent). Last scene must be a cta.
+Return strictly the JSON object, no prose.`;
+
 export type PlanArgs = {
 	endpoint: string; // AZURE_OPENAI_ENDPOINT (trailing slash ok)
 	deployment: string; // AZURE_OPENAI_DEPLOYMENT
@@ -35,6 +58,7 @@ export type PlanArgs = {
 	instructions?: string; // persistent agent instructions + per-render extras
 	designNotes?: string; // design.md / design-system tone notes
 	refs?: Ref[];
+	recreateFrames?: string[]; // data URLs sampled from a reference video to rebuild
 	format?: Spec["format"];
 	apiVersion?: string;
 };
@@ -72,31 +96,64 @@ function clampScenes(scenes: Scene[], refs: Ref[]): Scene[] {
 
 export async function planSpec(args: PlanArgs): Promise<Spec> {
 	const refs = args.refs ?? [];
-	const refLines = refs.length
-		? "Available refs (use their ids, every one of them):\n" +
-			refs.map((r) => `- id="${r.id}" kind=${r.kind}`).join("\n")
-		: "No refs provided. Do not use image or videoBg scenes.";
+	const frames = args.recreateFrames ?? [];
 	const designLine = args.designNotes?.trim()
 		? `\n\nBrand / design notes (follow for tone and word choice):\n${args.designNotes.trim()}`
 		: "";
-	const user = `Brief: ${args.brief}\n\n${refLines}\n\nExtra instructions: ${
-		args.instructions?.trim() || "(none)"
-	}${designLine}\n\nTarget format: ${args.format ?? "9:16"}`;
+	const instrLine = `Extra instructions: ${args.instructions?.trim() || "(none)"}`;
 
-	const raw =
-		(await callAoai({
-			endpoint: args.endpoint,
-			deployment: args.deployment,
-			key: args.key,
-			apiVersion: args.apiVersion,
-			messages: [
-				{ role: "system", content: SYSTEM },
-				{ role: "user", content: user },
-			],
-			json: true,
-			temperature: 0.5,
-			maxTokens: 2000,
-		})) || "{}";
+	let raw: string;
+	if (frames.length) {
+		// recreation: rebuild a reference video from sampled frames (vision)
+		const content: (
+			| { type: "text"; text: string }
+			| { type: "image_url"; image_url: { url: string } }
+		)[] = [
+			{
+				type: "text",
+				text: `Recreate this reference video as a spec.\n\nBrief: ${args.brief}\n${instrLine}${designLine}\n\nTarget format: ${args.format ?? "9:16"}\n\nFrames in order:`,
+			},
+			...frames.slice(0, 8).map((url) => ({
+				type: "image_url" as const,
+				image_url: { url },
+			})),
+		];
+		raw =
+			(await callAoai({
+				endpoint: args.endpoint,
+				deployment: args.deployment,
+				key: args.key,
+				apiVersion: args.apiVersion,
+				messages: [
+					{ role: "system", content: RECREATE_SYSTEM },
+					{ role: "user", content },
+				],
+				json: true,
+				temperature: 0.4,
+				maxTokens: 2500,
+			})) || "{}";
+	} else {
+		const refLines = refs.length
+			? "Available refs (use their ids, every one of them):\n" +
+				refs.map((r) => `- id="${r.id}" kind=${r.kind}`).join("\n")
+			: "No refs provided. Do not use image or videoBg scenes.";
+		const user = `Brief: ${args.brief}\n\n${refLines}\n\n${instrLine}${designLine}\n\nTarget format: ${args.format ?? "9:16"}`;
+		raw =
+			(await callAoai({
+				endpoint: args.endpoint,
+				deployment: args.deployment,
+				key: args.key,
+				apiVersion: args.apiVersion,
+				messages: [
+					{ role: "system", content: SYSTEM },
+					{ role: "user", content: user },
+				],
+				json: true,
+				temperature: 0.5,
+				maxTokens: 2000,
+			})) || "{}";
+	}
+
 	let parsed: Spec;
 	try {
 		parsed = JSON.parse(raw) as Spec;
@@ -104,9 +161,11 @@ export async function planSpec(args: PlanArgs): Promise<Spec> {
 		throw new Error("composer returned non-JSON");
 	}
 	const scenes = Array.isArray(parsed.scenes) ? parsed.scenes : [];
+	// in recreation mode there are no builder refs, so clamp drops any stray
+	// image/videoBg scenes the model may have emitted.
 	return {
 		format: args.format ?? parsed.format ?? "9:16",
 		fps: parsed.fps,
-		scenes: clampScenes(scenes, refs),
+		scenes: clampScenes(scenes, frames.length ? [] : refs),
 	};
 }
