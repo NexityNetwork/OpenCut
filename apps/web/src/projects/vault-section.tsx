@@ -44,6 +44,7 @@ import {
 	Rocket,
 	Pin,
 	Link2,
+	ListPlus,
 	Archive,
 	FolderInput,
 	ArrowUpRight,
@@ -411,6 +412,16 @@ export function VaultSection() {
 	const [loading, setLoading] = useState(true);
 	const [text, setText] = useState("");
 	const [busy, setBusy] = useState(false);
+	// Batch import queue: paste many links, sort them into a category up front,
+	// and import them one at a time.
+	const [queueOpen, setQueueOpen] = useState(false);
+	const [queueText, setQueueText] = useState("");
+	const [queueCat, setQueueCat] = useState("");
+	const [queueNewCat, setQueueNewCat] = useState("");
+	const [queue, setQueue] = useState<
+		{ url: string; status: "pending" | "importing" | "done" | "failed" }[]
+	>([]);
+	const [queueRunning, setQueueRunning] = useState(false);
 	// The open tab lives in the URL (?tab=…) so a refresh or coming back from
 	// the editor lands on the same category instead of resetting to "all".
 	// sessionStorage is the fallback when the URL has no tab.
@@ -544,6 +555,51 @@ export function VaultSection() {
 			toast.error(e instanceof Error ? e.message : "Import failed", { id: tid });
 		} finally {
 			setBusy(false);
+		}
+	};
+
+	// Import a list of links one at a time, tagging each with the chosen category.
+	const runQueue = async () => {
+		const cat = (queueNewCat.trim() || queueCat).trim();
+		const urls = queueText
+			.split(/[\n,]/)
+			.map((u) => u.trim())
+			.filter((u) => isUrl(u));
+		if (!urls.length || queueRunning || !owner) return;
+		setQueueRunning(true);
+		setQueue(urls.map((url) => ({ url, status: "pending" })));
+		for (let i = 0; i < urls.length; i++) {
+			setQueue((q) =>
+				q.map((x, k) => (k === i ? { ...x, status: "importing" } : x)),
+			);
+			try {
+				const item = await importLinkToVault(owner, urls[i], "video");
+				if (cat) {
+					try {
+						await setVaultItemTags(owner, item.id, [cat]);
+					} catch {
+						/* tagging is best-effort */
+					}
+				}
+				const tagged = cat ? { ...item, tags: [cat] } : item;
+				setItems((prev) => [tagged, ...prev]);
+				setQueue((q) =>
+					q.map((x, k) => (k === i ? { ...x, status: "done" } : x)),
+				);
+			} catch {
+				setQueue((q) =>
+					q.map((x, k) => (k === i ? { ...x, status: "failed" } : x)),
+				);
+			}
+		}
+		setQueueRunning(false);
+		const done = queueText.split(/[\n,]/).filter((u) => isUrl(u.trim())).length;
+		toast.success(`Queue finished (${done} link${done === 1 ? "" : "s"})`);
+		setQueueText("");
+		if (cat) {
+			setCustomSections((prev) =>
+				prev.some((s) => s.name === cat) ? prev : [...prev, { name: cat, icon: "" }],
+			);
 		}
 	};
 
@@ -1613,7 +1669,89 @@ export function VaultSection() {
 							<Paperclip className="size-3.5" />
 							Import media
 						</button>
+						<button
+							type="button"
+							onClick={() => setQueueOpen((v) => !v)}
+							className={cn(
+								HOME_CHIP_CLS,
+								queueOpen && "bg-[var(--mono-active)] text-[var(--mono-ink)]",
+							)}
+						>
+							<ListPlus className="size-3.5" />
+							Queue import
+						</button>
 					</div>
+					{queueOpen && (
+						<div className="mt-3 space-y-3 rounded-2xl border border-[var(--mono-line)] bg-[var(--mono-panel)] p-4 text-left shadow-sm">
+							<div className="flex items-center justify-between gap-3">
+								<label className="text-sm font-medium text-[var(--mono-ink)]">
+									Sort into category
+								</label>
+								<select
+									value={queueCat}
+									onChange={(e) => setQueueCat(e.target.value)}
+									className="h-9 rounded-lg border border-[var(--mono-line)] bg-[var(--mono-hover)] px-2 text-sm text-[var(--mono-ink)] outline-none"
+								>
+									<option value="">No category</option>
+									{sectionNames.map((s) => (
+										<option key={s} value={s}>
+											{s}
+										</option>
+									))}
+								</select>
+							</div>
+							<input
+								value={queueNewCat}
+								onChange={(e) => setQueueNewCat(e.target.value)}
+								placeholder="or type a new category name"
+								className="w-full rounded-lg border border-[var(--mono-line)] bg-[var(--mono-hover)] px-3 py-2 text-sm text-[var(--mono-ink)] outline-none placeholder:text-[var(--mono-ink-3)]"
+							/>
+							<textarea
+								value={queueText}
+								onChange={(e) => setQueueText(e.target.value)}
+								placeholder="Paste links, one per line"
+								className="min-h-[120px] w-full resize-none rounded-lg border border-[var(--mono-line)] bg-[var(--mono-hover)] px-3 py-2 text-sm text-[var(--mono-ink)] outline-none placeholder:text-[var(--mono-ink-3)]"
+							/>
+							<div className="flex items-center justify-between">
+								<span className="text-xs text-[var(--mono-ink-3)]">
+									{queue.length > 0 &&
+										`${queue.filter((q) => q.status === "done").length}/${queue.length} done`}
+								</span>
+								<button
+									type="button"
+									onClick={() => void runQueue()}
+									disabled={queueRunning}
+									className="rounded-lg bg-[var(--mono-ink)] px-4 py-2 text-sm font-semibold text-[var(--mono-panel)] disabled:opacity-50"
+								>
+									{queueRunning ? "Importing…" : "Start queue"}
+								</button>
+							</div>
+							{queue.length > 0 && (
+								<div className="max-h-44 space-y-1 overflow-y-auto">
+									{queue.map((q, i) => (
+										<div key={i} className="flex items-center gap-2 text-xs">
+											<span
+												className={cn(
+													"size-1.5 shrink-0 rounded-full",
+													q.status === "done"
+														? "bg-emerald-500"
+														: q.status === "failed"
+															? "bg-red-500"
+															: q.status === "importing"
+																? "bg-amber-500"
+																: "bg-[var(--mono-ink-3)]",
+												)}
+											/>
+											<span className="truncate text-[var(--mono-ink-2)]">{q.url}</span>
+											<span className="ml-auto shrink-0 text-[var(--mono-ink-3)]">
+												{q.status}
+											</span>
+										</div>
+									))}
+								</div>
+							)}
+						</div>
+					)}
 				</div>
 			</div>
 
