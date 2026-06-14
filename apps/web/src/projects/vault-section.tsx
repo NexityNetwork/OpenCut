@@ -138,6 +138,7 @@ import type { TProjectMetadata, TProjectSortOption } from "@/project/types";
 import { BioBuilder } from "@/bio/bio-builder";
 import { ClipsStudio } from "@/clips/clips-studio";
 import { BrandKitView } from "@/brand/brand-kit";
+import { StudioPane } from "@/projects/studio-pane";
 import { InboxView, INBOX_TABS, type InboxTab } from "@/inbox/inbox-view";
 import { AssetDetail } from "@/projects/asset-detail";
 import { AddMediaAssetCommand } from "@/commands/media";
@@ -212,6 +213,27 @@ const ICON_MAP: Record<string, typeof Tag> = Object.fromEntries(
 	SECTION_ICONS.map((i) => [i.name, i.Icon]),
 );
 type CustomSection = { name: string; icon: string };
+// Top-level dashboard views (sidebar drives this). "studio" is the HyperFrames
+// prompting tab for beta testers.
+type AppView =
+	| "home"
+	| "library"
+	| "publish"
+	| "bio"
+	| "clips"
+	| "brand"
+	| "inbox"
+	| "studio";
+const APP_VIEWS: AppView[] = [
+	"home",
+	"library",
+	"publish",
+	"bio",
+	"clips",
+	"brand",
+	"inbox",
+	"studio",
+];
 
 function fmtDate(d: Date | string | number) {
 	try {
@@ -302,28 +324,13 @@ export function VaultSection() {
 	// The active view is persisted in the URL (?view=) + sessionStorage, so a
 	// refresh or returning from the editor lands on the same view (e.g. the
 	// Library) instead of always resetting to the Home dashboard.
-	const [appView, setAppView] = useState<
-		"home" | "library" | "publish" | "bio" | "clips" | "brand" | "inbox"
-	>(() => {
+	const [appView, setAppView] = useState<AppView>(() => {
 		if (typeof window === "undefined") return "home";
 		const v =
 			new URLSearchParams(window.location.search).get("view") ||
 			sessionStorage.getItem("vault-app-view") ||
 			"home";
-		return (
-			["home", "library", "publish", "bio", "clips", "brand", "inbox"] as const
-		).includes(
-			v as "home" | "library" | "publish" | "bio" | "clips" | "brand" | "inbox",
-		)
-			? (v as
-					| "home"
-					| "library"
-					| "publish"
-					| "bio"
-					| "clips"
-					| "brand"
-					| "inbox")
-			: "home";
+		return APP_VIEWS.includes(v as AppView) ? (v as AppView) : "home";
 	});
 	// Which SM Automation subsection is active (the sidebar drives it directly).
 	const [inboxTab, setInboxTab] = useState<InboxTab>("comments");
@@ -1290,6 +1297,7 @@ export function VaultSection() {
 				onSelectHome={() => setAppView("home")}
 				onSelectLibrary={() => { setSelectedAsset(null); setAppView("library"); }}
 				onSelectPublish={() => setAppView("publish")}
+				onSelectStudio={() => setAppView("studio")}
 				onSelectBio={() => setAppView("bio")}
 				onSelectClips={() => setAppView("clips")}
 					onSelectBrand={() => setAppView("brand")}
@@ -1352,6 +1360,7 @@ export function VaultSection() {
 				onSelectHome={() => setAppView("home")}
 				onSelectLibrary={() => { setSelectedAsset(null); setAppView("library"); }}
 				onSelectPublish={() => setAppView("publish")}
+				onSelectStudio={() => setAppView("studio")}
 				onSelectBio={() => setAppView("bio")}
 					onSelectClips={() => setAppView("clips")}
 					onSelectBrand={() => setAppView("brand")}
@@ -1408,6 +1417,8 @@ export function VaultSection() {
 							setAppView("publish");
 						}}
 					/>
+				) : appView === "studio" ? (
+					<StudioPane owner={owner} isOwner={isOwner} />
 				) : appView === "publish" ? (
 					<PublishPane
 						items={visibleItems}
@@ -2431,6 +2442,7 @@ function LibrarySidebar({
 	onSelectHome,
 	onSelectLibrary,
 	onSelectPublish,
+	onSelectStudio,
 	onSelectBio,
 	onSelectClips,
 	onSelectBrand,
@@ -2450,12 +2462,13 @@ function LibrarySidebar({
 	collapsed: boolean;
 	onToggleCollapse: () => void;
 	onOpenSearch: () => void;
-	appView: "home" | "library" | "publish" | "bio" | "clips" | "brand" | "inbox";
+	appView: AppView;
 	inboxTab: InboxTab;
 	onSelectInboxTab: (t: InboxTab) => void;
 	onSelectHome: () => void;
 	onSelectLibrary: () => void;
 	onSelectPublish: () => void;
+	onSelectStudio: () => void;
 	onSelectBio: () => void;
 	onSelectClips: () => void;
 	onSelectBrand: () => void;
@@ -2550,6 +2563,19 @@ function LibrarySidebar({
 				>
 					<Rocket className="size-5" />
 				</button>
+				<button
+					type="button"
+					onClick={onSelectStudio}
+					aria-label="Studio"
+					className={cn(
+						"flex size-9 items-center justify-center rounded-md",
+						appView === "studio"
+							? "bg-muted text-foreground"
+							: "text-muted-foreground hover:text-foreground hover:bg-muted",
+					)}
+				>
+					<Clapperboard className="size-5" />
+				</button>
 				<div className="mt-auto">
 					<Avatar name={user?.name} image={user?.image} size={8} />
 				</div>
@@ -2598,6 +2624,13 @@ function LibrarySidebar({
 				<SidebarGroupLabel>Create</SidebarGroupLabel>
 				<SidebarItem icon={Plus} label="New project" onClick={onNewProject} />
 				<SidebarItem icon={Frame} label="Create post" onClick={onNewCanvas} />
+				<SidebarItem
+					icon={Clapperboard}
+					label="Studio"
+					badge="Beta"
+					active={appView === "studio"}
+					onClick={onSelectStudio}
+				/>
 
 				<SidebarGroupLabel>Workspace</SidebarGroupLabel>
 				<SidebarItem
