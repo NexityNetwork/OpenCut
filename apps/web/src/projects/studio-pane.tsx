@@ -251,6 +251,7 @@ export function StudioPane({
 	);
 	const [libVideos, setLibVideos] = useState<VaultItem[]>([]);
 	const [libLoading, setLibLoading] = useState(false);
+	const [libSearch, setLibSearch] = useState("");
 	const fileRef = useRef<HTMLInputElement>(null);
 
 	useEffect(() => {
@@ -1189,8 +1190,19 @@ export function StudioPane({
 									<Loader2 className="size-5 animate-spin text-[var(--mono-ink-2)]" />
 								</div>
 							) : libVideos.length ? (
-								<div className="grid max-h-[55vh] grid-cols-3 gap-2 overflow-y-auto">
-									{libVideos.map((v) => (
+								<>
+									<input
+										value={libSearch}
+										onChange={(e) => setLibSearch(e.target.value)}
+										placeholder="Search your videos…"
+										className="mb-2 w-full rounded-lg border border-[var(--mono-line)] bg-[var(--mono-hover)] px-3 py-2 text-sm text-[var(--mono-ink)] outline-none placeholder:text-[var(--mono-ink-3)]"
+									/>
+								<div className="grid max-h-[50vh] grid-cols-3 gap-2 overflow-y-auto">
+									{libVideos
+										.filter((v) =>
+											v.name.toLowerCase().includes(libSearch.toLowerCase()),
+										)
+										.map((v) => (
 										<button
 											key={v.id}
 											type="button"
@@ -1220,6 +1232,7 @@ export function StudioPane({
 										</button>
 									))}
 								</div>
+								</>
 							) : (
 								<div className="flex h-40 items-center justify-center text-sm text-[var(--mono-ink-2)]">
 									No videos in your library yet
