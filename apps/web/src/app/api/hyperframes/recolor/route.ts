@@ -84,11 +84,16 @@ export async function POST(request: Request) {
 	if (!chosen.length) {
 		return Response.json({ error: "no valid variants" }, { status: 400 });
 	}
-	// scraped names can carry junk prefixes (emoji/symbols stripped to "| ~ +");
-	// clean leading non-alphanumerics so the variant titles read cleanly.
-	const base =
-		((b.name || "").replace(/^[^A-Za-z0-9]+/, "").replace(/\s+/g, " ").trim() ||
-			"Repost").slice(0, 50);
+	// scraped names carry junk prefixes (emoji stripped to "| ~ + oy"). Strip the
+	// leading symbols, and if there were symbols, also a short lowercase fragment
+	// that precedes the first real (Capitalized) word.
+	const cleanName = (raw: string): string => {
+		const hadJunk = /^[^A-Za-z0-9]/.test(raw);
+		let s = raw.replace(/^[^A-Za-z0-9]+/, "").trim();
+		if (hadJunk) s = s.replace(/^[a-z]{1,3}\s+(?=[A-Z])/, "");
+		return s.replace(/\s+/g, " ").trim();
+	};
+	const base = (cleanName(b.name || "") || "Repost").slice(0, 50);
 	const d = vaultDb();
 	const started: { id: string; label: string; exec: string | null }[] = [];
 
