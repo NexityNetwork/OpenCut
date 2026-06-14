@@ -458,6 +458,8 @@ export function StudioPane({
 				const data = await res.json();
 				if (!res.ok) throw new Error(data.error || "render failed");
 				setPlan(null);
+				setPrompt("");
+				setRefs([]);
 				toast.success("Rendering started, it will land in your Library");
 				await refreshRenders();
 			} catch (e) {
@@ -493,6 +495,8 @@ export function StudioPane({
 					else throw new Error(data.error || "recolor failed");
 				}
 				toast.success(`Started ${n} repost variants, they will land in your Library`);
+				setPrompt("");
+				setRefs([]);
 				await refreshRenders();
 			} catch (e) {
 				toast.error((e as Error).message);
@@ -532,6 +536,8 @@ export function StudioPane({
 			if (confirmBeforeGenerate) {
 				setPlan(data.spec as Spec);
 			} else {
+				setPrompt("");
+				setRefs([]);
 				toast.success("Rendering started, it will land in your Library");
 				await refreshRenders();
 			}
