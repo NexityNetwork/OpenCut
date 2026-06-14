@@ -9,20 +9,21 @@ import { cfEnv, isAzureConfigured, startRender } from "@/hyperframes/render-job"
 
 export const dynamic = "force-dynamic";
 
-// Each variant = a distinct color grade (video) + a pitch/timbre shift (audio),
-// no speed or zoom. Different look AND different voice fingerprint, in sync, so
-// the same clip reads as a separate upload across accounts.
+// Each variant = a FULL recolor (hue rotation of the whole palette, not a tonal
+// tweak) + a pitch/timbre shift (audio), no speed or zoom. The actual colors in
+// the footage change AND the voice fingerprint changes, in sync, so the same
+// clip reads as a separate upload across accounts.
 export const RECOLOR_PRESETS: {
 	id: string;
 	label: string;
 	filter: string;
 	audio: string;
 }[] = [
-	{ id: "warm", label: "Warm", filter: "eq=saturation=1.12:contrast=1.05:gamma=0.99,colorbalance=rm=0.06:bs=-0.05", audio: "aresample=44100,asetrate=41895,aresample=44100,atempo=1.053" },
-	{ id: "cool", label: "Cool", filter: "eq=saturation=1.08:contrast=1.04,colorbalance=rs=-0.05:bs=0.07", audio: "aresample=44100,asetrate=46305,aresample=44100,atempo=0.952" },
-	{ id: "punchy", label: "Punchy", filter: "eq=saturation=1.22:contrast=1.10:gamma=0.96", audio: "aresample=44100,asetrate=40572,aresample=44100,atempo=1.087" },
-	{ id: "muted", label: "Muted", filter: "eq=saturation=0.88:contrast=1.05:gamma=1.03", audio: "aresample=44100,asetrate=45423,aresample=44100,atempo=0.971" },
-	{ id: "film", label: "Film", filter: "eq=saturation=1.0:contrast=1.07,colorbalance=rs=0.04:gm=0.02:bs=-0.05", audio: "aresample=44100,asetrate=42777,aresample=44100,atempo=1.031" },
+	{ id: "amber", label: "Amber", filter: "hue=h=150:s=1.3,eq=contrast=1.05", audio: "aresample=44100,asetrate=41895,aresample=44100,atempo=1.053" },
+	{ id: "teal", label: "Teal", filter: "hue=h=70:s=1.2,eq=contrast=1.04", audio: "aresample=44100,asetrate=46305,aresample=44100,atempo=0.952" },
+	{ id: "violet", label: "Violet", filter: "hue=h=-60:s=1.25,eq=contrast=1.05", audio: "aresample=44100,asetrate=40572,aresample=44100,atempo=1.087" },
+	{ id: "crimson", label: "Crimson", filter: "hue=h=200:s=1.3,eq=contrast=1.06", audio: "aresample=44100,asetrate=45423,aresample=44100,atempo=0.971" },
+	{ id: "ice", label: "Ice", filter: "hue=h=30:s=1.15,eq=contrast=1.04:brightness=0.02", audio: "aresample=44100,asetrate=42777,aresample=44100,atempo=1.031" },
 ];
 
 type D1 = {
