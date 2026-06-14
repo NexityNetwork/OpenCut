@@ -101,6 +101,17 @@ export const FORMATS: Record<string, [number, number]> = {
 	"4:3": [1440, 1080],
 };
 
+// Platform safe zones (canvas px). Readable text/CTAs must stay inside this
+// band so the app UI (captions, action rail, wordmark) never covers them. The
+// 9:16 values come from the carousel safe-zone work (top >= 250, bottom >= 360,
+// right gets the action rail). Background graphics may still bleed past it.
+export const SAFE: Record<string, { top: number; bottom: number; left: number; right: number }> = {
+	"9:16": { top: 250, bottom: 360, left: 96, right: 110 },
+	"16:9": { top: 80, bottom: 96, left: 140, right: 140 },
+	"1:1": { top: 120, bottom: 150, left: 96, right: 96 },
+	"4:3": { top: 96, bottom: 120, left: 120, right: 120 },
+};
+
 // Composer model choices (Azure OpenAI deployments). Default to the strongest.
 export const STUDIO_MODELS: { value: string; label: string }[] = [
 	{ value: "gpt-5.4", label: "Best" },
@@ -230,7 +241,9 @@ export function buildComposition({
 	theme: Theme;
 	refs?: Ref[];
 }): { html: string; width: number; height: number; duration: number } {
-	const [w, h] = FORMATS[spec.format ?? "9:16"] ?? FORMATS["9:16"];
+	const fmt = spec.format ?? "9:16";
+	const [w, h] = FORMATS[fmt] ?? FORMATS["9:16"];
+	const safe = SAFE[fmt] ?? SAFE["9:16"];
 	const fps = spec.fps && spec.fps >= 12 && spec.fps <= 120 ? spec.fps : 30;
 	const { starts, total } = sceneTiming(spec.scenes);
 	const refMap: Record<string, Ref> = {};
@@ -258,7 +271,7 @@ export function buildComposition({
 html,body{width:${w}px;height:${h}px;overflow:hidden;background:${theme.bg}}
 body{font-family:"${theme.font}",sans-serif;color:${theme.ink}}
 .glow{position:absolute;width:${px(1100)}px;height:${px(1100)}px;border-radius:50%;background:radial-gradient(circle,${theme.accent}33,transparent 60%);top:${px(-300)}px;right:${px(-300)}px}
-.scene{position:absolute;inset:0;display:flex;flex-direction:column;justify-content:center;padding:0 ${px(theme.pad)}px;opacity:0}
+.scene{position:absolute;inset:0;display:flex;flex-direction:column;justify-content:center;padding:${safe.top}px ${safe.right}px ${safe.bottom}px ${safe.left}px;opacity:0}
 .kicker{font-size:${px(34)}px;font-weight:700;letter-spacing:.2em;text-transform:uppercase;color:${theme.accent};margin-bottom:${px(28)}px}
 .headline{font-size:${px(120)}px;font-weight:800;line-height:1.0;letter-spacing:-.025em}
 .headline.sm{font-size:${px(84)}px;margin-top:${px(36)}px}
@@ -280,7 +293,7 @@ body{font-family:"${theme.font}",sans-serif;color:${theme.ink}}
 .videoBg{padding:0}
 .refvid{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
 .scrim{position:absolute;inset:0;background:linear-gradient(180deg,rgba(10,10,15,.1),rgba(10,10,15,.85))}
-.vtext{position:absolute;inset:0;display:flex;flex-direction:column;justify-content:flex-end;padding:0 ${px(theme.pad)}px ${px(360)}px}
+.vtext{position:absolute;inset:0;display:flex;flex-direction:column;justify-content:flex-end;padding:${safe.top}px ${safe.right}px ${safe.bottom}px ${safe.left}px}
 </style></head><body>
 <div id="root" data-composition-id="main" data-start="0" data-duration="${total.toFixed(2)}" data-width="${w}" data-height="${h}" data-fps="${fps}">
 <div class="glow" id="glow"></div>
