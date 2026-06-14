@@ -768,15 +768,25 @@ export function StudioPane({
 							e.target.value = "";
 						}}
 					/>
-					<button
-						type="button"
-						onClick={() => setRefModal("choose")}
-						className={CHIP}
-					>
-						<Paperclip className="size-3.5" />
-						Reference
-						<ChevronDown className="size-3.5" />
-					</button>
+					<DropdownMenu>
+						<DropdownMenuTrigger asChild>
+							<button type="button" className={CHIP}>
+								<Paperclip className="size-3.5" />
+								Reference
+								<ChevronDown className="size-3.5" />
+							</button>
+						</DropdownMenuTrigger>
+						<DropdownMenuContent align="start" className="w-56">
+							<DropdownMenuItem onClick={() => fileRef.current?.click()}>
+								<Upload className="size-4" />
+								Import video
+							</DropdownMenuItem>
+							<DropdownMenuItem onClick={() => void openLibrary()}>
+								<Film className="size-4" />
+								Add from library
+							</DropdownMenuItem>
+						</DropdownMenuContent>
+					</DropdownMenu>
 					<button
 						type="button"
 						onClick={enhancePrompt}
@@ -1133,76 +1143,31 @@ export function StudioPane({
 				)}
 			</div>
 
-			{/* reference source modal: import a video or pick one from the library */}
+			{/* reference library picker (source choice is the dropdown on the chip) */}
 			<Dialog
-				open={refModal !== "closed"}
+				open={refModal === "library"}
 				onOpenChange={(o) => !o && setRefModal("closed")}
 			>
 				<DialogContent className="max-w-lg">
 					<DialogHeader>
-						<DialogTitle>
-							{refModal === "library" ? "Add from library" : "Add a reference"}
-						</DialogTitle>
+						<DialogTitle>Add from library</DialogTitle>
 					</DialogHeader>
-					{refModal === "choose" ? (
-						<div className="grid grid-cols-2 gap-3">
-							<button
-								type="button"
-								onClick={() => {
-									setRefModal("closed");
-									fileRef.current?.click();
-								}}
-								className="flex flex-col items-start gap-2 rounded-xl border border-[var(--mono-line)] bg-[var(--mono-panel)] p-4 text-left transition-colors hover:bg-[var(--mono-hover)]"
-							>
-								<Upload className="size-5 text-[var(--mono-ink)]" />
-								<span className="text-sm font-medium text-[var(--mono-ink)]">
-									Import video
-								</span>
-								<span className="text-xs text-[var(--mono-ink-2)]">
-									Upload a screenshot or clip from your device
-								</span>
-							</button>
-							<button
-								type="button"
-								onClick={() => void openLibrary()}
-								className="flex flex-col items-start gap-2 rounded-xl border border-[var(--mono-line)] bg-[var(--mono-panel)] p-4 text-left transition-colors hover:bg-[var(--mono-hover)]"
-							>
-								<Film className="size-5 text-[var(--mono-ink)]" />
-								<span className="text-sm font-medium text-[var(--mono-ink)]">
-									Add from library
-								</span>
-								<span className="text-xs text-[var(--mono-ink-2)]">
-									Pick a video you already have
-								</span>
-							</button>
+					{libLoading ? (
+						<div className="flex h-40 items-center justify-center">
+							<Loader2 className="size-5 animate-spin text-[var(--mono-ink-2)]" />
 						</div>
-					) : (
-						<div>
-							<button
-								type="button"
-								onClick={() => setRefModal("choose")}
-								className="mb-3 text-xs font-medium text-[var(--mono-ink-2)] hover:text-[var(--mono-ink)]"
-							>
-								&larr; Back
-							</button>
-							{libLoading ? (
-								<div className="flex h-40 items-center justify-center">
-									<Loader2 className="size-5 animate-spin text-[var(--mono-ink-2)]" />
-								</div>
-							) : libVideos.length ? (
-								<>
-									<input
-										value={libSearch}
-										onChange={(e) => setLibSearch(e.target.value)}
-										placeholder="Search your videos…"
-										className="mb-2 w-full rounded-lg border border-[var(--mono-line)] bg-[var(--mono-hover)] px-3 py-2 text-sm text-[var(--mono-ink)] outline-none placeholder:text-[var(--mono-ink-3)]"
-									/>
-								<div className="grid max-h-[50vh] grid-cols-3 gap-2 overflow-y-auto">
-									{libVideos
-										.filter((v) =>
-											v.name.toLowerCase().includes(libSearch.toLowerCase()),
-										)
-										.map((v) => (
+					) : libVideos.length ? (
+						<>
+							<input
+								value={libSearch}
+								onChange={(e) => setLibSearch(e.target.value)}
+								placeholder="Search your videos…"
+								className="mb-2 w-full rounded-lg border border-[var(--mono-line)] bg-[var(--mono-hover)] px-3 py-2 text-sm text-[var(--mono-ink)] outline-none placeholder:text-[var(--mono-ink-3)]"
+							/>
+							<div className="grid max-h-[50vh] grid-cols-3 gap-2 overflow-y-auto">
+								{libVideos
+									.filter((v) => v.name.toLowerCase().includes(libSearch.toLowerCase()))
+									.map((v) => (
 										<button
 											key={v.id}
 											type="button"
@@ -1212,16 +1177,10 @@ export function StudioPane({
 											<div className="relative aspect-[9/16] w-full overflow-hidden bg-black">
 												{v.thumbUrl ? (
 													// eslint-disable-next-line @next/next/no-img-element
-													<img
-														src={v.thumbUrl}
-														alt={v.name}
-														className="size-full object-cover"
-													/>
+													<img src={v.thumbUrl} alt={v.name} className="size-full object-cover" />
 												) : (
 													<VideoThumb
-														src={fileUrl(
-															v.media.find((m) => m.type === "video")?.key || "",
-														)}
+														src={fileUrl(v.media.find((m) => m.type === "video")?.key || "")}
 														className="size-full object-cover"
 													/>
 												)}
@@ -1231,13 +1190,11 @@ export function StudioPane({
 											</div>
 										</button>
 									))}
-								</div>
-								</>
-							) : (
-								<div className="flex h-40 items-center justify-center text-sm text-[var(--mono-ink-2)]">
-									No videos in your library yet
-								</div>
-							)}
+							</div>
+						</>
+					) : (
+						<div className="flex h-40 items-center justify-center text-sm text-[var(--mono-ink-2)]">
+							No videos in your library yet
 						</div>
 					)}
 				</DialogContent>
