@@ -600,6 +600,11 @@ export function VaultSection() {
 				prev.some((s) => s.name === cat) ? prev : [...prev, { name: cat, icon: "" }],
 			);
 		}
+		// leave the queueing view and drop the user on the imported batch
+		setQueueOpen(false);
+		setQueueRows([{ url: "", status: "" }]);
+		setAppView("library");
+		setActiveTab(cat ? `cat:${cat}` : "video");
 	};
 
 	const onFiles = async (list: FileList | File[] | null) => {
