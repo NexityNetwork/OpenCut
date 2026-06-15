@@ -4,9 +4,43 @@
  * (Inter Tight), a Caveat script accent, and a mono label font. Top bar
  * (eyebrow · page counter) + bottom bar (handle · SWIPE). Wordmark → "ultron".
  */
-import React, { PropsWithChildren } from 'react';
-import { AbsoluteFill } from 'remotion';
+import React, { PropsWithChildren, createContext, useContext, useEffect, useRef, useState } from 'react';
+import { AbsoluteFill, delayRender, continueRender } from 'remotion';
 import { carouselTheme as T } from './theme';
+
+/** Target aspect. 9:16 = Instagram reel frames (default). 4:5 = LinkedIn
+ *  document pages (1080x1350). Root provides this per composition. */
+export type CarouselFormat = '9:16' | '4:5';
+export const FormatContext = createContext<CarouselFormat>('9:16');
+
+/** LinkedIn 4:5 body: no reel clipping, so a tight full-frame inset. The decks
+ *  were composed for the taller 9:16 band, so auto-scale the content down to
+ *  fit the shorter 1350px canvas when it would overflow, keeping it centered. */
+const FitBand: React.FC<PropsWithChildren<{ jc: string; side: number }>> = ({ jc, side, children }) => {
+  const colW = 1080 - 2 * side; // the deck's design column width (810 or 952)
+  const ref = useRef<HTMLDivElement>(null);
+  const [scale, setScale] = useState(1);
+  const [handle] = useState(() => delayRender('fit-4x5'));
+  useEffect(() => {
+    const el = ref.current;
+    if (el) {
+      const availW = 1080 - 2 * 44; // grow toward full width
+      const availH = 1350 - 2 * 64; // grow toward full height
+      const ch = el.scrollHeight;
+      // scale to fill the 4:5 frame (up or down), capped by whichever bounds first
+      const s = Math.min(availW / colW, availH / ch);
+      setScale(Math.max(0.55, Math.min(1.45, s)));
+    }
+    continueRender(handle);
+  }, [handle]);
+  return (
+    <div style={{ position: 'absolute', inset: 0, display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center', overflow: 'hidden' }}>
+      <div ref={ref} style={{ width: colW, transform: `scale(${scale})`, transformOrigin: 'center', display: 'flex', flexDirection: 'column', justifyContent: jc, gap: 22 }}>
+        {children}
+      </div>
+    </div>
+  );
+};
 
 export const AH_ORANGE = '#e8542b';
 const CREAM = '#f0ece1';
@@ -86,6 +120,15 @@ export const AHFrame: React.FC<
   const ink = dark ? '#f3efe6' : '#161412';
   const jc = justify === 'between' ? 'space-between' : justify === 'around' ? 'space-around' : justify === 'start' ? 'flex-start' : 'center';
   const side = narrow ? 135 : 64;
+  const fmt = useContext(FormatContext);
+  if (fmt === '4:5') {
+    return (
+      <AbsoluteFill style={{ background: bg, color: ink, fontFamily: T.bodyFont, overflow: 'hidden' }}>
+        {decor}
+        <FitBand jc={jc} side={side}>{children}</FitBand>
+      </AbsoluteFill>
+    );
+  }
   return (
     <AbsoluteFill style={{ background: bg, color: ink, fontFamily: T.bodyFont, overflow: 'hidden' }}>
       {decor}
