@@ -141,6 +141,7 @@ import { BioBuilder } from "@/bio/bio-builder";
 import { ClipsStudio } from "@/clips/clips-studio";
 import { BrandKitView } from "@/brand/brand-kit";
 import { StudioPane } from "@/projects/studio-pane";
+import { RedditDraftsView } from "@/projects/reddit-drafts-view";
 import { VideoThumb } from "@/projects/video-thumb";
 import { InboxView, INBOX_TABS, type InboxTab } from "@/inbox/inbox-view";
 import { AssetDetail } from "@/projects/asset-detail";
@@ -225,6 +226,7 @@ type AppView =
 	| "bio"
 	| "clips"
 	| "brand"
+	| "reddit"
 	| "inbox"
 	| "studio";
 const APP_VIEWS: AppView[] = [
@@ -234,6 +236,7 @@ const APP_VIEWS: AppView[] = [
 	"bio",
 	"clips",
 	"brand",
+	"reddit",
 	"inbox",
 	"studio",
 ];
@@ -1376,6 +1379,7 @@ export function VaultSection() {
 				onSelectBio={() => setAppView("bio")}
 				onSelectClips={() => setAppView("clips")}
 					onSelectBrand={() => setAppView("brand")}
+					onSelectReddit={() => setAppView("reddit")}
 					inboxTab={inboxTab}
 					onSelectInboxTab={selectInboxTab}
 				navTabs={navTabs}
@@ -1440,6 +1444,7 @@ export function VaultSection() {
 				onSelectBio={() => setAppView("bio")}
 					onSelectClips={() => setAppView("clips")}
 					onSelectBrand={() => setAppView("brand")}
+					onSelectReddit={() => setAppView("reddit")}
 					inboxTab={inboxTab}
 					onSelectInboxTab={selectInboxTab}
 				navTabs={navTabs}
@@ -1511,6 +1516,8 @@ export function VaultSection() {
 					<BioBuilder owner={owner} />
 				) : appView === "brand" ? (
 					<BrandKitView owner={owner} />
+				) : appView === "reddit" ? (
+					<RedditDraftsView />
 				) : appView === "inbox" ? (
 					<InboxView owner={owner} preview={!isOwner} tab={inboxTab} />
 				) : appView === "clips" ? (
@@ -2639,6 +2646,7 @@ function LibrarySidebar({
 	onSelectBio,
 	onSelectClips,
 	onSelectBrand,
+	onSelectReddit,
 	inboxTab,
 	onSelectInboxTab,
 	navTabs,
@@ -2666,6 +2674,7 @@ function LibrarySidebar({
 	onSelectBio: () => void;
 	onSelectClips: () => void;
 	onSelectBrand: () => void;
+	onSelectReddit: () => void;
 	navTabs: NavTab[];
 	activeTab: string;
 	onSelectTab: (k: string) => void;
@@ -2885,6 +2894,14 @@ function LibrarySidebar({
 						active={appView === "brand"}
 						onClick={onSelectBrand}
 					/>
+					{user?.email === OWNER_EMAIL && (
+						<SidebarItem
+							icon={MessagesSquare}
+							label="Reddit posts"
+							active={appView === "reddit"}
+							onClick={onSelectReddit}
+						/>
+					)}
 				</CollapsibleGroup>
 			</nav>
 
