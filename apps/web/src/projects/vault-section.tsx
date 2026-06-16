@@ -3411,18 +3411,210 @@ function demoQueueRows() {
 	return rows;
 }
 
+// Connect a Composio-backed channel (Instagram / TikTok / Reddit) without any
+// native browser prompt. Names the account in-app, opens the provider OAuth in
+// a tab, then polls Composio until the connection reports ACTIVE and saves it,
+// so the user never has to hit finish at exactly the right moment.
+function ConnectDialog({
+	platform,
+	onClose,
+	onConnected,
+}: {
+	platform: string | null;
+	onClose: () => void;
+	onConnected: () => void;
+}) {
+	const p = platform ?? "";
+	const [label, setLabel] = useState("");
+	const [phase, setPhase] = useState<"name" | "waiting">("name");
+	const [busy, setBusy] = useState(false);
+	const authUrl = useRef("");
+	const cancelled = useRef(false);
+	const timer = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+	useEffect(() => {
+		if (platform) {
+			setLabel(`${platform}-main`);
+			setPhase("name");
+			setBusy(false);
+			cancelled.current = false;
+		}
+		return () => {
+			cancelled.current = true;
+			if (timer.current) clearTimeout(timer.current);
+		};
+	}, [platform]);
+
+	const close = () => {
+		cancelled.current = true;
+		if (timer.current) clearTimeout(timer.current);
+		onClose();
+	};
+
+	// One attempt at saving the channel. Returns done=false (keep waiting) while
+	// Composio still reports the connection as INITIATED; throws on a real error.
+	const finishOnce = async (connectionId: string, finalLabel: string) => {
+		const r = await fetch("/api/publish/channels", {
+			method: "POST",
+			headers: { "content-type": "application/json" },
+			body: JSON.stringify({
+				platform: p,
+				label: finalLabel,
+				composio_entity_id: "default",
+				composio_connection_id: connectionId,
+			}),
+		});
+		const d = (await r.json().catch(() => ({}))) as {
+			ok?: boolean;
+			error?: string;
+		};
+		if (r.ok && d.ok) return { done: true };
+		const msg = String(d.error || "");
+		if (!msg || /initiat|pending|expected active|not .*active/i.test(msg))
+			return { done: false };
+		throw new Error(msg);
+	};
+
+	const MAX_TRIES = 60; // ~3 min at a 3s cadence
+
+	const startConnect = async () => {
+		const finalLabel = label.trim() || `${p}-main`;
+		setBusy(true);
+		let connectionId = "";
+		try {
+			const r = await fetch(`/api/publish/channels/initiate/${p}`, {
+				method: "POST",
+				headers: { "content-type": "application/json" },
+				body: JSON.stringify({ entity_id: "default" }),
+			});
+			const d = await r.json().catch(() => ({}));
+			if (!r.ok || !d.redirect_url)
+				throw new Error(d.error || d.hint || "Couldn't start connect");
+			connectionId = d.connection_id;
+			authUrl.current = d.redirect_url;
+			window.open(d.redirect_url, "_blank", "noopener");
+		} catch (e) {
+			setBusy(false);
+			toast.error(e instanceof Error ? e.message : "Connect failed");
+			return;
+		}
+		setBusy(false);
+		setPhase("waiting");
+		const tick = async (attempt: number) => {
+			if (cancelled.current) return;
+			try {
+				const res = await finishOnce(connectionId, finalLabel);
+				if (cancelled.current) return;
+				if (res.done) {
+					toast.success(`${p} connected`);
+					onConnected();
+					close();
+					return;
+				}
+			} catch (e) {
+				if (cancelled.current) return;
+				toast.error(e instanceof Error ? e.message : "Connect failed");
+				setPhase("name");
+				return;
+			}
+			if (attempt + 1 >= MAX_TRIES) {
+				toast.error(`${p} did not finish authorizing. Approve it, then retry.`);
+				setPhase("name");
+				return;
+			}
+			timer.current = setTimeout(() => tick(attempt + 1), 3000);
+		};
+		tick(0);
+	};
+
+	return (
+		<Dialog open={!!platform} onOpenChange={(o) => !o && close()}>
+			<DialogContent className="max-w-md gap-0 rounded-2xl border-[var(--mono-line)] bg-[var(--mono-panel)] p-0 text-[var(--mono-ink)]">
+				<div className="flex items-center gap-2.5 border-b border-[var(--mono-line)] px-6 py-4">
+					<span className="flex size-7 shrink-0 items-center justify-center rounded-lg bg-[var(--mono-hover)]">
+						{pubPlatformIconLg(p)}
+					</span>
+					<DialogTitle className="text-[15px] font-semibold capitalize text-[var(--mono-ink)]">
+						Connect {p}
+					</DialogTitle>
+				</div>
+
+				{phase === "name" ? (
+					<>
+						<div className="p-6">
+							<div className="mb-2 text-[11px] font-semibold uppercase tracking-wide text-[var(--mono-ink-3)]">
+								Account name
+							</div>
+							<input
+								// biome-ignore lint/a11y/noAutofocus: focus the field on open
+								autoFocus
+								value={label}
+								onChange={(e) => setLabel(e.target.value)}
+								onKeyDown={(e) => e.key === "Enter" && !busy && startConnect()}
+								placeholder={`${p}-main`}
+								className="w-full rounded-xl border border-[var(--mono-line)] bg-[var(--mono-field)] px-3.5 py-2.5 text-sm text-[var(--mono-ink)] outline-none transition-colors placeholder:text-[var(--mono-ink-3)] focus:border-[var(--mono-strong)]"
+							/>
+							<p className="mt-2 text-xs text-[var(--mono-ink-3)]">
+								Just a label for your dashboard. The actual account is the one you
+								approve in the next step.
+							</p>
+						</div>
+						<div className="flex items-center justify-end gap-3 border-t border-[var(--mono-line)] px-6 py-4">
+							<Button variant="ghost" onClick={close}>
+								Cancel
+							</Button>
+							<Button onClick={startConnect} disabled={busy}>
+								{busy ? (
+									<>
+										<Loader2 className="size-4 animate-spin" /> Opening…
+									</>
+								) : (
+									<span className="capitalize">Connect {p}</span>
+								)}
+							</Button>
+						</div>
+					</>
+				) : (
+					<>
+						<div className="flex flex-col items-center gap-3 px-6 py-8 text-center">
+							<Loader2 className="size-6 animate-spin text-[var(--mono-ink-2)]" />
+							<div className="text-sm font-medium capitalize text-[var(--mono-ink)]">
+								Waiting for you to approve {p}…
+							</div>
+							<p className="max-w-xs text-xs text-[var(--mono-ink-3)]">
+								Log in to the new tab and click Allow. It finishes on its own
+								once confirmed, so there is no need to come back here.
+							</p>
+						</div>
+						<div className="flex items-center justify-between gap-3 border-t border-[var(--mono-line)] px-6 py-4">
+							<button
+								type="button"
+								onClick={() =>
+									authUrl.current &&
+									window.open(authUrl.current, "_blank", "noopener")
+								}
+								className="text-xs text-[var(--mono-ink-3)] underline-offset-2 transition-colors hover:text-[var(--mono-ink)] hover:underline"
+							>
+								Reopen authorization tab
+							</button>
+							<Button variant="ghost" onClick={close}>
+								Cancel
+							</Button>
+						</div>
+					</>
+				)}
+			</DialogContent>
+		</Dialog>
+	);
+}
+
 function ChannelsSection({ preview = false }: { preview?: boolean }) {
 	const { data: channelSession } = useSession();
 	const channelOwner = channelSession?.user?.id ?? "";
 	const [channels, setChannels] = useState<Channel[] | null>(
 		preview ? DEMO_CHANNELS : null,
 	);
-	const [pending, setPending] = useState<{
-		platform: string;
-		connection_id: string;
-		label: string;
-	} | null>(null);
-	const [busy, setBusy] = useState(false);
+	const [connectPlatform, setConnectPlatform] = useState<string | null>(null);
 	const load = () => {
 		if (preview) return;
 		fetch("/api/publish/channels")
@@ -3445,56 +3637,6 @@ function ChannelsSection({ preview = false }: { preview?: boolean }) {
 		window.open(`${PUBLISH_ORIGIN}/oauth2/linkedin/start${ownerQS}`, "_blank", "noopener");
 		toast.message("Authorize LinkedIn in the new tab, then hit Refresh.");
 	};
-	const initiate = async (platform: string) => {
-		const label = window.prompt(`Name this ${platform} account`, "");
-		if (!label?.trim()) return;
-		setBusy(true);
-		try {
-			const r = await fetch(`/api/publish/channels/initiate/${platform}`, {
-				method: "POST",
-				headers: { "content-type": "application/json" },
-				body: JSON.stringify({ entity_id: "default" }),
-			});
-			const d = await r.json().catch(() => ({}));
-			if (!r.ok || !d.redirect_url)
-				throw new Error(d.error || d.hint || "Couldn't start connect");
-			window.open(d.redirect_url, "_blank", "noopener");
-			setPending({ platform, connection_id: d.connection_id, label: label.trim() });
-			toast.message(
-				`Authorize ${platform} in the new tab, then click "Finish connecting".`,
-			);
-		} catch (e) {
-			toast.error(e instanceof Error ? e.message : "Connect failed");
-		} finally {
-			setBusy(false);
-		}
-	};
-	const finish = async () => {
-		if (!pending) return;
-		setBusy(true);
-		try {
-			const r = await fetch("/api/publish/channels", {
-				method: "POST",
-				headers: { "content-type": "application/json" },
-				body: JSON.stringify({
-					platform: pending.platform,
-					label: pending.label,
-					composio_entity_id: "default",
-					composio_connection_id: pending.connection_id,
-				}),
-			});
-			const d = await r.json().catch(() => ({}));
-			if (!r.ok || !d.ok)
-				throw new Error(d.error || "Couldn't finish. Did you approve it?");
-			toast.success(`${pending.platform} connected`);
-			setPending(null);
-			load();
-		} catch (e) {
-			toast.error(e instanceof Error ? e.message : "Finish failed");
-		} finally {
-			setBusy(false);
-		}
-	};
 
 	return (
 		<div className="mt-9">
@@ -3513,7 +3655,6 @@ function ChannelsSection({ preview = false }: { preview?: boolean }) {
 							<DropdownMenuTrigger asChild>
 								<button
 									type="button"
-									disabled={busy}
 									className="flex items-center gap-1.5 rounded-full border border-[var(--mono-line)] px-3 py-1 text-xs font-medium text-[var(--mono-ink-2)] transition-colors hover:bg-[var(--mono-hover)] hover:text-[var(--mono-ink)]"
 								>
 									<Plus className="size-3.5" /> Connect
@@ -3523,16 +3664,16 @@ function ChannelsSection({ preview = false }: { preview?: boolean }) {
 								<DropdownMenuItem onClick={connectYouTube}>
 									<SiYoutube style={{ color: "#FF0000" }} /> YouTube
 								</DropdownMenuItem>
-								<DropdownMenuItem onClick={() => initiate("instagram")}>
+								<DropdownMenuItem onClick={() => setConnectPlatform("instagram")}>
 									<SiInstagram style={{ color: "#E4405F" }} /> Instagram
 								</DropdownMenuItem>
-								<DropdownMenuItem onClick={() => initiate("tiktok")}>
+								<DropdownMenuItem onClick={() => setConnectPlatform("tiktok")}>
 									<SiTiktok /> TikTok
 								</DropdownMenuItem>
 								<DropdownMenuItem onClick={connectLinkedIn}>
 									<Linkedin style={{ color: "#0A66C2" }} /> LinkedIn
 								</DropdownMenuItem>
-								<DropdownMenuItem onClick={() => initiate("reddit")}>
+								<DropdownMenuItem onClick={() => setConnectPlatform("reddit")}>
 									<SiReddit style={{ color: "#FF4500" }} /> Reddit
 								</DropdownMenuItem>
 							</DropdownMenuContent>
@@ -3540,23 +3681,6 @@ function ChannelsSection({ preview = false }: { preview?: boolean }) {
 					</div>
 				)}
 			</div>
-
-			{pending && !preview && (
-				<div className="mb-2 flex items-center justify-between gap-3 rounded-lg border border-amber-500/30 bg-amber-500/10 p-3 text-sm">
-					<span>
-						Approve <span className="capitalize">{pending.platform}</span> in the
-						other tab, then finish.
-					</span>
-					<button
-						type="button"
-						onClick={finish}
-						disabled={busy}
-						className="bg-primary text-primary-foreground shrink-0 rounded-md px-3 py-1 text-xs font-medium"
-					>
-						Finish connecting
-					</button>
-				</div>
-			)}
 
 			{channels === null ? (
 				<PubSkeletonRows rows={2} />
@@ -3595,6 +3719,14 @@ function ChannelsSection({ preview = false }: { preview?: boolean }) {
 						</div>
 					))}
 				</div>
+			)}
+
+			{!preview && (
+				<ConnectDialog
+					platform={connectPlatform}
+					onClose={() => setConnectPlatform(null)}
+					onConnected={load}
+				/>
 			)}
 		</div>
 	);
