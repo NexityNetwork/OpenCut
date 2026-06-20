@@ -10,6 +10,9 @@ import { FontGate } from './carousels/blocks';
 import { FormatContext } from './carousels/ah-blocks';
 import { decks } from './carousels/registry';
 import { BestAIToolsOverlay } from './overlays/best-ai-tools';
+import { ClaudeLimitHacksOverlay } from './overlays/claude-limit-hacks';
+import { TopClaudeSkillsOverlay } from './overlays/top-claude-skills';
+import { FreeVsPaidOverlay } from './overlays/free-vs-paid';
 
 const VERTICAL = { width: 1080, height: 1920, fps: 30 } as const; // 9:16 Instagram
 const SQUARE45 = { width: 1080, height: 1350, fps: 30 } as const; // 4:5 LinkedIn doc
@@ -46,6 +49,36 @@ export const RemotionRoot: React.FC = () => (
       component={() => (
         <FontGate>
           <BestAIToolsOverlay />
+        </FontGate>
+      )}
+      durationInFrames={1}
+      {...VERTICAL}
+    />
+    <Composition
+      id="OverlayClaudeLimitHacks"
+      component={() => (
+        <FontGate>
+          <ClaudeLimitHacksOverlay />
+        </FontGate>
+      )}
+      durationInFrames={1}
+      {...VERTICAL}
+    />
+    <Composition
+      id="OverlayTopClaudeSkills"
+      component={() => (
+        <FontGate>
+          <TopClaudeSkillsOverlay />
+        </FontGate>
+      )}
+      durationInFrames={1}
+      {...VERTICAL}
+    />
+    <Composition
+      id="OverlayFreeVsPaid"
+      component={() => (
+        <FontGate>
+          <FreeVsPaidOverlay />
         </FontGate>
       )}
       durationInFrames={1}
