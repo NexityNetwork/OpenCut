@@ -27,11 +27,15 @@ export const ComboHeadlineOverlay: React.FC = () => (
         <Labeled label="Claude">
           <ClaudeTile size={TILE} />
         </Labeled>
-        <Plus size={70} />
+        <div style={{ height: TILE, display: 'flex', alignItems: 'center' }}>
+          <Plus size={70} />
+        </div>
         <Labeled label="Ultron">
           <UltronTile size={TILE} />
         </Labeled>
-        <Plus size={70} />
+        <div style={{ height: TILE, display: 'flex', alignItems: 'center' }}>
+          <Plus size={70} />
+        </div>
         <Labeled label="Maps">
           <MapsTile size={TILE} />
         </Labeled>
