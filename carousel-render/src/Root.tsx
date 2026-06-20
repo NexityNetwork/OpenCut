@@ -13,6 +13,10 @@ import { BestAIToolsOverlay } from './overlays/best-ai-tools';
 import { ClaudeLimitHacksOverlay } from './overlays/claude-limit-hacks';
 import { TopClaudeSkillsOverlay } from './overlays/top-claude-skills';
 import { FreeVsPaidOverlay } from './overlays/free-vs-paid';
+import { AISkillsTop1Overlay } from './overlays/ai-skills-top1';
+import { ClaudeMcpsOverlay } from './overlays/claude-mcps';
+import { AgencyStepsOverlay } from './overlays/agency-steps';
+import { Top7ClaudeSkillsOverlay } from './overlays/top7-claude-skills';
 
 const VERTICAL = { width: 1080, height: 1920, fps: 30 } as const; // 9:16 Instagram
 const SQUARE45 = { width: 1080, height: 1350, fps: 30 } as const; // 4:5 LinkedIn doc
@@ -79,6 +83,46 @@ export const RemotionRoot: React.FC = () => (
       component={() => (
         <FontGate>
           <FreeVsPaidOverlay />
+        </FontGate>
+      )}
+      durationInFrames={1}
+      {...VERTICAL}
+    />
+    <Composition
+      id="OverlayAISkillsTop1"
+      component={() => (
+        <FontGate>
+          <AISkillsTop1Overlay />
+        </FontGate>
+      )}
+      durationInFrames={1}
+      {...VERTICAL}
+    />
+    <Composition
+      id="OverlayClaudeMcps"
+      component={() => (
+        <FontGate>
+          <ClaudeMcpsOverlay />
+        </FontGate>
+      )}
+      durationInFrames={1}
+      {...VERTICAL}
+    />
+    <Composition
+      id="OverlayAgencySteps"
+      component={() => (
+        <FontGate>
+          <AgencyStepsOverlay />
+        </FontGate>
+      )}
+      durationInFrames={1}
+      {...VERTICAL}
+    />
+    <Composition
+      id="OverlayTop7ClaudeSkills"
+      component={() => (
+        <FontGate>
+          <Top7ClaudeSkillsOverlay />
         </FontGate>
       )}
       durationInFrames={1}
