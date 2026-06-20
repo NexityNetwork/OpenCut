@@ -43,47 +43,54 @@ const ROWS: Row[] = [
   ['Productivity', 'Notion', ListChecks],
 ];
 
-const ROW_H = 52;
+const ROW_H = 54;
 const GAP = 5;
-const LABEL_W = 384;
-const ICONSZ = 25;
+const LABEL_COL = 360;
+const TOOL_COL = 432;
+const SEAM = 7;
+const ICONSZ = 28;
 
 const RowChip: React.FC<{ row: Row }> = ({ row }) => {
   const [label, tool, IconC] = row;
   return (
-    <div style={{ display: 'flex', alignItems: 'stretch', gap: GAP, height: ROW_H }}>
-      <div
-        style={{
-          width: LABEL_W,
-          background: AH_ORANGE,
-          borderRadius: 12,
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'flex-end',
-          gap: 11,
-          padding: '0 18px',
-          boxShadow: SHADOW,
-        }}
-      >
-        <span style={{ fontFamily: T.displayFont, fontWeight: 700, fontSize: 31, color: '#fff', letterSpacing: -0.4 }}>
-          {label}
-        </span>
-        <IconC size={ICONSZ} color="#fff" strokeWidth={2.25} />
+    <div style={{ display: 'flex', gap: SEAM, height: ROW_H }}>
+      {/* label column: chip hugs its text + icon, right-aligned to the seam */}
+      <div style={{ width: LABEL_COL, display: 'flex', justifyContent: 'flex-end' }}>
+        <div
+          style={{
+            height: ROW_H,
+            background: AH_ORANGE,
+            borderRadius: 12,
+            display: 'inline-flex',
+            alignItems: 'center',
+            gap: 10,
+            padding: '0 17px',
+            boxShadow: SHADOW,
+          }}
+        >
+          <span style={{ fontFamily: T.displayFont, fontWeight: 700, fontSize: 34, color: '#fff', letterSpacing: -0.4 }}>
+            {label}
+          </span>
+          <IconC size={ICONSZ} color="#fff" strokeWidth={2.4} />
+        </div>
       </div>
-      <div
-        style={{
-          flex: 1,
-          background: CREAM,
-          borderRadius: 12,
-          display: 'flex',
-          alignItems: 'center',
-          padding: '0 20px',
-          boxShadow: SHADOW,
-        }}
-      >
-        <span style={{ fontFamily: T.displayFont, fontWeight: 700, fontSize: 33, color: INK, letterSpacing: -0.5 }}>
-          {tool}
-        </span>
+      {/* tool column: chip hugs its text, left-aligned from the seam */}
+      <div style={{ width: TOOL_COL, display: 'flex', justifyContent: 'flex-start' }}>
+        <div
+          style={{
+            height: ROW_H,
+            background: CREAM,
+            borderRadius: 12,
+            display: 'inline-flex',
+            alignItems: 'center',
+            padding: '0 19px',
+            boxShadow: SHADOW,
+          }}
+        >
+          <span style={{ fontFamily: T.displayFont, fontWeight: 700, fontSize: 36, color: INK, letterSpacing: -0.5 }}>
+            {tool}
+          </span>
+        </div>
       </div>
     </div>
   );
@@ -113,7 +120,7 @@ export const BestAIToolsOverlay: React.FC = () => (
           YOU NEED TO USE IN 2026
         </span>
       </div>
-      <div style={{ marginTop: 20, width: '100%', display: 'flex', flexDirection: 'column', gap: GAP }}>
+      <div style={{ marginTop: 20, width: LABEL_COL + SEAM + TOOL_COL, display: 'flex', flexDirection: 'column', gap: GAP }}>
         {ROWS.map((r) => (
           <RowChip key={r[0]} row={r} />
         ))}
