@@ -18,6 +18,9 @@ import { ClaudeMcpsOverlay } from './overlays/claude-mcps';
 import { AgencyStepsOverlay } from './overlays/agency-steps';
 import { Top7ClaudeSkillsOverlay } from './overlays/top7-claude-skills';
 import { BrandComboOverlay } from './overlays/brand-combo';
+import { ComboStatOverlay } from './overlays/combo-stat';
+import { ComboRolesOverlay } from './overlays/combo-roles';
+import { ComboHeadlineOverlay } from './overlays/combo-headline';
 
 const VERTICAL = { width: 1080, height: 1920, fps: 30 } as const; // 9:16 Instagram
 const SQUARE45 = { width: 1080, height: 1350, fps: 30 } as const; // 4:5 LinkedIn doc
@@ -134,6 +137,36 @@ export const RemotionRoot: React.FC = () => (
       component={() => (
         <FontGate>
           <BrandComboOverlay />
+        </FontGate>
+      )}
+      durationInFrames={1}
+      {...VERTICAL}
+    />
+    <Composition
+      id="OverlayComboStat"
+      component={() => (
+        <FontGate>
+          <ComboStatOverlay />
+        </FontGate>
+      )}
+      durationInFrames={1}
+      {...VERTICAL}
+    />
+    <Composition
+      id="OverlayComboRoles"
+      component={() => (
+        <FontGate>
+          <ComboRolesOverlay />
+        </FontGate>
+      )}
+      durationInFrames={1}
+      {...VERTICAL}
+    />
+    <Composition
+      id="OverlayComboHeadline"
+      component={() => (
+        <FontGate>
+          <ComboHeadlineOverlay />
         </FontGate>
       )}
       durationInFrames={1}
