@@ -5359,6 +5359,14 @@ function VaultTile({
 							src={fileUrl(item.media[0].key)}
 							className="absolute inset-0 size-full object-cover transition-transform duration-300 group-hover:scale-[1.03]"
 						/>
+					) : (item.kind === "carousel" || item.kind === "image") && item.media[0] ? (
+						// eslint-disable-next-line @next/next/no-img-element
+						<img
+							src={fileUrl(item.media[0].key)}
+							alt={item.name}
+							className="absolute inset-0 size-full object-cover transition-transform duration-300 group-hover:scale-[1.03]"
+							loading="lazy"
+						/>
 					) : item.kind === "audio" ? (
 						<div className="from-primary/25 absolute inset-0 flex items-center justify-center bg-gradient-to-br to-transparent">
 							<Music2 className="text-foreground/70 size-9" />

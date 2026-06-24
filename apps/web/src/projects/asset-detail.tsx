@@ -21,6 +21,7 @@ import {
 import { cn } from "@/utils/ui";
 import { Button } from "@/components/ui/button";
 import { fileUrl, type VaultItem } from "@/projects/vault-client";
+import { zip } from "fflate";
 
 function fmtDur(sec?: number): string {
 	if (!sec || !Number.isFinite(sec)) return "";
@@ -98,6 +99,52 @@ export function AssetDetail({
 	};
 
 	const [remixing, setRemixing] = useState(false);
+	const [zipping, setZipping] = useState(false);
+	const downloadName =
+		(item.name || "carousel").toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/(^-+|-+$)/g, "").slice(0, 60) || "carousel";
+	const downloadAll = async () => {
+		if (zipping) return;
+		if (item.media.length <= 1) {
+			const m0 = item.media[0];
+			if (!m0) return;
+			const a = document.createElement("a");
+			a.href = fileUrl(m0.key);
+			a.download = `${downloadName}.${m0.ext || "png"}`;
+			document.body.appendChild(a);
+			a.click();
+			a.remove();
+			return;
+		}
+		setZipping(true);
+		try {
+			const entries: Record<string, Uint8Array> = {};
+			await Promise.all(
+				item.media.map(async (m, i) => {
+					const res = await fetch(fileUrl(m.key));
+					if (!res.ok) throw new Error("fetch failed");
+					const buf = new Uint8Array(await res.arrayBuffer());
+					entries[`${downloadName}/${String(i + 1).padStart(2, "0")}.${m.ext || "png"}`] = buf;
+				}),
+			);
+			const blob = await new Promise<Blob>((resolve, reject) =>
+				zip(entries, { level: 0 }, (err, data) =>
+					err ? reject(err) : resolve(new Blob([data], { type: "application/zip" })),
+				),
+			);
+			const url = URL.createObjectURL(blob);
+			const a = document.createElement("a");
+			a.href = url;
+			a.download = `${downloadName}.zip`;
+			document.body.appendChild(a);
+			a.click();
+			a.remove();
+			URL.revokeObjectURL(url);
+		} catch (e) {
+			toast.error(e instanceof Error ? e.message : "Download failed");
+		} finally {
+			setZipping(false);
+		}
+	};
 	const remix = async () => {
 		if (remixing) return;
 		const key = item.media.find((m) => m.type === "video")?.key;
@@ -274,14 +321,23 @@ export function AssetDetail({
 								disabled={remixing}
 							/>
 						)}
-						<a
-							href={fileUrl(item.media[0]?.key || "")}
-							download={item.name}
-							className="flex w-full items-center gap-3 rounded-xl border border-[var(--mono-line)] bg-[var(--mono-panel)] px-4 py-3 text-left transition-colors hover:bg-[var(--mono-hover)]"
+						<button
+							type="button"
+							onClick={() => void downloadAll()}
+							disabled={zipping}
+							className="flex w-full items-center gap-3 rounded-xl border border-[var(--mono-line)] bg-[var(--mono-panel)] px-4 py-3 text-left transition-colors hover:bg-[var(--mono-hover)] disabled:opacity-60"
 						>
-							{isPdf ? <FileText className="size-4 shrink-0 text-[var(--mono-ink-2)]" /> : <Download className="size-4 shrink-0 text-[var(--mono-ink-2)]" />}
-							<span className="text-[13px] font-semibold text-[var(--mono-ink)]">Download</span>
-						</a>
+							{zipping ? (
+								<Loader2 className="size-4 shrink-0 animate-spin text-[var(--mono-ink-2)]" />
+							) : isPdf ? (
+								<FileText className="size-4 shrink-0 text-[var(--mono-ink-2)]" />
+							) : (
+								<Download className="size-4 shrink-0 text-[var(--mono-ink-2)]" />
+							)}
+							<span className="text-[13px] font-semibold text-[var(--mono-ink)]">
+								{zipping ? "Zipping…" : item.media.length > 1 ? `Download all ${item.media.length}` : "Download"}
+							</span>
+						</button>
 					</div>
 
 					<div className="flex flex-wrap gap-x-4 gap-y-1 text-[11px] text-[var(--mono-ink-3)]">
