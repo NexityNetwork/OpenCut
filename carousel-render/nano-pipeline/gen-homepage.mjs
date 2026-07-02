@@ -1,12 +1,8 @@
-// Generates the two homepage "Batteries included" section visuals via Nano Banana
-// Pro (gemini-3-pro-image-preview) on Vertex AI. Standalone (does NOT use run-deck's
-// cream STYLE): each image carries its own full prompt so the background matches the
-// card (navy for playbooks, coral for primitives).
-//
-// Auth: same as run-deck. Needs a Vertex access token + project id.
+// Generates homepage "Batteries included" section banners via Nano Banana Pro
+// (gemini-3-pro-image-preview) on Vertex AI. Fine-art brush/paint abstracts, NO
+// spheres/orbs/logos. 4 art directions x 2 themes = 8 images.
 //   export TOKENFILE=gcp_token.txt PROJECT=<gcp-project-id>
 //   NODE_USE_ENV_PROXY=1 node gen-homepage.mjs
-// (self-remints from adc.json on 401, like run-deck.)
 import fs from 'node:fs';
 import { execSync } from 'node:child_process';
 
@@ -18,21 +14,29 @@ function remint() {
 const PROJECT = process.env.PROJECT;
 const MODEL = 'gemini-3-pro-image-preview';
 const URL = `https://aiplatform.googleapis.com/v1/projects/${PROJECT}/locations/global/publishers/google/models/${MODEL}:generateContent`;
-const AR = process.env.AR || '21:9'; // ultra-wide card banner; override e.g. 16:9
+const AR = process.env.AR || '21:9';
 const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
 
-const SHOTS = [
-  {
-    out: 'out/home-playbooks',
-    prompt:
-      'Premium 3D rendered ultra wide hero banner. Deep midnight navy to indigo gradient background, hex 1b2440 into 2c3a6b, rich and cinematic. On the right third only, a refined 3D composition: a few glossy dark navy spheres with soft specular highlights, one hero focal orb that is a deep navy black sphere with a warm orange rim light glow (the Ultron orb), and a subtle stack of floating rounded 3D cards suggesting step by step playbooks, softly out of focus. The left two thirds is calm, clean, uncluttered empty negative space for a headline, nothing there. Soft studio lighting, shallow depth of field, high end Cinema 4D editorial style, elegant, minimal, not busy. Subtle warm orange accents only. No text, no words, no watermark, no logos.',
-  },
-  {
-    out: 'out/home-primitives',
-    prompt:
-      'Premium 3D rendered ultra wide hero banner. Warm coral to terracotta gradient background, hex e0764a into c85a30, rich and cinematic. On the right third only, a refined 3D composition of glossy geometric primitive shapes, a sphere, a rounded cube, a cylinder and a torus, in coral, cream and soft orange with glossy specular highlights, arranged like drop in building blocks, softly out of focus, plus one focal Ultron orb, a dark navy black sphere with a warm orange rim glow. The left two thirds is calm, clean, uncluttered empty negative space for a headline, nothing there. Soft studio lighting, shallow depth of field, high end Cinema 4D editorial style, elegant, premium, not busy. No text, no words, no watermark, no logos.',
-  },
+const THEMES = [
+  { key: 'playbooks', bg: 'a deep midnight navy and indigo background, rich and moody', accents: 'cool steel blue and ink blue with restrained warm burnt orange accents' },
+  { key: 'primitives', bg: 'a warm coral and terracotta background, rich and moody', accents: 'cream, soft peach and burnt orange' },
 ];
+const VARIANTS = [
+  { key: 'drybrush', desc: 'One bold expressive dry brush stroke sweeping across, with visible bristle streaks and raw dry media texture' },
+  { key: 'inkwash', desc: 'Elegant sumi-e ink wash strokes with soft feathered bleeding edges, calligraphic and airy, lots of breathing room' },
+  { key: 'impasto', desc: 'Thick impasto oil paint applied with a palette knife, a rich tactile ridged close up abstract of paint texture' },
+  { key: 'ribbon', desc: 'A few smooth flowing gestural paint strokes with a soft satin sheen and sweeping motion, clean and minimal' },
+];
+
+function buildPrompt(theme, variant) {
+  return (
+    `Premium fine art abstract banner, high end editorial, gallery quality. ${theme.bg}. ` +
+    `${variant.desc}, painted in ${theme.accents}. ` +
+    `The painted composition sits mostly on the right side. The left two thirds is calm, empty negative space with nothing in it, reserved for a headline. ` +
+    `Sophisticated, restrained, tasteful, elegant, cinematic, with subtle film grain. ` +
+    `Absolutely no spheres, no balls, no balloons, no bubbles, no 3D orbs, no geometric shapes, no logos, no icons, no symbols, no text, no words, no letters, no watermark.`
+  );
+}
 
 async function gen(prompt, out) {
   const body = { contents: [{ role: 'user', parts: [{ text: prompt }] }], generationConfig: { responseModalities: ['IMAGE'], imageConfig: { aspectRatio: AR, imageSize: '2K' } } };
@@ -53,10 +57,12 @@ async function gen(prompt, out) {
 }
 
 fs.mkdirSync('out', { recursive: true });
-for (const s of SHOTS) {
-  const out = `${s.out}-${AR.replace(':', '')}.png`;
-  console.log('generating', out);
-  console.log('   ', (await gen(s.prompt, out)) ? 'OK' : 'FAIL', out);
-  await sleep(4000);
+for (const theme of THEMES) {
+  for (const v of VARIANTS) {
+    const out = `out/home-${theme.key}-${v.key}.png`;
+    console.log('generating', out);
+    console.log('   ', (await gen(buildPrompt(theme, v), out)) ? 'OK' : 'FAIL', out);
+    await sleep(4000);
+  }
 }
 console.log('DONE');
