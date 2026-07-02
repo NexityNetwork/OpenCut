@@ -1,6 +1,12 @@
 "use client";
 
-import { useEffect, useMemo, useState, type ReactNode } from "react";
+import {
+	useEffect,
+	useMemo,
+	useRef,
+	useState,
+	type ReactNode,
+} from "react";
 import { toast } from "sonner";
 import {
 	ArrowLeft,
@@ -47,14 +53,14 @@ type EmbedSpec = {
 const fileUrl = (key: string) =>
 	`/api/import-from-url/file?key=${encodeURIComponent(key)}`;
 
-// Renders a video / carousel / image from the Library, or a non-prompt
-// deliverable (checklist, copy-able template, or an account CTA).
+// Renders Library media (single video/image, or a horizontal deck of videos or
+// slides), plus non-prompt deliverables (checklist, template, action, iframe).
 function Embed({ spec }: { spec: EmbedSpec }) {
-	const [idx, setIdx] = useState(0);
+	const scroller = useRef<HTMLDivElement>(null);
 	const [checked, setChecked] = useState<Set<number>>(new Set());
 	const [copied, setCopied] = useState(false);
 	const cap = spec.caption ? (
-		<figcaption className="mt-2 text-center text-[12px] text-[var(--mono-ink-3)]">
+		<figcaption className="mt-2.5 text-center text-[12px] text-[var(--mono-ink-3)]">
 			{spec.caption}
 		</figcaption>
 	) : null;
@@ -87,52 +93,63 @@ function Embed({ spec }: { spec: EmbedSpec }) {
 			</figure>
 		);
 
+	// Horizontal deck: multiple reels or slides side by side, snap-scroll + peek.
 	if (spec.type === "carousel" && spec.keys && spec.keys.length) {
 		const keys = spec.keys;
-		const cur = Math.min(idx, keys.length - 1);
+		const isVideo = spec.kind === "video";
+		const nudge = (dir: number) =>
+			scroller.current?.scrollBy({ left: dir * 300, behavior: "smooth" });
 		return (
 			<figure className="my-6">
-				<div className={cn("relative mx-auto w-full", spec.kind === "video" ? "max-w-[300px]" : "max-w-[400px]")}>
-					{spec.kind === "video" ? (
-						// biome-ignore lint/a11y/useMediaCaption: library media
-						<video
-							key={keys[cur]}
-							controls
-							playsInline
-							preload="metadata"
-							src={fileUrl(keys[cur])}
-							className="aspect-[9/16] w-full rounded-xl border border-[var(--mono-line)] bg-black object-cover"
-						/>
-					) : (
-						// eslint-disable-next-line @next/next/no-img-element
-						<img
-							src={fileUrl(keys[cur])}
-							alt=""
-							className="aspect-[4/5] w-full rounded-xl border border-[var(--mono-line)] object-cover"
-						/>
-					)}
-					{keys.length > 1 && (
-						<>
+				{keys.length > 1 && (
+					<div className="mb-2 flex items-center justify-between">
+						<span className="text-[11px] text-[var(--mono-ink-3)]">
+							{keys.length} {isVideo ? "reels" : "slides"} · swipe
+						</span>
+						<div className="flex gap-1.5">
 							<button
 								type="button"
-								aria-label="Previous slide"
-								onClick={() => setIdx((cur - 1 + keys.length) % keys.length)}
-								className="absolute top-1/2 left-2 flex size-8 -translate-y-1/2 items-center justify-center rounded-full bg-black/55 text-white backdrop-blur transition hover:bg-black/75"
+								aria-label="Scroll left"
+								onClick={() => nudge(-1)}
+								className="flex size-7 items-center justify-center rounded-full border border-[var(--mono-line)] text-[var(--mono-ink-2)] transition-colors hover:bg-[var(--mono-hover)]"
 							>
 								<ChevronLeft className="size-4" />
 							</button>
 							<button
 								type="button"
-								aria-label="Next slide"
-								onClick={() => setIdx((cur + 1) % keys.length)}
-								className="absolute top-1/2 right-2 flex size-8 -translate-y-1/2 items-center justify-center rounded-full bg-black/55 text-white backdrop-blur transition hover:bg-black/75"
+								aria-label="Scroll right"
+								onClick={() => nudge(1)}
+								className="flex size-7 items-center justify-center rounded-full border border-[var(--mono-line)] text-[var(--mono-ink-2)] transition-colors hover:bg-[var(--mono-hover)]"
 							>
 								<ChevronRight className="size-4" />
 							</button>
-							<span className="absolute right-2 bottom-2 rounded-md bg-black/65 px-2 py-0.5 text-[11px] text-white backdrop-blur">
-								{cur + 1} / {keys.length}
-							</span>
-						</>
+						</div>
+					</div>
+				)}
+				<div
+					ref={scroller}
+					className="flex snap-x snap-mandatory gap-3 overflow-x-auto pb-1 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
+				>
+					{keys.map((k) =>
+						isVideo ? (
+							// biome-ignore lint/a11y/useMediaCaption: library media
+							<video
+								key={k}
+								controls
+								playsInline
+								preload="metadata"
+								src={fileUrl(k)}
+								className="aspect-[9/16] w-[220px] shrink-0 snap-start rounded-xl border border-[var(--mono-line)] bg-black object-cover"
+							/>
+						) : (
+							// eslint-disable-next-line @next/next/no-img-element
+							<img
+								key={k}
+								src={fileUrl(k)}
+								alt=""
+								className="aspect-[4/5] w-[250px] shrink-0 snap-start rounded-xl border border-[var(--mono-line)] object-cover"
+							/>
+						),
 					)}
 				</div>
 				{cap}
@@ -240,35 +257,46 @@ function Embed({ spec }: { spec: EmbedSpec }) {
 			</div>
 		);
 
-	if (spec.type === "iframe" && spec.src)
+	// Framed live panel. The inner page renders at desktop width and is scaled to
+	// fit, so it never shows a horizontal scrollbar.
+	if (spec.type === "iframe" && spec.src) {
+		const h = spec.height || 460;
 		return (
 			<figure className="my-6">
-				<div className="overflow-hidden rounded-xl border border-[var(--mono-line)] bg-[var(--mono-panel)]">
-					<div className="flex items-center justify-between gap-2 border-b border-[var(--mono-line)] px-3 py-2">
-						<span className="truncate text-[11px] font-medium text-[var(--mono-ink-3)]">
-							{spec.title || "Crescendo"}
+				<div className="overflow-hidden rounded-2xl border border-[var(--mono-line)] bg-[var(--mono-panel)] shadow-sm">
+					<div className="flex items-center justify-between gap-2 border-b border-[var(--mono-line)] px-3.5 py-2.5">
+						<span className="flex min-w-0 items-center gap-2 text-[12px] font-medium text-[var(--mono-ink-2)]">
+							<span className="size-2 shrink-0 rounded-full bg-[#E8896B]" />
+							<span className="truncate">{spec.title || "Crescendo"}</span>
 						</span>
 						<a
 							href={spec.src}
 							target="_blank"
 							rel="noreferrer"
-							className="inline-flex shrink-0 items-center gap-1 text-[11px] text-[#E8896B] hover:underline"
+							className="inline-flex shrink-0 items-center gap-1 text-[11px] text-[var(--mono-ink-3)] transition-colors hover:text-[var(--mono-ink)]"
 						>
 							Open <ExternalLink className="size-3" />
 						</a>
 					</div>
-					<iframe
-						title={spec.title || spec.caption || "Crescendo"}
-						src={spec.src}
-						loading="lazy"
-						sandbox="allow-scripts allow-same-origin allow-popups allow-forms"
-						className="w-full bg-white"
-						style={{ height: spec.height ? `${spec.height}px` : "540px" }}
-					/>
+					<div className="overflow-hidden bg-white" style={{ height: h }}>
+						<iframe
+							title={spec.title || "Crescendo"}
+							src={spec.src}
+							loading="lazy"
+							sandbox="allow-scripts allow-same-origin allow-popups allow-forms"
+							className="origin-top-left border-0"
+							style={{
+								width: "133.34%",
+								height: `${Math.round(h * 1.3334)}px`,
+								transform: "scale(0.75)",
+							}}
+						/>
+					</div>
 				</div>
 				{cap}
 			</figure>
 		);
+	}
 
 	return null;
 }
