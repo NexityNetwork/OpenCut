@@ -2914,7 +2914,7 @@ function LibrarySidebar({
 					{user?.email === OWNER_EMAIL && (
 						<SidebarItem
 							icon={ScrollText}
-							label="Cindy Guides"
+							label="Guides"
 							active={appView === "guides"}
 							onClick={onSelectGuides}
 						/>
