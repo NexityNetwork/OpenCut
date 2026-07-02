@@ -2,7 +2,16 @@
 
 import { useEffect, useMemo, useState, type ReactNode } from "react";
 import { toast } from "sonner";
-import { ArrowLeft, Check, Loader2, ScrollText, X } from "lucide-react";
+import {
+	ArrowLeft,
+	Check,
+	ChevronLeft,
+	ChevronRight,
+	Copy,
+	Loader2,
+	ScrollText,
+	X,
+} from "lucide-react";
 import { cn } from "@/utils/ui";
 
 type Status = "draft" | "approved" | "rejected";
@@ -16,6 +25,208 @@ type Guide = {
 	body: string;
 	status: Status;
 };
+
+// An embed block, authored in the body as a ```embed fenced JSON object.
+type EmbedSpec = {
+	type: "video" | "carousel" | "image" | "checklist" | "template" | "action";
+	src?: string;
+	keys?: string[];
+	caption?: string;
+	title?: string;
+	items?: string[];
+	body?: string;
+	desc?: string;
+	cta?: string;
+	href?: string;
+};
+
+// Vault media (imports/ keys) is served through the app's file route.
+const fileUrl = (key: string) =>
+	`/api/import-from-url/file?key=${encodeURIComponent(key)}`;
+
+// Renders a video / carousel / image from the Library, or a non-prompt
+// deliverable (checklist, copy-able template, or an account CTA).
+function Embed({ spec }: { spec: EmbedSpec }) {
+	const [idx, setIdx] = useState(0);
+	const [checked, setChecked] = useState<Set<number>>(new Set());
+	const [copied, setCopied] = useState(false);
+	const cap = spec.caption ? (
+		<figcaption className="mt-2 text-center text-[12px] text-[var(--mono-ink-3)]">
+			{spec.caption}
+		</figcaption>
+	) : null;
+
+	if (spec.type === "video" && spec.src)
+		return (
+			<figure className="my-6">
+				{/* biome-ignore lint/a11y/useMediaCaption: library media */}
+				<video
+					controls
+					playsInline
+					preload="metadata"
+					src={fileUrl(spec.src)}
+					className="mx-auto max-h-[70vh] w-auto rounded-xl border border-[var(--mono-line)]"
+				/>
+				{cap}
+			</figure>
+		);
+
+	if (spec.type === "image" && spec.src)
+		return (
+			<figure className="my-6">
+				{/* eslint-disable-next-line @next/next/no-img-element */}
+				<img
+					src={fileUrl(spec.src)}
+					alt={spec.caption || ""}
+					className="mx-auto max-h-[70vh] w-auto rounded-xl border border-[var(--mono-line)]"
+				/>
+				{cap}
+			</figure>
+		);
+
+	if (spec.type === "carousel" && spec.keys && spec.keys.length) {
+		const keys = spec.keys;
+		const cur = Math.min(idx, keys.length - 1);
+		return (
+			<figure className="my-6">
+				<div className="relative mx-auto w-full max-w-[400px]">
+					{/* eslint-disable-next-line @next/next/no-img-element */}
+					<img
+						src={fileUrl(keys[cur])}
+						alt=""
+						className="aspect-[4/5] w-full rounded-xl border border-[var(--mono-line)] object-cover"
+					/>
+					{keys.length > 1 && (
+						<>
+							<button
+								type="button"
+								aria-label="Previous slide"
+								onClick={() => setIdx((cur - 1 + keys.length) % keys.length)}
+								className="absolute top-1/2 left-2 flex size-8 -translate-y-1/2 items-center justify-center rounded-full bg-black/55 text-white backdrop-blur transition hover:bg-black/75"
+							>
+								<ChevronLeft className="size-4" />
+							</button>
+							<button
+								type="button"
+								aria-label="Next slide"
+								onClick={() => setIdx((cur + 1) % keys.length)}
+								className="absolute top-1/2 right-2 flex size-8 -translate-y-1/2 items-center justify-center rounded-full bg-black/55 text-white backdrop-blur transition hover:bg-black/75"
+							>
+								<ChevronRight className="size-4" />
+							</button>
+							<span className="absolute right-2 bottom-2 rounded-md bg-black/65 px-2 py-0.5 text-[11px] text-white backdrop-blur">
+								{cur + 1} / {keys.length}
+							</span>
+						</>
+					)}
+				</div>
+				{cap}
+			</figure>
+		);
+	}
+
+	if (spec.type === "checklist" && spec.items && spec.items.length)
+		return (
+			<div className="my-6 rounded-xl border border-[var(--mono-line)] bg-[var(--mono-panel)] p-4">
+				<div className="mb-2.5 text-[12px] font-semibold tracking-wide text-[var(--mono-ink-3)] uppercase">
+					{spec.title || "Checklist"}
+				</div>
+				<ul className="space-y-2">
+					{spec.items.map((it, n) => (
+						<li key={n}>
+							<button
+								type="button"
+								onClick={() =>
+									setChecked((p) => {
+										const s = new Set(p);
+										if (s.has(n)) s.delete(n);
+										else s.add(n);
+										return s;
+									})
+								}
+								className="flex w-full items-start gap-2.5 text-left text-[14px]"
+							>
+								<span
+									className={cn(
+										"mt-0.5 flex size-4 shrink-0 items-center justify-center rounded border",
+										checked.has(n)
+											? "border-green-500 bg-green-500/20 text-green-500"
+											: "border-[var(--mono-strong)]",
+									)}
+								>
+									{checked.has(n) ? <Check className="size-3" /> : null}
+								</span>
+								<span
+									className={
+										checked.has(n)
+											? "text-[var(--mono-ink-3)] line-through"
+											: "text-[var(--mono-ink-2)]"
+									}
+								>
+									{it}
+								</span>
+							</button>
+						</li>
+					))}
+				</ul>
+			</div>
+		);
+
+	if (spec.type === "template" && spec.body)
+		return (
+			<div className="my-6 rounded-xl border border-[var(--mono-line)] bg-[var(--mono-panel)] p-4">
+				<div className="mb-2 flex items-center justify-between gap-3">
+					<span className="text-[12px] font-semibold tracking-wide text-[var(--mono-ink-3)] uppercase">
+						{spec.title || "Template"}
+					</span>
+					<button
+						type="button"
+						onClick={() => {
+							navigator.clipboard
+								?.writeText(spec.body || "")
+								.then(() => {
+									setCopied(true);
+									setTimeout(() => setCopied(false), 1500);
+								})
+								.catch(() => toast.error("Copy failed"));
+						}}
+						className="inline-flex items-center gap-1 rounded-md bg-[var(--mono-hover)] px-2 py-1 text-[11px] text-[var(--mono-ink-2)] transition-colors hover:text-[var(--mono-ink)]"
+					>
+						<Copy className="size-3" /> {copied ? "Copied" : "Copy"}
+					</button>
+				</div>
+				<pre className="overflow-auto whitespace-pre-wrap text-[12.5px] leading-relaxed text-[var(--mono-ink-2)]">
+					{spec.body}
+				</pre>
+			</div>
+		);
+
+	if (spec.type === "action")
+		return (
+			<div className="my-6 rounded-xl border border-[#E8896B]/40 bg-[#E8896B]/[0.06] p-4">
+				{spec.title && (
+					<div className="text-[15px] font-semibold text-[var(--mono-ink)]">
+						{spec.title}
+					</div>
+				)}
+				{spec.desc && (
+					<p className="mt-1 text-[13.5px] leading-relaxed text-[var(--mono-ink-2)]">
+						{spec.desc}
+					</p>
+				)}
+				<a
+					href={spec.href || "https://app.51ultron.com"}
+					target="_blank"
+					rel="noreferrer"
+					className="mt-3 inline-flex rounded-lg bg-[#E8896B] px-3.5 py-2 text-[13px] font-semibold text-black transition-opacity hover:opacity-90"
+				>
+					{spec.cta || "Create your free Ultron account"}
+				</a>
+			</div>
+		);
+
+	return null;
+}
 
 // Inline markdown: **bold** and `code`.
 function inline(text: string): ReactNode[] {
@@ -45,8 +256,7 @@ function inline(text: string): ReactNode[] {
 	return out;
 }
 
-// Render a body (light markdown subset: "## "/"### " headings, "- " bullets,
-// ``` fenced code) into readable elements — no markdown dependency.
+// Render a body (light markdown subset + ```embed blocks) into elements.
 function GuideBody({ body }: { body: string }) {
 	const blocks: ReactNode[] = [];
 	const lines = body.split("\n");
@@ -55,6 +265,7 @@ function GuideBody({ body }: { body: string }) {
 	while (i < lines.length) {
 		const ln = lines[i];
 		if (ln.trim().startsWith("```")) {
+			const lang = ln.trim().slice(3).trim().toLowerCase();
 			const code: string[] = [];
 			i++;
 			while (i < lines.length && !lines[i].trim().startsWith("```")) {
@@ -62,6 +273,18 @@ function GuideBody({ body }: { body: string }) {
 				i++;
 			}
 			i++;
+			if (lang === "embed") {
+				let spec: EmbedSpec | null = null;
+				try {
+					spec = JSON.parse(code.join("\n")) as EmbedSpec;
+				} catch {
+					spec = null;
+				}
+				if (spec) {
+					blocks.push(<Embed key={key++} spec={spec} />);
+					continue;
+				}
+			}
 			blocks.push(
 				<pre
 					key={key++}
@@ -133,15 +356,13 @@ function GuideBody({ body }: { body: string }) {
 function excerpt(body: string, max = 190): string {
 	for (const ln of body.split("\n")) {
 		const t = ln.trim().replace(/^\*\*|\*\*$/g, "");
-		if (t && !t.startsWith("#") && !t.startsWith("-") && !t.startsWith("```")) {
+		if (t && !t.startsWith("#") && !t.startsWith("-") && !t.startsWith("`")) {
 			return t.length > max ? `${t.slice(0, max).trimEnd()}...` : t;
 		}
 	}
 	return "";
 }
 
-// Owner-only reader for the imported guides. Read the full guide, then approve
-// which ones to keep before they move into the main resources page.
 export function GuidesView() {
 	const [guides, setGuides] = useState<Guide[] | null>(null);
 	const [topic, setTopic] = useState<string>("all");
