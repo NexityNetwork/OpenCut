@@ -8,6 +8,7 @@ import {
 	ChevronLeft,
 	ChevronRight,
 	Copy,
+	ExternalLink,
 	Loader2,
 	ScrollText,
 	X,
@@ -28,7 +29,7 @@ type Guide = {
 
 // An embed block, authored in the body as a ```embed fenced JSON object.
 type EmbedSpec = {
-	type: "video" | "carousel" | "image" | "checklist" | "template" | "action";
+	type: "video" | "carousel" | "image" | "checklist" | "template" | "action" | "iframe";
 	src?: string;
 	keys?: string[];
 	kind?: "video" | "image";
@@ -39,6 +40,7 @@ type EmbedSpec = {
 	desc?: string;
 	cta?: string;
 	href?: string;
+	height?: number;
 };
 
 // Vault media (imports/ keys) is served through the app's file route.
@@ -236,6 +238,36 @@ function Embed({ spec }: { spec: EmbedSpec }) {
 					{spec.cta || "Create your free Ultron account"}
 				</a>
 			</div>
+		);
+
+	if (spec.type === "iframe" && spec.src)
+		return (
+			<figure className="my-6">
+				<div className="overflow-hidden rounded-xl border border-[var(--mono-line)] bg-[var(--mono-panel)]">
+					<div className="flex items-center justify-between gap-2 border-b border-[var(--mono-line)] px-3 py-2">
+						<span className="truncate text-[11px] font-medium text-[var(--mono-ink-3)]">
+							{spec.title || "Crescendo"}
+						</span>
+						<a
+							href={spec.src}
+							target="_blank"
+							rel="noreferrer"
+							className="inline-flex shrink-0 items-center gap-1 text-[11px] text-[#E8896B] hover:underline"
+						>
+							Open <ExternalLink className="size-3" />
+						</a>
+					</div>
+					<iframe
+						title={spec.title || spec.caption || "Crescendo"}
+						src={spec.src}
+						loading="lazy"
+						sandbox="allow-scripts allow-same-origin allow-popups allow-forms"
+						className="w-full bg-white"
+						style={{ height: spec.height ? `${spec.height}px` : "540px" }}
+					/>
+				</div>
+				{cap}
+			</figure>
 		);
 
 	return null;
