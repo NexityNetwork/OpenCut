@@ -2,15 +2,7 @@
 
 import { useEffect, useMemo, useState, type ReactNode } from "react";
 import { toast } from "sonner";
-import {
-	ArrowLeft,
-	Check,
-	ChevronLeft,
-	ChevronRight,
-	Loader2,
-	ScrollText,
-	X,
-} from "lucide-react";
+import { ArrowLeft, Check, Loader2, ScrollText, X } from "lucide-react";
 import { cn } from "@/utils/ui";
 
 type Status = "draft" | "approved" | "rejected";
@@ -25,6 +17,7 @@ type Guide = {
 	status: Status;
 };
 
+// Inline markdown: **bold** and `code`.
 function inline(text: string): ReactNode[] {
 	const out: ReactNode[] = [];
 	const re = /(\*\*([^*]+)\*\*|`([^`]+)`)/g;
@@ -72,7 +65,7 @@ function GuideBody({ body }: { body: string }) {
 			blocks.push(
 				<pre
 					key={key++}
-					className="my-3 overflow-auto rounded-lg border border-[var(--mono-line)] bg-black/30 p-3 text-[12.5px] whitespace-pre-wrap text-[var(--mono-ink-2)]"
+					className="my-4 overflow-auto rounded-lg border border-[var(--mono-line)] bg-black/30 p-3.5 text-[12.5px] leading-relaxed whitespace-pre-wrap text-[var(--mono-ink-2)]"
 				>
 					{code.join("\n")}
 				</pre>,
@@ -81,18 +74,18 @@ function GuideBody({ body }: { body: string }) {
 		}
 		if (ln.startsWith("## ")) {
 			blocks.push(
-				<h3 key={key++} className="mt-6 mb-2 text-[16px] font-semibold text-[var(--mono-ink)]">
+				<h2 key={key++} className="mt-8 mb-2.5 text-[18px] font-semibold text-[var(--mono-ink)]">
 					{inline(ln.slice(3).trim())}
-				</h3>,
+				</h2>,
 			);
 			i++;
 			continue;
 		}
 		if (ln.startsWith("### ")) {
 			blocks.push(
-				<h4 key={key++} className="mt-4 mb-1 text-[14px] font-semibold text-[var(--mono-ink)]">
+				<h3 key={key++} className="mt-5 mb-1.5 text-[15px] font-semibold text-[var(--mono-ink)]">
 					{inline(ln.slice(4).trim())}
-				</h4>,
+				</h3>,
 			);
 			i++;
 			continue;
@@ -104,7 +97,7 @@ function GuideBody({ body }: { body: string }) {
 				i++;
 			}
 			blocks.push(
-				<ul key={key++} className="my-2 list-disc space-y-1 pl-5">
+				<ul key={key++} className="my-3 list-disc space-y-1.5 pl-5">
 					{items.map((it, n) => (
 						<li key={n}>{inline(it)}</li>
 					))}
@@ -129,40 +122,17 @@ function GuideBody({ body }: { body: string }) {
 			i++;
 		}
 		blocks.push(
-			<p key={key++} className="my-2.5 leading-relaxed">
+			<p key={key++} className="my-3 leading-[1.7]">
 				{inline(para.join(" "))}
 			</p>,
 		);
 	}
-	return <div className="text-[14.5px] text-[var(--mono-ink-2)]">{blocks}</div>;
-}
-
-// Split a body into readable pages: break at top-level "## " sections once the
-// current page has real content, and hard-cap page length at a blank line.
-function paginate(body: string, target = 1600): string[] {
-	const lines = body.split("\n");
-	const pages: string[] = [];
-	let cur: string[] = [];
-	let len = 0;
-	const flush = () => {
-		const t = cur.join("\n").trim();
-		if (t) pages.push(t);
-		cur = [];
-		len = 0;
-	};
-	for (const ln of lines) {
-		if (ln.startsWith("## ") && len > 500) flush();
-		cur.push(ln);
-		len += ln.length + 1;
-		if (len > target && ln.trim() === "") flush();
-	}
-	flush();
-	return pages.length ? pages : [body.trim() || ""];
+	return <div className="text-[15px] text-[var(--mono-ink-2)]">{blocks}</div>;
 }
 
 function excerpt(body: string, max = 190): string {
 	for (const ln of body.split("\n")) {
-		const t = ln.trim();
+		const t = ln.trim().replace(/^\*\*|\*\*$/g, "");
 		if (t && !t.startsWith("#") && !t.startsWith("-") && !t.startsWith("```")) {
 			return t.length > max ? `${t.slice(0, max).trimEnd()}...` : t;
 		}
@@ -170,14 +140,13 @@ function excerpt(body: string, max = 190): string {
 	return "";
 }
 
-// Owner-only reader for the imported guides. Read (paginated) + approve which
-// ones to keep before they move into the main resources page.
+// Owner-only reader for the imported guides. Read the full guide, then approve
+// which ones to keep before they move into the main resources page.
 export function GuidesView() {
 	const [guides, setGuides] = useState<Guide[] | null>(null);
 	const [topic, setTopic] = useState<string>("all");
 	const [busyId, setBusyId] = useState<string | null>(null);
 	const [openId, setOpenId] = useState<string | null>(null);
-	const [page, setPage] = useState(0);
 
 	useEffect(() => {
 		fetch("/api/guides")
@@ -216,15 +185,9 @@ export function GuidesView() {
 		t === "all" ? all.length : all.filter((g) => g.topic === t).length;
 
 	const open = openId ? all.find((g) => g.id === openId) : null;
-	const pages = useMemo(() => (open ? paginate(open.body) : []), [open]);
-	const read = (id: string) => {
-		setOpenId(id);
-		setPage(0);
-	};
 
-	// ---- Reader (paginated single guide) ----
+	// ---- Reader (full single-scroll guide) ----
 	if (open) {
-		const safePage = Math.min(page, pages.length - 1);
 		return (
 			<div className="mx-auto w-full max-w-3xl px-5 py-8">
 				<button
@@ -251,55 +214,15 @@ export function GuidesView() {
 						</span>
 					)}
 				</div>
-				<h1 className="mb-4 text-2xl font-semibold leading-tight text-[var(--mono-ink)]">
+				<h1 className="mb-5 text-[26px] font-semibold leading-tight text-[var(--mono-ink)]">
 					{open.title}
 				</h1>
 
-				<div className="min-h-[40vh] border-t border-[var(--mono-line)] pt-4">
-					<GuideBody body={pages[safePage] ?? ""} />
-				</div>
+				<article className="border-t border-[var(--mono-line)] pt-5">
+					<GuideBody body={open.body} />
+				</article>
 
-				{/* Pager */}
-				<div className="mt-6 flex items-center justify-between border-t border-[var(--mono-line)] pt-4">
-					<button
-						type="button"
-						disabled={safePage === 0}
-						onClick={() => setPage((p) => Math.max(0, p - 1))}
-						className="inline-flex items-center gap-1 rounded-lg border border-[var(--mono-line)] px-3 py-1.5 text-xs font-medium text-[var(--mono-ink-2)] transition-colors hover:bg-[var(--mono-hover)] disabled:opacity-40"
-					>
-						<ChevronLeft className="size-3.5" /> Prev
-					</button>
-					<div className="flex items-center gap-1.5">
-						{pages.map((_, n) => (
-							<button
-								key={n}
-								type="button"
-								aria-label={`Page ${n + 1}`}
-								onClick={() => setPage(n)}
-								className={cn(
-									"size-2 rounded-full transition-colors",
-									n === safePage
-										? "bg-[var(--mono-ink)]"
-										: "bg-[var(--mono-line)] hover:bg-[var(--mono-ink-3)]",
-								)}
-							/>
-						))}
-						<span className="ml-2 text-[11px] text-[var(--mono-ink-3)]">
-							{safePage + 1} / {pages.length}
-						</span>
-					</div>
-					<button
-						type="button"
-						disabled={safePage >= pages.length - 1}
-						onClick={() => setPage((p) => Math.min(pages.length - 1, p + 1))}
-						className="inline-flex items-center gap-1 rounded-lg border border-[var(--mono-line)] px-3 py-1.5 text-xs font-medium text-[var(--mono-ink-2)] transition-colors hover:bg-[var(--mono-hover)] disabled:opacity-40"
-					>
-						Next <ChevronRight className="size-3.5" />
-					</button>
-				</div>
-
-				{/* Approve / reject */}
-				<div className="mt-5 flex items-center gap-2 border-t border-[var(--mono-line)] pt-4">
+				<div className="mt-8 flex items-center gap-2 border-t border-[var(--mono-line)] pt-4">
 					<button
 						type="button"
 						disabled={busyId === open.id}
@@ -327,6 +250,9 @@ export function GuidesView() {
 						<X className="size-3.5" />
 						{open.status === "rejected" ? "Rejected" : "Reject"}
 					</button>
+					<span className="ml-auto text-[11px] text-[var(--mono-ink-3)]">
+						{open.body.length.toLocaleString()} chars
+					</span>
 				</div>
 			</div>
 		);
@@ -340,7 +266,7 @@ export function GuidesView() {
 				<h1 className="text-xl font-semibold text-[var(--mono-ink)]">Guides</h1>
 			</div>
 			<p className="mb-5 max-w-xl text-sm text-[var(--mono-ink-3)]">
-				{all.length} Ultron playbooks. Open one to read it (paginated), and approve
+				{all.length} Ultron playbooks. Open one to read the full guide, and approve
 				the ones worth publishing to the main resources page.
 			</p>
 
@@ -376,7 +302,7 @@ export function GuidesView() {
 						<button
 							key={g.id}
 							type="button"
-							onClick={() => read(g.id)}
+							onClick={() => setOpenId(g.id)}
 							className={cn(
 								"block w-full rounded-2xl border bg-[var(--mono-panel)] p-5 text-left transition-colors hover:border-[var(--mono-strong)]",
 								g.status === "approved"
@@ -402,6 +328,9 @@ export function GuidesView() {
 										{g.status}
 									</span>
 								)}
+								<span className="ml-auto text-[11px] text-[var(--mono-ink-3)]">
+									{g.body.length.toLocaleString()} chars
+								</span>
 							</div>
 							<h2 className="mb-1.5 text-[17px] font-semibold leading-snug text-[var(--mono-ink)]">
 								{g.title}
