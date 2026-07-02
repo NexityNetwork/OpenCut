@@ -142,6 +142,7 @@ import { ClipsStudio } from "@/clips/clips-studio";
 import { BrandKitView } from "@/brand/brand-kit";
 import { StudioPane } from "@/projects/studio-pane";
 import { RedditDraftsView } from "@/projects/reddit-drafts-view";
+import { GuidesView } from "@/projects/guides-view";
 import { VideoThumb } from "@/projects/video-thumb";
 import { InboxView, INBOX_TABS, type InboxTab } from "@/inbox/inbox-view";
 import { AssetDetail } from "@/projects/asset-detail";
@@ -227,6 +228,7 @@ type AppView =
 	| "clips"
 	| "brand"
 	| "reddit"
+	| "guides"
 	| "inbox"
 	| "studio";
 const APP_VIEWS: AppView[] = [
@@ -237,6 +239,7 @@ const APP_VIEWS: AppView[] = [
 	"clips",
 	"brand",
 	"reddit",
+	"guides",
 	"inbox",
 	"studio",
 ];
@@ -1380,6 +1383,7 @@ export function VaultSection() {
 				onSelectClips={() => setAppView("clips")}
 					onSelectBrand={() => setAppView("brand")}
 					onSelectReddit={() => setAppView("reddit")}
+					onSelectGuides={() => setAppView("guides")}
 					inboxTab={inboxTab}
 					onSelectInboxTab={selectInboxTab}
 				navTabs={navTabs}
@@ -1445,6 +1449,7 @@ export function VaultSection() {
 					onSelectClips={() => setAppView("clips")}
 					onSelectBrand={() => setAppView("brand")}
 					onSelectReddit={() => setAppView("reddit")}
+					onSelectGuides={() => setAppView("guides")}
 					inboxTab={inboxTab}
 					onSelectInboxTab={selectInboxTab}
 				navTabs={navTabs}
@@ -1518,6 +1523,8 @@ export function VaultSection() {
 					<BrandKitView owner={owner} />
 				) : appView === "reddit" ? (
 					<RedditDraftsView />
+				) : appView === "guides" ? (
+					<GuidesView />
 				) : appView === "inbox" ? (
 					<InboxView owner={owner} preview={!isOwner} tab={inboxTab} />
 				) : appView === "clips" ? (
@@ -2647,6 +2654,7 @@ function LibrarySidebar({
 	onSelectClips,
 	onSelectBrand,
 	onSelectReddit,
+	onSelectGuides,
 	inboxTab,
 	onSelectInboxTab,
 	navTabs,
@@ -2675,6 +2683,7 @@ function LibrarySidebar({
 	onSelectClips: () => void;
 	onSelectBrand: () => void;
 	onSelectReddit: () => void;
+	onSelectGuides: () => void;
 	navTabs: NavTab[];
 	activeTab: string;
 	onSelectTab: (k: string) => void;
@@ -2900,6 +2909,14 @@ function LibrarySidebar({
 							label="Reddit posts"
 							active={appView === "reddit"}
 							onClick={onSelectReddit}
+						/>
+					)}
+					{user?.email === OWNER_EMAIL && (
+						<SidebarItem
+							icon={ScrollText}
+							label="Cindy Guides"
+							active={appView === "guides"}
+							onClick={onSelectGuides}
 						/>
 					)}
 				</CollapsibleGroup>
