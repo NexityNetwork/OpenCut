@@ -257,38 +257,47 @@ function Embed({ spec }: { spec: EmbedSpec }) {
 			</div>
 		);
 
-	// Framed live panel. The inner page renders at desktop width and is scaled to
-	// fit, so it never shows a horizontal scrollbar.
+	// Live asset in browser-style chrome. The inner page renders at desktop width
+	// and is scaled down, clipped by an overflow-hidden frame, so it never shows a
+	// horizontal scrollbar. The URL bar shows the exact asset route.
 	if (spec.type === "iframe" && spec.src) {
-		const h = spec.height || 460;
+		const h = spec.height || 480;
+		const scale = 0.75;
+		const shortUrl = spec.src.replace(/^https?:\/\//, "");
 		return (
 			<figure className="my-6">
 				<div className="overflow-hidden rounded-2xl border border-[var(--mono-line)] bg-[var(--mono-panel)] shadow-sm">
-					<div className="flex items-center justify-between gap-2 border-b border-[var(--mono-line)] px-3.5 py-2.5">
-						<span className="flex min-w-0 items-center gap-2 text-[12px] font-medium text-[var(--mono-ink-2)]">
-							<span className="size-2 shrink-0 rounded-full bg-[#E8896B]" />
-							<span className="truncate">{spec.title || "Crescendo"}</span>
+					<div className="flex items-center gap-2.5 border-b border-[var(--mono-line)] px-3.5 py-2.5">
+						<span className="flex shrink-0 gap-1.5">
+							<span className="size-2.5 rounded-full bg-[var(--mono-strong)]" />
+							<span className="size-2.5 rounded-full bg-[var(--mono-line)]" />
+							<span className="size-2.5 rounded-full bg-[var(--mono-line)]" />
+						</span>
+						<span className="flex min-w-0 flex-1 items-center justify-center gap-1.5 rounded-md bg-[var(--mono-hover)] px-2.5 py-1 text-[11px] text-[var(--mono-ink-3)]">
+							<span className="size-1.5 shrink-0 rounded-full bg-[#E8896B]" />
+							<span className="truncate">{shortUrl}</span>
 						</span>
 						<a
 							href={spec.src}
 							target="_blank"
 							rel="noreferrer"
-							className="inline-flex shrink-0 items-center gap-1 text-[11px] text-[var(--mono-ink-3)] transition-colors hover:text-[var(--mono-ink)]"
+							aria-label="Open in a new tab"
+							className="shrink-0 text-[var(--mono-ink-3)] transition-colors hover:text-[var(--mono-ink)]"
 						>
-							Open <ExternalLink className="size-3" />
+							<ExternalLink className="size-3.5" />
 						</a>
 					</div>
 					<div className="overflow-hidden bg-white" style={{ height: h }}>
 						<iframe
-							title={spec.title || "Crescendo"}
+							title={spec.title || "Crescendo asset"}
 							src={spec.src}
 							loading="lazy"
 							sandbox="allow-scripts allow-same-origin allow-popups allow-forms"
 							className="origin-top-left border-0"
 							style={{
-								width: "133.34%",
-								height: `${Math.round(h * 1.3334)}px`,
-								transform: "scale(0.75)",
+								width: `${100 / scale}%`,
+								height: `${Math.round(h / scale)}px`,
+								transform: `scale(${scale})`,
 							}}
 						/>
 					</div>
