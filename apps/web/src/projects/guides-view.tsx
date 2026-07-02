@@ -31,6 +31,7 @@ type EmbedSpec = {
 	type: "video" | "carousel" | "image" | "checklist" | "template" | "action";
 	src?: string;
 	keys?: string[];
+	kind?: "video" | "image";
 	caption?: string;
 	title?: string;
 	items?: string[];
@@ -89,13 +90,25 @@ function Embed({ spec }: { spec: EmbedSpec }) {
 		const cur = Math.min(idx, keys.length - 1);
 		return (
 			<figure className="my-6">
-				<div className="relative mx-auto w-full max-w-[400px]">
-					{/* eslint-disable-next-line @next/next/no-img-element */}
-					<img
-						src={fileUrl(keys[cur])}
-						alt=""
-						className="aspect-[4/5] w-full rounded-xl border border-[var(--mono-line)] object-cover"
-					/>
+				<div className={cn("relative mx-auto w-full", spec.kind === "video" ? "max-w-[300px]" : "max-w-[400px]")}>
+					{spec.kind === "video" ? (
+						// biome-ignore lint/a11y/useMediaCaption: library media
+						<video
+							key={keys[cur]}
+							controls
+							playsInline
+							preload="metadata"
+							src={fileUrl(keys[cur])}
+							className="aspect-[9/16] w-full rounded-xl border border-[var(--mono-line)] bg-black object-cover"
+						/>
+					) : (
+						// eslint-disable-next-line @next/next/no-img-element
+						<img
+							src={fileUrl(keys[cur])}
+							alt=""
+							className="aspect-[4/5] w-full rounded-xl border border-[var(--mono-line)] object-cover"
+						/>
+					)}
 					{keys.length > 1 && (
 						<>
 							<button
