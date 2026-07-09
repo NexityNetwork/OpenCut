@@ -6,15 +6,26 @@ import { ArrowLeft, Check, Clapperboard, Loader2, X } from "lucide-react";
 import { cn } from "@/utils/ui";
 
 type Status = "draft" | "approved" | "rejected";
-type TEl = { label: string; startSec: number; endSec: number };
+type TEl = { label: string; startSec: number; endSec: number; key?: string };
 type TTrack = { kind: "text" | "audio" | "video"; name: string; elements: TEl[] };
+type TSourceVideo = {
+	vaultId?: string;
+	key?: string;
+	name?: string;
+	audioKey?: string;
+};
 type TDoc = {
 	name: string;
 	durationSec: number;
 	source?: string;
 	aspect?: string;
+	sourceVideo?: TSourceVideo;
 	tracks: TTrack[];
 };
+
+// Library media (imports/ keys, incl. bound reel audio) is served via this route.
+const fileUrl = (key: string) =>
+	`/api/import-from-url/file?key=${encodeURIComponent(key)}`;
 type Template = {
 	id: string;
 	slug: string;
@@ -178,6 +189,19 @@ export function TemplatesView() {
 				<h1 className="mb-5 text-[22px] font-semibold leading-tight text-[var(--mono-ink)]">
 					{open.name}
 				</h1>
+
+				{open.doc.sourceVideo?.audioKey && (
+					<div className="mb-5 flex flex-wrap items-center gap-3 rounded-xl border border-[#ec2b9b]/30 bg-[#ec2b9b]/[0.06] px-4 py-2.5">
+						<span className="text-[12px] font-semibold text-[#ec2b9b]">Bound audio</span>
+						{open.doc.sourceVideo.name && (
+							<span className="min-w-0 truncate text-[12px] text-[var(--mono-ink-3)]">
+								from “{open.doc.sourceVideo.name}”
+							</span>
+						)}
+						{/* biome-ignore lint/a11y/useMediaCaption: reel audio */}
+						<audio controls preload="none" src={fileUrl(open.doc.sourceVideo.audioKey)} className="ml-auto h-8 w-full max-w-[320px]" />
+					</div>
+				)}
 
 				<div className="rounded-2xl border border-[var(--mono-line)] bg-[var(--mono-bg)] p-4">
 					<Timeline doc={open.doc} />
