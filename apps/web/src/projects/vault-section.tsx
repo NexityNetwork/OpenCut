@@ -79,6 +79,7 @@ import {
 	Home as HomeIcon,
 	BarChart3,
 	ScrollText,
+	Clapperboard,
 	Scissors,
 	MessagesSquare,
 } from "lucide-react";
@@ -143,6 +144,7 @@ import { BrandKitView } from "@/brand/brand-kit";
 import { StudioPane } from "@/projects/studio-pane";
 import { RedditDraftsView } from "@/projects/reddit-drafts-view";
 import { GuidesView } from "@/projects/guides-view";
+import { TemplatesView } from "@/projects/templates-view";
 import { VideoThumb } from "@/projects/video-thumb";
 import { InboxView, INBOX_TABS, type InboxTab } from "@/inbox/inbox-view";
 import { AssetDetail } from "@/projects/asset-detail";
@@ -229,6 +231,7 @@ type AppView =
 	| "brand"
 	| "reddit"
 	| "guides"
+	| "templates"
 	| "inbox"
 	| "studio";
 const APP_VIEWS: AppView[] = [
@@ -240,6 +243,7 @@ const APP_VIEWS: AppView[] = [
 	"brand",
 	"reddit",
 	"guides",
+	"templates",
 	"inbox",
 	"studio",
 ];
@@ -1384,6 +1388,7 @@ export function VaultSection() {
 					onSelectBrand={() => setAppView("brand")}
 					onSelectReddit={() => setAppView("reddit")}
 					onSelectGuides={() => setAppView("guides")}
+					onSelectTemplates={() => setAppView("templates")}
 					inboxTab={inboxTab}
 					onSelectInboxTab={selectInboxTab}
 				navTabs={navTabs}
@@ -1450,6 +1455,7 @@ export function VaultSection() {
 					onSelectBrand={() => setAppView("brand")}
 					onSelectReddit={() => setAppView("reddit")}
 					onSelectGuides={() => setAppView("guides")}
+					onSelectTemplates={() => setAppView("templates")}
 					inboxTab={inboxTab}
 					onSelectInboxTab={selectInboxTab}
 				navTabs={navTabs}
@@ -1525,6 +1531,8 @@ export function VaultSection() {
 					<RedditDraftsView />
 				) : appView === "guides" ? (
 					<GuidesView />
+				) : appView === "templates" ? (
+					<TemplatesView />
 				) : appView === "inbox" ? (
 					<InboxView owner={owner} preview={!isOwner} tab={inboxTab} />
 				) : appView === "clips" ? (
@@ -2655,6 +2663,7 @@ function LibrarySidebar({
 	onSelectBrand,
 	onSelectReddit,
 	onSelectGuides,
+	onSelectTemplates,
 	inboxTab,
 	onSelectInboxTab,
 	navTabs,
@@ -2684,6 +2693,7 @@ function LibrarySidebar({
 	onSelectBrand: () => void;
 	onSelectReddit: () => void;
 	onSelectGuides: () => void;
+	onSelectTemplates: () => void;
 	navTabs: NavTab[];
 	activeTab: string;
 	onSelectTab: (k: string) => void;
@@ -2917,6 +2927,14 @@ function LibrarySidebar({
 							label="Guides"
 							active={appView === "guides"}
 							onClick={onSelectGuides}
+						/>
+					)}
+					{user?.email === OWNER_EMAIL && (
+						<SidebarItem
+							icon={Clapperboard}
+							label="Templates"
+							active={appView === "templates"}
+							onClick={onSelectTemplates}
 						/>
 					)}
 				</CollapsibleGroup>
