@@ -79,7 +79,6 @@ import {
 	Home as HomeIcon,
 	BarChart3,
 	ScrollText,
-	Clapperboard,
 	Scissors,
 	MessagesSquare,
 } from "lucide-react";
