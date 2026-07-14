@@ -17,6 +17,7 @@ import { processMediaAssets } from "@/media/processing";
 import type { ProcessedMediaAsset } from "@/media/processing";
 import {
 	buildElementFromMedia,
+	buildGraphicElement,
 	buildLibraryAudioElement,
 	buildTextElement,
 } from "@/timeline/element-utils";
@@ -53,6 +54,13 @@ type EditSpec = {
 	// static frame. When set, skipFirstSlide drops slide[0] from the sequence.
 	hookOverlayKey?: string;
 	skipFirstSlide?: boolean;
+	// Idempotent rebuild: when set, rebuild the carousel INTO this existing
+	// project — clearing its visual tracks but keeping any attached audio —
+	// instead of creating a new project on every re-run (no pile of duplicates).
+	reuseProjectId?: string;
+	// Transition: a quick zoom-punch on the first slide plus a white flash at the
+	// hook -> slides cut ("the screenshots start rolling").
+	slideTransition?: boolean;
 	// In-place edit: load this existing draft and convert its first slide into
 	// the hook overlay (instead of building a new project).
 	editProjectId?: string;
@@ -123,11 +131,33 @@ async function buildCarousel(
 	const slides = carousel.media.filter((m) => m.type === "image");
 	if (slides.length === 0) throw new Error("carousel has no slides");
 
-	const projectId = await editor.project.createNewProject({
-		name: job.name || carousel.name || "CTW Final",
-		canvasSize: spec.canvasSize ?? { width: 720, height: 1280 },
-		...(spec.category ? { category: spec.category } : {}),
-	});
+	// Reuse an existing project (rebuild in place) or make a fresh one. Rebuild
+	// clears the visual tracks but leaves the audio track alone, so re-runs
+	// update the same project and any attached music survives — no duplicates.
+	let projectId: string;
+	if (spec.reuseProjectId) {
+		projectId = spec.reuseProjectId;
+		await editor.project.loadProject({ id: projectId });
+		const scene = editor.scenes.getActiveSceneOrNull();
+		if (scene) {
+			for (const tr of [scene.tracks.main, ...scene.tracks.overlay]) {
+				if (tr.elements.length) {
+					editor.timeline.deleteElements({
+						elements: tr.elements.map((e) => ({
+							trackId: tr.id,
+							elementId: e.id,
+						})),
+					});
+				}
+			}
+		}
+	} else {
+		projectId = await editor.project.createNewProject({
+			name: job.name || carousel.name || "CTW Final",
+			canvasSize: spec.canvasSize ?? { width: 720, height: 1280 },
+			...(spec.category ? { category: spec.category } : {}),
+		});
+	}
 
 	// Place every clip on the project's single main video track, in order.
 	const mainTrackId = editor.scenes.getActiveSceneOrNull()?.tracks.main.id;
@@ -182,8 +212,10 @@ async function buildCarousel(
 						seconds: Math.max(0, sourceDur - start - visible),
 					});
 					el.sourceDuration = mediaTimeFromSeconds({ seconds: sourceDur });
-					// Match the template: the intro hook plays silent.
-					el.params = { ...(el.params ?? {}), volume: 0 };
+					// Match the template: the intro hook plays silent. The mute
+					// flag is `params.muted` — `volume` is read in dB, so volume:0
+					// is 0 dB (full), which is why it wasn't actually muting.
+					el.params = { ...(el.params ?? {}), muted: true };
 					place(el);
 					cursorSec += visible;
 				}
@@ -221,6 +253,8 @@ async function buildCarousel(
 	// When the hook replaces the first slide, start the sequence from slide 2.
 	const perSlideSec = spec.perSlideSec ?? 0.5;
 	const slideList = spec.skipFirstSlide ? slides.slice(1) : slides;
+	const cutSec = cursorSec; // where the footage cuts to the screenshots
+	let slideIndex = 0;
 	for (const m of slideList) {
 		const processed = await processFromKey(cache, m.key, carousel.name, "image");
 		if (!processed) continue;
@@ -233,9 +267,49 @@ async function buildCarousel(
 			name: carousel.name,
 			duration: mediaTimeFromSeconds({ seconds: perSlideSec }),
 			startTime: mediaTimeFromSeconds({ seconds: cursorSec }),
-		});
+		}) as ReturnType<typeof buildElementFromMedia> & { animations?: unknown };
+		// Zoom-punch on the first slide as the screenshots start rolling: scale
+		// keyframes are relative to the element start, so time 0 is its entrance.
+		if (spec.slideTransition && slideIndex === 0) {
+			const punch = (a: string, b: string) => ({
+				keys: [
+					{ id: a, time: mediaTimeFromSeconds({ seconds: 0 }), value: 1.12, segmentToNext: "linear" as const, tangentMode: "flat" as const },
+					{ id: b, time: mediaTimeFromSeconds({ seconds: 0.16 }), value: 1.0, segmentToNext: "linear" as const, tangentMode: "flat" as const },
+				],
+			});
+			el.animations = {
+				"transform.scaleX": punch("sx0", "sx1"),
+				"transform.scaleY": punch("sy0", "sy1"),
+			};
+		}
 		place(el);
 		cursorSec += perSlideSec;
+		slideIndex += 1;
+	}
+
+	// Flash — a quick white frame at the hook -> slides cut. A rectangle graphic
+	// (overscaled to cover the portrait frame) on its own overlay track, fading
+	// out over ~3 frames so it reads as a hit on the beat.
+	if (spec.slideTransition && slideList.length > 0) {
+		const flash = buildGraphicElement({
+			definitionId: "rectangle",
+			name: "Flash",
+			startTime: mediaTimeFromSeconds({ seconds: cutSec }),
+			params: { fill: "#ffffff", "transform.scaleX": 3, "transform.scaleY": 3 },
+		}) as ReturnType<typeof buildGraphicElement> & {
+			duration?: unknown;
+			animations?: unknown;
+		};
+		flash.duration = mediaTimeFromSeconds({ seconds: 0.1 });
+		flash.animations = {
+			opacity: {
+				keys: [
+					{ id: "fa0", time: mediaTimeFromSeconds({ seconds: 0 }), value: 0.85, segmentToNext: "linear" as const, tangentMode: "flat" as const },
+					{ id: "fa1", time: mediaTimeFromSeconds({ seconds: 0.1 }), value: 0, segmentToNext: "linear" as const, tangentMode: "flat" as const },
+				],
+			},
+		};
+		editor.timeline.insertElement({ element: flash, placement: { mode: "auto" } });
 	}
 
 	await editor.project.saveCurrentProject();
