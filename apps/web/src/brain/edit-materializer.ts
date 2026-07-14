@@ -312,6 +312,13 @@ async function buildCarousel(
 		editor.timeline.insertElement({ element: flash, placement: { mode: "auto" } });
 	}
 
+	// Music bed — laid in the same job, so a carousel is never handed back
+	// silent (no separate audio-attach round-trip). Reel length is measured
+	// from the visual tracks we just placed.
+	if (spec.audio?.url) {
+		await layAudioBed(editor, spec.audio);
+	}
+
 	await editor.project.saveCurrentProject();
 	return projectId;
 }
@@ -463,16 +470,14 @@ async function buildHookEdit(
 // length from the visual tracks, then lays one library-audio clip that opens
 // on the song's drop (trimStart) and runs the full reel, with fades. Any
 // existing audio is cleared first so the assigned track always wins.
-async function buildAudioAttach(
+// Lay one music-bed clip across the reel: clears existing audio, fetches +
+// decodes the song, seeks to trimStart, runs it for the reel length with the
+// requested volume/fades. Assumes the project is already loaded/active — shared
+// by the carousel build (so a reel is never silent) and the standalone attach.
+async function layAudioBed(
 	editor: EditorCore,
-	job: EditJob,
-): Promise<string> {
-	const spec = job.spec;
-	const a = spec.audio;
-	const projectId = spec.editProjectId as string;
-	if (!a?.url) throw new Error("audio.url required");
-	await editor.project.loadProject({ id: projectId });
-
+	a: NonNullable<EditSpec["audio"]>,
+): Promise<void> {
 	const tracks = editor.scenes.getActiveSceneOrNull()?.tracks;
 	if (!tracks) throw new Error("project has no scene");
 
@@ -486,7 +491,7 @@ async function buildAudioAttach(
 	}
 	const reelLen = maxEndTicks / TICKS_PER_SECOND;
 
-	// Clear any existing audio — the batch-assigned track replaces it.
+	// Clear any existing audio — the assigned bed replaces it.
 	for (const t of tracks.audio) {
 		if (t.elements.length) {
 			editor.timeline.deleteElements({
@@ -551,6 +556,18 @@ async function buildAudioAttach(
 		element: el,
 		placement: { mode: "auto", trackType: "audio" },
 	});
+}
+
+// Attach a music bed to an existing draft (standalone audio job).
+async function buildAudioAttach(
+	editor: EditorCore,
+	job: EditJob,
+): Promise<string> {
+	const a = job.spec.audio;
+	const projectId = job.spec.editProjectId as string;
+	if (!a?.url) throw new Error("audio.url required");
+	await editor.project.loadProject({ id: projectId });
+	await layAudioBed(editor, a);
 	await editor.project.saveCurrentProject();
 	return projectId;
 }
@@ -574,11 +591,14 @@ function buildOne(
 	cache: AssetCache,
 ): Promise<string> {
 	if (job.spec.thumbnailOnly) return buildThumbnail(job);
+	// Carousel wins over the standalone audio branch: a carousel job may carry
+	// spec.audio and lays it inline (buildCarousel), so it's never handed back
+	// silent. Standalone audio-attach is only for editProjectId-without-carousel.
+	if (job.spec.intro || job.spec.perSlideSec)
+		return buildCarousel(editor, job, cache);
 	if (job.spec.audio) return buildAudioAttach(editor, job);
 	if (job.spec.editProjectId) return buildHookEdit(editor, job, cache);
-	return job.spec.intro || job.spec.perSlideSec
-		? buildCarousel(editor, job, cache)
-		: buildSingleEdit(editor, job);
+	return buildSingleEdit(editor, job);
 }
 
 /** Run any pending edit recipes for this owner. Returns how many were built. */
