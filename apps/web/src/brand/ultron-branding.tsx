@@ -1,12 +1,13 @@
 "use client";
 
-// Ultron branding playground. A place to look at the mark, the palette and the
-// backdrops together, try combinations, and copy any value out as CSS or SVG.
-// Everything renders live, so nothing here can drift from what ships.
+// Ultron branding. The outline wordmark in every format we use, plus the palette
+// sampled from the live site. Everything renders as real SVG so what you copy is
+// exactly what you see, and nothing here can drift from what ships.
 
-import { useMemo, useState } from "react";
+import { useState } from "react";
 import { Check, Copy, Download } from "lucide-react";
-import { BACKDROPS, CORE, GLOW, LIGHT, MARKS, type MarkStyle, type Swatch, TEXT } from "./ultron-brand";
+import { BACKDROPS, CORE, GLOW, LIGHT, type Swatch, TEXT } from "./ultron-brand";
+import { LOCKUPS, type Lockup, lockupSvg } from "./ultron-lockups";
 
 function useCopy() {
 	const [hit, setHit] = useState<string | null>(null);
@@ -18,58 +19,6 @@ function useCopy() {
 			setTimeout(() => setHit((k) => (k === key ? null : k)), 1200);
 		},
 	};
-}
-
-/** The wordmark, drawn as SVG so every treatment stays crisp at any size. */
-export function UltronMark({
-	style = "gradient",
-	width = 520,
-	weight = 800,
-	text = "ultron",
-}: {
-	style?: MarkStyle;
-	width?: number;
-	weight?: number;
-	text?: string;
-}) {
-	const id = useMemo(() => Math.random().toString(36).slice(2, 8), []);
-	const h = Math.round(width * 0.3);
-	const fs = Math.round(width * 0.235);
-	const common = {
-		x: "50%",
-		y: "50%",
-		textAnchor: "middle" as const,
-		dominantBaseline: "central" as const,
-		fontFamily: "Inter, system-ui, sans-serif",
-		fontWeight: weight,
-		fontSize: fs,
-		letterSpacing: -fs * 0.03,
-	};
-	return (
-		<svg width={width} height={h} viewBox={`0 0 ${width} ${h}`} role="img" aria-label={`Ultron wordmark, ${style}`}>
-			<defs>
-				<linearGradient id={`g-${id}`} x1="0%" y1="0%" x2="100%" y2="0%">
-					<stop offset="0%" stopColor="#20130C" />
-					<stop offset="38%" stopColor="#8A6234" />
-					<stop offset="68%" stopColor="#E6C58F" />
-					<stop offset="90%" stopColor="#FEF8E6" />
-					<stop offset="100%" stopColor="#FFFEFB" />
-				</linearGradient>
-				<filter id={`e-${id}`} x="-20%" y="-40%" width="140%" height="180%">
-					<feDropShadow dx="0" dy="1" stdDeviation="0" floodColor="#FEF8E6" floodOpacity="0.28" />
-					<feDropShadow dx="0" dy="-1" stdDeviation="0" floodColor="#000000" floodOpacity="0.7" />
-				</filter>
-			</defs>
-			{style === "gradient" && <text {...common} fill={`url(#g-${id})`}>{text}</text>}
-			{style === "outline" && (
-				<text {...common} fill="none" stroke="#F5DDAA" strokeWidth={Math.max(1, fs * 0.018)} opacity={0.85}>
-					{text}
-				</text>
-			)}
-			{style === "solid" && <text {...common} fill="#F7F5F2">{text}</text>}
-			{style === "emboss" && <text {...common} fill="#262624" filter={`url(#e-${id})`}>{text}</text>}
-		</svg>
-	);
 }
 
 function SwatchRow({ items, onCopy, hit }: { items: Swatch[]; onCopy: (v: string, k: string) => void; hit: string | null }) {
@@ -119,123 +68,120 @@ function Section({ title, hint, children }: { title: string; hint?: string; chil
 	);
 }
 
+function Field({
+	label,
+	value,
+	onChange,
+	w,
+}: { label: string; value: string; onChange: (v: string) => void; w: string }) {
+	return (
+		<label className="space-y-1">
+			<span className="block text-[11px] text-muted-foreground">{label}</span>
+			<input
+				value={value}
+				onChange={(e) => onChange(e.target.value)}
+				placeholder="default"
+				className={`${w} rounded-md border border-white/10 bg-transparent px-2 py-1 text-xs text-foreground outline-none placeholder:text-muted-foreground/60 focus:border-white/30`}
+			/>
+		</label>
+	);
+}
+
+function LockupCard({
+	lockup,
+	opts,
+	copied,
+	onCopy,
+}: {
+	lockup: Lockup;
+	opts: { tagline: string; product: string; partner: string };
+	copied: boolean;
+	onCopy: () => void;
+}) {
+	const svg = lockupSvg(lockup, opts);
+	return (
+		<div className="overflow-hidden rounded-xl border border-white/10">
+			<button
+				type="button"
+				onClick={onCopy}
+				className="block w-full"
+				title="Copy SVG"
+			>
+				<svg
+					viewBox={`0 0 ${lockup.w} ${lockup.h}`}
+					className="block h-auto w-full"
+					role="img"
+					aria-label={lockup.name}
+				>
+					<rect width={lockup.w} height={lockup.h} fill={lockup.bg} />
+					{lockup.render(opts)}
+				</svg>
+			</button>
+			<div className="flex items-start justify-between gap-3 p-3">
+				<div className="min-w-0">
+					<div className="text-xs font-medium text-foreground">{lockup.name}</div>
+					<p className="text-[11px] leading-snug text-muted-foreground">{lockup.note}</p>
+					<div className="mt-1 font-mono text-[10px] text-muted-foreground/70">
+						{lockup.w} x {lockup.h}
+					</div>
+				</div>
+				<div className="flex shrink-0 gap-1">
+					<button
+						type="button"
+						onClick={onCopy}
+						className="rounded-md border border-white/15 p-1.5 text-muted-foreground transition hover:border-white/30 hover:text-foreground"
+						title="Copy SVG"
+					>
+						{copied ? <Check className="size-3.5" /> : <Copy className="size-3.5" />}
+					</button>
+					<a
+						href={`data:image/svg+xml;charset=utf-8,${encodeURIComponent(svg)}`}
+						download={`ultron-${lockup.id}.svg`}
+						className="rounded-md border border-white/15 p-1.5 text-muted-foreground transition hover:border-white/30 hover:text-foreground"
+						title="Download SVG"
+					>
+						<Download className="size-3.5" />
+					</a>
+				</div>
+			</div>
+		</div>
+	);
+}
+
 export function UltronBrandingView() {
 	const { copy, hit } = useCopy();
-	const [mark, setMark] = useState<MarkStyle>("gradient");
-	const [backdrop, setBackdrop] = useState(0);
-	const [size, setSize] = useState(520);
-	const bd = BACKDROPS[backdrop];
-
-	const svg = useMemo(() => {
-		// Standalone SVG export of the current mark, no React runtime needed.
-		const fs = Math.round(size * 0.235);
-		const h = Math.round(size * 0.3);
-		const fill =
-			mark === "gradient"
-				? 'fill="url(#g)"'
-				: mark === "outline"
-					? `fill="none" stroke="#F5DDAA" stroke-width="${Math.max(1, fs * 0.018).toFixed(1)}"`
-					: mark === "solid"
-						? 'fill="#F7F5F2"'
-						: 'fill="#262624"';
-		return `<svg xmlns="http://www.w3.org/2000/svg" width="${size}" height="${h}" viewBox="0 0 ${size} ${h}">
-  <defs><linearGradient id="g" x1="0%" y1="0%" x2="100%" y2="0%">
-    <stop offset="0%" stop-color="#20130C"/><stop offset="38%" stop-color="#8A6234"/>
-    <stop offset="68%" stop-color="#E6C58F"/><stop offset="90%" stop-color="#FEF8E6"/>
-    <stop offset="100%" stop-color="#FFFEFB"/>
-  </linearGradient></defs>
-  <text x="50%" y="50%" text-anchor="middle" dominant-baseline="central"
-    font-family="Inter, system-ui, sans-serif" font-weight="800" font-size="${fs}"
-    letter-spacing="${(-fs * 0.03).toFixed(1)}" ${fill}>ultron</text>
-</svg>`;
-	}, [mark, size]);
+	const [tagline, setTagline] = useState("");
+	const [product, setProduct] = useState("");
+	const [partner, setPartner] = useState("");
 
 	return (
 		<div className="mx-auto w-full max-w-5xl space-y-8 px-4 py-6">
 			<header className="space-y-1">
 				<h1 className="text-lg font-semibold text-foreground">Ultron branding</h1>
 				<p className="text-sm text-muted-foreground">
-					The mark, the palette and the backdrops, sampled from the live site. Click any swatch to copy it.
+					The outline mark in every format we use, plus the palette sampled from the live site. Click anything to copy it.
 				</p>
 			</header>
 
-			{/* live stage */}
-			<Section title="Stage" hint="Pick a treatment and a backdrop to see how the mark holds up.">
-				<div
-					className="flex min-h-[280px] items-center justify-center overflow-hidden rounded-xl border border-white/10 p-6"
-					style={{ background: bd.css }}
-				>
-					<UltronMark style={mark} width={size} />
+			<Section
+				title="Lockups"
+				hint="The outline mark in the shapes it gets used in. Click a card to copy its SVG."
+			>
+				<div className="flex flex-wrap items-end gap-2">
+					<Field label="Tagline" value={tagline} onChange={setTagline} w="w-64" />
+					<Field label="Product" value={product} onChange={setProduct} w="w-36" />
+					<Field label="Partner" value={partner} onChange={setPartner} w="w-36" />
 				</div>
-				<div className="flex flex-wrap items-center gap-2">
-					{MARKS.map((m) => (
-						<button
-							key={m}
-							type="button"
-							onClick={() => setMark(m)}
-							className={`rounded-md border px-2.5 py-1 text-xs capitalize transition ${
-								mark === m
-									? "border-white/40 bg-white/10 text-foreground"
-									: "border-white/10 text-muted-foreground hover:border-white/25"
-							}`}
-						>
-							{m}
-						</button>
+				<div className="grid gap-4 md:grid-cols-2">
+					{LOCKUPS.map((l) => (
+						<LockupCard
+							key={l.id}
+							lockup={l}
+							opts={{ tagline, product, partner }}
+							copied={hit === l.id}
+							onCopy={() => copy(lockupSvg(l, { tagline, product, partner }), l.id)}
+						/>
 					))}
-					<span className="mx-1 h-4 w-px bg-white/10" />
-					{BACKDROPS.map((b, i) => (
-						<button
-							key={b.name}
-							type="button"
-							onClick={() => setBackdrop(i)}
-							className={`rounded-md border px-2.5 py-1 text-xs transition ${
-								backdrop === i
-									? "border-white/40 bg-white/10 text-foreground"
-									: "border-white/10 text-muted-foreground hover:border-white/25"
-							}`}
-						>
-							{b.name}
-						</button>
-					))}
-					<span className="mx-1 h-4 w-px bg-white/10" />
-					<input
-						type="range"
-						min={220}
-						max={820}
-						step={20}
-						value={size}
-						onChange={(e) => setSize(Number(e.target.value))}
-						className="h-1 w-28 accent-white/70"
-						aria-label="Mark size"
-					/>
-					<span className="font-mono text-[11px] text-muted-foreground">{size}px</span>
-				</div>
-				<p className="text-xs text-muted-foreground">{bd.note}</p>
-				<div className="flex flex-wrap gap-2">
-					<button
-						type="button"
-						onClick={() => copy(svg, "svg")}
-						className="inline-flex items-center gap-1.5 rounded-md border border-white/15 px-2.5 py-1.5 text-xs text-foreground transition hover:border-white/30"
-					>
-						{hit === "svg" ? <Check className="size-3.5" /> : <Copy className="size-3.5" />}
-						Copy mark as SVG
-					</button>
-					<button
-						type="button"
-						onClick={() => copy(`background: ${bd.css};`, "bg")}
-						className="inline-flex items-center gap-1.5 rounded-md border border-white/15 px-2.5 py-1.5 text-xs text-foreground transition hover:border-white/30"
-					>
-						{hit === "bg" ? <Check className="size-3.5" /> : <Copy className="size-3.5" />}
-						Copy backdrop CSS
-					</button>
-					<a
-						href={`data:image/svg+xml;charset=utf-8,${encodeURIComponent(svg)}`}
-						download={`ultron-${mark}.svg`}
-						className="inline-flex items-center gap-1.5 rounded-md border border-white/15 px-2.5 py-1.5 text-xs text-foreground transition hover:border-white/30"
-					>
-						<Download className="size-3.5" />
-						Download SVG
-					</a>
 				</div>
 			</Section>
 
@@ -285,6 +231,8 @@ export function UltronBrandingView() {
 					<li>One light source per composition. Two reads as a mistake.</li>
 					<li>Never place the mark on mid greys. It needs either the void or Paper.</li>
 					<li>Keep clear space around the mark equal to the height of the letter n.</li>
+					<li>The outline is the primary mark. Do not fill the letters.</li>
+					<li>Stroke stays hairline. It should never read as a bold outline.</li>
 				</ul>
 			</Section>
 		</div>
