@@ -140,6 +140,7 @@ import type { TProjectMetadata, TProjectSortOption } from "@/project/types";
 import { BioBuilder } from "@/bio/bio-builder";
 import { ClipsStudio } from "@/clips/clips-studio";
 import { BrandKitView } from "@/brand/brand-kit";
+import { UltronBrandingView } from "@/brand/ultron-branding";
 import { StudioPane } from "@/projects/studio-pane";
 import { RedditDraftsView } from "@/projects/reddit-drafts-view";
 import { GuidesView } from "@/projects/guides-view";
@@ -228,6 +229,7 @@ type AppView =
 	| "bio"
 	| "clips"
 	| "brand"
+	| "branding"
 	| "reddit"
 	| "guides"
 	| "templates"
@@ -240,6 +242,7 @@ const APP_VIEWS: AppView[] = [
 	"bio",
 	"clips",
 	"brand",
+	"branding",
 	"reddit",
 	"guides",
 	"templates",
@@ -1385,6 +1388,7 @@ export function VaultSection() {
 				onSelectBio={() => setAppView("bio")}
 				onSelectClips={() => setAppView("clips")}
 					onSelectBrand={() => setAppView("brand")}
+					onSelectBranding={() => setAppView("branding")}
 					onSelectReddit={() => setAppView("reddit")}
 					onSelectGuides={() => setAppView("guides")}
 					onSelectTemplates={() => setAppView("templates")}
@@ -1452,6 +1456,7 @@ export function VaultSection() {
 				onSelectBio={() => setAppView("bio")}
 					onSelectClips={() => setAppView("clips")}
 					onSelectBrand={() => setAppView("brand")}
+					onSelectBranding={() => setAppView("branding")}
 					onSelectReddit={() => setAppView("reddit")}
 					onSelectGuides={() => setAppView("guides")}
 					onSelectTemplates={() => setAppView("templates")}
@@ -1526,6 +1531,8 @@ export function VaultSection() {
 					<BioBuilder owner={owner} />
 				) : appView === "brand" ? (
 					<BrandKitView owner={owner} />
+				) : appView === "branding" ? (
+					<UltronBrandingView />
 				) : appView === "reddit" ? (
 					<RedditDraftsView />
 				) : appView === "guides" ? (
@@ -2660,6 +2667,7 @@ function LibrarySidebar({
 	onSelectBio,
 	onSelectClips,
 	onSelectBrand,
+	onSelectBranding,
 	onSelectReddit,
 	onSelectGuides,
 	onSelectTemplates,
@@ -2690,6 +2698,7 @@ function LibrarySidebar({
 	onSelectBio: () => void;
 	onSelectClips: () => void;
 	onSelectBrand: () => void;
+	onSelectBranding: () => void;
 	onSelectReddit: () => void;
 	onSelectGuides: () => void;
 	onSelectTemplates: () => void;
@@ -2911,6 +2920,12 @@ function LibrarySidebar({
 						label="Brand kit"
 						active={appView === "brand"}
 						onClick={onSelectBrand}
+					/>
+					<SidebarItem
+						icon={Sparkles}
+						label="Ultron branding"
+						active={appView === "branding"}
+						onClick={onSelectBranding}
 					/>
 					{user?.email === OWNER_EMAIL && (
 						<SidebarItem
