@@ -8,6 +8,15 @@ import { useState } from "react";
 import { Check, Copy, Download } from "lucide-react";
 import { BACKDROPS, CORE, GLOW, LIGHT, type Swatch, TEXT } from "./ultron-brand";
 import { LOCKUPS, type Lockup, lockupSvg } from "./ultron-lockups";
+import {
+	ACCENTS,
+	type Overlay,
+	type OverlayOpts,
+	OVERLAYS,
+	overlaySvg,
+	REEL_H,
+	REEL_W,
+} from "./ultron-overlays";
 
 function useCopy() {
 	const [hit, setHit] = useState<string | null>(null);
@@ -148,11 +157,114 @@ function LockupCard({
 	);
 }
 
+function OverlayCard({
+	overlay,
+	opts,
+	footage,
+	guides,
+	copied,
+	onCopy,
+}: {
+	overlay: Overlay;
+	opts: OverlayOpts;
+	footage: boolean;
+	guides: boolean;
+	copied: boolean;
+	onCopy: () => void;
+}) {
+	// What you see carries the footage and the guides. What you copy or download
+	// does not: it is transparent, because it goes on top of a clip.
+	const preview = overlaySvg(overlay, opts, { footage, guides });
+	const bare = overlaySvg(overlay, opts);
+	return (
+		<div className="overflow-hidden rounded-xl border border-white/10">
+			<button type="button" onClick={onCopy} className="block w-full" title="Copy SVG">
+				{/* biome-ignore lint/security/noDangerouslySetInnerHtml: our own generated SVG */}
+				<div
+					className="[&>svg]:block [&>svg]:h-auto [&>svg]:w-full"
+					// biome-ignore lint/security/noDangerouslySetInnerHtml: our own generated SVG
+					dangerouslySetInnerHTML={{ __html: preview }}
+				/>
+			</button>
+			<div className="flex items-start justify-between gap-3 p-3">
+				<div className="min-w-0">
+					<div className="flex items-center gap-2">
+						<span className="text-xs font-medium text-foreground">{overlay.name}</span>
+						<span
+							className={`rounded px-1.5 py-0.5 text-[9px] uppercase tracking-wide ${
+								overlay.kind === "block"
+									? "bg-white/10 text-foreground/80"
+									: "bg-[#F5DDAA]/15 text-[#F5DDAA]"
+							}`}
+						>
+							{overlay.kind}
+						</span>
+					</div>
+					<p className="text-[11px] leading-snug text-muted-foreground">{overlay.note}</p>
+					<div className="mt-1 font-mono text-[10px] text-muted-foreground/70">
+						{REEL_W} x {REEL_H} · transparent
+					</div>
+				</div>
+				<div className="flex shrink-0 gap-1">
+					<button
+						type="button"
+						onClick={onCopy}
+						className="rounded-md border border-white/15 p-1.5 text-muted-foreground transition hover:border-white/30 hover:text-foreground"
+						title="Copy SVG"
+					>
+						{copied ? <Check className="size-3.5" /> : <Copy className="size-3.5" />}
+					</button>
+					<a
+						href={`data:image/svg+xml;charset=utf-8,${encodeURIComponent(bare)}`}
+						download={`ultron-${overlay.id}.svg`}
+						className="rounded-md border border-white/15 p-1.5 text-muted-foreground transition hover:border-white/30 hover:text-foreground"
+						title="Download transparent SVG"
+					>
+						<Download className="size-3.5" />
+					</a>
+				</div>
+			</div>
+		</div>
+	);
+}
+
+function Toggle({
+	on,
+	onChange,
+	label,
+}: { on: boolean; onChange: (v: boolean) => void; label: string }) {
+	return (
+		<button
+			type="button"
+			onClick={() => onChange(!on)}
+			className={`rounded-md border px-2.5 py-1 text-[11px] transition ${
+				on
+					? "border-white/35 bg-white/10 text-foreground"
+					: "border-white/10 text-muted-foreground hover:border-white/25"
+			}`}
+		>
+			{label}
+		</button>
+	);
+}
+
 export function UltronBrandingView() {
 	const { copy, hit } = useCopy();
 	const [tagline, setTagline] = useState("");
 	const [product, setProduct] = useState("");
 	const [partner, setPartner] = useState("");
+
+	const [hook, setHook] = useState("");
+	const [big, setBig] = useState("");
+	const [sub, setSub] = useState("");
+	const [tools, setTools] = useState("");
+	const [cta, setCta] = useState("");
+	const [lines, setLines] = useState("");
+	const [accent, setAccent] = useState<string>(ACCENTS[0].hex);
+	const [footage, setFootage] = useState(true);
+	const [guides, setGuides] = useState(true);
+
+	const overlayOpts: OverlayOpts = { hook, big, sub, tools, cta, lines, accent };
 
 	return (
 		<div className="mx-auto w-full max-w-5xl space-y-8 px-4 py-6">
@@ -180,6 +292,62 @@ export function UltronBrandingView() {
 							opts={{ tagline, product, partner }}
 							copied={hit === l.id}
 							onCopy={() => copy(lockupSvg(l, { tagline, product, partner }), l.id)}
+						/>
+					))}
+				</div>
+			</Section>
+
+			<Section
+				title="Reel overlays"
+				hint="1080 x 1920. Blocks sit over the top of the clip; overlays sit straight on it with a scrim and a shadow so they survive bright footage. Downloads are transparent."
+			>
+				<div className="flex flex-wrap items-end gap-2">
+					<Field label="Hook" value={hook} onChange={setHook} w="w-72" />
+					<Field label="Big line" value={big} onChange={setBig} w="w-44" />
+					<Field label="Accent line" value={sub} onChange={setSub} w="w-56" />
+					<Field label="Tools, comma separated" value={tools} onChange={setTools} w="w-52" />
+					<Field label="Call to action" value={cta} onChange={setCta} w="w-40" />
+				</div>
+				<label className="block space-y-1">
+					<span className="block text-[11px] text-muted-foreground">
+						List, one per line
+					</span>
+					<textarea
+						value={lines}
+						onChange={(e) => setLines(e.target.value)}
+						rows={3}
+						placeholder="default"
+						className="w-full rounded-md border border-white/10 bg-transparent px-2 py-1.5 text-xs text-foreground outline-none placeholder:text-muted-foreground/60 focus:border-white/30"
+					/>
+				</label>
+				<div className="flex flex-wrap items-center gap-2">
+					<span className="text-[11px] text-muted-foreground">Accent</span>
+					{ACCENTS.map((a) => (
+						<button
+							key={a.hex}
+							type="button"
+							onClick={() => setAccent(a.hex)}
+							title={`${a.name} ${a.hex}`}
+							className={`size-6 rounded-full border-2 transition ${
+								accent === a.hex ? "border-white" : "border-white/15 hover:border-white/40"
+							}`}
+							style={{ background: a.hex }}
+						/>
+					))}
+					<span className="ml-2" />
+					<Toggle on={footage} onChange={setFootage} label="footage" />
+					<Toggle on={guides} onChange={setGuides} label="safe zones" />
+				</div>
+				<div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+					{OVERLAYS.map((o) => (
+						<OverlayCard
+							key={o.id}
+							overlay={o}
+							opts={overlayOpts}
+							footage={footage}
+							guides={guides}
+							copied={hit === o.id}
+							onCopy={() => copy(overlaySvg(o, overlayOpts), o.id)}
 						/>
 					))}
 				</div>
