@@ -8,6 +8,7 @@ import { useState } from "react";
 import { Check, Copy, Download } from "lucide-react";
 import { BACKDROPS, CORE, GLOW, LIGHT, type Swatch, TEXT } from "./ultron-brand";
 import { LOCKUPS, type Lockup, lockupSvg } from "./ultron-lockups";
+import { UltronFamilyView } from "./ultron-family";
 import {
 	ACCENTS,
 	type Overlay,
@@ -249,6 +250,8 @@ function Toggle({
 }
 
 export function UltronBrandingView() {
+	// The family sits at the top: the whole content system in one scroll, before
+	// any of the component-level pieces below it.
 	const { copy, hit } = useCopy();
 	const [tagline, setTagline] = useState("");
 	const [product, setProduct] = useState("");
@@ -267,7 +270,9 @@ export function UltronBrandingView() {
 	const overlayOpts: OverlayOpts = { hook, big, sub, tools, cta, lines, accent };
 
 	return (
-		<div className="mx-auto w-full max-w-5xl space-y-8 px-4 py-6">
+		<div className="w-full space-y-8 py-6">
+			<UltronFamilyView />
+			<div className="mx-auto w-full max-w-5xl space-y-8 px-4">
 			<header className="space-y-1">
 				<h1 className="text-lg font-semibold text-foreground">Ultron branding</h1>
 				<p className="text-sm text-muted-foreground">
@@ -403,6 +408,7 @@ export function UltronBrandingView() {
 					<li>Stroke stays hairline. It should never read as a bold outline.</li>
 				</ul>
 			</Section>
+		</div>
 		</div>
 	);
 }

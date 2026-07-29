@@ -1,0 +1,233 @@
+[
+ {
+  "id": "block",
+  "name": "Reel block",
+  "note": "Own background over the top of the clip. Mark leads, copy is small underneath.",
+  "items": [
+   {
+    "src": "block-blk_1.webp",
+    "name": "Cream mark, flat panel",
+    "tag": "keep",
+    "w": 1080,
+    "h": 1920
+   },
+   {
+    "src": "block-blk_2.webp",
+    "name": "Cream + ghost fill",
+    "tag": "keep",
+    "w": 1080,
+    "h": 1920
+   },
+   {
+    "src": "block-blk_3.webp",
+    "name": "White, heavy stroke",
+    "tag": "keep",
+    "w": 1080,
+    "h": 1920
+   },
+   {
+    "src": "block-o2_block_tools_and_steps.webp",
+    "name": "Tools and steps",
+    "tag": "keep",
+    "w": 1080,
+    "h": 1920
+   },
+   {
+    "src": "block-o2_block_hook_only.webp",
+    "name": "Hook only, short band",
+    "tag": "keep",
+    "w": 1080,
+    "h": 1920
+   },
+   {
+    "src": "block-o2_block_before_and_after.webp",
+    "name": "Before and after",
+    "tag": "keep",
+    "w": 1080,
+    "h": 1920
+   }
+  ]
+ },
+ {
+  "id": "overlay",
+  "name": "Reel overlay",
+  "note": "No background. Group measured and centred on the clip, scrim underneath.",
+  "items": [
+   {
+    "src": "overlay-o2_one_number.webp",
+    "name": "One number",
+    "tag": "keep",
+    "w": 1080,
+    "h": 1920
+   },
+   {
+    "src": "overlay-o2_numbered_steps.webp",
+    "name": "Numbered steps",
+    "tag": "keep",
+    "w": 1080,
+    "h": 1920
+   },
+   {
+    "src": "overlay-o2_mark_and_line.webp",
+    "name": "Mark and line",
+    "tag": "keep",
+    "w": 1080,
+    "h": 1920
+   },
+   {
+    "src": "overlay-o2_list_of_categories.webp",
+    "name": "Category list",
+    "tag": "keep",
+    "w": 1080,
+    "h": 1920
+   },
+   {
+    "src": "overlay-L_transparent___statement.webp",
+    "name": "Statement",
+    "tag": "keep",
+    "w": 1080,
+    "h": 1920
+   },
+   {
+    "src": "overlay-L_transparent___hero.webp",
+    "name": "Hero number",
+    "tag": "keep",
+    "w": 1080,
+    "h": 1920
+   }
+  ]
+ },
+ {
+  "id": "stack",
+  "name": "Stack list",
+  "note": "The user's tools. Ultron sits INSIDE the list, never above or below it.",
+  "items": [
+   {
+    "src": "stack-stack2_F.webp",
+    "name": "Peer row, mid-list",
+    "tag": "best",
+    "w": 1080,
+    "h": 1920
+   },
+   {
+    "src": "stack-stack2_G.webp",
+    "name": "Bracketed to the rows it covers",
+    "tag": "rework",
+    "w": 1080,
+    "h": 1920
+   },
+   {
+    "src": "stack-stack2_H.webp",
+    "name": "The column it collapses into",
+    "tag": "safe-zone risk",
+    "w": 1080,
+    "h": 1920
+   },
+   {
+    "src": "stack-stack_A.webp",
+    "name": "Header",
+    "tag": "reads as letterhead",
+    "w": 1080,
+    "h": 1920
+   },
+   {
+    "src": "stack-stack_D.webp",
+    "name": "Footer",
+    "tag": "reads as letterhead",
+    "w": 1080,
+    "h": 1920
+   },
+   {
+    "src": "stack-stack_C.webp",
+    "name": "Wide slot in the icon column",
+    "tag": "dead end, kept as evidence",
+    "w": 1080,
+    "h": 1920
+   }
+  ]
+ },
+ {
+  "id": "card",
+  "name": "Third card",
+  "note": "1080x720, a third of the frame, centred. Drawn at native pixels, 37px floor.",
+  "items": [
+   {
+    "src": "card-third_card.webp",
+    "name": "Ledger, one left edge",
+    "tag": "current",
+    "w": 1080,
+    "h": 720
+   },
+   {
+    "src": "card-wide_4.webp",
+    "name": "Full-width ledger (drawn at 1620, too small)",
+    "tag": "superseded",
+    "w": 1620,
+    "h": 1080
+   },
+   {
+    "src": "card-wide_2.webp",
+    "name": "Hero number (drawn at 1620, too small)",
+    "tag": "superseded",
+    "w": 1620,
+    "h": 1080
+   }
+  ]
+ },
+ {
+  "id": "carousel",
+  "name": "Carousel deck",
+  "note": "1080x1350 pages, fixed anchors, page numbers.",
+  "items": [
+   {
+    "src": "carousel-deck_1.webp",
+    "name": "Cover",
+    "tag": "keep",
+    "w": 1080,
+    "h": 1350
+   },
+   {
+    "src": "carousel-deck_2.webp",
+    "name": "Point",
+    "tag": "keep",
+    "w": 1080,
+    "h": 1350
+   },
+   {
+    "src": "carousel-deck_6.webp",
+    "name": "Table",
+    "tag": "keep",
+    "w": 1080,
+    "h": 1350
+   },
+   {
+    "src": "carousel-card_tool.webp",
+    "name": "Tool card",
+    "tag": "keep",
+    "w": 1080,
+    "h": 813
+   },
+   {
+    "src": "carousel-card_spec.webp",
+    "name": "Spec",
+    "tag": "keep",
+    "w": 1080,
+    "h": 883
+   }
+  ]
+ },
+ {
+  "id": "spec",
+  "name": "Rules",
+  "note": "The limits every layout is measured against.",
+  "items": [
+   {
+    "src": "spec-L_THE_LIMITS.webp",
+    "name": "The limits, drawn",
+    "tag": "reference",
+    "w": 1080,
+    "h": 1920
+   }
+  ]
+ }
+]
