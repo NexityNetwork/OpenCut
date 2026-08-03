@@ -54,7 +54,7 @@
     {
       "binding": "VAULT_DB",
       "database_name": "opencut-vault",
-      "database_id": "16afa4b2-a2ae-46d1-af4a-41e75836d95b"
+      "database_id": "ed8a246f-2722-4a1f-95f5-90c2eaf6b4ab"
     },
     {
       "binding": "PUBLISH_DB",
