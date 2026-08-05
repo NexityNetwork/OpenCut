@@ -232,6 +232,119 @@ def _refbreak():
     return m
 
 
+def motion(clip, w=120, fps=30):
+    """The clip's own movement over time. This is the metronome."""
+    import imageio_ffmpeg
+    ff = imageio_ffmpeg.get_ffmpeg_exe()
+    h = 2 * round(w * 16 / 9 / 2)
+    raw = subprocess.run([ff, "-v", "error", "-i", clip, "-vf",
+                          f"scale={w}:{h},format=gray", "-r", str(fps),
+                          "-f", "rawvideo", "-"], capture_output=True).stdout
+    n = len(raw) // (w * h)
+    fr = np.frombuffer(raw[:n * w * h], dtype=np.uint8).reshape(n, h, w).astype(np.float32)
+    d = np.abs(np.diff(fr, axis=0)).mean(axis=(1, 2))
+    d = np.convolve(d, np.ones(3) / 3, mode="same")
+    return np.arange(len(d)) / fps, d / (d.max() + 1e-9)
+
+
+def clip_rhythm(clip, lo=0.6, hi=2.6):
+    """Fit a grid to the FOOTAGE.
+
+    This is the step whose absence made the last cut a soup. Our B-rolls are
+    handheld and they move on their own pulse - one of them moves at 1.27, 2.77
+    and 4.27s, a dead even 1.50s. Dropping an unrelated track over that and then
+    cutting to the track gives three rhythms at once: the camera's, the song's,
+    and the script's.
+
+    So the footage is the metronome. Everything else gets matched to it."""
+    t, m = motion(clip)
+    dur = t[-1] if len(t) else 0.0
+    base = float(m.mean()) + 1e-9
+    best = {"score": 0.0, "period": 0.0, "phase": 0.0}
+    for period in np.arange(lo, hi, 0.01):
+        for phase in np.arange(0.2, min(period + 0.2, dur), 0.02):
+            pts = np.arange(phase, dur - 0.05, period)
+            if len(pts) < 3:
+                continue
+            sc = float(np.interp(pts, t, m).mean()) / base
+            if sc > best["score"]:
+                best = {"score": sc, "period": float(period), "phase": float(phase)}
+    best["duration"] = float(dur)
+    return best
+
+
+def match_track(clip_period, tracks):
+    """Pick the song whose pulse is the clip's pulse, at some power of two.
+
+    Not "a song we have". A track whose bar is 1.8s laid over footage that moves
+    every 1.5s fights it for the whole reel, and no amount of cutting on the beat
+    fixes that, because there are two beats."""
+    rb = _refbreak()
+    scored = []
+    for path in tracks:
+        full = rb.pcm(path)
+        for head in (30, 45, 60, 90):
+            x = full[:rb.SR * head]
+            t, mag = rb.spectra(x)
+            env = rb.onset_envelope(mag)
+            drop, strength = rb.find_drop(t, mag, x)
+            if drop >= 2.0 and strength >= 0.15:
+                break
+        g = rb.fit_grid(env, t, drop)
+        if not g["period"]:
+            continue
+        ratio = clip_period / g["period"]
+        octaves = np.log2(max(ratio, 1e-6))
+        detune = abs(octaves - round(octaves))          # 0 = same pulse or a multiple
+        scored.append(dict(path=path, drop=drop, strength=strength, period=g["period"],
+                           phase=g["phase"], score=g["score"], contrast=g["contrast"],
+                           detune=detune, mult=2.0 ** round(octaves)))
+    scored.sort(key=lambda r: (r["detune"], -r["contrast"]))
+    return scored
+
+
+def beat_phase(audio, period, t0, t1):
+    """Where the beats actually are, over the stretch of track we will use.
+
+    fit_grid searches phase only in a narrow window around the drop, because its
+    job is to describe the drop. Reusing that phase to align beats is circular -
+    it is the drop again under another name, which is why aligning to it moved
+    nothing. This searches a FULL period and scores against the segment that ends
+    up in the reel, so the answer is about beats rather than about the drop."""
+    rb = _refbreak()
+    x = rb.pcm(audio)[:int((t1 + 2) * rb.SR)]
+    t, mag = rb.spectra(x)
+    env = rb.onset_envelope(mag)
+    best = (0.0, t0)
+    for ph in np.arange(t0, t0 + period, 0.005):
+        pts = np.arange(ph, t1, period)
+        if len(pts) < 3:
+            continue
+        sc = float(np.interp(pts, t, env).mean())
+        if sc > best[0]:
+            best = (sc, float(ph))
+    return best[1], best[0] / (float(env.mean()) + 1e-9)
+
+
+def clip_schedule(states, rhythm):
+    """State boundaries ON the clip's own moves, inside the clip's own length.
+
+    No stretching, no ping-pong, no fitting a 13s script into a 7s clip. The clip
+    decides how many states there is room for; anything past that is cut from the
+    script rather than squeezed into the footage."""
+    p, ph, dur = rhythm["period"], rhythm["phase"], rhythm["duration"]
+    bounds = [0.0] + [ph + k * p for k in range(int((dur - ph) / p) + 1) if ph + k * p < dur - 0.25]
+    bounds.append(dur)
+    slots = len(bounds) - 1
+    used = states[:slots]
+    out = []
+    for i, s in enumerate(used):
+        # the last kept state runs to the end of the clip rather than stopping short
+        end = bounds[i + 1] if i < len(used) - 1 else dur
+        out.append(dict(s, dur=end - bounds[i]))
+    return out, slots, len(states)
+
+
 def beat_schedule(states, audio):
     """Put the state changes on the beat, and the first one ON THE DROP.
 
@@ -294,7 +407,7 @@ def _duration(path, ff):
     return int(h) * 3600 + int(m) * 60 + float(sec)
 
 
-def assemble(clip, states, out, ff=None, audio=None, astart=0.0):
+def assemble(clip, states, out, ff=None, audio=None, astart=0.0, tempo=1.0):
     """Overlay each state for its own slice of the timeline. No cuts, because the
     reference has none - the background is one continuous take throughout."""
     import imageio_ffmpeg
@@ -331,8 +444,12 @@ def assemble(clip, states, out, ff=None, audio=None, astart=0.0):
         chain += (f";[v{i}][{i+1}:v]overlay=0:0:format=auto:"
                   f"enable='between(t,{a:.3f},{b:.3f})'[v{i+1}]")
     amap = f"{len(pngs) + 1}:a" if audio else "0:a?"
+    # atempo preserves pitch, so a couple of percent to lock the track's bar onto
+    # the footage's pulse is inaudible - and it is the difference between the beat
+    # drifting off the camera move by the end of the reel and it not.
+    af = (f"atempo={tempo:.5f}," if abs(tempo - 1.0) > 1e-4 else "")
     cmd += ["-filter_complex", chain, "-map", f"[v{len(pngs)}]", "-map", amap,
-            "-af", f"apad,afade=t=out:st={max(0, t - 0.4):.3f}:d=0.4",
+            "-af", f"{af}apad,afade=t=out:st={max(0, t - 0.4):.3f}:d=0.4",
             "-t", f"{t:.3f}", "-c:v", "libx264", "-preset", "slow",
             "-crf", "19", "-pix_fmt", "yuv420p", "-c:a", "aac", "-b:a", "160k",
             "-movflags", "+faststart", out]
@@ -353,11 +470,12 @@ SCRIPTS = {
         inset=f"{WF}/ig-5d66dbe8a194fad5_1.png",
         hook=["The one AI Agent", "You **NEED** to start", "Your agency"],
         title="AI Voice Receptionist",
-        claims=[["Automatically answers", "Every call to your business", "24 hours a day"],
-                ["Checks your google", "Calendar for availability",
-                 "And books appointments", "For you"],
-                ["Logs every call transcript", "And recording to Airtable",
-                 "automatically"]]),
+        # Their claims run three and four lines because their slots are 3 to 4
+        # seconds. Ours are 1.55s - the clip's own pulse - so the same content
+        # gets said in two lines. This is the rebuild: their substance, our pace.
+        claims=[["Answers every call", "24 hours a day"],
+                ["Checks your calendar", "and books the appointment"],
+                ["Logs every transcript", "straight to Airtable"]]),
     "leadscraper": dict(
         inset=f"{WF}/ig-11ed3628ef2a4834_1.png",
         hook=["The one AI Agent", "You **NEED** to start", "Your agency"],
@@ -409,7 +527,7 @@ def script_states(key):
 STATES = script_states("receptionist")
 
 
-def verify(path, audio, astart, expect_at):
+def verify(path, audio, astart, expect_at, tempo=1.0):
     """Check the RENDER, by cross-correlation rather than by re-detecting.
 
     Re-running the drop detector on the output does not work and the way it fails
@@ -434,34 +552,112 @@ def verify(path, audio, astart, expect_at):
     span = rb.SR * 8
     a = envelope(rb.pcm(path)[:span])
     src = rb.pcm(audio)
-    b = envelope(src[int(astart * rb.SR):int(astart * rb.SR) + span])
-    n = min(len(a), len(b))
-    a, b = a[:n], b[:n]
+    # The render is time-stretched, so correlating it against the raw source
+    # measures the STRETCH, not the placement: 1.94 percent over 8s is 155ms of
+    # drift and the correlator splits the difference at about -70ms. Resample the
+    # source onto the render's own time base first, then the only thing left to
+    # measure is where ffmpeg actually put it.
+    b_raw = envelope(src[int(astart * rb.SR):int(astart * rb.SR) + int(span * tempo) + rb.WIN])
+    hop_s = rb.HOP / rb.SR
+    n = min(len(a), int(len(b_raw) / tempo))
+    b = np.interp(np.arange(n) * hop_s * tempo, np.arange(len(b_raw)) * hop_s, b_raw)
+    a = a[:n]
     xc = np.correlate(a, b, mode="full")
     lag = (int(xc.argmax()) - (n - 1)) * rb.HOP / rb.SR
     print(f"  VERIFY  audio placement off by {lag * 1000:+.0f}ms "
-          f"({'OK' if abs(lag) < 0.03 else 'MISPLACED'}); "
-          f"drop therefore lands at {expect_at:.3f}s, on the hook cut")
+          f"({'OK' if abs(lag) < 0.03 else 'MISPLACED'})")
     return lag
 
 
-if __name__ == "__main__":
-    clip = sys.argv[1] if len(sys.argv) > 1 else "brolls/IMG_2393.mp4"
-    out = sys.argv[2] if len(sys.argv) > 2 else "brand/STATE_n8n.mp4"
-    audio = sys.argv[3] if len(sys.argv) > 3 else None
+def alignment(path, cuts):
+    """Measure the finished file: is there a camera move AND a beat at every change?
 
-    states, astart, info = (beat_schedule(STATES, audio) if audio
-                            else (STATES, 0.0, None))
-    if info:
-        print(f"  audio   drop {info['drop']}s (step {info['strength']}), "
-              f"grid {info['period']}s, score {info['score']} / {info['contrast']}x")
-        print(f"          trimming {info['astart']}s so the drop lands on the hook "
-              f"cut at {info['hook']}s")
-    for i, s in enumerate(states):
-        render(s).save(f"brand/STATE_{i}.png")
-        print(f"  state {i}  {s['dur']:.2f}s  " +
-              " | ".join(k for k in ("hook", "title", "claim", "cta") if s.get(k)))
-    path, total = assemble(clip, states, out, audio=audio, astart=astart)
-    print(f"-> {path}  {total:.2f}s over {clip}")
-    if audio:
-        verify(path, audio, astart, states[0]["dur"])
+    Worth doing every render rather than by hand, because it is the check that
+    caught two silent failures. The first: every change landed on a camera move
+    and none on a beat, because the anchor was the drop and the drop is not the
+    grid phase. The second: aligning to fit_grid's phase changed nothing, because
+    that phase is searched in a window around the drop - it was the drop again
+    wearing a different name.
+
+    Numbers are multiples of each signal's own mean, so 1.0x is what a randomly
+    placed cut would score and anything near it means no alignment at all."""
+    rb = _refbreak()
+    mt, mm = motion(path)
+    x = rb.pcm(path)
+    at, mag = rb.spectra(x)
+    ae = rb.onset_envelope(mag)
+    print(f"  {'change':>9}  {'camera':>8}  {'audio':>8}")
+    rows = []
+    for c in cuts:
+        mo = float(np.interp(c, mt, mm)) / (mm.mean() + 1e-9)
+        au = float(np.interp(c, at, ae)) / (ae.mean() + 1e-9)
+        rows.append((mo, au))
+        tag = ("BOTH" if mo > 1.3 and au > 1.3 else
+               "camera only" if mo > 1.3 else "audio only" if au > 1.3 else "NEITHER")
+        print(f"  {c:8.2f}s  {mo:7.2f}x  {au:7.2f}x  {tag}")
+    print(f"            mean {np.mean([a for a, _ in rows]):5.2f}x  "
+          f"{np.mean([b for _, b in rows]):5.2f}x   (random placement is 1.0x)")
+    return rows
+
+
+if __name__ == "__main__":
+    import glob
+    clip = sys.argv[1] if len(sys.argv) > 1 else "brolls/IMG_2398.mp4"
+    out = sys.argv[2] if len(sys.argv) > 2 else "brand/STATE_n8n.mp4"
+    pool = sorted(glob.glob(sys.argv[3])) if len(sys.argv) > 3 else sorted(glob.glob("audio/*.mp3"))
+
+    # 1. the FOOTAGE sets the grid
+    r = clip_rhythm(clip)
+    print(f"  clip    {r['duration']:.2f}s, moves every {r['period']:.2f}s from "
+          f"{r['phase']:.2f}s  (pulse {r['score']:.1f}x)")
+
+    # 2. the music is chosen to match that grid, then nudged onto it exactly
+    cand = match_track(r["period"], pool)[0]
+    tempo = (cand["period"] * cand["mult"]) / r["period"]
+    print(f"  track   {os.path.basename(cand['path'])}  bar {cand['period']:.2f}s "
+          f"x{cand['mult']:.0f}  ->  atempo {tempo:.4f} to sit on {r['period']:.2f}s")
+
+    # 3. the script is cut to the slots the clip has room for
+    states, slots, wanted = clip_schedule(STATES, r)
+    if wanted > slots:
+        print(f"  script  {wanted} states wanted, {slots} fit in {r['duration']:.2f}s "
+              f"- dropped {wanted - slots}. The clip is the length, not the script.")
+
+    # Align the BEATS to the camera moves, not the drop.
+    #
+    # Anchoring on the drop alone put every change on a camera move and none of
+    # them on a beat: measured 0.53x, 1.44x, 0.91x, 1.18x against the audio's own
+    # onset envelope, where random placement scores 1.06x. The drop is not the
+    # grid phase - it can sit up to a third of a bar off it - so landing the drop
+    # on a move says nothing about where the following beats fall.
+    #
+    # Output time maps to source time as src = astart + out * tempo. Requiring a
+    # beat at the first camera move gives a congruence on astart; solve it, then
+    # pick the solution nearest the drop so the reel still opens on the hit.
+    ap = cand["period"] * cand["mult"]
+    span0 = max(0.0, cand["drop"] - 1.0)
+    aph, beat_strength = beat_phase(cand["path"], ap, span0, span0 + r["duration"] * tempo + 2)
+    print(f"  beats   true phase {aph:.2f}s + n x {ap:.2f}s  ({beat_strength:.2f}x onset)")
+    # Solve  astart + tempo * cam_phase  ==  aph + k * ap  for integer k, picking
+    # the k nearest the drop so the reel still opens on the hit.
+    #   src = astart + out * tempo, so a beat at source aph + k*ap appears at
+    #   output (aph + k*ap - astart) / tempo, and we want that to be cam_phase.
+    k = round((cand["drop"] - aph) / ap)
+    astart = aph + k * ap - tempo * r["phase"]
+    while astart < 0:
+        k += 1
+        astart = aph + k * ap - tempo * r["phase"]
+    print(f"  sync    beat grid {aph:.2f}s + n x {ap:.2f}s; trimming {astart:.2f}s so a "
+          f"BEAT lands on the camera move at {r['phase']:.2f}s "
+          f"(drop {cand['drop']:.2f}s, opening "
+          f"{abs(astart + tempo * r['phase'] - cand['drop']):.2f}s from it)")
+
+    for i, st in enumerate(states):
+        render(st).save(f"brand/STATE_{i}.png")
+        print(f"  state {i}  {st['dur']:.2f}s  " +
+              " | ".join(k for k in ("hook", "title", "claim", "cta") if st.get(k)))
+    path, total = assemble(clip, states, out, audio=cand["path"], astart=astart, tempo=tempo)
+    print(f"-> {path}  {total:.2f}s over {os.path.basename(clip)}")
+    verify(path, cand["path"], astart, r["phase"], tempo=tempo)
+    alignment(path, [r["phase"] + k * r["period"]
+                     for k in range(len(states) - 1)])
