@@ -5,10 +5,43 @@ they run in is ephemeral and has already been wiped mid-session once.
 
 | File | What it does |
 |---|---|
+| `refbreak.py` | Breaks a reference video down: drop, beat grid, shot list, and whether its cuts actually land on the grid |
 | `stack-note.py` | The format that actually gets traction. Two app tiles, a plus, and four typed lines on bare footage |
 | `which-tool-card.py` | Renders the OLD vs NEW comparison card in both themes: `light` on a paper surface, `dark` as a transparent overlay for video |
 | `push-vault.py` | Uploads finished assets to `ultron-reels/imports/` and inserts the `vault_items` row, with the caption rules enforced before anything is written |
 | `wordmark_paths.json` | The traced ultron wordmark outlines (`w`, `asc`, `paths[].d`), also the source for `apps/web/src/brand/ultron-wordmark.ts` |
+
+## Breaking down a reference
+
+```sh
+python3 refbreak.py REF.mp4 [MORE.mp4 ...] --json out.json --sheet shots.png
+```
+
+The rules that cost the most to learn, all encoded in the script:
+
+- **Find the drop, not the first beat.** librosa's `beat_track` returned 1.78s on
+  a reference whose drop was at 4.13s, because it locked onto the first beat of a
+  quiet intro. The detector here is energy based and tests the **10th percentile
+  floor** over a window rather than the mean. A drop is not "it gets loud", it is
+  "the quiet parts stop being quiet". A mean-based test gets fooled by one loud
+  isolated kick in the intro and fires at 0.00s; that happened, and the real
+  answer was 4.57s.
+- **Sync on the drop, not the fitted phase.** Phase can sit up to 0.3s after the
+  drop. Anchoring on it cost 185ms of drift. Rule:
+  `sync = drop if drop >= hook_duration else first grid point past the hook`, and
+  trim the audio intro with `astart = max(0, drop - hook_duration)`.
+- **A grid score needs contrast, not just magnitude.** The raw mean of the onset
+  envelope at the grid points is fooled by a flat envelope; ambient room noise
+  scores higher than real music because music's mean is low and only its hits are
+  high. Both tests: score >= 0.45 and contrast >= 1.25x.
+- **A cut is a spike, not a threshold crossing.** Handheld camera motion clears
+  any fixed threshold. A cut has to be a local maximum AND stand 2.5x over the
+  second either side of it.
+- **The hook segment gets reused, the hook content gets replaced.** Keeping the
+  reference's opening frames means shipping their hook, which has happened once.
+
+Thresholds are provisional until they have been run against real references with
+real tracks. Raw phone clips have no correct answer in them to calibrate against.
 
 ## The stack-note format
 
