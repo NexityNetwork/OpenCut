@@ -41,6 +41,7 @@ clips behind the rail. Not copied.
 import io
 import json
 import os
+import re
 import subprocess
 import sys
 
@@ -52,9 +53,14 @@ SAFE_L, SAFE_R, SAFE_T, SAFE_B = 60, 950, 250, 1440
 MAXW = SAFE_R - SAFE_L
 CX = W // 2                       # the reference centres on the FRAME, not the safe box
 
-RED = (250, 0, 70)                # sampled off the reference hook
+RED = (250, 0, 70)                # sampled off the reference hooks
 GREEN = (52, 199, 89)
+BLUE = (33, 150, 243)
 WHITE = (254, 254, 254)
+# The references emphasise in three colours, not one, and which word is coloured
+# is a copy decision rather than decoration. Markup is {r|...} {g|...} {b|...}.
+INK = {"r": RED, "g": GREEN, "b": BLUE, "w": WHITE}
+TAG = re.compile(r"\{([rgbw])\|([^}]*)\}")
 
 TITLE_SZ, CLAIM_SZ, HOOK_SZ = 86, 78, 80
 CLAIM_PITCH, HOOK_PITCH = 83, 91
@@ -81,13 +87,16 @@ def tw(s, f): return _D.textbbox((0, 0), s, font=f)[2]
 
 
 def runs(text):
-    """`that runs your **FOLLOW-UP**` -> alternating (emphasised, text) pairs."""
-    out, em = [], False
-    for part in text.split("**"):
-        if part:
-            out.append((em, part))
-        em = not em
-    return out
+    """`You {r|NEED} to start` -> [(white,'You '), (red,'NEED'), (white,' to start')]"""
+    out, pos = [], 0
+    for m in TAG.finditer(text):
+        if m.start() > pos:
+            out.append((WHITE, text[pos:m.start()]))
+        out.append((INK[m.group(1)], m.group(2)))
+        pos = m.end()
+    if pos < len(text):
+        out.append((WHITE, text[pos:]))
+    return [(c, t) for c, t in out if t]
 
 
 def measure(text, sz, weight="ExtraBold"):
@@ -117,14 +126,15 @@ def wrap(text, sz, weight="ExtraBold", indent=0):
     return lines
 
 
-def draw_line(d, cx, y, text, sz, weight="ExtraBold", em_colour=RED, base=WHITE, x0=None):
-    """Centred, with emphasised spans in a second colour. Returns (left, right)."""
+def draw_line(d, cx, y, text, sz, weight="ExtraBold", em_colour=None, base=None, x0=None):
+    """Centred, each span in its own colour. `base` overrides everything, which is
+    how the shadow pass reuses this without inheriting the palette."""
     total = measure(text, sz, weight)
     x = (cx - total // 2) if x0 is None else x0
     left = x
-    for em, t in runs(text):
+    for colour, t in runs(text):
         f = F(sz, weight)
-        d.text((x, y), t, font=f, fill=em_colour if em else base, anchor="ls")
+        d.text((x, y), t, font=f, fill=base if base is not None else colour, anchor="ls")
         x += tw(t, f)
     return left, x
 
@@ -151,7 +161,7 @@ def render(state):
         """Shadow pass then ink pass, same geometry, so they cannot drift."""
         ind = int(sz * 1.15) if lead_tick else 0
         for pas, (target, base, em) in enumerate(
-                ((sd, (0, 0, 0, 215), (0, 0, 0, 215)), (d, WHITE, RED))):
+                ((sd, (0, 0, 0, 215), None), (d, None, None))):
             y = top
             for i, ln in enumerate(lines):
                 off = ind if (lead_tick and i == 0) else 0
@@ -211,8 +221,8 @@ def render(state):
     if state.get("cta"):
         sz = 52
         cy = SAFE_B - 40
-        for target, base, em in ((sd, (0, 0, 0, 215), (0, 0, 0, 215)), (d, WHITE, GREEN)):
-            draw_line(target, CX, cy, state["cta"], sz, "Bold", em_colour=em, base=base)
+        for target, base in ((sd, (0, 0, 0, 215)), (d, None)):
+            draw_line(target, CX, cy, state["cta"], sz, "Bold", base=base)
 
     # shadow FIRST, ink over it. Compositing the blur onto the ink layer puts the
     # smear on top of the letterforms and quietly greys everything out.
@@ -483,42 +493,59 @@ WF = "refs/workflows"
 # the carrier ships as it is - the only edits are the emoji ticks (drawn now) and
 # the Comment CTA (the frame says read caption; the keyword lives in the caption).
 SCRIPTS = {
+    # Every hook read off its own video with extract-script.py. They are all
+    # different, and the hook is the part doing the work - shipping one hook
+    # across a batch throws away the only line most people read.
     "receptionist": dict(
+        source="ig-5d66dbe8a194fad5",
         inset=f"{WF}/ig-5d66dbe8a194fad5_1.png",
-        hook=["The one AI Agent", "You **NEED** to start", "Your agency"],
+        hook=["The one AI Agent", "You {r|NEED} to start", "Your agency"],
         title="AI Voice Receptionist",
         # Their claims run three and four lines because their slots are 3 to 4
-        # seconds. Ours are 1.55s - the clip's own pulse - so the same content
-        # gets said in two lines. This is the rebuild: their substance, our pace.
+        # seconds. Ours are the clip's own pulse, so the same content in two.
         claims=[["Answers every call", "24 hours a day"],
                 ["Checks your calendar", "and books the appointment"],
                 ["Logs every transcript", "straight to Airtable"]]),
+
     "leadscraper": dict(
+        source="ig-11ed3628ef2a4834",
         inset=f"{WF}/ig-11ed3628ef2a4834_1.png",
-        hook=["The one AI Agent", "You **NEED** to start", "Your agency"],
+        hook=["How I scrape 100s", "Of leads in just", "{r|10 Minutes}"],
         title="Google Maps Lead Scraper",
         claims=[["Scrapes all businesses", "In your specific niche"],
-                ["Gets all the businesses data", "Phone number, email etc."],
-                ["Puts all the data", "In a google sheet for you"]]),
+                ["Gets the phone number", "and the email"],
+                ["Writes it all", "to a google sheet"]]),
+
+    # Same canvas, different hook - these two are the same workflow sold two ways,
+    # which is worth keeping as two reels rather than collapsing to one.
+    "leadscraper40k": dict(
+        source="ig-928c0c6efcbf4a91",
+        inset=f"{WF}/ig-928c0c6efcbf4a91_1.png",
+        hook=["I scrape {g|40,000}", "Leads a month from", "Google Maps"],
+        title="Google Maps Lead Scraper",
+        claims=[["Scrapes all businesses", "In your specific niche"],
+                ["Gets the phone number", "and the email"],
+                ["Writes it all", "to a google sheet"]]),
+
     "admaker": dict(
+        source="ig-21b2ab35383a1822",
         inset=f"{WF}/ig-21b2ab35383a1822_1.png",
-        hook=["The one AI Agent", "You **NEED** to start", "Your agency"],
+        hook=["How I post {g|daily}", "{g|Video ads & photo ads}",
+              "To TikTok and instagram", "For any client {g|automatically}"],
         title="AI Video & Carousel Generator",
-        claims=[["Generates Video And", "Photo ads Using Blotato"],
-                ["Automatically Posts them", "To TikTok & Instagram"],
-                ["Works For Your Brand", "Or Any You Sell It To"]]),
-    "gmail": dict(
-        inset=f"{WF}/ig-1c1da0539733d3eb_1.png",
-        hook=["Top **6** AI Agents", "To sell"],
-        title="Gmail Campaign Sender",
-        claims=[["Writes and sends the", "whole campaign for you"],
-                ["Follows up until", "they reply"]]),
-    "reviews": dict(
-        inset=f"{WF}/ig-0e69bc15beb637ed_1.png",
-        hook=["6 Agents every", "**Automation agency**", "Needs"],
-        title="Review Generation System",
-        claims=[["Asks every happy customer", "at the right moment"],
-                ["Sends the good ones", "straight to Google"]]),
+        claims=[["Generates video", "and photo ads"],
+                ["Posts them to", "TikTok and Instagram"],
+                ["Works for your brand", "or any you sell it to"]]),
+
+    "contentteam": dict(
+        source="ig-eceb7cf800b5455b",
+        inset=f"{WF}/ig-eceb7cf800b5455b_1.png",
+        hook=["How I {r|replaced my entire}", "{r|Content team} with this",
+              "One {b|agentic workflow...}"],
+        title="AI Video & Carousel Generator",
+        claims=[["Generates video", "and photo ads"],
+                ["Posts them to", "TikTok and Instagram"],
+                ["Works for your brand", "or any you sell it to"]]),
 }
 
 
