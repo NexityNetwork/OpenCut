@@ -181,6 +181,32 @@ def render(state):
     # pitch after the last line and then adding a font size for the next one puts
     # a 202px hole between the title and the claim - which in the reference is
     # where the workflow screenshot sat. Without an inset it is just a hole.
+    if state.get("mode") == "stack":
+        if state.get("hook"):
+            block(state["hook"], fit(state["hook"], S_HOOK_SZ), S_HOOK_PITCH, S_HOOK_TOP)
+        if state.get("step"):
+            block([state["step"]], fit([state["step"]], S_STEP_SZ), S_STEP_SZ, S_STEP_BASE)
+        if state.get("sub"):
+            block([state["sub"]], fit([state["sub"]], S_SUB_SZ), S_SUB_SZ, S_SUB_BASE)
+        if state.get("logo"):
+            x0, y0, x1, y1 = S_CARD
+            card = Image.new("RGBA", (x1 - x0, y1 - y0), (0, 0, 0, 0))
+            ImageDraw.Draw(card).rounded_rectangle([0, 0, x1 - x0 - 1, y1 - y0 - 1],
+                                                   radius=18, fill=(255, 255, 255, 255))
+            g = int((y1 - y0) * 0.62)
+            mark = Image.open(f"{LOGOS_DIR}/{state['logo']}.png").convert("RGBA")
+            mark = mark.resize((g, g), Image.LANCZOS)
+            card.alpha_composite(mark, ((x1 - x0 - g) // 2, (y1 - y0 - g) // 2))
+            im.alpha_composite(card, (x0, y0))
+        if state.get("cta"):
+            for target, base in ((sd, (0, 0, 0, 215)), (d, None)):
+                draw_line(target, CX, S_CTA_BASE, state["cta"], 46, "Bold", base=base)
+        out = Image.new("RGBA", (W, H), (0, 0, 0, 0))
+        out.alpha_composite(sh.filter(ImageFilter.GaussianBlur(11)))
+        out.alpha_composite(sh.filter(ImageFilter.GaussianBlur(3)))
+        out.alpha_composite(im)
+        return out
+
     if state.get("mode") == "list":
         sz = fit(state["hook"], L_HOOK_SZ)
         block(state["hook"], sz, L_HOOK_PITCH, L_HOOK_TOP)
@@ -328,6 +354,25 @@ L_TITLE_SZ, L_TITLE_BASE = 66, 618
 L_BOX = (60, 650, 950, 1075)
 L_LABEL_SZ, L_LABEL_BASE = 74, 1165
 L_CTA_SZ, L_CTA_BASE = 46, 1350
+
+
+# ---- stack format ------------------------------------------------------------
+# The third structure: a numbered step, a line saying which tool does it, and a
+# white card carrying that tool's logo. Fast - the reference gives each step 1.0
+# to 1.6s, because a logo is read in a glance.
+#
+# Measured off ig-b00df8bc at 1080x1920:
+#   step title  band y 526..581, centred
+#   subtitle    band y 598..633
+#   card        x 95..984, y 728..1146   (889 x 418, solid white)
+#
+# Their card runs to x 984, past the rail. Ours stops at 950.
+S_HOOK_SZ, S_HOOK_PITCH, S_HOOK_TOP = 76, 90, 340
+S_STEP_SZ, S_STEP_BASE = 60, 572
+S_SUB_SZ, S_SUB_BASE = 38, 632
+S_CARD = (60, 728, 950, 1078)
+S_CTA_BASE = 1330
+LOGOS_DIR = os.environ.get("TOOL_LOGOS", "../apps/web/public/tools")
 
 
 def clip_rhythm_candidates(clip, lo=0.6, hi=2.6, n=6):
@@ -684,6 +729,8 @@ SCRIPTS = {
 
 
 WFL = "refs/workflows/ig-0e69bc15beb637ed"
+WFT = "refs/workflows/ig-1c1da0539733d3eb"
+WFA = "refs/workflows/ig-6339b3c61b991c49"
 
 LISTICLES = {
     "sixagents": dict(
@@ -697,7 +744,66 @@ LISTICLES = {
                ("Gmail Campaign Sender", "4. Follow-up Agent", f"{WFL}_4.png"),
                ("Company News Scraper", "5. Research Agent", f"{WFL}_5.png"),
                ("Review Generation System", "6. Reputation Agent", f"{WFL}_6.png")]),
+
+    # Same six agents, three different hooks - which is what the creator did, and
+    # the hook is the variable that matters. These two carry much stronger tracks
+    # (4.00x and 4.19x onset contrast against 2.55x), so the cuts have something
+    # to land on.
+    "topagents": dict(
+        source="ig-1c1da0539733d3eb",
+        audio="refs/audio/ig-1c1da0539733d3eb.mp3",
+        hook=["Top {r|{n}} AI Agents", "To sell"],
+        cta="read caption",
+        items=[("Google Maps Lead Scraper", "1. Lead-Gen Agent", f"{WFT}_1.png"),
+               ("AI Video & Carousel Generator", "2. Marketing Agent", f"{WFT}_2.png"),
+               ("AI Voice Receptionist", "3. Voice Agent", f"{WFT}_3.png"),
+               ("Gmail Campaign Sender", "4. Follow-up Agent", f"{WFT}_4.png"),
+               ("Company News Scraper", "5. Research Agent", f"{WFT}_5.png"),
+               ("Review Generation System", "6. Reputation Agent", f"{WFT}_6.png")]),
+
+    "alwayssell": dict(
+        source="ig-6339b3c61b991c49",
+        audio="refs/audio/ig-6339b3c61b991c49.mp3",
+        hook=["{n} Ai Agents", "That {r|Always Sell}"],
+        cta="read caption",
+        items=[("Google Maps Lead Scraper", "1. Lead-Gen Agent", f"{WFA}_1.png"),
+               ("AI Video & Carousel Generator", "2. Marketing Agent", f"{WFA}_2.png"),
+               ("AI Voice Receptionist", "3. Voice Agent", f"{WFA}_3.png"),
+               ("Gmail Campaign Sender", "4. Follow-up Agent", f"{WFA}_4.png"),
+               ("Company News Scraper", "5. Research Agent", f"{WFA}_5.png"),
+               ("Review Generation System", "6. Reputation Agent", f"{WFA}_6.png")]),
 }
+
+
+STACKS = {
+    "agencystack": dict(
+        source="ig-b00df8bc6551c5a5",
+        audio="refs/audio/ig-b00df8bc6551c5a5.mp3",
+        hook=["POV: You started an", "{g|AI Agency}"],
+        cta="read caption",
+        # Five tools everybody already knows, and then the one that runs them.
+        # That is the whole point of the format for us: the stack is the setup.
+        # Unnumbered. The number is the POSITION in the finished reel, applied at
+        # build time - keeping the source numbers while dropping middle steps
+        # produced a reel that counted 1, 2, 6.
+        steps=[("Find the leads", "Google Maps for local businesses", "google-maps"),
+               ("Send the outreach", "Gmail, warmed and rate limited", "gmail"),
+               ("Work LinkedIn", "connects and DMs on a schedule", "linkedin"),
+               ("Hold the pipeline", "HubSpot so nothing goes quiet", "hubspot"),
+               ("Book the call", "Calendly with real buffers", "calendly"),
+               ("Run all of it", "ultron, every day, in order", "ultron")]),
+}
+
+
+def stack_states(key, n_items=None):
+    """Hook, then one tool per slot. Fast - a logo is read in a glance."""
+    S = STACKS[key]
+    steps = S["steps"][:n_items] if n_items else S["steps"]
+    out = [dict(dur=1.4, mode="stack", hook=S["hook"], cta=S["cta"])]
+    for i, (step, sub, logo) in enumerate(steps, 1):
+        out.append(dict(dur=1.3, mode="stack", step=f"{i}. {step}", sub=sub,
+                        logo=logo, cta=S["cta"]))
+    return out
 
 
 def listicle_states(key, n_items=None):
@@ -829,8 +935,9 @@ if __name__ == "__main__":
     out = sys.argv[2] if len(sys.argv) > 2 else "brand/STATE_n8n.mp4"
     key = sys.argv[3] if len(sys.argv) > 3 else "receptionist"
     pool = sorted(glob.glob(sys.argv[4])) if len(sys.argv) > 4 else sorted(glob.glob("audio/*.mp3"))
-    STATES = (listicle_states(key) if key in LISTICLES else script_states(key))
-    IS_LIST = key in LISTICLES
+    STATES = (listicle_states(key) if key in LISTICLES else
+              stack_states(key) if key in STACKS else script_states(key))
+    IS_LIST = key in LISTICLES or key in STACKS
 
     # 1. the FOOTAGE offers its grids
     cands = clip_rhythm_candidates(clip, n=10)
@@ -842,7 +949,8 @@ if __name__ == "__main__":
     #    what made the reference work, the same way the hook is - reusing one
     #    track across a batch is the same mistake as reusing one hook.
     rb = _refbreak()
-    audio = (LISTICLES if key in LISTICLES else SCRIPTS)[key].get("audio")
+    audio = (LISTICLES if key in LISTICLES else
+             STACKS if key in STACKS else SCRIPTS)[key].get("audio")
     ax = rb.pcm(audio)
     at, amag = rb.spectra(ax)
     aenv = rb.onset_envelope(amag)
@@ -864,9 +972,21 @@ if __name__ == "__main__":
     #    REBUILT at that size rather than truncated, so its headline count is true.
     if IS_LIST:
         _, slots, _ = clip_schedule(STATES, r)
-        STATES = listicle_states(key, n_items=max(1, slots - 1))
-        print(f"  listicle {slots - 1} of {len(LISTICLES[key]['items'])} agents fit; "
-              f"the hook counts what is shown")
+        n = max(1, slots - 1)
+        if key in STACKS:
+            # keep the LAST step. Cutting from the end would drop ultron, which is
+            # the only reason this format is worth building.
+            src = STACKS[key]["steps"]
+            keep = src[:n - 1] + [src[-1]] if n < len(src) else src
+            STATES = [dict(dur=1.4, mode="stack", hook=STACKS[key]["hook"],
+                           cta=STACKS[key]["cta"])] + [
+                dict(dur=1.3, mode="stack", step=f"{i}. {a}", sub=b, logo=c,
+                     cta=STACKS[key]["cta"]) for i, (a, b, c) in enumerate(keep, 1)]
+            print(f"  stack   {len(keep)} of {len(src)} steps fit; the last one is kept")
+        else:
+            STATES = listicle_states(key, n_items=n)
+            print(f"  listicle {n} of {len(LISTICLES[key]['items'])} agents fit; "
+                  f"the hook counts what is shown")
     states, slots, wanted = clip_schedule(STATES, r)
     if wanted > slots:
         print(f"  script  {wanted} states wanted, {slots} fit in {r['duration']:.2f}s "

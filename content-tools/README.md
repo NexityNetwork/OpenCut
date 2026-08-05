@@ -93,6 +93,26 @@ full-bleed workflow screenshot. Its widest line also runs to x=985 where safe is
 The reference ends on `Comment "Call"`. We do not: the frame says read caption,
 the caption carries the keyword.
 
+## Three reference formats
+
+The twelve references are not one build, they are three, and each needs its own
+renderer. All of them share the sync machinery.
+
+| key | shape | where the content lives |
+|---|---|---|
+| single workflow | hook, then title + canvas with claims accumulating | `SCRIPTS` |
+| listicle | hook and CTA pinned, canvas cycles through numbered agents | `LISTICLES` |
+| stack | numbered step, one line, a white card with a tool logo | `STACKS` |
+
+Two rules that only show up when a script is longer than the clip:
+
+- A listicle's **headline count follows what fits**. Theirs says six because they
+  had 14.9s; ours has 7.5 and fits four. A reel promising six and showing four is
+  not shortened, it is broken.
+- A stack keeps its **last** step when trimming, and renumbers. Cutting from the
+  end drops ultron, which is the only reason we build the format; keeping source
+  numbers while dropping middle steps counts 1, 2, 6.
+
 ## The stack-note format
 
 Six rules, five of which are things you do not do. They are written out at the top
