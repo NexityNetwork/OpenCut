@@ -619,6 +619,10 @@ def alignment(path, cuts):
 
 if __name__ == "__main__":
     import glob
+    # IMG_2398 is THE clip. It was handed over for this work, and it is also the
+    # only B-roll with five slots in it - a 1.55s pulse ten times its own average.
+    # Swapping to a shorter one lost two of three claims and then got blamed on
+    # B-roll length, which was wrong: the clip given was always long enough.
     clip = sys.argv[1] if len(sys.argv) > 1 else "brolls/IMG_2398.mp4"
     out = sys.argv[2] if len(sys.argv) > 2 else "brand/STATE_n8n.mp4"
     key = sys.argv[3] if len(sys.argv) > 3 else "receptionist"
