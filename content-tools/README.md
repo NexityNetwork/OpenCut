@@ -6,6 +6,7 @@ they run in is ephemeral and has already been wiped mid-session once.
 | File | What it does |
 |---|---|
 | `refbreak.py` | Breaks a reference video down: drop, beat grid, shot list, and whether its cuts actually land on the grid |
+| `state-overlay.py` | The big-type format: one continuous B-roll, a sequence of overlay states, no cuts |
 | `stack-note.py` | The format that actually gets traction. Two app tiles, a plus, and four typed lines on bare footage |
 | `which-tool-card.py` | Renders the OLD vs NEW comparison card in both themes: `light` on a paper surface, `dark` as a transparent overlay for video |
 | `push-vault.py` | Uploads finished assets to `ultron-reels/imports/` and inserts the `vault_items` row, with the caption rules enforced before anything is written |
@@ -42,6 +43,29 @@ The rules that cost the most to learn, all encoded in the script:
 
 Thresholds are provisional until they have been run against real references with
 real tracks. Raw phone clips have no correct answer in them to calibrate against.
+
+## The state-overlay format
+
+Rebuilt from a reference that got traction. Two findings drive it:
+
+- **It has no cuts.** One continuous take with five overlay states on top. What a
+  cut detector reports as shots are overlay changes.
+- **It is not beat-synced.** The track has a pulse and 0 of 5 changes land on the
+  grid, median 349ms off. Copy the state DURATIONS (1.2, 2.0, 2.9, 3.0, 4.0 - they
+  get longer, so the hook lands fast and each claim buys more read time), not the
+  beat positions.
+
+Type is 76-86px, roughly 2.4x the stack-note format. That is not a style choice:
+three or four short lines with nothing competing can be that big, and the amount
+of text is what sets the size.
+
+Dropped from the reference: the emoji ticks (drawn instead - a system glyph
+renders differently on every platform and reads as a text message), and the
+full-bleed workflow screenshot. Its widest line also runs to x=985 where safe is
+950, so it clips under the TikTok rail; `fit()` shrinks instead.
+
+The reference ends on `Comment "Call"`. We do not: the frame says read caption,
+the caption carries the keyword.
 
 ## The stack-note format
 
