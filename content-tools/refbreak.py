@@ -226,8 +226,11 @@ def breakdown(path):
         r["implied_bpm"] = [round(60 / grid["period"] * m, 1) for m in (1, 2, 4)] \
             if grid["period"] else None
         # both tests: enough energy on the grid, and enough difference between
-        # the grid and everything else
-        r["usable_as_template"] = grid["score"] >= 0.45 and grid["contrast"] >= 1.25
+        # the grid and everything else. This says the TRACK has a pulse. Whether
+        # the VIDEO cuts to that pulse is a separate question, answered below,
+        # and the first real reference was a no on the second while passing the
+        # first - which is exactly the case the old single flag got wrong.
+        r["track_has_pulse"] = grid["score"] >= 0.45 and grid["contrast"] >= 1.25
     else:
         r["drop"] = None
         r["grid"] = None
@@ -249,6 +252,13 @@ def breakdown(path):
         offs = [abs(c["off_ms"]) for c in r["shots"][1:] if "off_ms" in c]
         r["cuts_on_grid"] = sum(o <= 80 for o in offs)
         r["median_off_ms"] = int(np.median(offs)) if offs else None
+        r["cuts_follow_grid"] = bool(offs) and r["cuts_on_grid"] >= max(2, len(offs) * 0.6)
+        r["verdict"] = (
+            "beat-synced: copy the cut grid" if r.get("track_has_pulse") and r["cuts_follow_grid"]
+            else "content-timed: the changes follow the SCRIPT, not the music. "
+                 "Copy the beat DURATIONS, do not beat-sync"
+            if r.get("track_has_pulse")
+            else "no usable pulse and no grid alignment: treat timing as freeform")
     return r
 
 
@@ -262,7 +272,7 @@ def report(r):
         bpm = "/".join(str(b) for b in r["implied_bpm"])
         print(f"  grid      cut every {g['period']:.3f}s   phase {g['phase']:.3f}s   "
               f"score {g['score']:.2f}  contrast {g['contrast']:.2f}x   "
-              f"{'USABLE as a cut template' if r['usable_as_template'] else 'NO USABLE PULSE'}")
+              f"{'track has a pulse' if r['track_has_pulse'] else 'NO USABLE PULSE'}")
         print(f"            track is {bpm} bpm depending on whether that is a "
               f"beat, half bar or bar")
     print(f"  hook      0 -> {r['hook_duration']:.2f}s   "
@@ -277,6 +287,7 @@ def report(r):
     if r.get("median_off_ms") is not None:
         print(f"  {r['cuts_on_grid']}/{len(r['shots'])-1} cuts land on the grid, "
               f"median miss {r['median_off_ms']}ms")
+        print(f"  VERDICT   {r['verdict']}")
 
 
 if __name__ == "__main__":
