@@ -6,6 +6,7 @@ they run in is ephemeral and has already been wiped mid-session once.
 | File | What it does |
 |---|---|
 | `refbreak.py` | Breaks a reference video down: drop, beat grid, shot list, and whether its cuts actually land on the grid |
+| `extract-inset.py` | Pulls the workflow screenshot out of a reference at native resolution, from its sharpest frame |
 | `state-overlay.py` | The big-type format: one continuous B-roll, a sequence of overlay states, no cuts |
 | `stack-note.py` | The format that actually gets traction. Two app tiles, a plus, and four typed lines on bare footage |
 | `which-tool-card.py` | Renders the OLD vs NEW comparison card in both themes: `light` on a paper surface, `dark` as a transparent overlay for video |
@@ -43,6 +44,31 @@ The rules that cost the most to learn, all encoded in the script:
 
 Thresholds are provisional until they have been run against real references with
 real tracks. Raw phone clips have no correct answer in them to calibrate against.
+
+## Extracting a reference's screenshot
+
+```sh
+python3 extract-inset.py refs/*.mp4          # -> refs/workflows/<name>_workflow.png
+```
+
+The screenshot is the substance of these videos - the text is a caption for it -
+so it comes out at native resolution from the sharpest frame available. A phone
+filming a monitor blurs most frames, and on a 700x420 crop that is the difference
+between readable node labels and mush.
+
+Finding the box took two signals, because neither works alone:
+
+- **Green border.** Precise, but only some references draw one. Colour alone found
+  four of twelve.
+- **Stillness.** The screenshot is a still image pasted onto handheld footage, so
+  its pixels do not move. Text is static too but sparse - the footage keeps moving
+  between the letters - so the test is on density per row, not on a plain mask.
+  Stillness alone returns the WHOLE FRAME whenever the B-roll is itself a static
+  shot, which several are.
+
+Border first, stillness as fallback, and a full-frame result is reported rather
+than returned. Nine of twelve, and the three misses are correct: they are not the
+workflow format at all.
 
 ## The state-overlay format
 

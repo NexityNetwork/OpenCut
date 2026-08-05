@@ -57,6 +57,13 @@ WHITE = (254, 254, 254)
 
 TITLE_SZ, CLAIM_SZ, HOOK_SZ = 86, 78, 80
 CLAIM_PITCH, HOOK_PITCH = 83, 91
+# Measured anchors, all off the reference. These are absolute positions rather
+# than a running cursor, because the inset sits at a FIXED y and the title has to
+# clear it - deriving one from the other put the canvas through the title.
+INSET_L, INSET_T, INSET_R, INSET_B = 9, 363, 1070, 1005
+HOOK_BASE = 410           # first hook line baseline (reference band 341..604)
+TITLE_BASE = 345          # title baseline    (reference band 276..361)
+CLAIM_GAP = 115           # inset bottom -> first claim baseline
 
 FD = os.environ.get("FONT_DIR", "brand/fonts/extras/ttf")
 _fc = {}
@@ -163,7 +170,7 @@ def render(state):
     # pitch after the last line and then adding a font size for the next one puts
     # a 202px hole between the title and the claim - which in the reference is
     # where the workflow screenshot sat. Without an inset it is just a hole.
-    y = state.get("top", SAFE_T + 50) + HOOK_SZ
+    y = HOOK_BASE
 
     if state.get("hook"):
         sz = fit(state["hook"], HOOK_SZ)
@@ -171,12 +178,33 @@ def render(state):
 
     if state.get("title"):
         sz = fit([state["title"]], TITLE_SZ)
-        y = block([state["title"]], sz, int(sz * 1.05), y)
-        y += int(CLAIM_SZ * 1.45)                  # one clear paragraph gap
+        block([state["title"]], sz, int(sz * 1.05), TITLE_BASE)
+        y = TITLE_BASE + int(CLAIM_SZ * 1.45)
+
+    if state.get("inset"):
+        # The screenshot IS the substance. Everything else on the frame is a
+        # caption for it, which is why it gets the full width and the middle
+        # third. Measured off the reference: x 9..1070, y 363..1005.
+        src = Image.open(state["inset"]).convert("RGBA")
+        bw = INSET_R - INSET_L
+        bh = min(INSET_B - INSET_T, int(bw * src.height / src.width))
+        scaled = src.resize((bw, bh), Image.LANCZOS)
+        top_y = state.get("inset_top", INSET_T)
+        im.alpha_composite(scaled, (INSET_L, top_y))
+        d.rounded_rectangle([INSET_L - 2, top_y - 2, INSET_L + bw + 1, top_y + bh + 1],
+                            radius=6, outline=GREEN, width=3)
+        # short canvases leave the claims higher up the frame, same as the
+        # references do - the claims hang off the inset, not off a fixed line
+        y = top_y + bh + CLAIM_GAP
 
     if state.get("claim"):
-        sz = fit(wrap(state["claim"], CLAIM_SZ), CLAIM_SZ)
-        lines = wrap(state["claim"], sz, indent=int(sz * 1.15))
+        # A claim may arrive as explicit lines. The references break their lines
+        # by hand and the breaks carry meaning, so a wrapper is only used when
+        # one string turns up instead of a list.
+        raw = state["claim"]
+        given = raw if isinstance(raw, list) else None
+        sz = fit(given or wrap(raw, CLAIM_SZ), CLAIM_SZ)
+        lines = given or wrap(raw, sz, indent=int(sz * 1.15))
         y = block(lines, sz, CLAIM_PITCH, y, lead_tick=True)
 
     if state.get("cta"):
@@ -194,6 +222,12 @@ def render(state):
     return out
 
 
+def _duration(path, ff):
+    err = subprocess.run([ff, "-i", path], capture_output=True, text=True).stderr
+    h, m, sec = err.split("Duration: ")[1].split(",")[0].split(":")
+    return int(h) * 3600 + int(m) * 60 + float(sec)
+
+
 def assemble(clip, states, out, ff=None):
     """Overlay each state for its own slice of the timeline. No cuts, because the
     reference has none - the background is one continuous take throughout."""
@@ -209,13 +243,27 @@ def assemble(clip, states, out, ff=None):
     cmd = [ff, "-y", "-hide_banner", "-loglevel", "error", "-i", clip]
     for p, _, _ in pngs:
         cmd += ["-i", p]
-    chain = f"[0:v]scale={W}:{H}:flags=lanczos,trim=0:{t:.3f},setpts=PTS-STARTPTS[v0]"
+    # A B-roll shorter than the script gets PING-PONGED: played forward, then in
+    # reverse. The reverse begins on the exact frame the forward pass ended on, so
+    # there is no seam to see - unlike a plain loop, which jump-cuts back to frame
+    # one. On ambient handheld footage it is invisible. Slowing the clip down was
+    # the other option and it reads as slow motion, which is a look we did not ask
+    # for. Audio is padded with silence rather than reversed.
+    src_dur = _duration(clip, ff)
+    if src_dur < t - 0.05:
+        reps = int(t // (2 * src_dur)) + 1
+        chain = (f"[0:v]scale={W}:{H}:flags=lanczos,split[f][b];[b]reverse[r];"
+                 f"[f][r]concat=n=2:v=1:a=0,loop=loop={reps}:size=32767:start=0,"
+                 f"trim=0:{t:.3f},setpts=PTS-STARTPTS[v0]")
+    else:
+        chain = f"[0:v]scale={W}:{H}:flags=lanczos,trim=0:{t:.3f},setpts=PTS-STARTPTS[v0]"
     for i, (_, a, b) in enumerate(pngs):
         chain += (f";[v{i}][{i+1}:v]overlay=0:0:format=auto:"
                   f"enable='between(t,{a:.3f},{b:.3f})'[v{i+1}]")
     cmd += ["-filter_complex", chain, "-map", f"[v{len(pngs)}]", "-map", "0:a?",
-            "-t", f"{t:.3f}", "-c:v", "libx264", "-preset", "slow", "-crf", "19",
-            "-pix_fmt", "yuv420p", "-c:a", "aac", "-movflags", "+faststart", out]
+            "-af", "apad", "-t", f"{t:.3f}", "-c:v", "libx264", "-preset", "slow",
+            "-crf", "19", "-pix_fmt", "yuv420p", "-c:a", "aac",
+            "-movflags", "+faststart", out]
     subprocess.run(cmd, check=True)
     return out, t
 
@@ -223,13 +271,70 @@ def assemble(clip, states, out, ff=None):
 # n8n is the trojan horse: the topic that travels, carrying the thing we sell.
 # So the workflow is real and the claims are true, and what it sets up is that
 # somebody has to keep it running.
-STATES = [
-    dict(dur=2.4, hook=["The n8n workflow", "that runs your", "**FOLLOW-UP**"]),
-    dict(dur=2.7, title="Reply-triggered follow-up",
-         claim="Fires when they reply, not on a timer"),
-    dict(dur=2.8, title="Reply-triggered follow-up",
-         claim="Stops itself the moment they book", cta="read caption"),
-]
+WF = "refs/workflows"
+
+# The references' own words and their own canvases. n8n is the trojan horse, so
+# the carrier ships as it is - the only edits are the emoji ticks (drawn now) and
+# the Comment CTA (the frame says read caption; the keyword lives in the caption).
+SCRIPTS = {
+    "receptionist": dict(
+        inset=f"{WF}/ig-5d66dbe8a194fad5_workflow.png",
+        hook=["The one AI Agent", "You **NEED** to start", "Your agency"],
+        title="AI Voice Receptionist",
+        claims=[["Automatically answers", "Every call to your business", "24 hours a day"],
+                ["Checks your google", "Calendar for availability",
+                 "And books appointments", "For you"],
+                ["Logs every call transcript", "And recording to Airtable",
+                 "automatically"]]),
+    "leadscraper": dict(
+        inset=f"{WF}/ig-11ed3628ef2a4834_workflow.png",
+        hook=["The one AI Agent", "You **NEED** to start", "Your agency"],
+        title="Google Maps Lead Scraper",
+        claims=[["Scrapes all businesses", "In your specific niche"],
+                ["Gets all the businesses data", "Phone number, email etc."],
+                ["Puts all the data", "In a google sheet for you"]]),
+    "admaker": dict(
+        inset=f"{WF}/ig-21b2ab35383a1822_workflow.png",
+        hook=["The one AI Agent", "You **NEED** to start", "Your agency"],
+        title="AI Video & Carousel Generator",
+        claims=[["Generates Video And", "Photo ads Using Blotato"],
+                ["Automatically Posts them", "To TikTok & Instagram"],
+                ["Works For Your Brand", "Or Any You Sell It To"]]),
+    "gmail": dict(
+        inset=f"{WF}/ig-1c1da0539733d3eb_workflow.png",
+        hook=["Top **6** AI Agents", "To sell"],
+        title="Gmail Campaign Sender",
+        claims=[["Writes and sends the", "whole campaign for you"],
+                ["Follows up until", "they reply"]]),
+    "reviews": dict(
+        inset=f"{WF}/ig-0e69bc15beb637ed_workflow.png",
+        hook=["6 Agents every", "**Automation agency**", "Needs"],
+        title="Review Generation System",
+        claims=[["Asks every happy customer", "at the right moment"],
+                ["Sends the good ones", "straight to Google"]]),
+}
+
+
+def script_states(key):
+    """The reference's own durations, not a compressed version of them.
+
+    It runs 13.07s on 1.2 / 2.0 / 2.9 / 3.0 / 4.0 - they GROW, so the hook lands
+    fast and each claim buys more read time. Squeezing that into an 8s B-roll put
+    the hook at 0.65s, which is not a hook, it is a flash. Reading time is the
+    thing the format is spending its length on, so the footage gets stretched to
+    the script rather than the script cut to the footage. See ping_pong."""
+    s = SCRIPTS[key]
+    weights = [1.2, 2.9] + [3.0 + 0.5 * i for i in range(len(s["claims"]))]
+    k = 1.0
+    out = [dict(dur=weights[0] * k, hook=s["hook"]),
+           dict(dur=weights[1] * k, title=s["title"], inset=s["inset"])]
+    for i, c in enumerate(s["claims"]):
+        out.append(dict(dur=weights[2 + i] * k, title=s["title"], inset=s["inset"],
+                        claim=c, **({"cta": "read caption"} if i == len(s["claims"]) - 1 else {})))
+    return out
+
+
+STATES = script_states("receptionist")
 
 
 if __name__ == "__main__":
