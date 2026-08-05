@@ -190,7 +190,9 @@ def render(state):
             block([state["sub"]], fit([state["sub"]], S_SUB_SZ), S_SUB_SZ, S_SUB_BASE)
         if state.get("doc"):
             draw_doc(im, d, sd, state["doc"])
-        if state.get("logo"):
+        if state.get("logo") == "ultron":
+            draw_ultron_card(im)
+        elif state.get("logo"):
             x0, y0, x1, y1 = S_CARD
             card = Image.new("RGBA", (x1 - x0, y1 - y0), (0, 0, 0, 0))
             ImageDraw.Draw(card).rounded_rectangle([0, 0, x1 - x0 - 1, y1 - y0 - 1],
@@ -428,6 +430,50 @@ DOCS = {
         ("b", "One decision maker"),
     ]),
 }
+
+
+MARK = None
+
+
+def mark_img(width_px, colour="#F7F5F1"):
+    """The traced wordmark, filled. Same source as the branding tab."""
+    global MARK
+    import io as _io
+    import cairosvg
+    if MARK is None:
+        MARK = json.load(open(os.path.join(os.path.dirname(os.path.abspath(__file__)),
+                                           "wordmark_paths.json")))
+    asc = width_px * MARK["asc"] / MARK["w"]
+    k = asc / MARK["asc"]
+    w, h = int(MARK["w"] * k) + 8, int(asc) + 8
+    body = "".join(f'<path d="{p["d"]}" fill="{colour}"/>' for p in MARK["paths"])
+    svg = (f'<svg xmlns="http://www.w3.org/2000/svg" width="{w}" height="{h}" '
+           f'viewBox="-4 {-MARK["asc"]-4} {MARK["w"]+8} {MARK["asc"]+8}">{body}</svg>')
+    return Image.open(_io.BytesIO(cairosvg.svg2png(bytestring=svg.encode(),
+                                                   output_width=w, output_height=h))).convert("RGBA")
+
+
+def draw_ultron_card(im):
+    """ultron's slot is not a tool slot.
+
+    In a white logo card the orb is a small dark dot in a big white box, which
+    reads as the weakest thing on a frame whose other cards are dark documents.
+    It is also the wrong claim - the frame says this runs all of the above, and a
+    logo tile says it is one more of the above. So: a dark panel matching the
+    documents, the orb at size, and the wordmark beside it."""
+    x0, y0, x1, y1 = DOC_CARD
+    pw, ph = x1 - x0, 240
+    panel = Image.new("RGBA", (pw, ph), (0, 0, 0, 0))
+    pd = ImageDraw.Draw(panel)
+    pd.rounded_rectangle([0, 0, pw - 1, ph - 1], radius=16,
+                         fill=(22, 22, 24, 242), outline=(64, 64, 68, 255), width=2)
+    orb = Image.open(f"{LOGOS_DIR}/ultron.png").convert("RGBA").resize((132, 132), Image.LANCZOS)
+    mark = mark_img(238)
+    total = orb.width + 26 + mark.width
+    ox = (pw - total) // 2
+    panel.alpha_composite(orb, (ox, (ph - orb.height) // 2))
+    panel.alpha_composite(mark, (ox + orb.width + 26, (ph - mark.height) // 2))
+    im.alpha_composite(panel, (x0, y0 + (y1 - y0 - ph) // 2))
 
 
 def draw_doc(im, d, sd, key):
@@ -937,7 +983,7 @@ STACKS = {
                ("Work LinkedIn", "connects and DMs on a schedule", "linkedin"),
                ("Hold the pipeline", "HubSpot so nothing goes quiet", "hubspot"),
                ("Book the call", "Calendly with real buffers", "calendly"),
-               ("Run all of it", "ultron, every day, in order", "ultron")]),
+               ("Run all of it", "every day, in order, without you", "ultron")]),
 
     # The delivery side of the same business. Its track is the strongest of the
     # twelve at 4.19x onset contrast.
@@ -953,7 +999,7 @@ STACKS = {
                ("Welcome guide", "the plan, and what you need from them", {"doc": "welcome_guide"}),
                ("Kickoff call", "Calendly, real buffers, one link", "calendly"),
                ("Updates and files", "Slack so nothing lives in a DM", "slack"),
-               ("Run all of it", "ultron, so none of it gets skipped", "ultron")]),
+               ("Run all of it", "so none of it gets skipped", "ultron")]),
 }
 
 
