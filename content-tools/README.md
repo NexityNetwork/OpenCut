@@ -5,9 +5,30 @@ they run in is ephemeral and has already been wiped mid-session once.
 
 | File | What it does |
 |---|---|
+| `stack-note.py` | The format that actually gets traction. Two app tiles, a plus, and four typed lines on bare footage |
 | `which-tool-card.py` | Renders the OLD vs NEW comparison card in both themes: `light` on a paper surface, `dark` as a transparent overlay for video |
 | `push-vault.py` | Uploads finished assets to `ultron-reels/imports/` and inserts the `vault_items` row, with the caption rules enforced before anything is written |
 | `wordmark_paths.json` | The traced ultron wordmark outlines (`w`, `asc`, `paths[].d`), also the source for `apps/web/src/brand/ultron-wordmark.ts` |
+
+## The stack-note format
+
+Six rules, five of which are things you do not do. They are written out at the top
+of `stack-note.py`; the short version is no panel, two tiles and a plus, one left
+edge, weight as the only emphasis, literal hyphens, top third only.
+
+The geometry is measured off a post that worked, not chosen. The number that
+decides whether it reads as typed or as designed is the **line pitch: 1.18x the
+type size**. At 1.5x it becomes a layout and the format stops working. Tiles 196
+with 105 between, body 32, block starts at y 250 and takes 22 percent of the frame.
+
+Copy is a data table (`VARIANTS`) with `**bold**` runs. Four lines is the ceiling
+and it has to be an argument, not a list: line one is what everyone agrees with,
+line two turns it, line three says where that leaves you, line four is the answer.
+A line that runs past the safe edge is reported by name, because in this format an
+overflowing line is a copy problem, not a sizing problem.
+
+ultron's mark is a round orb on transparency, so in the tile pair it gets a drawn
+plate (`PLATE`). This is the format where ultron uses the orb, not the wordmark.
 
 ## Running them
 

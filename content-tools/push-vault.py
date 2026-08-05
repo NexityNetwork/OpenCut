@@ -127,6 +127,11 @@ def check(cap, kw):
 
 if __name__ == "__main__":
     go = "--go" in sys.argv
+    # A batch is data, not code. `--items batch.json` so shipping the next thing
+    # is a manifest rather than an edit to this file.
+    if "--items" in sys.argv:
+        spec = json.load(open(sys.argv[sys.argv.index("--items") + 1]))
+        ITEMS = [{**it, "caption": open(it["caption_file"]).read().strip()} for it in spec]
     rows = []
     for it in ITEMS:
         kw = it["caption"].split()[1]
