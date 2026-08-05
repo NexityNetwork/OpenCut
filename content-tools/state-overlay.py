@@ -715,6 +715,27 @@ SCRIPTS = {
                 ["Posts them to", "TikTok and Instagram"],
                 ["Works for your brand", "or any you sell it to"]]),
 
+    # Two canvases the listicles showed but no reel has sold on its own.
+    "newsscraper": dict(
+        source="ig-0e69bc15beb637ed",
+        audio="refs/audio/ig-1c1da0539733d3eb.mp3",
+        inset=f"{WF}/ig-0e69bc15beb637ed_5.png",
+        hook=["The agent that gives you", "a reason to {r|call today}"],
+        title="Company News Scraper",
+        claims=[["Watches your list", "for hiring, funding, launches"],
+                ["Writes the opener", "off what actually happened"],
+                ["Drops it in your CRM", "the morning it lands"]]),
+
+    "reviews": dict(
+        source="ig-0e69bc15beb637ed",
+        audio="refs/audio/ig-6339b3c61b991c49.mp3",
+        inset=f"{WF}/ig-0e69bc15beb637ed_6.png",
+        hook=["The agent that turns", "happy clients into", "{g|Google reviews}"],
+        title="Review Generation System",
+        claims=[["Asks at the moment", "they are happiest"],
+                ["Sends the good ones", "straight to Google"],
+                ["Routes the bad ones", "to you, privately"]]),
+
     "contentteam": dict(
         source="ig-eceb7cf800b5455b",
         audio=f"refs/audio/ig-eceb7cf800b5455b.mp3",
@@ -792,6 +813,20 @@ STACKS = {
                ("Hold the pipeline", "HubSpot so nothing goes quiet", "hubspot"),
                ("Book the call", "Calendly with real buffers", "calendly"),
                ("Run all of it", "ultron, every day, in order", "ultron")]),
+
+    # The delivery side of the same business. Its track is the strongest of the
+    # twelve at 4.19x onset contrast.
+    "onboarding": dict(
+        source="ig-b557fe92e6aad7f0",
+        audio="refs/audio/ig-b557fe92e6aad7f0.mp3",
+        hook=["What I send to clients", "after they say {g|yes}"],
+        cta="read caption",
+        steps=[("Onboarding email", "same hour they sign, every time", "gmail"),
+               ("Contract and deposit", "Stripe, paid before anything starts", "stripe"),
+               ("Welcome guide", "the build plan and what you need from them", "notion"),
+               ("Kickoff call", "Calendly, real buffers, one link", "calendly"),
+               ("Updates and files", "Slack so nothing lives in a DM", "slack"),
+               ("Run all of it", "ultron, so none of it gets skipped", "ultron")]),
 }
 
 
