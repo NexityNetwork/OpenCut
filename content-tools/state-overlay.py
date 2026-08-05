@@ -335,13 +335,30 @@ def clip_schedule(states, rhythm):
     p, ph, dur = rhythm["period"], rhythm["phase"], rhythm["duration"]
     bounds = [0.0] + [ph + k * p for k in range(int((dur - ph) / p) + 1) if ph + k * p < dur - 0.25]
     bounds.append(dur)
+
+    # Runt slots. A clip whose first move is at 0.62s would open on a 0.62s hook,
+    # which nobody reads, and one whose last move is 0.5s from the end flashes a
+    # claim and cuts. Both get merged into their neighbour, so a state always
+    # starts on a move even when it spans two of them.
+    MIN = 0.9
+    while len(bounds) > 2 and bounds[1] - bounds[0] < MIN:
+        del bounds[1]
+    while len(bounds) > 2 and bounds[-1] - bounds[-2] < MIN:
+        del bounds[-2]
     slots = len(bounds) - 1
-    used = states[:slots]
+    used = [dict(x) for x in states[:slots]]
+    # Truncating the script must not truncate the CALL TO ACTION. It lives on the
+    # original last state, so it moves to whichever state ends up last.
+    cta = next((x.get("cta") for x in reversed(states) if x.get("cta")), None)
+    if cta and used:
+        for x in used:
+            x.pop("cta", None)
+        used[-1]["cta"] = cta
     out = []
-    for i, s in enumerate(used):
+    for i, st in enumerate(used):
         # the last kept state runs to the end of the clip rather than stopping short
         end = bounds[i + 1] if i < len(used) - 1 else dur
-        out.append(dict(s, dur=end - bounds[i]))
+        out.append(dict(st, dur=end - bounds[i]))
     return out, slots, len(states)
 
 
@@ -604,7 +621,9 @@ if __name__ == "__main__":
     import glob
     clip = sys.argv[1] if len(sys.argv) > 1 else "brolls/IMG_2398.mp4"
     out = sys.argv[2] if len(sys.argv) > 2 else "brand/STATE_n8n.mp4"
-    pool = sorted(glob.glob(sys.argv[3])) if len(sys.argv) > 3 else sorted(glob.glob("audio/*.mp3"))
+    key = sys.argv[3] if len(sys.argv) > 3 else "receptionist"
+    pool = sorted(glob.glob(sys.argv[4])) if len(sys.argv) > 4 else sorted(glob.glob("audio/*.mp3"))
+    STATES = script_states(key)
 
     # 1. the FOOTAGE sets the grid
     r = clip_rhythm(clip)
