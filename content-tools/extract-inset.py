@@ -169,7 +169,80 @@ def extract(path, outdir, windows=5, per=8, span=0.9):
     return out
 
 
+def signature(im, box, n=64):
+    """Contrast-normalised thumbnail, for telling two canvases apart.
+
+    A raw pixel difference does not work here: every canvas is a near-black n8n
+    screen, so two completely different workflows differ by single digits of mean
+    brightness and a plain threshold calls them the same image. Normalising by the
+    crop's own spread compares STRUCTURE instead of level, which is the thing that
+    actually differs."""
+    g = np.asarray(im.crop(box).resize((n, n), Image.LANCZOS).convert("L"), dtype=np.float32)
+    return (g - g.mean()) / (g.std() + 1e-6)
+
+
+def extract_all(path, outdir, fps=2.5, distinct=0.42):
+    """Every distinct canvas in the video, not just one.
+
+    A single reference is often a listicle - one of these holds six different
+    workflows behind one hook - so pulling one frame threw away five sixths of it.
+    Decode the whole clip at a low frame rate in one pass, find every bordered
+    canvas, group them by signature, then go back and re-extract the sharpest
+    frame of each group at full resolution."""
+    os.makedirs(outdir, exist_ok=True)
+    name = os.path.basename(path).rsplit(".", 1)[0]
+    dur = duration(path)
+    w, h = 720, 1280
+
+    raw = subprocess.run([FF, "-v", "error", "-i", path, "-r", str(fps),
+                          "-vf", f"scale={w}:{h}", "-f", "rawvideo",
+                          "-pix_fmt", "rgb24", "-"], capture_output=True).stdout
+    n = len(raw) // (w * h * 3)
+    if not n:
+        return []
+    arr = np.frombuffer(raw[:n * w * h * 3], dtype=np.uint8).reshape(n, h, w, 3)
+
+    groups = []                       # [{sig, best:(sharp, t, box)}]
+    for i in range(n):
+        im = Image.fromarray(arr[i])
+        box = green_box(im)
+        if not box:
+            continue
+        inner = (box[0] + 3, box[1] + 3, box[2] - 3, box[3] - 3)
+        if inner[2] - inner[0] < 60 or inner[3] - inner[1] < 40:
+            continue
+        sig = signature(im, inner)
+        t = i / fps
+        sc = sharpness(im, inner)
+        for g in groups:
+            if np.abs(g["sig"] - sig).mean() < distinct:
+                if sc > g["best"][0]:
+                    g["best"] = (sc, t, inner)
+                break
+        else:
+            groups.append({"sig": sig, "best": (sc, t, inner)})
+
+    out = []
+    for k, g in enumerate(groups):
+        _, t, box = g["best"]
+        # the low-rate pass is only for FINDING them; the pixels come from a
+        # full-resolution seek, and from the sharpest moment rather than any moment
+        got = frames(path, [max(0, t - 0.2 + 0.1 * j) for j in range(5)])
+        best = max(((sharpness(im, box), im) for _, im in got), key=lambda x: x[0],
+                   default=(0, None))
+        if best[1] is None:
+            continue
+        crop = best[1].crop(box)
+        p = f"{outdir}/{name}_{k + 1}.png"
+        crop.save(p)
+        out.append(p)
+        print(f"    {crop.width}x{crop.height} at {t:5.1f}s  -> {os.path.basename(p)}")
+    print(f"  {name}: {len(out)} distinct canvas(es) in {dur:.1f}s")
+    return out
+
+
 if __name__ == "__main__":
     outdir = "refs/workflows"
-    for p in sys.argv[1:]:
-        extract(p, outdir)
+    single = "--one" in sys.argv
+    for p in [a for a in sys.argv[1:] if not a.startswith("--")]:
+        (extract if single else extract_all)(p, outdir)

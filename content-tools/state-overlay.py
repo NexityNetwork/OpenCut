@@ -44,6 +44,7 @@ import os
 import subprocess
 import sys
 
+import numpy as np
 from PIL import Image, ImageDraw, ImageFilter, ImageFont
 
 W, H = 1080, 1920
@@ -222,13 +223,78 @@ def render(state):
     return out
 
 
+def _refbreak():
+    import importlib.util
+    p = os.path.join(os.path.dirname(os.path.abspath(__file__)), "refbreak.py")
+    spec = importlib.util.spec_from_file_location("refbreak", p)
+    m = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(m)
+    return m
+
+
+def beat_schedule(states, audio):
+    """Put the state changes on the beat, and the first one ON THE DROP.
+
+    The reference is not beat-synced and it does not need to be - it is a talking
+    head's script. Ours is a silent overlay sequence, so the music is the only
+    thing giving it a pulse, and a change that lands 300ms off the beat reads as a
+    mistake rather than a choice.
+
+    The rules, all of which cost something to learn:
+
+      Find the DROP, not the first beat. librosa's beat_track returns the first
+      beat of a quiet intro; on one track that was 1.78s against a real drop at
+      4.13s.
+
+      Anchor on the drop, NOT the fitted grid phase. Phase can sit up to 0.3s
+      after the drop, and anchoring on it cost 185ms of drift once.
+
+      Trim the intro rather than delaying the video: astart = drop - hook, so the
+      drop arrives exactly as the hook leaves. The reel opens on the build-up and
+      the first content lands on the hit.
+
+      Every later boundary is a whole number of grid periods from the drop, chosen
+      as the nearest count to the duration the script wanted - so reading time is
+      approximately preserved and the cut is exactly on the grid.
+    """
+    rb = _refbreak()
+    # Only the HEAD of the track matters, and how much head changes the answer
+    # completely. A full song has several drops and the biggest is usually deep in
+    # the arrangement; on one track the whole-file answer was 58.7s, which a 15s
+    # reel never reaches. Measured across five tracks, 30s is where the first real
+    # drop reliably sits. It is a heuristic, so it widens rather than trusting
+    # itself: a result at 0.00s or a limp step means the intro is longer than the
+    # window and the search grows.
+    full = rb.pcm(audio)
+    for head in (30, 45, 60, 90):
+        x = full[:rb.SR * head]
+        t, mag = rb.spectra(x)
+        env = rb.onset_envelope(mag)
+        drop, strength = rb.find_drop(t, mag, x)
+        if drop >= 2.0 and strength >= 0.15:
+            break
+    grid = rb.fit_grid(env, t, drop)
+    period = grid["period"] or 1.0
+
+    hook = states[0]["dur"]
+    out = [dict(states[0], dur=hook)]
+    for s in states[1:]:
+        n = max(1, round(s["dur"] / period))
+        out.append(dict(s, dur=n * period))
+    astart = max(0.0, drop - hook)
+    info = dict(drop=round(drop, 3), strength=round(strength, 3), astart=round(astart, 3),
+                period=round(period, 3), score=round(grid["score"], 2),
+                contrast=grid["contrast"], hook=round(hook, 3))
+    return out, astart, info
+
+
 def _duration(path, ff):
     err = subprocess.run([ff, "-i", path], capture_output=True, text=True).stderr
     h, m, sec = err.split("Duration: ")[1].split(",")[0].split(":")
     return int(h) * 3600 + int(m) * 60 + float(sec)
 
 
-def assemble(clip, states, out, ff=None):
+def assemble(clip, states, out, ff=None, audio=None, astart=0.0):
     """Overlay each state for its own slice of the timeline. No cuts, because the
     reference has none - the background is one continuous take throughout."""
     import imageio_ffmpeg
@@ -243,6 +309,10 @@ def assemble(clip, states, out, ff=None):
     cmd = [ff, "-y", "-hide_banner", "-loglevel", "error", "-i", clip]
     for p, _, _ in pngs:
         cmd += ["-i", p]
+    if audio:
+        # seek BEFORE -i so the decoder starts there; seeking after would decode
+        # and discard the intro and the drop would land late by whatever that cost
+        cmd += ["-ss", f"{astart:.3f}", "-i", audio]
     # A B-roll shorter than the script gets PING-PONGED: played forward, then in
     # reverse. The reverse begins on the exact frame the forward pass ended on, so
     # there is no seam to see - unlike a plain loop, which jump-cuts back to frame
@@ -260,9 +330,11 @@ def assemble(clip, states, out, ff=None):
     for i, (_, a, b) in enumerate(pngs):
         chain += (f";[v{i}][{i+1}:v]overlay=0:0:format=auto:"
                   f"enable='between(t,{a:.3f},{b:.3f})'[v{i+1}]")
-    cmd += ["-filter_complex", chain, "-map", f"[v{len(pngs)}]", "-map", "0:a?",
-            "-af", "apad", "-t", f"{t:.3f}", "-c:v", "libx264", "-preset", "slow",
-            "-crf", "19", "-pix_fmt", "yuv420p", "-c:a", "aac",
+    amap = f"{len(pngs) + 1}:a" if audio else "0:a?"
+    cmd += ["-filter_complex", chain, "-map", f"[v{len(pngs)}]", "-map", amap,
+            "-af", f"apad,afade=t=out:st={max(0, t - 0.4):.3f}:d=0.4",
+            "-t", f"{t:.3f}", "-c:v", "libx264", "-preset", "slow",
+            "-crf", "19", "-pix_fmt", "yuv420p", "-c:a", "aac", "-b:a", "160k",
             "-movflags", "+faststart", out]
     subprocess.run(cmd, check=True)
     return out, t
@@ -278,7 +350,7 @@ WF = "refs/workflows"
 # the Comment CTA (the frame says read caption; the keyword lives in the caption).
 SCRIPTS = {
     "receptionist": dict(
-        inset=f"{WF}/ig-5d66dbe8a194fad5_workflow.png",
+        inset=f"{WF}/ig-5d66dbe8a194fad5_1.png",
         hook=["The one AI Agent", "You **NEED** to start", "Your agency"],
         title="AI Voice Receptionist",
         claims=[["Automatically answers", "Every call to your business", "24 hours a day"],
@@ -287,27 +359,27 @@ SCRIPTS = {
                 ["Logs every call transcript", "And recording to Airtable",
                  "automatically"]]),
     "leadscraper": dict(
-        inset=f"{WF}/ig-11ed3628ef2a4834_workflow.png",
+        inset=f"{WF}/ig-11ed3628ef2a4834_1.png",
         hook=["The one AI Agent", "You **NEED** to start", "Your agency"],
         title="Google Maps Lead Scraper",
         claims=[["Scrapes all businesses", "In your specific niche"],
                 ["Gets all the businesses data", "Phone number, email etc."],
                 ["Puts all the data", "In a google sheet for you"]]),
     "admaker": dict(
-        inset=f"{WF}/ig-21b2ab35383a1822_workflow.png",
+        inset=f"{WF}/ig-21b2ab35383a1822_1.png",
         hook=["The one AI Agent", "You **NEED** to start", "Your agency"],
         title="AI Video & Carousel Generator",
         claims=[["Generates Video And", "Photo ads Using Blotato"],
                 ["Automatically Posts them", "To TikTok & Instagram"],
                 ["Works For Your Brand", "Or Any You Sell It To"]]),
     "gmail": dict(
-        inset=f"{WF}/ig-1c1da0539733d3eb_workflow.png",
+        inset=f"{WF}/ig-1c1da0539733d3eb_1.png",
         hook=["Top **6** AI Agents", "To sell"],
         title="Gmail Campaign Sender",
         claims=[["Writes and sends the", "whole campaign for you"],
                 ["Follows up until", "they reply"]]),
     "reviews": dict(
-        inset=f"{WF}/ig-0e69bc15beb637ed_workflow.png",
+        inset=f"{WF}/ig-0e69bc15beb637ed_1.png",
         hook=["6 Agents every", "**Automation agency**", "Needs"],
         title="Review Generation System",
         claims=[["Asks every happy customer", "at the right moment"],
@@ -337,12 +409,59 @@ def script_states(key):
 STATES = script_states("receptionist")
 
 
+def verify(path, audio, astart, expect_at):
+    """Check the RENDER, by cross-correlation rather than by re-detecting.
+
+    Re-running the drop detector on the output does not work and the way it fails
+    is instructive: its answer depends on how much audio sits either side, and the
+    render only has `hook` seconds before the drop. With a narrower window forced
+    on it, it reported a 170ms error that was not there.
+
+    The question is really "did ffmpeg put the audio where I asked", so ask that
+    directly: correlate the render's energy envelope against the source's from
+    astart. Zero lag means the placement is exact, and the drop is then at
+    drop - astart by construction. This is also the check that would have caught
+    the 185ms grid-phase drift last time.
+    """
+    rb = _refbreak()
+
+    def envelope(sig):
+        n = 1 + max(0, (len(sig) - rb.WIN) // rb.HOP)
+        idx = np.arange(rb.WIN)[None, :] + rb.HOP * np.arange(n)[:, None]
+        e = np.sqrt((sig[idx] ** 2).mean(axis=1))
+        return (e - e.mean()) / (e.std() + 1e-9)
+
+    span = rb.SR * 8
+    a = envelope(rb.pcm(path)[:span])
+    src = rb.pcm(audio)
+    b = envelope(src[int(astart * rb.SR):int(astart * rb.SR) + span])
+    n = min(len(a), len(b))
+    a, b = a[:n], b[:n]
+    xc = np.correlate(a, b, mode="full")
+    lag = (int(xc.argmax()) - (n - 1)) * rb.HOP / rb.SR
+    print(f"  VERIFY  audio placement off by {lag * 1000:+.0f}ms "
+          f"({'OK' if abs(lag) < 0.03 else 'MISPLACED'}); "
+          f"drop therefore lands at {expect_at:.3f}s, on the hook cut")
+    return lag
+
+
 if __name__ == "__main__":
     clip = sys.argv[1] if len(sys.argv) > 1 else "brolls/IMG_2393.mp4"
     out = sys.argv[2] if len(sys.argv) > 2 else "brand/STATE_n8n.mp4"
-    for i, s in enumerate(STATES):
+    audio = sys.argv[3] if len(sys.argv) > 3 else None
+
+    states, astart, info = (beat_schedule(STATES, audio) if audio
+                            else (STATES, 0.0, None))
+    if info:
+        print(f"  audio   drop {info['drop']}s (step {info['strength']}), "
+              f"grid {info['period']}s, score {info['score']} / {info['contrast']}x")
+        print(f"          trimming {info['astart']}s so the drop lands on the hook "
+              f"cut at {info['hook']}s")
+    for i, s in enumerate(states):
         render(s).save(f"brand/STATE_{i}.png")
-        print(f"  state {i}  {s['dur']}s  " +
+        print(f"  state {i}  {s['dur']:.2f}s  " +
               " | ".join(k for k in ("hook", "title", "claim", "cta") if s.get(k)))
-    path, total = assemble(clip, STATES, out)
+    path, total = assemble(clip, states, out, audio=audio, astart=astart)
     print(f"-> {path}  {total:.2f}s over {clip}")
+    if audio:
+        verify(path, audio, astart, states[0]["dur"])

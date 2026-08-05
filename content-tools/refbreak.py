@@ -89,7 +89,7 @@ def onset_envelope(mag):
     return env / (env.max() + 1e-9)
 
 
-def find_drop(t, mag, x):
+def find_drop(t, mag, x, win=1.5, first_frac=None):
     """The moment the floor comes up and stays up.
 
     Deliberately NOT a peak finder and NOT a mean. The signature of a drop is
@@ -99,7 +99,11 @@ def find_drop(t, mag, x):
     rms = np.sqrt((mag ** 2).mean(axis=1))
     rms /= rms.max() + 1e-9
     hop_s = HOP / SR
-    back, fwd = int(1.5 / hop_s), int(1.5 / hop_s)
+    # The window is a parameter because it sets the earliest moment that can be
+    # resolved at all: with a 1.5s look-back, nothing before 1.5s can ever be
+    # reported. Verifying a render whose drop sits at 1.2s therefore needs a
+    # narrower window, or it "measures" a 286ms error that is not there.
+    back, fwd = int(win / hop_s), int(win / hop_s)
     if len(rms) < back + fwd + 4:
         return 0.0, 0.0
 
@@ -113,6 +117,14 @@ def find_drop(t, mag, x):
         # a step only counts if the loud side is actually loud, otherwise a rise
         # from silence to quiet scores the same as a rise from quiet to a drop
         step[i] = (after - floor(i - back, i)) if after > 0.18 else 0.0
+    # A full track usually has several drops and the biggest one is often deep in
+    # the arrangement - on one it was at 59.5s. A reel wants the FIRST one that is
+    # unambiguously a drop, because that is where the reel starts.
+    if first_frac is not None and step.max() > 0:
+        hits = np.where(step >= first_frac * step.max())[0]
+        if len(hits):
+            i = int(hits[0])
+            return float(t[i]), float(step[i])
     i = int(step.argmax())
     return float(t[i]), float(step[i])
 
