@@ -181,6 +181,32 @@ def render(state):
     # pitch after the last line and then adding a font size for the next one puts
     # a 202px hole between the title and the claim - which in the reference is
     # where the workflow screenshot sat. Without an inset it is just a hole.
+    if state.get("mode") == "list":
+        sz = fit(state["hook"], L_HOOK_SZ)
+        block(state["hook"], sz, L_HOOK_PITCH, L_HOOK_TOP)
+        if state.get("title"):
+            block([state["title"]], fit([state["title"]], L_TITLE_SZ),
+                  L_TITLE_SZ, L_TITLE_BASE)
+        if state.get("inset"):
+            src = Image.open(state["inset"]).convert("RGBA")
+            x0, y0, x1, y1 = L_BOX
+            bw = x1 - x0
+            bh = min(y1 - y0, int(bw * src.height / src.width))
+            im.alpha_composite(src.resize((bw, bh), Image.LANCZOS), (x0, y0))
+            d.rounded_rectangle([x0 - 2, y0 - 2, x0 + bw + 1, y0 + bh + 1],
+                                radius=6, outline=GREEN, width=3)
+        if state.get("label"):
+            block([state["label"]], fit([state["label"]], L_LABEL_SZ),
+                  L_LABEL_SZ, L_LABEL_BASE)
+        if state.get("cta"):
+            for target, base in ((sd, (0, 0, 0, 215)), (d, None)):
+                draw_line(target, CX, L_CTA_BASE, state["cta"], L_CTA_SZ, "Bold", base=base)
+        out = Image.new("RGBA", (W, H), (0, 0, 0, 0))
+        out.alpha_composite(sh.filter(ImageFilter.GaussianBlur(11)))
+        out.alpha_composite(sh.filter(ImageFilter.GaussianBlur(3)))
+        out.alpha_composite(im)
+        return out
+
     y = HOOK_BASE
 
     if state.get("hook"):
@@ -281,6 +307,27 @@ def clip_rhythm(clip, lo=0.6, hi=2.6):
                 best = {"score": sc, "period": float(period), "phase": float(phase)}
     best["duration"] = float(dur)
     return best
+
+
+# ---- listicle format ---------------------------------------------------------
+# A second structure, and the one holding 18 of the 23 extracted canvases: the
+# hook is PINNED for the whole video and the middle cycles through numbered
+# agents. Measured off ig-0e69bc15 at 1080x1920:
+#
+#   hook    3 lines, band starts y 206, ~86px, lines 2-3 in blue
+#   title   band y 672..754, above the canvas
+#   canvas  x 31..1059, y 763..1245     (past the safe box on both sides)
+#   label   band y 1310..1414 - BIGGER than the title, and the numbered item
+#   cta     two lines, y 1484..1576     (below the safe bottom entirely)
+#
+# Their canvas runs to x 1059 and their CTA sits at y 1576, both of which the
+# platform covers. Ours are pulled inside 60..950 and 250..1440, which costs
+# canvas width and is the right trade.
+L_HOOK_SZ, L_HOOK_PITCH, L_HOOK_TOP = 78, 92, 330
+L_TITLE_SZ, L_TITLE_BASE = 66, 618
+L_BOX = (60, 650, 950, 1075)
+L_LABEL_SZ, L_LABEL_BASE = 74, 1165
+L_CTA_SZ, L_CTA_BASE = 46, 1350
 
 
 def clip_rhythm_candidates(clip, lo=0.6, hi=2.6, n=6):
@@ -432,7 +479,7 @@ def clip_schedule(states, rhythm):
     # Truncating the script must not truncate the CALL TO ACTION. It lives on the
     # original last state, so it moves to whichever state ends up last.
     cta = next((x.get("cta") for x in reversed(states) if x.get("cta")), None)
-    if cta and used:
+    if cta and used and used[0].get("mode") != "list":
         for x in used:
             x.pop("cta", None)
         used[-1]["cta"] = cta
@@ -636,6 +683,39 @@ SCRIPTS = {
 }
 
 
+WFL = "refs/workflows/ig-0e69bc15beb637ed"
+
+LISTICLES = {
+    "sixagents": dict(
+        source="ig-0e69bc15beb637ed",
+        audio="refs/audio/ig-0e69bc15beb637ed.mp3",
+        hook=["{n} Agents every", "{b|Automation agency}", "{b|Needs}"],
+        cta="read caption",
+        items=[("Google Maps Lead Scraper", "1. Lead-Gen Agent", f"{WFL}_1.png"),
+               ("AI Video & Carousel Generator", "2. Marketing Agent", f"{WFL}_2.png"),
+               ("AI Voice Receptionist", "3. Voice Agent", f"{WFL}_3.png"),
+               ("Gmail Campaign Sender", "4. Follow-up Agent", f"{WFL}_4.png"),
+               ("Company News Scraper", "5. Research Agent", f"{WFL}_5.png"),
+               ("Review Generation System", "6. Reputation Agent", f"{WFL}_6.png")]),
+}
+
+
+def listicle_states(key, n_items=None):
+    """Hook alone, then one agent per slot. The hook and the CTA never leave.
+
+    The COUNT IN THE HOOK follows how many actually fit. A reel that promises six
+    agents and shows three is not a shortened reel, it is a broken one, and the
+    reference's number is the reference's number - it had 14.9s to spend."""
+    L = LISTICLES[key]
+    items = L["items"][:n_items] if n_items else L["items"]
+    hook = [ln.replace("{n}", str(len(items))) for ln in L["hook"]]
+    out = [dict(dur=1.2, mode="list", hook=hook, cta=L["cta"])]
+    for title, label, inset in items:
+        out.append(dict(dur=2.2, mode="list", hook=hook, cta=L["cta"],
+                        title=title, label=label, inset=inset))
+    return out
+
+
 def script_states(key):
     """The reference's own durations, not a compressed version of them.
 
@@ -749,7 +829,8 @@ if __name__ == "__main__":
     out = sys.argv[2] if len(sys.argv) > 2 else "brand/STATE_n8n.mp4"
     key = sys.argv[3] if len(sys.argv) > 3 else "receptionist"
     pool = sorted(glob.glob(sys.argv[4])) if len(sys.argv) > 4 else sorted(glob.glob("audio/*.mp3"))
-    STATES = script_states(key)
+    STATES = (listicle_states(key) if key in LISTICLES else script_states(key))
+    IS_LIST = key in LISTICLES
 
     # 1. the FOOTAGE offers its grids
     cands = clip_rhythm_candidates(clip, n=10)
@@ -761,7 +842,7 @@ if __name__ == "__main__":
     #    what made the reference work, the same way the hook is - reusing one
     #    track across a batch is the same mistake as reusing one hook.
     rb = _refbreak()
-    audio = SCRIPTS[key].get("audio")
+    audio = (LISTICLES if key in LISTICLES else SCRIPTS)[key].get("audio")
     ax = rb.pcm(audio)
     at, amag = rb.spectra(ax)
     aenv = rb.onset_envelope(amag)
@@ -779,7 +860,13 @@ if __name__ == "__main__":
     cand = dict(path=audio, drop=adrop, period=ag["period"], phase=ag["phase"],
                 mult=1.0, contrast=ag["contrast"])
 
-    # 4. the script is cut to the slots the clip has room for
+    # 4. the script is cut to the slots the clip has room for. A listicle is
+    #    REBUILT at that size rather than truncated, so its headline count is true.
+    if IS_LIST:
+        _, slots, _ = clip_schedule(STATES, r)
+        STATES = listicle_states(key, n_items=max(1, slots - 1))
+        print(f"  listicle {slots - 1} of {len(LISTICLES[key]['items'])} agents fit; "
+              f"the hook counts what is shown")
     states, slots, wanted = clip_schedule(STATES, r)
     if wanted > slots:
         print(f"  script  {wanted} states wanted, {slots} fit in {r['duration']:.2f}s "

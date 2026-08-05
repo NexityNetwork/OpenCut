@@ -148,7 +148,7 @@ def extract(path, outdir, windows=5, per=8, span=0.9):
                 print(f"  {name}: inset fills the frame - static B-roll, "
                       f"no border to separate it. skipped")
                 return None
-        inner = (box[0] + 3, box[1] + 3, box[2] - 3, box[3] - 3)
+        inner = (box[0] + 8, box[1] + 8, box[2] - 8, box[3] - 8)   # 3px left title bleed in
         if inner[2] - inner[0] < 20 or inner[3] - inner[1] < 20:
             continue
         # pick the sharpest frame in the window - the source is a phone filming a
@@ -208,7 +208,7 @@ def extract_all(path, outdir, fps=2.5, distinct=0.42):
         box = green_box(im)
         if not box:
             continue
-        inner = (box[0] + 3, box[1] + 3, box[2] - 3, box[3] - 3)
+        inner = (box[0] + 8, box[1] + 8, box[2] - 8, box[3] - 8)   # 3px left title bleed in
         if inner[2] - inner[0] < 60 or inner[3] - inner[1] < 40:
             continue
         sig = signature(im, inner)
