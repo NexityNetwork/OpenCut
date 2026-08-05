@@ -188,6 +188,8 @@ def render(state):
             block([state["step"]], fit([state["step"]], S_STEP_SZ), S_STEP_SZ, S_STEP_BASE)
         if state.get("sub"):
             block([state["sub"]], fit([state["sub"]], S_SUB_SZ), S_SUB_SZ, S_SUB_BASE)
+        if state.get("doc"):
+            draw_doc(im, d, sd, state["doc"])
         if state.get("logo"):
             x0, y0, x1, y1 = S_CARD
             card = Image.new("RGBA", (x1 - x0, y1 - y0), (0, 0, 0, 0))
@@ -373,6 +375,129 @@ S_SUB_SZ, S_SUB_BASE = 38, 632
 S_CARD = (60, 728, 950, 1078)
 S_CTA_BASE = 1330
 LOGOS_DIR = os.environ.get("TOOL_LOGOS", "../apps/web/public/tools")
+
+# Half the steps in the delivery stack are DOCUMENTS, not tools, and a Gmail logo
+# does not say "onboarding email" - it says Gmail. The reference shows a mockup of
+# the document itself: a dark panel, a heading, and body copy set small enough to
+# read as a page rather than be read as text. That is the right call and it is
+# also the giveaway - a template with placeholders in it is a thing worth
+# commenting for.
+#
+# Everything below is dummy. Placeholders, no real client, no real company.
+DOC_CARD = (170, 762, 910, 1402)
+DOCS = {
+    "onboard_email": dict(title="Onboarding Email", body=[
+        ("p", "Hi {first_name},"),
+        ("p", "Welcome aboard. Here is exactly what happens next, so nothing sits waiting on either side."),
+        ("h", "This week"),
+        ("b", "Kickoff call, 30 minutes, link below"),
+        ("b", "Access list, five items, sent separately"),
+        ("b", "Draft build plan back to you by Friday"),
+        ("h", "What we need from you"),
+        ("b", "Admin access to the tools in the list"),
+        ("b", "One decision maker on the kickoff call"),
+        ("b", "Anything you have already tried, so we skip it"),
+        ("p", "Reply here if any of it is unclear. This inbox is monitored."),
+    ]),
+    "agreement": dict(title="AI Services Agreement", body=[
+        ("p", "This Agreement is entered into as of {effective_date} by and between:"),
+        ("p", "Service Provider: {company_name}, located at {company_address}"),
+        ("p", "Client: {client_company}, located at {client_address}"),
+        ("h", "1. Scope of Services"),
+        ("p", "The Service Provider agrees to provide implementation services, which may include:"),
+        ("b", "Workflow automation and integration"),
+        ("b", "CRM and calendar connections"),
+        ("b", "Outreach sequencing and follow-up"),
+        ("b", "Call handling, routing and transcription"),
+        ("b", "Reporting and failure alerting"),
+        ("h", "2. Term"),
+        ("p", "Commences on the Effective Date and continues until terminated under Section 8."),
+    ]),
+    "welcome_guide": dict(title="Welcome Guide", body=[
+        ("h", "{company_name} Client Onboarding"),
+        ("p", "This guide covers what to expect during onboarding, what we need from your team, and how we work from kickoff through to launch."),
+        ("h", "1. What we build"),
+        ("p", "Depending on the project, this may include:"),
+        ("b", "Lead sourcing and qualification"),
+        ("b", "Outreach and follow-up sequences"),
+        ("b", "Appointment booking workflows"),
+        ("b", "Call summaries and transcripts"),
+        ("b", "Reporting you will actually read"),
+        ("h", "2. What we need"),
+        ("b", "Access, listed separately"),
+        ("b", "One decision maker"),
+    ]),
+}
+
+
+def draw_doc(im, d, sd, key):
+    """A document mockup. Body copy is deliberately below reading size - the point
+    is that it looks like a real page at a glance, not that anybody reads it."""
+    doc = DOCS[key]
+    x0, y0, x1, y1 = DOC_CARD
+    pad = 30
+
+    # Measure first, then draw the panel to fit. A fixed-height panel leaves a
+    # third of itself empty under a short document, which reads as a rendering
+    # mistake rather than a page.
+    def layout(draw=None):
+        y = pad
+        for kind, text in doc["body"]:
+            if y > (y1 - y0) - 40:
+                break
+            if kind == "h":
+                if draw:
+                    draw.text((pad, y), text, font=F(21, "Bold"), fill=(240, 240, 242), anchor="la")
+                y += 34
+            elif kind == "b":
+                if draw:
+                    draw.ellipse([pad + 6, y + 7, pad + 12, y + 13], fill=(150, 150, 155))
+                for ln in _wrapw(text, 18, x1 - x0 - pad * 2 - 26):
+                    if draw:
+                        draw.text((pad + 26, y), ln, font=F(18, "Regular"),
+                                  fill=(196, 196, 200), anchor="la")
+                    y += 25
+                y += 3
+            else:
+                for ln in _wrapw(text, 18, x1 - x0 - pad * 2):
+                    if draw:
+                        draw.text((pad, y), ln, font=F(18, "Regular"),
+                                  fill=(178, 178, 184), anchor="la")
+                    y += 25
+                y += 10
+        return y
+
+    # The title is drawn at y=pad in 36px, so it occupies down to about pad+48.
+    # Starting the body at pad+32 ran the first line through it.
+    BODY_TOP = pad + 56
+    body_h = layout()
+    ph = min(y1 - y0, BODY_TOP + (body_h - pad) + 24)
+    panel = Image.new("RGBA", (x1 - x0, ph), (0, 0, 0, 0))
+    pd = ImageDraw.Draw(panel)
+    pd.rounded_rectangle([0, 0, x1 - x0 - 1, ph - 1], radius=16,
+                         fill=(22, 22, 24, 242), outline=(64, 64, 68, 255), width=2)
+    y = 30
+    pd.text((pad, y), doc["title"], font=F(36, "Bold"), fill=(250, 250, 250), anchor="la")
+    sub = Image.new("RGBA", (x1 - x0, ph), (0, 0, 0, 0))
+    layout(ImageDraw.Draw(sub))
+    panel.alpha_composite(sub, (0, BODY_TOP - pad))
+    # centred in the slot rather than pinned to its top, so a short doc and a long
+    # one both sit where the eye expects the card to be
+    im.alpha_composite(panel, (x0, y0 + max(0, (y1 - y0 - ph) // 2)))
+
+
+def _wrapw(text, sz, maxw):
+    words, out, cur = text.split(" "), [], ""
+    for w_ in words:
+        t = (cur + " " + w_).strip()
+        if tw(t, F(sz, "Regular")) > maxw and cur:
+            out.append(cur)
+            cur = w_
+        else:
+            cur = t
+    if cur:
+        out.append(cur)
+    return out
 
 
 def clip_rhythm_candidates(clip, lo=0.6, hi=2.6, n=6):
@@ -821,9 +946,11 @@ STACKS = {
         audio="refs/audio/ig-b557fe92e6aad7f0.mp3",
         hook=["What I send to clients", "after they say {g|yes}"],
         cta="read caption",
-        steps=[("Onboarding email", "same hour they sign, every time", "gmail"),
-               ("Contract and deposit", "Stripe, paid before anything starts", "stripe"),
-               ("Welcome guide", "the build plan and what you need from them", "notion"),
+        # doc: for the things that ARE documents, logo: for the things that are
+        # tools. Showing a Gmail mark for "onboarding email" says Gmail, not email.
+        steps=[("Onboarding email", "same hour they sign, every time", {"doc": "onboard_email"}),
+               ("Services agreement", "protects them more than it protects you", {"doc": "agreement"}),
+               ("Welcome guide", "the plan, and what you need from them", {"doc": "welcome_guide"}),
                ("Kickoff call", "Calendly, real buffers, one link", "calendly"),
                ("Updates and files", "Slack so nothing lives in a DM", "slack"),
                ("Run all of it", "ultron, so none of it gets skipped", "ultron")]),
@@ -835,9 +962,10 @@ def stack_states(key, n_items=None):
     S = STACKS[key]
     steps = S["steps"][:n_items] if n_items else S["steps"]
     out = [dict(dur=1.4, mode="stack", hook=S["hook"], cta=S["cta"])]
-    for i, (step, sub, logo) in enumerate(steps, 1):
-        out.append(dict(dur=1.3, mode="stack", step=f"{i}. {step}", sub=sub,
-                        logo=logo, cta=S["cta"]))
+    for i, (step, sub, art) in enumerate(steps, 1):
+        st = dict(dur=1.3, mode="stack", step=f"{i}. {step}", sub=sub, cta=S["cta"])
+        st.update(art if isinstance(art, dict) else {"logo": art})
+        out.append(st)
     return out
 
 
@@ -1015,8 +1143,10 @@ if __name__ == "__main__":
             keep = src[:n - 1] + [src[-1]] if n < len(src) else src
             STATES = [dict(dur=1.4, mode="stack", hook=STACKS[key]["hook"],
                            cta=STACKS[key]["cta"])] + [
-                dict(dur=1.3, mode="stack", step=f"{i}. {a}", sub=b, logo=c,
-                     cta=STACKS[key]["cta"]) for i, (a, b, c) in enumerate(keep, 1)]
+                dict(dur=1.3, mode="stack", step=f"{i}. {a}", sub=b,
+                     cta=STACKS[key]["cta"],
+                     **(c if isinstance(c, dict) else {"logo": c}))
+                for i, (a, b, c) in enumerate(keep, 1)]
             print(f"  stack   {len(keep)} of {len(src)} steps fit; the last one is kept")
         else:
             STATES = listicle_states(key, n_items=n)
