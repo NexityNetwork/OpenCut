@@ -1,0 +1,14 @@
+# Pinned to what this toolkit was built and verified against.
+#
+# librosa is deliberately absent. Its beat_track returned 1.78s on a track whose
+# drop was at 4.13s - it locks onto the first beat of a quiet intro - and every
+# part of the sync that works is custom energy analysis over numpy. Adding it back
+# would only reintroduce the unreliable layer.
+numpy==2.4.6
+scipy==1.17.1
+pillow==12.3.0
+cairosvg==2.9.0          # wordmark: SVG paths -> raster
+imageio-ffmpeg==0.6.0    # bundles a full ffmpeg; the system one may be absent
+                         # and Playwright's is a minimal build that cannot open
+                         # an ordinary h264 mp4
+pytesseract==0.3.13      # needs the tesseract-ocr binary, see setup.sh

@@ -133,15 +133,34 @@ overflowing line is a copy problem, not a sizing problem.
 ultron's mark is a round orb on transparency, so in the tile pair it gets a drawn
 plate (`PLATE`). This is the format where ultron uses the orb, not the wordmark.
 
-## Running them
+## Setup, from nothing
 
 ```sh
-pip install pillow cairosvg imageio-ffmpeg
-export CFE=... CFK=... ACC=... DB=ed8a246f-2722-4a1f-95f5-90c2eaf6b4ab
+./setup.sh                # deps + fonts. enough to render
+./setup.sh pull           # also pulls B-rolls, references and music (needs CF creds)
+```
 
-python3 which-tool-card.py          # -> brand/COMPARE2.png, OVERLAY2.png, OVER2_2393.png
-python3 push-vault.py               # dry run: validates captions, writes nothing
-python3 push-vault.py --go          # uploads + inserts
+The container is ephemeral and has already been wiped mid-session once, taking
+the whole toolkit with it. The generators are in git; `setup.sh` is everything
+around them that is not, and it is small: three apt packages, six pip packages
+and one font download.
+
+What is deliberately NOT in git, and where it comes from instead:
+
+| | where it lives | why not git |
+|---|---|---|
+| B-rolls, reference videos, music | the Library | `setup.sh pull` fetches it; ~270MB and it is already stored |
+| Inter (36 faces) | rsms/inter v4.0 release | SIL OFL, but 28MB of zip for something one curl away |
+| Extracted canvases, reference audio | derived | re-extracted by `setup.sh pull` from the reference videos |
+| Finished reels | the Library | the output, not the source |
+
+`reference-scripts.json` IS committed - it is the OCR'd copy of all twelve
+references, and re-deriving it needs both the videos and tesseract.
+
+```sh
+export CFE=... CFK=... ACC=... DB=ed8a246f-2722-4a1f-95f5-90c2eaf6b4ab
+python3 push-vault.py --items batch.json          # dry run, validates captions
+python3 push-vault.py --items batch.json --go     # uploads + inserts
 ```
 
 Both expect a `brand/` working directory beside them holding `wordmark_paths.json`,
