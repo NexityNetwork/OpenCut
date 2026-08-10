@@ -62,7 +62,7 @@ SAFE_TOP, SAFE_BOT = 84, 1266
 # set to the full width becomes a slab. Setting both to 890 is what made the copy
 # read as cramped: three long lines packed edge to edge directly under the title,
 # with no shape and nowhere for the eye to rest.
-M_TITLE, M_BLURB = 952, 780
+M_TITLE, M_BLURB = 890, 760
 
 GROUND = (250, 248, 245)
 INK = (22, 19, 14)
@@ -79,8 +79,11 @@ TITLE_GAP, BLURB_GAP = 52, 56
 BLURB_LEAD = 1.52                        # centred prose needs more than the 1.4
                                          # a left-aligned column gets away with
 ROW_GAP, PILL_GAP, PILL_H = 54, 40, 78
-PLATE_W, PLATE_R = 952, 24               # 64..1016, the full measure
-BCX = W // 2
+PLATE_W, PLATE_R = 890, 24               # 60..950, stops AT the rail
+LEFT, RIGHT = 60, 950                    # the reel's button rail
+                                         # covers x > 950. Nothing crosses it.
+BCX = (LEFT + RIGHT) // 2                # safe-box centre x=505, so a
+                                         # centred 890 block still clears it
 LOGO_SZ, LOGO_GAP = 70, 22
 CTA_SZ = 34
 

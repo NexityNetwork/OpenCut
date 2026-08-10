@@ -57,8 +57,9 @@ F, adv, wrap, draw_tracked, grain, source = SB.F, SB.adv, SB.wrap, SB.draw_track
 # y 135..1215. Nothing load-bearing goes outside that band.
 W, H = 1080, 1350
 SAFE_TOP, SAFE_BOT = 84, 1266
-LEFT, RIGHT = 64, 1016                   # 64px margins
-M_TITLE, M_BLURB, M_PAIR = 952, 800, 900
+LEFT, RIGHT = 60, 950                    # the reel's button rail
+                                         # covers x > 950. Nothing crosses it.
+M_TITLE, M_BLURB, M_PAIR = 890, 800, 880
 
 GROUND = (252, 251, 249)
 INK = (18, 17, 16)
@@ -76,7 +77,7 @@ PAIR_SZ, PAIR_LEAD = 42, 1.34
 # thing that made this read as cramped.
 TITLE_GAP, BLURB_GAP = 56, 58
 MARK_R, MARK_GAP, PAIR_GAP, RULE_GAP = 26, 22, 46, 38
-PLATE_W, PLATE_R = 952, 24               # 64..1016, the full measure
+PLATE_W, PLATE_R = 890, 24               # 60..950, stops AT the rail
 BX = (LEFT + RIGHT) // 2
 
 WF = os.environ.get("WORKFLOWS", "../another no name workflow")
