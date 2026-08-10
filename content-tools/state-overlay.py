@@ -929,7 +929,7 @@ LISTICLES = {
         source="ig-0e69bc15beb637ed",
         audio="refs/audio/ig-0e69bc15beb637ed.mp3",
         hook=["{n} Agents every", "{b|Automation agency}", "{b|Needs}"],
-        cta="read caption",
+        cta='comment "AI"',
         items=[("Google Maps Lead Scraper", "1. Lead-Gen Agent", f"{WFL}_1.png"),
                ("AI Video & Carousel Generator", "2. Marketing Agent", f"{WFL}_2.png"),
                ("AI Voice Receptionist", "3. Voice Agent", f"{WFL}_3.png"),
@@ -945,7 +945,7 @@ LISTICLES = {
         source="ig-1c1da0539733d3eb",
         audio="refs/audio/ig-1c1da0539733d3eb.mp3",
         hook=["Top {r|{n}} AI Agents", "To sell"],
-        cta="read caption",
+        cta='comment "AI"',
         items=[("Google Maps Lead Scraper", "1. Lead-Gen Agent", f"{WFT}_1.png"),
                ("AI Video & Carousel Generator", "2. Marketing Agent", f"{WFT}_2.png"),
                ("AI Voice Receptionist", "3. Voice Agent", f"{WFT}_3.png"),
@@ -957,7 +957,7 @@ LISTICLES = {
         source="ig-6339b3c61b991c49",
         audio="refs/audio/ig-6339b3c61b991c49.mp3",
         hook=["{n} Ai Agents", "That {r|Always Sell}"],
-        cta="read caption",
+        cta='comment "AI"',
         items=[("Google Maps Lead Scraper", "1. Lead-Gen Agent", f"{WFA}_1.png"),
                ("AI Video & Carousel Generator", "2. Marketing Agent", f"{WFA}_2.png"),
                ("AI Voice Receptionist", "3. Voice Agent", f"{WFA}_3.png"),
@@ -972,7 +972,7 @@ STACKS = {
         source="ig-b00df8bc6551c5a5",
         audio="refs/audio/ig-b00df8bc6551c5a5.mp3",
         hook=["POV: You started an", "{g|AI Agency}"],
-        cta="read caption",
+        cta='comment "AI"',
         # Five tools everybody already knows, and then the one that runs them.
         # That is the whole point of the format for us: the stack is the setup.
         # Unnumbered. The number is the POSITION in the finished reel, applied at
@@ -991,7 +991,7 @@ STACKS = {
         source="ig-b557fe92e6aad7f0",
         audio="refs/audio/ig-b557fe92e6aad7f0.mp3",
         hook=["What I send to clients", "after they say {g|yes}"],
-        cta="read caption",
+        cta='comment "AI"',
         # doc: for the things that ARE documents, logo: for the things that are
         # tools. Showing a Gmail mark for "onboarding email" says Gmail, not email.
         steps=[("Onboarding email", "same hour they sign, every time", {"doc": "onboard_email"}),
