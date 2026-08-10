@@ -198,27 +198,32 @@ def draw_rich(d, x, y, s, size, maxw, pitch, ink, dim):
     return y
 
 
-def fit_closer(rows, measure, top, bot, base_max=260, gap_ratio=0.46):
-    """Size a closing stack to FILL its frame, rather than picking numbers.
+def fit_closer(rows, measure, top, bot, base_max=260, gap_ratio=0.46,
+               fill=0.62, line=0.88):
+    """Size a closing stack to a TARGET share of the frame, not to the maximum.
 
-    A closer has the whole frame and nothing competing, so it should use it. The
-    hand-set version used about a quarter of the safe box and read as timid at
-    the exact moment the post is asking for something.
+    Two versions were wrong in opposite directions. Hand-picked sizes used about
+    a quarter of the safe box and read as timid at the exact moment the post is
+    asking for something. Then "as large as fits" filled it corner to corner,
+    which is not confident, it is shouting - a closer with no margin has nothing
+    holding it and the type stops being type.
 
-    Two constraints, and the tighter one wins: no line may exceed the measure,
-    and the whole stack must fit the safe box. Solved by scaling one base size
-    until both hold, so the copy can change without anyone re-picking numbers -
+    So it scales to `fill` of the available height with lines capped at `line` of
+    the measure. 0.62 and 0.88 leave real margin on all four sides while still
+    making the keyword the largest thing in the whole deck. One base size drives
+    all five rows, so the copy can change without anyone re-picking numbers -
     which is how it drifted small in the first place.
 
     Returns (size_per_row, pitches, first_baseline)."""
     for base in range(base_max, 39, -2):
         sz = [max(18, round(base * r)) for _, _, r in rows]
-        if any(adv(t, F(z, w), -0.02 * z) > measure for (t, w, _), z in zip(rows, sz)):
+        if any(adv(t, F(z, w), -0.02 * z) > measure * line
+               for (t, w, _), z in zip(rows, sz)):
             continue
         gap = round(base * gap_ratio)
         pitch = [int(sz[i + 1] * .727) + gap for i in range(len(rows) - 1)]
         block = int(sz[0] * .727) + sum(pitch)
-        if block <= bot - top:
+        if block <= (bot - top) * fill:
             return sz, pitch, top + (bot - top - block) // 2 + int(sz[0] * .727)
     return [40] * len(rows), [60] * (len(rows) - 1), top + 60
 
