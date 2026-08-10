@@ -1,0 +1,131 @@
+{
+  "_note": "Frozen content for design review. Split-band layout — the tool and its number lead, the argument sits underneath.",
+  "family": "cream-best",
+  "brief": "What actually makes a team ship fast",
+  "slides": [
+    {
+      "layoutId": "cover-cream-best",
+      "slots": {
+        "titleLine1": "Fast teams are not",
+        "titleLine2": "working harder",
+        "sub": "They have removed the six places where a decision waits on somebody. Here is each one and what replaced it.",
+        "iconSlug1": "notion",
+        "iconSlug2": "slack",
+        "iconSlug3": "linear",
+        "iconSlug4": "github",
+        "iconSlug5": "figma",
+        "iconColor1": "#EAFBF1",
+        "iconColor2": "#EAFBF1",
+        "iconColor3": "#EAFBF1",
+        "iconColor4": "#EAFBF1",
+        "iconColor5": "#EAFBF1"
+      }
+    },
+    {
+      "layoutId": "body-cream-best",
+      "slots": {
+        "iconSlug1": "linear",
+        "toolName1": "Linear",
+        "stepTag": "Scope",
+        "bigStatV": "2×",
+        "bigStatL": "Less rework",
+        "titleLine1": "Ship the smallest thing that is",
+        "titleLine2": "actually useful",
+        "body": "Large scope is not ambition, it is deferred learning. Every week between deciding and shipping is a week you are guessing about what people wanted.",
+        "tileLabel": "The test",
+        "tileKey": "If it cannot ship this week, it is still too big.",
+        "iconColor1": "#EAFBF1"
+      }
+    },
+    {
+      "layoutId": "body-cream-best",
+      "slots": {
+        "iconSlug1": "slack",
+        "toolName1": "Slack",
+        "stepTag": "Ownership",
+        "bigStatV": "80%",
+        "bigStatL": "Fewer blocks",
+        "titleLine1": "One owner per",
+        "titleLine2": "decision",
+        "body": "Committees do not decide, they schedule. One named person gathering input and choosing is faster and, when it goes wrong, it is fixable.",
+        "tileLabel": "The test",
+        "tileKey": "If everyone owns it, nobody does.",
+        "iconColor1": "#EAFBF1"
+      }
+    },
+    {
+      "layoutId": "body-cream-best",
+      "slots": {
+        "iconSlug1": "github",
+        "toolName1": "GitHub",
+        "stepTag": "Review",
+        "bigStatV": "4 hrs",
+        "bigStatL": "Median wait",
+        "titleLine1": "Review is a queue, and queues",
+        "titleLine2": "compound",
+        "body": "A change waiting a day is not idle, it is rotting. Context leaves the author's head and the review gets slower the longer it sits.",
+        "tileLabel": "The test",
+        "tileKey": "Small changes reviewed today beat perfect ones reviewed Friday.",
+        "iconColor1": "#EAFBF1"
+      }
+    },
+    {
+      "layoutId": "body-cream-best",
+      "slots": {
+        "iconSlug1": "figma",
+        "toolName1": "Figma",
+        "stepTag": "Handoff",
+        "bigStatV": "0",
+        "bigStatL": "Handoff meetings",
+        "titleLine1": "Stop handing off, start building",
+        "titleLine2": "together",
+        "body": "The meeting where design explains itself to engineering exists because they worked in sequence. Working in the same file removes the meeting entirely.",
+        "tileLabel": "The test",
+        "tileKey": "If it needs explaining, it was built too far from the people building it.",
+        "iconColor1": "#EAFBF1"
+      }
+    },
+    {
+      "layoutId": "body-cream-best",
+      "slots": {
+        "iconSlug1": "notion",
+        "toolName1": "Notion",
+        "stepTag": "Memory",
+        "bigStatV": "1 page",
+        "bigStatL": "Per decision",
+        "titleLine1": "Write down why, not just",
+        "titleLine2": "what",
+        "body": "Teams re-litigate settled decisions because nobody recorded the reasoning. The record is not bureaucracy, it is the thing that stops the same argument recurring quarterly.",
+        "tileLabel": "The test",
+        "tileKey": "If you cannot say why, you will have this discussion again.",
+        "iconColor1": "#EAFBF1"
+      }
+    },
+    {
+      "layoutId": "body-cream-best",
+      "slots": {
+        "iconSlug1": "linear",
+        "toolName1": "Linear",
+        "stepTag": "The catch",
+        "bigStatV": "0",
+        "bigStatL": "Tools will fix this",
+        "titleLine1": "None of this is a",
+        "titleLine2": "tools problem",
+        "body": "Every team with these tools still ships slowly if decisions wait on approval. The software makes a good culture faster; it does not make a slow one good.",
+        "tileLabel": "The test",
+        "tileKey": "Change who decides before you change what they decide in.",
+        "iconColor1": "#EAFBF1"
+      }
+    },
+    {
+      "layoutId": "cta-cream-best",
+      "slots": {
+        "ctaQuestion": "Pick the one place",
+        "ctaBold": "work waits",
+        "tagline": "Not all six. Find the single step where things sit longest this month and remove the wait. Do that repeatedly and it compounds.",
+        "eyebrow": "One change, this week",
+        "buttonLabel": "Take the checklist"
+      }
+    }
+  ]
+}

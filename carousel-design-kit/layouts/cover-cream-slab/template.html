@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html><head><meta charset="utf-8">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+html,body{width:1080px;height:1350px;overflow:hidden;color:#F7EEE1;
+  font-family:"Inter",sans-serif;-webkit-font-smoothing:antialiased;text-rendering:geometricPrecision}
+:root{--muted:rgba(247,238,225,.7);--rule:rgba(247,238,225,.2)}
+/* The bodies wrap every screen in a dark bezel, so this family opens dark and
+   closes light — the inverse of the flat-frame one. */
+.mesh{position:absolute;inset:0;z-index:0;background:
+  radial-gradient(96% 74% at 78% 8%,   #4A3D31 0%, transparent 46%),
+  radial-gradient(120% 92% at 16% 24%, #2A231C 0%, transparent 52%),
+  radial-gradient(130% 100% at 70% 96%,#171310 0%, transparent 58%),
+  radial-gradient(110% 95% at 4% 98%,  #0D0A08 0%, transparent 56%),
+  #1B1712}
+.grain{position:absolute;inset:0;z-index:5;opacity:.26;mix-blend-mode:overlay;pointer-events:none}
+.tile{border-radius:26%;background:#FFFCF7;display:flex;align-items:center;justify-content:center;
+  box-shadow:0 24px 40px -18px rgba(0,0,0,.68), inset 0 1px 0 rgba(255,255,255,.9);
+  border:1px solid rgba(0,0,0,.12)}
+.tile svg{width:56%;height:56%;display:block}
+.sheet{position:absolute;inset:0;padding:120px 84px 116px;display:flex;flex-direction:column;
+  align-items:center;justify-content:center;text-align:center;z-index:4}
+.lede{font-size:29px;font-weight:500;color:var(--muted);letter-spacing:-.4px}
+h1{margin-top:34px;font-size:128px;font-weight:700;line-height:.95;letter-spacing:-5.4px;max-width:920px}
+h1 em{font-style:normal;color:#E8A26C}
+.sub{margin-top:34px;font-size:32px;font-weight:400;line-height:1.4;color:var(--muted);max-width:720px}
+.dock{margin-top:82px;padding:26px 34px;border-radius:40px;
+  background:rgba(247,238,225,.07);border:1px solid rgba(247,238,225,.16);
+  display:flex;align-items:center;gap:22px}
+.dock .tile{width:112px;height:112px}
+</style></head>
+<body>
+<div class="mesh"></div>
+<div class="sheet">
+  <div class="lede">{{eyebrow}}</div>
+  <h1>{{titleLine1}} <em>{{titleAccent}}</em></h1>
+  <p class="sub">{{subtitle}}</p>
+  <div class="dock">
+    <div class="tile">{{iconSvg1}}</div><div class="tile">{{iconSvg2}}</div>
+    <div class="tile">{{iconSvg3}}</div><div class="tile">{{iconSvg4}}</div>
+    <div class="tile">{{iconSvg5}}</div>
+  </div>
+</div>
+<svg class="grain" width="1080" height="1350" viewBox="0 0 1080 1350" preserveAspectRatio="none">
+<filter id="gr"><feTurbulence type="fractalNoise" baseFrequency="0.85" numOctaves="3" seed="71"/><feColorMatrix type="saturate" values="0"/></filter>
+<rect width="1080" height="1350" filter="url(#gr)" opacity="0.5"/></svg>
+</body></html>

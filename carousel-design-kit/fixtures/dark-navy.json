@@ -1,0 +1,155 @@
+{
+  "_note": "Frozen content for design review. Split-column family — a left rail carrying the label, the tool and the figures, and a right column carrying the argument to a marked conclusion.",
+  "family": "dark-navy",
+  "brief": "How to decide what to build next",
+  "slides": [
+    {
+      "layoutId": "cover-dark-navy",
+      "slots": {
+        "eyebrow": "On choosing, not executing",
+        "titleMain": "The hard part is",
+        "titleAccent": "picking.",
+        "subline": "Six ways teams decide what to build, ranked by how well the decision survives contact with real users.",
+        "stat1V": "6",
+        "stat1L": "ways teams decide",
+        "stat2V": "2",
+        "stat2L": "that survive contact",
+        "stat3V": "1",
+        "stat3L": "nobody wants to use",
+        "iconTheme": "dark",
+        "iconSlug1": "linear",
+        "iconSlug2": "notion",
+        "iconSlug3": "figma",
+        "iconSlug4": "github",
+        "iconSlug5": "stripe",
+        "coverLine": "Five of them are ways of avoiding the sixth."
+      }
+    },
+    {
+      "layoutId": "body-dark-navy",
+      "slots": {
+        "stepLabel": "The loudest request",
+        "toolName1": "Slack",
+        "iconSlug1": "slack",
+        "iconTheme": "dark",
+        "titleMain": "Volume is not demand",
+        "body": "The customer who emails four times is one customer who emails four times. Building for them feels responsive and <b>reliably produces a feature nobody else opens</b>, because the people who would have asked simply left instead.",
+        "stat1V": "1",
+        "stat1L": "customer, four emails",
+        "stat2V": "≈3%",
+        "stat2L": "of users ever adopt it",
+        "insightLabel": "What to do instead",
+        "insightText": "Count the people who left, not the ones who wrote.",
+        "stat3V": "2 wks",
+        "stat3L": "to hear it directly"
+      }
+    },
+    {
+      "layoutId": "body-dark-navy",
+      "slots": {
+        "stepLabel": "The competitor's roadmap",
+        "toolName1": "Figma",
+        "iconSlug1": "figma",
+        "iconTheme": "dark",
+        "titleMain": "Copying puts you a quarter behind, permanently",
+        "body": "By the time a feature is visible it has already been decided, built and shipped. Matching it means arriving late to a bet <b>somebody else placed on their own customers</b>, not yours.",
+        "stat1V": "1 qtr",
+        "stat1L": "structural delay",
+        "stat2V": "0",
+        "stat2L": "of their data you hold",
+        "insightLabel": "What to do instead",
+        "insightText": "Copy the problem they picked, never the answer they shipped.",
+        "stat3V": "1",
+        "stat3L": "bet, placed for you"
+      }
+    },
+    {
+      "layoutId": "body-dark-navy",
+      "slots": {
+        "stepLabel": "The internal opinion",
+        "toolName1": "Notion",
+        "iconSlug1": "notion",
+        "iconTheme": "dark",
+        "titleMain": "The most senior guess is still a guess",
+        "body": "Seniority improves the quality of a hypothesis and does nothing at all for its accuracy. The cost is that <b>nobody tests a hypothesis with a title attached to it</b>, so it ships unchecked.",
+        "stat1V": "0",
+        "stat1L": "extra accuracy from rank",
+        "stat2V": "1",
+        "stat2L": "test it should still get",
+        "insightLabel": "What to do instead",
+        "insightText": "Write it down as a prediction, then check it in public.",
+        "stat3V": "2 wks",
+        "stat3L": "to check it properly"
+      }
+    },
+    {
+      "layoutId": "body-dark-navy",
+      "slots": {
+        "stepLabel": "Usage data",
+        "toolName1": "Linear",
+        "iconSlug1": "linear",
+        "iconTheme": "dark",
+        "titleMain": "Data tells you about the product you already built",
+        "body": "Every number describes behaviour inside the thing that exists. It is excellent for improving what people do and <b>structurally blind to what they gave up trying</b>, which is where the next product usually is.",
+        "stat1V": "100%",
+        "stat1L": "of it is retrospective",
+        "stat2V": "0",
+        "stat2L": "signal on what is absent",
+        "insightLabel": "What to do instead",
+        "insightText": "Pair every dashboard with five conversations.",
+        "stat3V": "5",
+        "stat3L": "conversations, minimum"
+      }
+    },
+    {
+      "layoutId": "body-dark-navy",
+      "slots": {
+        "stepLabel": "Watching people work",
+        "toolName1": "GitHub",
+        "iconSlug1": "github",
+        "iconTheme": "dark",
+        "titleMain": "The only method that beats the others",
+        "body": "Sitting with somebody for an hour while they do the job surfaces the workaround they stopped noticing years ago. It scales badly, it cannot be delegated, and <b>it is still the highest-yield hour available</b>.",
+        "stat1V": "1 hr",
+        "stat1L": "per person, per quarter",
+        "stat2V": "5",
+        "stat2L": "people is usually enough",
+        "insightLabel": "What to do instead",
+        "insightText": "Say nothing for the first ten minutes. That is where it is.",
+        "stat3V": "1 hr",
+        "stat3L": "is the whole method"
+      }
+    },
+    {
+      "layoutId": "body-dark-navy",
+      "slots": {
+        "stepLabel": "The uncomfortable one",
+        "toolName1": "Stripe",
+        "iconSlug1": "stripe",
+        "iconTheme": "dark",
+        "titleMain": "Deciding well does not make a decision right",
+        "body": "A good process narrows the range of outcomes; it does not guarantee one. Teams that mistake rigour for certainty <b>stop shipping while they wait to be sure</b>, which is the more expensive failure.",
+        "stat1V": "≈50%",
+        "stat1L": "will be wrong regardless",
+        "stat2V": "1 week",
+        "stat2L": "to find out cheaply",
+        "insightLabel": "What to do instead",
+        "insightText": "Optimise for how fast you learn you were wrong.",
+        "stat3V": "1 wk",
+        "stat3L": "is a cheap wrong answer"
+      }
+    },
+    {
+      "layoutId": "cta-dark-navy",
+      "slots": {
+        "eyebrow": "Start here",
+        "titleMain": "Book one hour.",
+        "titleAccent": "Watch one person.",
+        "body": "Not a survey, not a dashboard, not a workshop. One person doing the actual job while you keep your mouth shut and write down every workaround.",
+        "closingLine": "The method that scales worst is the one that works.",
+        "buttonLabel": "Take all six",
+        "signoff": "The other five are for arguing with"
+      }
+    }
+  ]
+}

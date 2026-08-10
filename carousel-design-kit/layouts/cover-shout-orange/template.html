@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html><head><meta charset="utf-8">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+html,body{width:1080px;height:1350px;overflow:hidden;color:#0A0A0A;
+  font-family:"Inter",sans-serif;-webkit-font-smoothing:antialiased;text-rendering:geometricPrecision}
+:root{--muted:rgba(10,10,10,.62);--rule:rgba(10,10,10,.24)}
+/* No device, no drawing, no panel. The page is display type at poster scale
+   filling the frame, and the scale IS the design — the only family in the set
+   that carries nothing but words. Flooded orange, ink type. */
+.ground{position:absolute;inset:0;z-index:0;background:#F04E23}
+.grain{position:absolute;inset:0;z-index:6;opacity:.14;mix-blend-mode:multiply;pointer-events:none}
+.page{position:absolute;inset:0;display:flex;flex-direction:column;z-index:4;padding:92px 74px 86px;
+  justify-content:center}
+.head{position:absolute;left:74px;right:74px;top:92px}
+.label{font-size:26px;font-weight:600;letter-spacing:-.3px;color:var(--muted)}
+h1{font-weight:900;line-height:.88;letter-spacing:-7.4px}
+h1 em{font-style:normal;color:#FFE8DF}
+.note{font-size:30px;font-weight:500;line-height:1.34;color:var(--muted);max-width:720px}
+.rule{height:3px;background:#0A0A0A;margin:26px 0}
+h1{font-size:198px}
+</style></head>
+<body>
+<div class="ground"></div>
+<div class="page">
+  <div class="head">
+    <div class="label">{{eyebrow}}</div>
+    <div class="rule"></div>
+  </div>
+  <h1>{{titleLine1}} <em>{{titleAccent}}</em></h1>
+  <div class="note" style="margin-top:52px">{{subtitle}}</div>
+</div>
+<svg class="grain" width="1080" height="1350" viewBox="0 0 1080 1350" preserveAspectRatio="none">
+<filter id="gr"><feTurbulence type="fractalNoise" baseFrequency="0.86" numOctaves="3" seed="81"/><feColorMatrix type="saturate" values="0"/></filter>
+<rect width="1080" height="1350" filter="url(#gr)" opacity="0.45"/></svg>
+</body></html>

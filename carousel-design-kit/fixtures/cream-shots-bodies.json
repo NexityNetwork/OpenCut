@@ -1,0 +1,89 @@
+{
+  "_note": "Body-shape comparison for cream-shots. Same narrative and the same captures across all five body layouts so the arrangement is the only variable.",
+  "family": "cream-shots",
+  "brief": "Five body shapes for the screenshot variant",
+  "slides": [
+    {
+      "layoutId": "cover-cream-shots",
+      "slots": {
+        "titleLine1": "Five screens.",
+        "titleAccent": "That is the company.",
+        "subtitle": "Not the stack diagram anyone posts. The five things actually open on the second monitor at four in the afternoon.",
+        "iconSlug1": "notion",
+        "iconSlug2": "linear",
+        "iconSlug3": "anthropic",
+        "iconSlug4": "figma",
+        "iconSlug5": "stripe"
+      }
+    },
+    {
+      "layoutId": "body-cream-shots",
+      "slots": {
+        "iconSlug1": "notion",
+        "toolName": "Notion",
+        "toolTagline": "One page the whole week points at",
+        "bigStatement": "Everything lives in <b>one database</b> with three views, because four private lists is how work goes missing.",
+        "useNote": "Replaced a task app, a wiki and a spreadsheet",
+        "useMetric": "3 apps gone",
+        "shot": "shot-notion.png"
+      }
+    },
+    {
+      "layoutId": "body-cream-shots-center",
+      "slots": {
+        "iconSlug1": "linear",
+        "toolName": "Linear",
+        "toolTagline": "If it is not on the board it is not happening, and nothing sits there longer than a week.",
+        "shot": "shot-linear-tall.png"
+      }
+    },
+    {
+      "layoutId": "body-cream-shots-caption",
+      "slots": {
+        "iconSlug1": "anthropic",
+        "toolName": "Claude",
+        "captionLine": "The <b>first draft</b> of nearly everything",
+        "toolTagline": "The blank page is the expensive part. A rough version in thirty seconds changes what you are willing to start.",
+        "shot": "shot-claude.png"
+      }
+    },
+    {
+      "layoutId": "body-cream-shots-laptop",
+      "slots": {
+        "iconSlug1": "figma",
+        "toolName": "Figma",
+        "toolTagline": "Two people looking at the same frame settle in ten minutes what a thread would not settle in three days.",
+        "useNote": "Design, decks and anything that needs showing",
+        "useMetric": "0 handoffs",
+        "shot": "shot-figma.png"
+      }
+    },
+    {
+      "layoutId": "body-cream-shots-notes",
+      "slots": {
+        "iconSlug1": "stripe",
+        "toolTagline": "How the money side is wired",
+        "noteTitle": "Check revenue once. Then close the tab.",
+        "line1": "One dashboard, opened in the morning and not again.",
+        "line2": "<b>Payments</b> and invoices run themselves; the only manual step left is deciding what to charge.",
+        "line3": "<b>Failed charges</b> retry on their own, which used to be an afternoon of chasing people.",
+        "shot": "shot-stripe.png"
+      }
+    },
+    {
+      "layoutId": "cta-cream-shots",
+      "slots": {
+        "titleLine1": "Keep the five.",
+        "titleAccent": "Cut the rest.",
+        "body": "Everything past the fifth tool earns its place by being opened, not by sounding useful when somebody asks what you run.",
+        "iconSlug1": "notion",
+        "iconSlug2": "linear",
+        "iconSlug3": "anthropic",
+        "iconSlug4": "figma",
+        "iconSlug5": "stripe",
+        "btnPrimary": "Take the whole stack",
+        "signoff": "The sixth one is always the one to go"
+      }
+    }
+  ]
+}

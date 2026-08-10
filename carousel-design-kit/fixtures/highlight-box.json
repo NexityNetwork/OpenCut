@@ -1,0 +1,125 @@
+{
+  "_note": "Frozen content for design review. Highlight family — a full-bleed band holding the statement, with solid marks on the words that carry the argument, and three facts underneath.",
+  "family": "highlight-box",
+  "brief": "Six things that make software expensive, none of which are the code",
+  "slides": [
+    {
+      "layoutId": "cover-highlight-box",
+      "slots": {
+        "eyebrow": "Where the budget actually goes",
+        "titleLine1": "Writing it was never the expensive part",
+        "statementLine1": "The bill is made of",
+        "statementHighlight": "waiting, rework and coordination",
+        "subtitle": "Six costs that appear on no estimate and account for most of what a project consumes.",
+        "m1Value": "6", "m1Label": "costs nobody estimates",
+        "m2Value": "≈70%", "m2Label": "of the total spend",
+        "m3Value": "0", "m3Label": "of them about typing",
+        "iconTheme": "dark",
+        "iconSlug1": "github", "iconSlug2": "linear", "iconSlug3": "slack",
+        "iconSlug4": "figma", "iconSlug5": "notion"
+      }
+    },
+    {
+      "layoutId": "body-highlight-box",
+      "slots": {
+        "categoryLabel": "The first cost", "toolName": "GitHub", "iconSlug1": "github", "iconTheme": "dark",
+        "titleLine1": "Work sitting still",
+        "statementLine1": "A change waiting for review is not idle, it is",
+        "statementHighlight": "actively rotting",
+        "fact1Metric": "31 hrs", "fact1Title": "Median wait for a review",
+        "fact1Body": "Against four hours of actual work in the change itself.",
+        "fact2Metric": "2×", "fact2Title": "Slower the longer it waits",
+        "fact2Body": "Context leaves the author's head within a day and has to be rebuilt.",
+        "fact3Metric": "−70%", "fact3Title": "When changes get smaller",
+        "fact3Body": "Not because people work faster, but because the queue stops compounding."
+      }
+    },
+    {
+      "layoutId": "body-highlight-box",
+      "slots": {
+        "categoryLabel": "The second cost", "toolName": "Linear", "iconSlug1": "linear", "iconTheme": "dark",
+        "titleLine1": "Building the wrong thing well",
+        "statementLine1": "Most rework is not a quality failure, it is",
+        "statementHighlight": "a brief nobody questioned",
+        "fact1Metric": "38%", "fact1Title": "Of overrun is unclear scope",
+        "fact1Body": "The largest single line, and the cheapest one to remove.",
+        "fact2Metric": "11%", "fact2Title": "Is the task being hard",
+        "fact2Body": "Difficulty is real and it is nearly the smallest part of the bill.",
+        "fact3Metric": "1 hr", "fact3Title": "Of questions up front",
+        "fact3Body": "Consistently outperforms a week of careful implementation."
+      }
+    },
+    {
+      "layoutId": "body-highlight-box",
+      "slots": {
+        "categoryLabel": "The third cost", "toolName": "Slack", "iconSlug1": "slack", "iconTheme": "dark",
+        "titleLine1": "Everyone staying informed",
+        "statementLine1": "Coordination scales with headcount, and it scales",
+        "statementHighlight": "faster than output does",
+        "fact1Metric": "8.5 hrs", "fact1Title": "In meetings, per person",
+        "fact1Body": "Against four and a half hours of uninterrupted work in the same week.",
+        "fact2Metric": "21 min", "fact2Title": "Lost per interruption",
+        "fact2Body": "Almost all of it spent rebuilding the context, not answering.",
+        "fact3Metric": "n²", "fact3Title": "Channels, not people",
+        "fact3Body": "Adding one person to a team of six adds six new lines of communication."
+      }
+    },
+    {
+      "layoutId": "body-highlight-box",
+      "slots": {
+        "categoryLabel": "The fourth cost", "toolName": "Figma", "iconSlug1": "figma", "iconTheme": "dark",
+        "titleLine1": "Deciding by committee",
+        "statementLine1": "A decision with no owner does not get made, it gets",
+        "statementHighlight": "scheduled again",
+        "fact1Metric": "9 days", "fact1Title": "Median, by committee",
+        "fact1Body": "Measured from the question being asked to anything happening.",
+        "fact2Metric": "2 days", "fact2Title": "With one named owner",
+        "fact2Body": "The same decision, the same information, one person accountable.",
+        "fact3Metric": "1 in 20", "fact3Title": "Had to be reversed",
+        "fact3Body": "That is the price of speed, and it was worth seven days every time."
+      }
+    },
+    {
+      "layoutId": "body-highlight-box",
+      "slots": {
+        "categoryLabel": "The fifth cost", "toolName": "Notion", "iconSlug1": "notion", "iconTheme": "dark",
+        "titleLine1": "Losing the reasoning",
+        "statementLine1": "Teams re-argue settled decisions because nobody recorded",
+        "statementHighlight": "why, only what",
+        "fact1Metric": "1 page", "fact1Title": "Per decision is enough",
+        "fact1Body": "Written the day it was made, or it does not get written at all.",
+        "fact2Metric": "4×", "fact2Title": "A quarter, on average",
+        "fact2Body": "How often an undocumented decision comes back for another round.",
+        "fact3Metric": "0", "fact3Title": "Cost to write it down",
+        "fact3Body": "Which is why it is the one nobody can justify skipping afterwards."
+      }
+    },
+    {
+      "layoutId": "body-highlight-box",
+      "slots": {
+        "categoryLabel": "The uncomfortable one", "toolName": "GitHub", "iconSlug1": "github", "iconTheme": "dark",
+        "titleLine1": "None of it is a tools problem",
+        "statementLine1": "Every team with a perfect stack still ships slowly if",
+        "statementHighlight": "decisions wait on approval",
+        "fact1Metric": "0", "fact1Title": "Measurable effect from swapping tools",
+        "fact1Body": "Five migrations, no change in how long anything took.",
+        "fact2Metric": "1", "fact2Title": "Rule that changed everything",
+        "fact2Body": "One owner per decision, applied without exception for a quarter.",
+        "fact3Metric": "≈70%", "fact3Title": "Of the bill is process",
+        "fact3Body": "Which is unfortunate, because process is harder to buy than software."
+      }
+    },
+    {
+      "layoutId": "cta-highlight-box",
+      "slots": {
+        "eyebrow": "One measurement, two weeks",
+        "ctaLine1": "Count the waiting before you cut anything",
+        "statementLine1": "The cheapest hour you will ever spend is the one that",
+        "ctaHighlight": "finds where work sits",
+        "ctaBody": "Not the tooling, not the headcount, and not the code review standard. Measure elapsed time from ready to done, and the answer names itself.",
+        "btnPrimary": "Take all six",
+        "signoff": "Everything else is guessing with conviction"
+      }
+    }
+  ]
+}

@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html><head><meta charset="utf-8">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+html,body{width:1080px;height:1350px;overflow:hidden;background:#FAFAF8;color:#111211;
+  font-family:"Inter",sans-serif;-webkit-font-smoothing:antialiased;text-rendering:geometricPrecision}
+:root{--muted:rgba(17,18,17,.56);--rule:rgba(17,18,17,.13);--accent:#E1251B}
+/* Six columns of 130 with 24px gutters inside a 90px margin: 6x130 + 5x24 = 900.
+   The column hairlines are drawn full-bleed and left visible, so the measure is
+   the design and white space is ruled rather than empty. */
+.grid{position:absolute;inset:0;z-index:1;pointer-events:none}
+.page{position:absolute;inset:0;z-index:3;padding:112px 90px 104px;display:flex;flex-direction:column}
+/* Two and four. Everything in the head and the notes starts at column three, so
+   the narrow left column runs the whole height as a single long text setting —
+   the shape a Swiss page uses for the argument that supports a headline. */
+.split{flex:1;display:flex;gap:24px}
+.rail{flex:0 0 284px;display:flex;flex-direction:column}
+.rail .lab{font-size:27px;font-weight:600;color:var(--accent);letter-spacing:-.5px;line-height:1.24}
+.copy{margin-top:36px;padding-top:22px;border-top:2px solid #111211;
+  font-size:34px;font-weight:400;line-height:1.36;color:rgba(17,18,17,.76)}
+.copy b{font-weight:600;color:#111211}
+.main{flex:0 0 592px;display:flex;flex-direction:column}
+h2{font-size:76px;font-weight:700;line-height:1.01;letter-spacing:-3.2px}
+h2 em{font-style:normal;color:var(--accent)}
+.notes{flex:1;display:flex;flex-direction:column;margin-top:44px}
+.note{flex:1;padding-top:22px;border-top:2px solid #111211;display:flex;flex-direction:column}
+.note .k{font-size:30px;font-weight:600;letter-spacing:-.6px;line-height:1.22}
+.note .v{margin-top:12px;font-size:25px;font-weight:400;line-height:1.4;color:var(--muted)}
+.bar{margin-top:44px;height:14px;background:var(--accent)}
+</style></head>
+<body>
+<svg class="grid" viewBox="0 0 1080 1350" fill="none">
+  <g stroke="rgba(17,18,17,.13)" stroke-width="1">
+    <path d="M90 0 V1350 M244 0 V1350 M398 0 V1350 M552 0 V1350 M706 0 V1350 M860 0 V1350 M990 0 V1350"/>
+  </g>
+</svg>
+<div class="page">
+  <div class="split">
+    <div class="rail">
+      <div class="lab">{{sectionLabel}}</div>
+      <p class="copy">{{body}}</p>
+    </div>
+    <div class="main">
+      <h2>{{titleLine1}} <em>{{titleAccent}}</em></h2>
+      <div class="notes">
+        <div class="note"><div class="k">{{k1}}</div><div class="v">{{v1}}</div></div>
+        <div class="note"><div class="k">{{k2}}</div><div class="v">{{v2}}</div></div>
+        <div class="note"><div class="k">{{k3}}</div><div class="v">{{v3}}</div></div>
+      </div>
+    </div>
+  </div>
+  <div class="bar"></div>
+</div>
+</body></html>

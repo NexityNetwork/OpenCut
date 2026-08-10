@@ -1,0 +1,126 @@
+{
+  "_note": "Frozen content for design review. Stack family — rounded plates offset and layered with real depth, one raised in the accent per page.",
+  "family": "rounded-card",
+  "brief": "First impressions of a product, and the ninety seconds that decide them",
+  "slides": [
+    {
+      "layoutId": "cover-rounded-card",
+      "slots": {
+        "eyebrow": "On the ninety seconds that decide it",
+        "titleLine1": "Most people leave",
+        "titleAccent": "before they understand.",
+        "subtitle": "Six things that decide what somebody thinks of a product in the time it takes to scroll once.",
+        "plate1": "What they are doing",
+        "plate1Body": "Answering one question: what is this, and is it for me.",
+        "plate2": "What you are doing",
+        "plate2Body": "Usually describing an ambition instead of a category.",
+        "coverNote": "The last page is why the other five have a ceiling"
+      }
+    },
+    {
+      "layoutId": "body-rounded-card",
+      "slots": {
+        "sectionLabel": "The first three seconds",
+        "titleLine1": "Nobody reads anything",
+        "titleAccent": "until they know what it is.",
+        "body": "Before a single feature registers, a person is answering one question: what is this and is it for me. Everything above the fold is spent on that question whether you meant it to be or not, and <b>a headline about your ambition answers a question nobody asked</b>.",
+        "plate1": "Say the category",
+        "plate1Body": "'Invoicing for freelancers' beats any promise about the future.",
+        "plate2": "Name the person",
+        "plate2Body": "If it is for everyone, the reader assumes it is for somebody else.",
+        "plate3": "Show the thing",
+        "plate3Body": "One honest screen outperforms three sentences of description."
+      }
+    },
+    {
+      "layoutId": "body-rounded-card",
+      "slots": {
+        "sectionLabel": "What they check next",
+        "titleLine1": "People look for a reason",
+        "titleAccent": "to leave, not to stay.",
+        "body": "Evaluation is elimination. The reader is scanning for the disqualifier — wrong price, wrong platform, wrong size of company — and <b>hiding it does not remove it, it just moves the disappointment further down</b> where it costs more.",
+        "plate1": "Put the price up",
+        "plate1Body": "Hiding it converts curiosity into resentment, reliably.",
+        "plate2": "Name who it is not for",
+        "plate2Body": "It builds more trust than any claim about who it is for.",
+        "plate3": "Answer the objection early",
+        "plate3Body": "The one you dread is the one they are already thinking."
+      }
+    },
+    {
+      "layoutId": "body-rounded-card",
+      "slots": {
+        "sectionLabel": "The proof problem",
+        "titleLine1": "Nobody believes a claim",
+        "titleAccent": "they cannot check.",
+        "body": "Testimonials read as decoration because they are unfalsifiable. What survives scepticism is anything the reader can verify without leaving the page — a number with a method, a name they recognise, or <b>the product doing the thing in front of them</b>.",
+        "plate1": "Show, do not assert",
+        "plate1Body": "A working demo settles what a paragraph cannot.",
+        "plate2": "Attribute everything",
+        "plate2Body": "An unnamed quote is worth less than no quote.",
+        "plate3": "Prefer specific over impressive",
+        "plate3Body": "'Fourteen minutes' is believed. 'Blazing fast' is not."
+      }
+    },
+    {
+      "layoutId": "body-rounded-card",
+      "slots": {
+        "sectionLabel": "The cost of choice",
+        "titleLine1": "Every option you add",
+        "titleAccent": "slows the decision.",
+        "body": "Three plans is a comparison. Six is a research project, and the reader who cannot decide does not pick carefully — <b>they postpone, which in practice means never</b>. Reducing the choice is usually worth more than improving any single option.",
+        "plate1": "Recommend one",
+        "plate1Body": "Say which and why. It is the whole job of a pricing page.",
+        "plate2": "Kill the fourth column",
+        "plate2Body": "Nobody has ever chosen it and it costs every reader time.",
+        "plate3": "One action per screen",
+        "plate3Body": "Two buttons of equal weight is a question, not an offer."
+      }
+    },
+    {
+      "layoutId": "body-rounded-card",
+      "slots": {
+        "sectionLabel": "What actually persuades",
+        "titleLine1": "Specificity reads as",
+        "titleAccent": "competence.",
+        "body": "Vague language signals that you have not done the work, regardless of whether you have. The detail that seems too small to mention is precisely the thing that convinces, because <b>only somebody who has done it would know to say it</b>.",
+        "plate1": "Use real numbers",
+        "plate1Body": "Even unimpressive ones. Especially unimpressive ones.",
+        "plate2": "Name the edge cases",
+        "plate2Body": "Mentioning what is hard proves you have met it.",
+        "plate3": "Cut every intensifier",
+        "plate3Body": "Remove 'incredibly' and the sentence gets more credible."
+      }
+    },
+    {
+      "layoutId": "body-rounded-card",
+      "slots": {
+        "sectionLabel": "The uncomfortable one",
+        "titleLine1": "None of this saves",
+        "titleAccent": "a product nobody wants.",
+        "body": "Presentation raises the ceiling on something people already want and does nothing to the floor. A first impression that is honest and clear will get you found out faster, which is <b>the correct outcome and never the one anybody is hoping for</b>.",
+        "plate1": "Clarity accelerates the verdict",
+        "plate1Body": "Good or bad, you learn sooner. That is the value.",
+        "plate2": "Do not dress up a maybe",
+        "plate2Body": "A confused product presented clearly looks confused.",
+        "plate3": "Fix the offer first",
+        "plate3Body": "Then the page is worth the afternoon it takes."
+      }
+    },
+    {
+      "layoutId": "cta-rounded-card",
+      "slots": {
+        "eyebrow": "On the page you already have",
+        "titleLine1": "Put the price up",
+        "titleAccent": "and say who it is for.",
+        "body": "Two changes, both of which take twenty minutes, and between them they answer the only two questions a new reader is actually asking.",
+        "plate1": "What it costs",
+        "plate1Body": "Twenty minutes, and the comfort of being vague.",
+        "plate2": "What it buys",
+        "plate2Body": "A faster verdict, which is the only thing you can act on.",
+        "buttonLabel": "Take all six",
+        "signoff": "Being found out sooner is the point"
+      }
+    }
+  ]
+}

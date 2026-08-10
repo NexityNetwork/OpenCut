@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html><head><meta charset="utf-8">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+html,body{width:1080px;height:1350px;overflow:hidden;color:#F2F1EE;
+  font-family:"Inter",sans-serif;-webkit-font-smoothing:antialiased;text-rendering:geometricPrecision}
+:root{--muted:rgba(242,241,238,.62);--rule:rgba(242,241,238,.16);--accent:#FF4B33}
+/* No gradient. A gradient here is a wash pretending to be a design, and
+   tuning it only ever produces a better-looking wash. The ground is flat and
+   the structure is DRAWN: a column system in hairlines and a measured scale,
+   which is what a page led by figures should be built on. */
+.mesh{position:absolute;inset:0;z-index:0;background:#0D0D11}
+.cols{position:absolute;inset:0;z-index:1;pointer-events:none;
+  background-image:repeating-linear-gradient(90deg,rgba(242,241,238,.055) 0 1px,transparent 1px 168px);
+  background-position:84px 0}
+.grain{position:absolute;inset:0;z-index:6;opacity:.16;mix-blend-mode:overlay;pointer-events:none}
+/* Fixed gaps down the page with the figures pinned to the base — even
+   distribution opened a hole between the figure and the argument. */
+.sheet{position:absolute;inset:0;padding:118px 84px 112px;display:flex;flex-direction:column;z-index:4}
+.head{display:flex;align-items:center;justify-content:space-between;gap:32px}
+.head .lbl{font-size:27px;font-weight:500;color:var(--muted);letter-spacing:-.4px}
+.head .tool{display:flex;align-items:center;gap:16px;font-size:26px;font-weight:500}
+.head .tool svg{width:42px;height:42px;display:block}
+/* The figure IS the image on this family. Set it at display scale and give it
+   the page rather than boxing it in a card next to two smaller ones. */
+.headline{margin-top:42px}
+/* The line box has to contain Inter's full ascent and descent — roughly 1.21em
+   — because a figure is arbitrary text and "1 page" ran its p and g straight
+   through the label underneath. */
+.headline .v{font-size:250px;font-weight:700;line-height:1.24;letter-spacing:-12px;color:var(--accent)}
+.headline .l{margin-top:-4px;font-size:30px;font-weight:400;color:var(--muted);letter-spacing:-.3px;max-width:700px}
+h2{margin-top:82px;font-size:70px;font-weight:700;line-height:1.02;letter-spacing:-2.9px;max-width:900px}
+.body{margin-top:26px;font-size:31px;font-weight:400;line-height:1.42;color:rgba(242,241,238,.78);max-width:880px}
+.body b{font-weight:600;color:#F2F1EE}
+.scale{height:15px;border-top:1px solid rgba(242,241,238,.26);
+  background-image:repeating-linear-gradient(90deg,rgba(242,241,238,.26) 0 1px,transparent 1px 42px);
+  background-size:100% 13px;background-repeat:no-repeat}
+.scale.hero{margin-top:26px;max-width:820px}
+.foot{margin-top:auto;display:flex;gap:96px;padding-top:30px;border-top:1px solid var(--rule)}
+.foot .v{font-size:44px;font-weight:700;letter-spacing:-1.8px;line-height:1}
+.foot .l{margin-top:10px;font-size:24px;font-weight:400;color:var(--muted);letter-spacing:-.3px}
+</style></head>
+<body>
+<div class="mesh"></div>
+<div class="cols"></div>
+<div class="sheet">
+  <div class="head">
+    <div class="lbl">{{stepTag}}</div>
+    <div class="tool">{{iconSvg1}}<span>{{toolName1}}</span></div>
+  </div>
+  <div class="headline">
+    <div class="v">{{stat1V}}</div>
+    <div class="l">{{stat1L}}</div>
+    <div class="scale hero"></div>
+  </div>
+  <h2>{{titleLine1}}</h2>
+  <p class="body">{{body}}</p>
+  <div class="foot">
+    <div><div class="v">{{stat2V}}</div><div class="l">{{stat2L}}</div></div>
+    <div><div class="v">{{stat3V}}</div><div class="l">{{stat3L}}</div></div>
+  </div>
+</div>
+<svg class="grain" width="1080" height="1350" viewBox="0 0 1080 1350" preserveAspectRatio="none">
+<filter id="gr"><feTurbulence type="fractalNoise" baseFrequency="0.82" numOctaves="3" seed="43"/><feColorMatrix type="saturate" values="0"/></filter>
+<rect width="1080" height="1350" filter="url(#gr)" opacity="0.5"/></svg>
+</body></html>

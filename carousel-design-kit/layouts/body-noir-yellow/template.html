@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html><head><meta charset="utf-8">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+html,body{width:1080px;height:1350px;overflow:hidden;
+  font-family:"Inter",sans-serif;-webkit-font-smoothing:antialiased;text-rendering:geometricPrecision}
+:root{--ink:#0B0B0A;--paper:#F3EFE6;--gold:#EFB02C}
+/* A hard split rather than a gradient or a texture: every page is two solid
+   fields with a clean boundary between them. Eighth dark family, and the only
+   one built from fields instead of a ground plus marks. Pinyon Script and the
+   all-caps display are gone — a handwritten face at caption size is unreadable
+   and caps at display size is shouting, not noir. */
+.page{position:absolute;inset:0;z-index:4;display:flex;flex-direction:column}
+.dark{background:var(--ink);color:var(--paper);padding:98px 80px 60px;display:flex;flex-direction:column}
+.gold{background:var(--gold);color:var(--ink);padding:54px 80px 76px;display:flex;flex-direction:column}
+.rule{height:8px;background:var(--gold)}
+.label{font-size:26px;font-weight:500;letter-spacing:-.3px;opacity:.66}
+.grain{position:absolute;inset:0;z-index:6;opacity:.14;mix-blend-mode:overlay;pointer-events:none}
+.dark{flex:56;justify-content:space-between}
+.head{display:flex;align-items:baseline;justify-content:space-between;gap:28px}
+h2{font-size:88px;font-weight:800;line-height:.98;letter-spacing:-3.7px;max-width:880px}
+h2 em{font-style:normal;color:var(--gold)}
+.sub{font-size:30px;font-weight:400;line-height:1.44;opacity:.72;max-width:800px}
+.gold{flex:44;justify-content:space-between;gap:34px}
+.pts{display:flex;flex-direction:column}
+.pt{display:flex;gap:30px;padding:22px 0;border-top:1px solid rgba(11,11,10,.28)}
+.pt .k{flex:0 0 210px;font-size:29px;font-weight:700;letter-spacing:-.8px}
+.pt .v{font-size:25px;font-weight:400;line-height:1.36;opacity:.78}
+.close{font-size:32px;font-weight:700;line-height:1.22;letter-spacing:-1.2px;max-width:840px}
+</style></head>
+<body>
+<div class="page">
+  <div class="dark">
+    <div class="head"><div class="label">{{sectionLabel}}</div><div class="label">{{toolName}}</div></div>
+    <h2>{{displayLine1}} <em>{{displayLine2}}</em></h2>
+    <p class="sub">{{body}}</p>
+  </div>
+  <div class="rule"></div>
+  <div class="gold">
+    <div class="pts">
+      <div class="pt"><div class="k">{{p1Title}}</div><div class="v">{{p1Body}}</div></div>
+      <div class="pt"><div class="k">{{p2Title}}</div><div class="v">{{p2Body}}</div></div>
+      <div class="pt"><div class="k">{{p3Title}}</div><div class="v">{{p3Body}}</div></div>
+    </div>
+    <div class="close">{{closingLine}}</div>
+  </div>
+</div>
+<svg class="grain" width="1080" height="1350" viewBox="0 0 1080 1350" preserveAspectRatio="none">
+<filter id="gr"><feTurbulence type="fractalNoise" baseFrequency="0.84" numOctaves="3" seed="73"/><feColorMatrix type="saturate" values="0"/></filter>
+<rect width="1080" height="1350" filter="url(#gr)" opacity="0.5"/></svg>
+</body></html>

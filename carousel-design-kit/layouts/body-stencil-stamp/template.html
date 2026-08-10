@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html><head><meta charset="utf-8">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+html,body{width:1080px;height:1350px;overflow:hidden;color:#1A1814;
+  font-family:"Inter",sans-serif;-webkit-font-smoothing:antialiased;text-rendering:geometricPrecision}
+:root{--muted:rgba(26,24,20,.56);--rule:rgba(26,24,20,.16);--accent:#A62B23}
+/* Print-production furniture used as the design: crop marks at the trim, a
+   hairline registration grid, and a rotated stamp block. Nothing here is
+   decorative — it is the apparatus a printed page is actually set up with. */
+.ground{position:absolute;inset:0;z-index:0;background:#EFEAE0}
+.marks{position:absolute;inset:0;z-index:1;pointer-events:none}
+.grain{position:absolute;inset:0;z-index:6;opacity:.18;mix-blend-mode:multiply;pointer-events:none}
+.stamp{position:absolute;right:64px;top:150px;z-index:2;transform:rotate(-7deg);
+  border:4px solid var(--accent);color:var(--accent);padding:16px 26px;
+  font-size:27px;font-weight:700;letter-spacing:-.3px;line-height:1.1;text-align:center;max-width:270px}
+.stamp span{display:block;font-size:20px;font-weight:500;margin-top:6px;opacity:.85}
+.page{position:absolute;inset:0;display:flex;flex-direction:column;z-index:4;padding:132px 96px 116px}
+.label{font-size:25px;font-weight:500;color:var(--muted);letter-spacing:-.2px}
+h2{margin-top:20px;font-size:70px;font-weight:700;line-height:1.03;letter-spacing:-2.8px;max-width:600px}
+h2 em{font-style:normal;color:var(--accent)}
+.copy{margin-top:24px;font-size:29px;font-weight:400;line-height:1.48;color:rgba(26,24,20,.78);max-width:780px}
+.copy b{font-weight:600;color:#1A1814}
+/* The ledger tiles whatever the copy leaves: three equal ruled bands rather
+   than three rows hung off the bottom, so a short paragraph opens the bands
+   instead of opening a hole in the middle of the sheet. */
+.pts{flex:1;display:flex;flex-direction:column;margin-top:44px;border-bottom:1px solid var(--rule)}
+.pt{flex:1;display:flex;align-items:center;gap:32px;border-top:1px solid var(--rule)}
+/* One band inked, same as the cover — three hairline rows over paper is too
+   little weight to hold the bottom half of the sheet. */
+.pt.ink{flex:1.2;background:var(--accent);border-top:none;padding:0 36px}
+.pt.ink .k{color:#F1ECE2}
+.pt.ink .v{color:rgba(241,236,226,.82)}
+.pt .k{flex:0 0 268px;font-size:29px;font-weight:600;letter-spacing:-.5px;color:var(--accent);line-height:1.22}
+/* Stop short of the registration rule at 984 — a line that touches it reads
+   as a collision rather than as a measure. */
+.pt .v{font-size:26px;font-weight:400;line-height:1.42;color:var(--muted);max-width:530px}
+</style></head>
+<body>
+<div class="ground"></div>
+<svg class="marks" viewBox="0 0 1080 1350" fill="none">
+  <g stroke="rgba(26,24,20,.42)" stroke-width="1.5">
+    <path d="M56 96 h44 M96 56 v44"/><path d="M1024 96 h-44 M984 56 v44"/>
+    <path d="M56 1254 h44 M96 1294 v-44"/><path d="M1024 1254 h-44 M984 1294 v-44"/>
+    <path d="M540 56 v34 M540 1294 v-34 M56 675 h34 M1024 675 h-34"/>
+  </g>
+  <g stroke="rgba(26,24,20,.42)" stroke-width="1" stroke-opacity=".5">
+    <path d="M96 96 H984 M96 1254 H984 M96 96 V1254 M984 96 V1254"/>
+  </g>
+</svg>
+<div class="page">
+  <div class="stamp">{{stampText}}<span>{{stampSub}}</span></div>
+  <div>
+    <div class="label">{{sectionLabel}}</div>
+    <h2>{{titleLine1}} <em>{{titleAccent}}</em></h2>
+    <p class="copy">{{body}}</p>
+  </div>
+  <div class="pts">
+    <div class="pt"><div class="k">{{p1Title}}</div><div class="v">{{p1Body}}</div></div>
+    <div class="pt ink"><div class="k">{{p2Title}}</div><div class="v">{{p2Body}}</div></div>
+    <div class="pt"><div class="k">{{p3Title}}</div><div class="v">{{p3Body}}</div></div>
+  </div>
+</div>
+<svg class="grain" width="1080" height="1350" viewBox="0 0 1080 1350" preserveAspectRatio="none">
+<filter id="gr"><feTurbulence type="fractalNoise" baseFrequency="0.9" numOctaves="3" seed="33"/><feColorMatrix type="saturate" values="0"/></filter>
+<rect width="1080" height="1350" filter="url(#gr)" opacity="0.42"/></svg>
+</body></html>

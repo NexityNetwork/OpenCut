@@ -1,0 +1,81 @@
+{
+  "_note": "Frozen content for design review. Poster family — display type at scale, nothing else on the page.",
+  "family": "shout-orange",
+  "brief": "Saying no, and the sentences that make it survivable",
+  "slides": [
+    {
+      "layoutId": "cover-shout-orange",
+      "slots": {
+        "eyebrow": "On the word nobody practises",
+        "titleLine1": "Saying no is",
+        "titleAccent": "a sentence.",
+        "subtitle": "Six ways to refuse something without damaging the relationship, and the one case where you cannot."
+      }
+    },
+    {
+      "layoutId": "body-shout-orange",
+      "slots": {
+        "sectionLabel": "The cost of yes",
+        "titleLine1": "Every yes",
+        "titleAccent": "is a no.",
+        "body": "You are not choosing between doing this and doing nothing. You are choosing between this and whatever the same hours would have gone to, and that thing never gets to make its case because it has not been asked for yet."
+      }
+    },
+    {
+      "layoutId": "body-shout-orange",
+      "slots": {
+        "sectionLabel": "Say it in one line",
+        "titleLine1": "No, but here is",
+        "titleAccent": "who can.",
+        "body": "A refusal with a redirection costs the other person nothing and costs you one sentence. It is the only version of no that reliably improves a relationship rather than surviving it."
+      }
+    },
+    {
+      "layoutId": "body-shout-orange",
+      "slots": {
+        "sectionLabel": "Do not explain",
+        "titleLine1": "A reason is",
+        "titleAccent": "an invitation.",
+        "body": "Every justification you offer is a constraint somebody can propose removing. Say no, say it plainly, and stop — an unexplained refusal is harder to argue with than a well-reasoned one."
+      }
+    },
+    {
+      "layoutId": "body-shout-orange",
+      "slots": {
+        "sectionLabel": "Buy the time",
+        "titleLine1": "Let me check",
+        "titleAccent": "and come back.",
+        "body": "Almost every bad yes was given in the four seconds after being asked, in person, by somebody being pleasant. Delay is not cowardice; it is the difference between an answer and a reflex."
+      }
+    },
+    {
+      "layoutId": "body-shout-orange",
+      "slots": {
+        "sectionLabel": "Say it early",
+        "titleLine1": "No in week one",
+        "titleAccent": "is a favour.",
+        "body": "The same no in week six is a betrayal, and it is the same information. What changes is how much the other person has already built on top of an answer you had not actually given."
+      }
+    },
+    {
+      "layoutId": "body-shout-orange",
+      "slots": {
+        "sectionLabel": "The uncomfortable one",
+        "titleLine1": "Some of them",
+        "titleAccent": "will not forgive it.",
+        "body": "Not everybody accepts a refusal gracefully, and a few relationships will cool. That is the actual price, it is not avoidable by better phrasing, and it is still cheaper than a year of work you resented."
+      }
+    },
+    {
+      "layoutId": "cta-shout-orange",
+      "slots": {
+        "eyebrow": "On the one you are dreading",
+        "titleLine1": "Send it",
+        "titleAccent": "today.",
+        "body": "One line, no reason, one name of somebody better suited. It gets worse every day you leave it, and it never gets easier to say.",
+        "buttonLabel": "Take all six",
+        "signoff": "Week one is a favour. Week six is not."
+      }
+    }
+  ]
+}

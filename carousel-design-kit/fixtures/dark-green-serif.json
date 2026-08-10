@@ -1,0 +1,142 @@
+{
+  "_note": "Frozen content for design review. Editorial family — serif display on a ruled dark ground, three points per page separated by rules rather than boxed.",
+  "family": "dark-green-serif",
+  "brief": "The parts of the job that never make the job description",
+  "slides": [
+    {
+      "layoutId": "cover-dark-green-serif",
+      "slots": {
+        "eyebrow": "On the work behind the work",
+        "title": "Nobody hires you for",
+        "titleAccent": "the hard part.",
+        "subtitle": "Six things that decide whether the work lands, none of which appear in a brief, a contract or a job description.",
+        "iconTheme": "dark",
+        "iconSlug1": "notion",
+        "iconSlug2": "figma",
+        "iconSlug3": "linear",
+        "iconSlug4": "github",
+        "iconSlug5": "slack",
+        "idx1": "Reading a brief that describes the wrong thing",
+        "idx2": "Showing work before it is ready",
+        "idx3": "Saying it went wrong before anyone finds out",
+        "idx4": "Handing over something that runs without you",
+        "idx5": "Being the person nobody has to chase",
+        "idx6": "Why none of it saves weak work"
+      }
+    },
+    {
+      "layoutId": "body-dark-green-serif",
+      "slots": {
+        "stepTag": "Before anything is made",
+        "toolName1": "Notion",
+        "iconSlug1": "notion",
+        "iconTheme": "dark",
+        "title": "Most briefs describe a solution, not a problem",
+        "body": "A client arrives with the answer already chosen, and the useful work is <b>getting back to the question</b> without making anyone feel corrected.",
+        "p1Title": "Ask what changes",
+        "p1Body": "Not what they want built. What is different in their week once it exists.",
+        "p2Title": "Find the deadline behind the deadline",
+        "p2Body": "There is usually a board meeting, a launch or an investor behind the date.",
+        "p3Title": "Write it back to them",
+        "p3Body": "In your words. If they correct you, you learned something for free."
+      }
+    },
+    {
+      "layoutId": "body-dark-green-serif",
+      "slots": {
+        "stepTag": "While it is being made",
+        "toolName1": "Figma",
+        "iconSlug1": "figma",
+        "iconTheme": "dark",
+        "title": "Showing work early is a skill, not a personality trait",
+        "body": "Everyone agrees with it and almost nobody does it, because <b>an unfinished thing feels like evidence</b> that you are not good enough yet.",
+        "p1Title": "Show the direction, not the polish",
+        "p1Body": "Rough enough that changing it costs nothing, clear enough to argue with.",
+        "p2Title": "Say what you want feedback on",
+        "p2Body": "Unbounded feedback is how a colour discussion eats a structural one.",
+        "p3Title": "Book the review before you need it",
+        "p3Body": "A date in the calendar is the only thing that reliably ends a draft."
+      }
+    },
+    {
+      "layoutId": "body-dark-green-serif",
+      "slots": {
+        "stepTag": "When it goes wrong",
+        "toolName1": "Linear",
+        "iconSlug1": "linear",
+        "iconTheme": "dark",
+        "title": "The recovery is remembered longer than the mistake",
+        "body": "Almost every relationship that survived a serious error survived because somebody said it out loud first, <b>before it was discovered</b>.",
+        "p1Title": "Say it the same day",
+        "p1Body": "The cost of a problem doubles roughly every day nobody is told about it.",
+        "p2Title": "Bring the fix, not the apology",
+        "p2Body": "One sentence on what happened, three on what you are doing about it.",
+        "p3Title": "Change the process, once",
+        "p3Body": "An apology without a changed process is a promise to do it again."
+      }
+    },
+    {
+      "layoutId": "body-dark-green-serif",
+      "slots": {
+        "stepTag": "When it is finished",
+        "toolName1": "GitHub",
+        "iconSlug1": "github",
+        "iconTheme": "dark",
+        "title": "Handing something over is part of making it",
+        "body": "Work that only you can run is not finished, it is <b>a dependency wearing a deliverable's clothes</b>, and everyone eventually resents it.",
+        "p1Title": "Write for the person after you",
+        "p1Body": "Assume they are competent, in a hurry, and have never seen this before.",
+        "p2Title": "Delete your own shortcuts",
+        "p2Body": "The clever step that only works on your machine is the one that breaks.",
+        "p3Title": "Watch someone else use it",
+        "p3Body": "Say nothing for ten minutes. It is the cheapest research there is."
+      }
+    },
+    {
+      "layoutId": "body-dark-green-serif",
+      "slots": {
+        "stepTag": "Between projects",
+        "toolName1": "Slack",
+        "iconSlug1": "slack",
+        "iconTheme": "dark",
+        "title": "Being easy to work with compounds faster than being good",
+        "body": "Referrals rarely mention craft. They mention that you replied, that the date held, and that <b>nothing had to be chased twice</b>.",
+        "p1Title": "Reply before you have the answer",
+        "p1Body": "A holding message costs nothing and removes the anxiety entirely.",
+        "p2Title": "Never surprise anyone with a date",
+        "p2Body": "A slip announced in advance is a plan. Announced late, it is a failure.",
+        "p3Title": "Leave people better staffed",
+        "p3Body": "Recommending someone else when you are wrong for the job comes back."
+      }
+    },
+    {
+      "layoutId": "body-dark-green-serif",
+      "slots": {
+        "stepTag": "The uncomfortable one",
+        "toolName1": "Notion",
+        "iconSlug1": "notion",
+        "iconTheme": "dark",
+        "title": "None of this substitutes for the work being good",
+        "body": "Every one of these makes good work land harder. Applied to weak work they <b>buy you a second project</b>, and that is the whole extension.",
+        "p1Title": "Charm has a half-life",
+        "p1Body": "It carries one project. The second one is judged on the first one's results.",
+        "p2Title": "Process is not craft",
+        "p2Body": "A well-run project that produces mediocre work is still mediocre work.",
+        "p3Title": "Get better in public",
+        "p3Body": "The only defence against a rising bar is visibly clearing it more often."
+      }
+    },
+    {
+      "layoutId": "cta-dark-green-serif",
+      "slots": {
+        "eyebrow": "Pick one",
+        "headline": "Do the first one",
+        "headlineAccent": "on the next brief.",
+        "body": "Ask what actually changes once the thing exists, and write the answer back in your own words. It takes ten minutes and it changes what you build.",
+        "buttonLabel": "Take all six",
+        "signoff": "The rest keep until the project after",
+        "quote": "Every one of these is free. That is exactly why so few people bother with them."
+      }
+    }
+  ]
+}

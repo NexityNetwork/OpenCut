@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html><head><meta charset="utf-8">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Fraunces:ital,opsz,wght@0,9..144,300..600;1,9..144,300..600&display=swap" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+html,body{width:1080px;height:1350px;overflow:hidden;background:#F3EEE5;color:#1C1917;
+  font-family:"Inter",sans-serif;-webkit-font-smoothing:antialiased;text-rendering:geometricPrecision}
+:root{--ink:#1C1917;--muted:#6E655B;--rule:rgba(28,25,23,.16);--ochre:#A8541F}
+/* Life without extra colour: a warm bloom bleeding off one corner, paper
+   grain over the whole sheet, and one hand-drawn mark per page. */
+.bloom{position:absolute;border-radius:50%;filter:blur(78px);pointer-events:none}
+.grain{position:absolute;inset:0;opacity:.34;mix-blend-mode:multiply;pointer-events:none}
+.sheet{position:absolute;inset:0;padding:88px 88px 84px;display:flex;flex-direction:column}
+.serif{font-family:"Fraunces",serif;font-weight:400;letter-spacing:-.022em;line-height:1.05}
+.mark{position:absolute;pointer-events:none}
+.b1{width:980px;height:980px;left:50%;top:52%;transform:translate(-50%,-50%);background:radial-gradient(circle,#D98A4A 0%,transparent 62%);opacity:.46}
+.eyebrow{margin-top:auto;font-family:"Fraunces",serif;font-style:italic;font-size:32px;color:var(--muted);position:relative;z-index:2}
+h1{margin-top:20px;font-size:110px;max-width:860px;position:relative;z-index:2}
+h1 em{font-style:italic;color:var(--ochre)}
+.body{margin-top:36px;font-size:32px;font-weight:400;line-height:1.48;color:var(--muted);max-width:740px;position:relative;z-index:2}
+.cta{margin-top:auto;position:relative;z-index:2}
+.cta .l{font-family:"Fraunces",serif;font-weight:500;font-size:52px;letter-spacing:-.03em;color:var(--ochre);display:inline-block}
+.underline{display:block;width:520px;height:26px;margin-top:4px}
+</style></head>
+<body>
+<div class="bloom b1"></div>
+<div class="sheet">
+  <div class="eyebrow">{{eyebrow}}</div>
+  <h1 class="serif">{{headline}}</h1>
+  <p class="body">{{body}}</p>
+  <div class="cta">
+    <div class="l">{{buttonLabel}}</div>
+    <svg class="underline" viewBox="0 0 520 26" fill="none"><path d="M6 17C110 6 268 4 384 12c44 3 84 8 130 5" stroke="#A8541F" stroke-width="5" stroke-linecap="round" opacity=".7"/></svg>
+  </div>
+</div>
+<svg class="grain" width="1080" height="1350" viewBox="0 0 1080 1350" preserveAspectRatio="none"><filter id="g"><feTurbulence type="fractalNoise" baseFrequency="0.78" numOctaves="3" seed="4"/><feColorMatrix type="saturate" values="0"/></filter><rect width="1080" height="1350" filter="url(#g)" opacity="0.5"/></svg>
+</body></html>

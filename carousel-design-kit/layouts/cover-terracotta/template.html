@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html><head><meta charset="utf-8">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+html,body{width:1080px;height:1350px;overflow:hidden;background:#C2542A;color:#F6EFE4;
+  font-family:"Inter",sans-serif;-webkit-font-smoothing:antialiased;text-rendering:geometricPrecision}
+:root{--muted:rgba(246,239,228,.66);--ink:#3C1509}
+/* Holes punched out of a flooded field: large perfect circles in a darker tone,
+   asymmetric, bleeding off the edges. Flat and hard-edged — no shadows, no
+   gradients, no glow. The type always sits in the clear.
+   The circles are absolutely positioned rather than drawn in a viewBox: the
+   cream field's height depends on the copy, and a scaled viewBox would squash
+   a circle into an ellipse the moment the copy changed length. */
+.o{position:absolute;border-radius:50%;pointer-events:none}
+.page{position:absolute;inset:0;z-index:3;display:flex;flex-direction:column}
+.top{position:relative;padding:118px 92px 60px}
+.eyebrow{position:relative;font-size:25px;font-weight:500;color:var(--muted);letter-spacing:-.3px}
+h1{position:relative;margin-top:26px;font-size:112px;font-weight:700;line-height:.99;letter-spacing:-4.8px;max-width:700px}
+.stand{position:relative;margin-top:32px;font-size:34px;font-weight:400;line-height:1.4;color:var(--muted);max-width:660px}
+/* The cream field is a second flood, not a card: it runs to three edges and the
+   punched circles continue through it in the terracotta. */
+.field{position:relative;flex:1;background:#F6EFE4;color:var(--ink);overflow:hidden}
+.inner{position:relative;height:100%;padding:56px 92px 108px;display:flex;flex-direction:column}
+.rows{flex:1;display:flex;flex-direction:column;justify-content:center;gap:36px;max-width:660px}
+.rows p{font-size:34px;font-weight:600;letter-spacing:-.8px;line-height:1.24}
+.note{padding-top:24px;border-top:2px solid rgba(60,21,9,.22);font-size:25px;color:rgba(60,21,9,.62)}
+</style></head>
+<body>
+<div class="page">
+  <div class="top">
+    <div class="o" style="width:496px;height:496px;right:-140px;top:-30px;background:#9E3F1C"></div>
+    <div class="eyebrow">{{eyebrow}}</div>
+    <h1>{{titleLine1}}</h1>
+    <p class="stand">{{standfirst}}</p>
+  </div>
+  <div class="field">
+    <div class="o" style="width:424px;height:424px;right:-150px;bottom:-160px;background:#C2542A"></div>
+    <div class="o" style="width:148px;height:148px;left:-64px;top:34px;background:#C2542A"></div>
+    <div class="inner">
+      <div class="rows"><p>{{item1}}</p><p>{{item2}}</p></div>
+      <div class="note">{{coverNote}}</div>
+    </div>
+  </div>
+</div>
+</body></html>

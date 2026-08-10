@@ -1,0 +1,126 @@
+{
+  "_note": "Broadsheet: heavy/thin masthead rule pair, kicker and running head, Playfair display, a standfirst across the full measure, an 8px navy rule, then the page set in two hairline-divided text columns with a full-width pull closing the foot. Type-led, no cards, cool paper and one navy.",
+  "family": "linkedin-pro",
+  "brief": "What actually gets people promoted, as opposed to what they are told",
+  "slides": [
+    {
+      "layoutId": "cover-linkedin-pro",
+      "slots": {
+        "kicker": "The part nobody writes down",
+        "strap": "On being moved up a level",
+        "titleLine1": "You are not promoted",
+        "titleLine2": "for the job you are",
+        "titleLine3": "currently doing.",
+        "standfirst": "Every company publishes a framework, and the framework is honest about the wrong thing. It describes the rung above you, then asks you to prove it from a role with no room to.",
+        "leftPara": "The gap between the document and the decision is where careers stall for a year longer than they need to. None of what follows is cynical. It is a description of how the call is actually made, and which evidence survives being summarised by a stranger. Deserving does not come into it.",
+        "rightPara": "The people who move quickly are rarely the ones working hardest. They understood early that a promotion is not a settlement for the year behind them, and rearranged their effort accordingly, long before anybody advised them to.",
+        "rightNote": "An argument, and then the part that complicates it.",
+        "pullLine": "The framework describes the rung. The decision is made on the climb."
+      }
+    },
+    {
+      "layoutId": "body-linkedin-pro",
+      "slots": {
+        "kicker": "The framing",
+        "strap": "On being moved up a level",
+        "titleLine1": "It is a hiring decision,",
+        "titleLine2": "not a reward.",
+        "standfirst": "The panel is not scoring your year. It is asking whether it would appoint you into the higher role today, on what it already knows.",
+        "para1": "This misunderstanding costs more time than any other. Delivery gets treated as payment for something owed, so a strong year feels as though it ought to convert. It does not: nobody in that room is settling a debt.",
+        "para2": "They are placing a bet on future behaviour and hunting for reasons to believe it. Read the meeting as an appointment and the question changes.",
+        "para3": "Excellent delivery of your current role is the entry ticket rather than the argument. It gets you into the conversation and then contributes almost nothing to it.",
+        "para4": "Which is why the person who delivers superbly and waits to be noticed is usually still waiting a year later, quietly furious and entirely right about the unfairness of it. Nobody there is equipped to hear it.",
+        "pullLine": "A strong year buys you a hearing, not a decision."
+      }
+    },
+    {
+      "layoutId": "body-linkedin-pro",
+      "slots": {
+        "kicker": "The evidence",
+        "strap": "On being moved up a level",
+        "titleLine1": "You need evidence",
+        "titleLine2": "from the next level.",
+        "standfirst": "Every case rests on work that only makes sense if you were already a rung higher. Nobody assigns that work.",
+        "para1": "The work that proves the next level is almost always work nobody handed over. A decision taken without escalating it. A problem crossing two teams that had no owner until you picked it up. A judgement that was right and could as easily have been wrong in public.",
+        "para2": "It means acting before the authority arrives, and carrying the exposure that comes with doing so.",
+        "para3": "The alternative is to wait until the responsibility is formally granted and then perform it well. That is the order in which nobody has ever been promoted.",
+        "para4": "Authority follows demonstrated judgement, never the other way round. What that asks of you is real risk on your own account, in front of people who will remember if it goes badly. Most people wait instead.",
+        "pullLine": "The proof you need is the work nobody gave you."
+      }
+    },
+    {
+      "layoutId": "body-linkedin-pro",
+      "slots": {
+        "kicker": "The room",
+        "strap": "On being moved up a level",
+        "titleLine1": "Somebody argues for",
+        "titleLine2": "you while you are out.",
+        "standfirst": "The decision happens in a calibration meeting you do not attend, run by people who have never seen your work.",
+        "para1": "Your manager walks in with a case and a few minutes in which to make it. What survives is a small number of sentences other people can repeat without getting them wrong.",
+        "para2": "The difficulty, the context, a year of quiet competence: none of it fits and none of it travels. So the real question is not whether you are visible. Visibility is not the same thing as noise, and never has been.",
+        "para3": "It is whether the person speaking for you has been handed something short enough to carry into the room. People who write a plain summary of what they own, and give it over before anybody asks, do disproportionately well.",
+        "para4": "It reads as self-promotion only to those who have never had to defend somebody with a clock running and nothing written down.",
+        "pullLine": "Give them the sentence, or they will improvise one."
+      }
+    },
+    {
+      "layoutId": "body-linkedin-pro",
+      "slots": {
+        "kicker": "The measure",
+        "strap": "On being moved up a level",
+        "titleLine1": "Scope is legible.",
+        "titleLine2": "Effort is not.",
+        "standfirst": "What is being assessed is the surface area you can be trusted with, not the quantity of work you got through.",
+        "para1": "Two people ship the same amount. One of them decides what gets shipped, absorbs the ambiguity nobody else wants, and is the reason three other people were never blocked.",
+        "para2": "That difference is invisible in any tally of tasks and is the entire basis of the decision. Scope has a blunt test: what breaks, and who notices, when you are away for a fortnight. Usually nothing breaks.",
+        "para3": "It explains the most demoralising pattern in any team, which is the hardest-working person going nowhere for years. Effort spent inside a boundary somebody else drew reads as reliability.",
+        "para4": "Reliability is priced as retention, not advancement. The way out is not to work less but to draw the boundary yourself, and to be wrong in public occasionally as the price. Nobody promotes a boundary-keeper.",
+        "pullLine": "Reliability is rewarded with more of the same work."
+      }
+    },
+    {
+      "layoutId": "body-linkedin-pro",
+      "slots": {
+        "kicker": "The trap",
+        "strap": "On being moved up a level",
+        "titleLine1": "Being irreplaceable",
+        "titleLine2": "keeps you in place.",
+        "standfirst": "The clearest predictor of not being moved is that moving you would cost the team something it cannot absorb.",
+        "para1": "Nobody says this out loud, because it amounts to punishing competence, and it does. A manager weighing a vacancy against a promotion is only doing arithmetic.",
+        "para2": "Your indispensability sits on the wrong side of the sum. The fix is slow and unnatural: write down the thing only you can do, teach it to somebody visibly, and let them do it badly in public. None of it feels like progress.",
+        "para3": "What you give up is the private satisfaction of being the one who knows, which is a larger loss than it sounds and worth naming honestly. What you get back is the only proof that counts a level up.",
+        "para4": "Something you built carried on running while you were not standing next to it. Load-bearing people stay where they are, and are thanked warmly for it. That is the consolation prize.",
+        "pullLine": "Make yourself replaceable, on purpose, in public."
+      }
+    },
+    {
+      "layoutId": "body-linkedin-pro",
+      "slots": {
+        "kicker": "The limit",
+        "strap": "On being moved up a level",
+        "titleLine1": "None of this works",
+        "titleLine2": "without a seat.",
+        "standfirst": "Everything above assumes the promotion exists. Usually the constraint is not you, but a level nobody budgeted for.",
+        "para1": "Headcount, the ratio of senior to junior, a reorganisation that quietly froze the ladder, a manager with no standing of their own: these decide more outcomes than any case you could build.",
+        "para2": "A good case into a closed system only makes you the best qualified person still waiting, and the advice curdles into a way of blaming yourself for somebody else’s arithmetic.",
+        "para3": "There is a second cost, and it is the one worth sitting with. All of this is a competence at being promoted, which is not the same competence as being good at the work.",
+        "para4": "Optimise hard enough for legibility and you produce things that are easy to describe and not worth much. Choose the work if you must, but know that it is a trade and not a virtue. Most advice pretends otherwise.",
+        "pullLine": "Sometimes the answer is not a better case. It is a different building."
+      }
+    },
+    {
+      "layoutId": "cta-linkedin-pro",
+      "slots": {
+        "kicker": "In short",
+        "strap": "On being moved up a level",
+        "titleLine1": "Stop performing the",
+        "titleLine2": "job you already have.",
+        "standfirst": "From inside your current role, the behaviour that gets you promoted looks a lot like mild overstepping.",
+        "para1": "Take a decision that is nominally above you and be right about it. Write the short version of what you own and give it to the person who has to defend you. Hand away the thing that makes you hard to replace. None of it feels like work, and all of it is the case. The framework will still be there, still describing the rung. Read it, then ignore it politely.",
+        "para2": "Then keep the harder question open. If the structure has no seat, the most disciplined case in the company is an argument for staying exactly where you are. Knowing which of the two problems you have is worth more than any effort spent on the wrong one. Most people never ask. They improve the case instead.",
+        "closeLabel": "The whole thing in one line",
+        "closingLine": "Promotion is not payment for the year you had. It is a bet on the year they think you will have."
+      }
+    }
+  ]
+}

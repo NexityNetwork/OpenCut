@@ -1,0 +1,135 @@
+{
+  "_note": "Frozen content for design review. Pricing/positioning family — one lever per page, the three moves it needs, and what it is worth.",
+  "family": "cream-gold",
+  "brief": "How to raise your rates without losing the client",
+  "slides": [
+    {
+      "layoutId": "cover-cream-gold",
+      "slots": {
+        "eyebrow": "On charging properly",
+        "titleLine1": "Your rate is a",
+        "titleLine2": "story.",
+        "subtitle": "Not a number. Six levers that change what a client thinks they are buying, and what each one is worth in practice.",
+        "issueLabel": "The uncomfortable part is on the last page"
+      }
+    },
+    {
+      "layoutId": "body-cream-gold",
+      "slots": {
+        "toolName1": "The offer",
+        "toolTag": "Where price is decided",
+        "titleMain": "Nobody buys",
+        "titleItalic": "hours",
+        "body": "Selling time invites a comparison to every other person selling time. Selling an outcome removes the comparison entirely, because nobody else is offering exactly that.",
+        "pillar1Title": "Name the result",
+        "pillar1Body": "Not the deliverable. A brand system is a service; being recognisable in your market is an outcome.",
+        "pillar2Title": "Own the whole problem",
+        "pillar2Body": "Partial scope invites partial payment. Take the seam and you take the value of closing it.",
+        "pillar3Title": "Price the change",
+        "pillar3Body": "Ask what the situation is worth once it is fixed. Your cost to fix it is irrelevant to that number.",
+        "quoteText": "The hourly rate is a ceiling you build yourself.",
+        "priceValue": "3× typical"
+      }
+    },
+    {
+      "layoutId": "body-cream-gold",
+      "slots": {
+        "toolName1": "The proposal",
+        "toolTag": "Where doubt creeps in",
+        "titleMain": "Three options beat",
+        "titleItalic": "one number",
+        "body": "A single price is a yes-or-no question, and no is always the safer answer. Three options change the conversation from whether to which.",
+        "pillar1Title": "Anchor high",
+        "pillar1Body": "The top option is not there to be chosen. It is there to make the middle one look measured.",
+        "pillar2Title": "Make the middle obvious",
+        "pillar2Body": "This is the one you actually want. Everything about it should read as the sensible choice.",
+        "pillar3Title": "Keep the floor honest",
+        "pillar3Body": "A cheap option you would resent delivering will poison the work. Price it so you would be content.",
+        "quoteText": "Which, not whether — that is the whole shift.",
+        "priceValue": "+40% close"
+      }
+    },
+    {
+      "layoutId": "body-cream-gold",
+      "slots": {
+        "toolName1": "The scope",
+        "toolTag": "Where margin leaks",
+        "titleMain": "Write down what you are",
+        "titleItalic": "not doing",
+        "body": "Every unbilled hour started as an assumption nobody wrote down. The exclusions protect the relationship more than the inclusions do.",
+        "pillar1Title": "Two rounds, named",
+        "pillar1Body": "Unlimited revisions is not generosity, it is a promise you will quietly start to resent.",
+        "pillar2Title": "Price the extras now",
+        "pillar2Body": "Agreeing a rate for out-of-scope work in advance turns an argument into an invoice.",
+        "pillar3Title": "Date the estimate",
+        "pillar3Body": "A quote with no expiry is a quote you will honour in a year at today's confidence.",
+        "quoteText": "Scope creep is a documentation failure, not a client failure.",
+        "priceValue": "−80% disputes"
+      }
+    },
+    {
+      "layoutId": "body-cream-gold",
+      "slots": {
+        "toolName1": "The conversation",
+        "toolTag": "Where nerve is tested",
+        "titleMain": "Say the number and",
+        "titleItalic": "stop talking",
+        "body": "The silence after a price feels much longer to you than to them. Filling it is how a rate gets discounted before anyone has objected.",
+        "pillar1Title": "No apology",
+        "pillar1Body": "Hedging language tells the other side the number is negotiable before they have decided whether it is.",
+        "pillar2Title": "No justification",
+        "pillar2Body": "Explaining the number invites a line-by-line argument about the parts of it.",
+        "pillar3Title": "Let them answer",
+        "pillar3Body": "The first person to speak after a price is usually the one who moves on it.",
+        "quoteText": "Most discounts are self-inflicted in the pause.",
+        "priceValue": "0 discounts"
+      }
+    },
+    {
+      "layoutId": "body-cream-gold",
+      "slots": {
+        "toolName1": "The terms",
+        "toolTag": "Where trust is set",
+        "titleMain": "Deposits are not",
+        "titleItalic": "distrust",
+        "body": "Asking for money before starting is standard everywhere except in the heads of people who have never asked. It also filters out the clients who were never going to pay.",
+        "pillar1Title": "Half up front",
+        "pillar1Body": "It funds the work and it proves the intent. Both parties behave differently afterwards.",
+        "pillar2Title": "Milestones, not the end",
+        "pillar2Body": "Payment on completion means you are financing the client at zero interest.",
+        "pillar3Title": "Late fees, stated once",
+        "pillar3Body": "Never enforced, always effective. The clause does the work on its own.",
+        "quoteText": "Nobody has ever walked away over a deposit who would have paid the invoice.",
+        "priceValue": "12 days faster"
+      }
+    },
+    {
+      "layoutId": "body-cream-gold",
+      "slots": {
+        "toolName1": "The uncomfortable part",
+        "toolTag": "Where this stops working",
+        "titleMain": "None of this fixes",
+        "titleItalic": "weak work",
+        "body": "Positioning raises what people will pay for a given standard. It does not raise the standard, and a client who feels overcharged does not come back or refer you.",
+        "pillar1Title": "The rate must be earned",
+        "pillar1Body": "Charge above what you deliver and the market corrects it within about two projects.",
+        "pillar2Title": "Referrals price you",
+        "pillar2Body": "Your real rate is whatever your last happy client tells someone you are worth.",
+        "pillar3Title": "Raise it slowly",
+        "pillar3Body": "Increase with each project until you feel resistance. That edge is the actual number.",
+        "quoteText": "Pricing is a lagging indicator of the work.",
+        "priceValue": "Earn it first"
+      }
+    },
+    {
+      "layoutId": "cta-cream-gold",
+      "slots": {
+        "eyebrow": "Start here",
+        "headlineMain": "Raise it on the",
+        "headlineItalic": "next one.",
+        "body": "Not on your current clients, and not by an amount you have to justify. On the next proposal, quietly, and see whether anyone objects.",
+        "buttonLabel": "Take the six levers"
+      }
+    }
+  ]
+}

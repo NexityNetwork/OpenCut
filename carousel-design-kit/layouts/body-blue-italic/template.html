@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html><head><meta charset="utf-8">
+<link href="https://fonts.googleapis.com/css2?family=Inter:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500;1,600&display=swap" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+html,body{width:1080px;height:1350px;overflow:hidden;background:#F1F1EE;color:#2B3973;
+  font-family:"Inter",sans-serif;-webkit-font-smoothing:antialiased;text-rendering:geometricPrecision}
+/* Slate blue and its lavender tint. Nothing else is coloured. */
+:root{--ink:#2B3973;--lav:#A4B1DA;--muted:rgba(43,57,115,.72);--line:rgba(43,57,115,.16)}
+.half-circle{position:absolute;top:-240px;left:-240px;width:520px;height:520px;background:var(--lav);border-radius:50%}
+/* Drawn mark: an open arc set, same geometry family as the half circle so
+   the page reads as one drawing rather than a shape plus decoration. */
+.mark{position:absolute;right:-130px;bottom:-140px;width:480px;height:480px;pointer-events:none}
+.sheet{position:absolute;inset:0;padding:118px 80px 104px;display:flex;flex-direction:column;justify-content:center}
+.tag{font-size:24px;font-weight:600;color:var(--muted);letter-spacing:-.2px}
+.title{margin-top:20px;font-size:72px;font-weight:600;line-height:1.02;letter-spacing:-2.2px;max-width:900px}
+.title em{font-style:italic;font-weight:600;letter-spacing:-2.4px}
+.strip{margin-top:34px;align-self:flex-start;padding:10px 22px;background:var(--lav);border-radius:8px;
+  font-size:22px;font-weight:600;letter-spacing:-.2px}
+.body{margin-top:30px;font-size:30px;font-weight:400;line-height:1.48;color:var(--muted);max-width:900px}
+.stats{margin-top:52px;display:grid;grid-template-columns:repeat(3,1fr);gap:18px}
+.stat{padding:26px 26px 24px;background:#fff;border:1px solid var(--line);border-radius:16px}
+.stat .v{font-weight:700;font-size:46px;line-height:1;letter-spacing:-1.8px}
+.stat .l{margin-top:10px;font-size:20px;font-weight:500;color:var(--muted);letter-spacing:-.2px}
+</style></head>
+<body>
+<div class="half-circle"></div>
+<svg class="mark" viewBox="0 0 480 480" fill="none">
+  <circle cx="240" cy="240" r="234" stroke="#2B3973" stroke-width="1.4" opacity=".20"/>
+  <circle cx="240" cy="240" r="178" stroke="#2B3973" stroke-width="1.4" opacity=".28"/>
+  <path d="M240 6 A234 234 0 0 1 474 240" stroke="#2B3973" stroke-width="3.4" opacity=".55"/>
+  <path d="M62 240 A178 178 0 0 0 240 418" stroke="#A4B1DA" stroke-width="4" opacity=".9"/>
+  <circle cx="240" cy="240" r="9" fill="#2B3973" opacity=".65"/>
+</svg>
+<div class="sheet">
+  <div class="tag">{{stepTag}}</div>
+  <div class="title">{{title}}</div>
+  <div class="strip">{{stripText}}</div>
+  <div class="body">{{body}}</div>
+  <div class="stats">
+    <div class="stat"><div class="v">{{stat1V}}</div><div class="l">{{stat1L}}</div></div>
+    <div class="stat"><div class="v">{{stat2V}}</div><div class="l">{{stat2L}}</div></div>
+    <div class="stat"><div class="v">{{stat3V}}</div><div class="l">{{stat3L}}</div></div>
+  </div>
+</div>
+</body></html>

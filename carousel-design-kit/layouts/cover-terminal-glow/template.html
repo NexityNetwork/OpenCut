@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html><head><meta charset="utf-8">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+html,body{width:1080px;height:1350px;overflow:hidden;background:#08090A;color:#E6EDE8;
+  font-family:"Inter",sans-serif;-webkit-font-smoothing:antialiased;text-rendering:geometricPrecision}
+:root{--muted:rgba(230,237,232,.54);--rule:rgba(92,230,138,.22);--accent:#5CE68A}
+/* Fine horizontal scan lines are the ground and the only texture on the page.
+   No terminal chrome, no prompts, no monospace body copy — the reference is the
+   surface of a phosphor display, not a picture of a shell. */
+.scan{position:absolute;inset:0;z-index:1;pointer-events:none;
+  background:repeating-linear-gradient(to bottom,
+    rgba(92,230,138,.085) 0px, rgba(92,230,138,.085) 1px, transparent 1px, transparent 3px)}
+.page{position:absolute;inset:0;z-index:3;padding:114px 92px 104px;display:flex;flex-direction:column}
+.eyebrow{font-size:25px;font-weight:500;color:var(--accent);letter-spacing:-.3px}
+h1{margin-top:26px;font-size:108px;font-weight:700;line-height:1;letter-spacing:-4.5px;max-width:830px}
+h1 em{font-style:normal;color:var(--accent)}
+.stand{margin-top:32px;font-size:34px;font-weight:400;line-height:1.4;color:var(--muted);max-width:800px}
+/* Wide registers rather than ruled rows: the bands run past the margins and
+   alternate in tone, so the lower page is scanned by the same horizontal logic
+   as the ground. One register is lit. */
+.regs{flex:1;margin:52px -92px -104px;display:flex;flex-direction:column}
+.reg{flex:1;display:flex;align-items:center;padding:0 92px}
+.reg:nth-child(odd){background:rgba(92,230,138,.055)}
+.reg p{font-size:32px;font-weight:500;letter-spacing:-.7px;line-height:1.26;max-width:790px}
+.reg.q p{font-size:26px;font-weight:400;color:var(--muted);letter-spacing:-.2px}
+.reg.on{background:var(--accent);color:#08090A}
+.reg.on p{font-weight:600;font-size:34px}
+</style></head>
+<body>
+<div class="scan"></div>
+<div class="page">
+  <div class="eyebrow">{{eyebrow}}</div>
+  <h1>{{titleLine1}} <em>{{titleAccent}}</em></h1>
+  <p class="stand">{{standfirst}}</p>
+  <div class="regs">
+    <div class="reg on"><p>{{item1}}</p></div>
+    <div class="reg"><p>{{item2}}</p></div>
+    <div class="reg q"><p>{{coverNote}}</p></div>
+  </div>
+</div>
+</body></html>

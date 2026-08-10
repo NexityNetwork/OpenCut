@@ -1,0 +1,109 @@
+{
+  "_note": "Frozen content for design review. Split-field family — every page is two solid fields with a hard boundary, ink over gold, inverted on the closer.",
+  "family": "noir-yellow",
+  "brief": "Six negotiating habits that cost people money",
+  "slides": [
+    {
+      "layoutId": "cover-noir-yellow",
+      "slots": {
+        "eyebrow": "On the part everybody rushes",
+        "displayLine1": "The number is fine.",
+        "displayLine2": "The silence is not.",
+        "body": "Six habits that decide what you get paid, none of which are about the quality of the work being discussed.",
+        "item1": "Why the first number spoken sets the range",
+        "item2": "The pause that costs more than any discount",
+        "coverNote": "The uncomfortable one is on the last page"
+      }
+    },
+    {
+      "layoutId": "body-noir-yellow",
+      "slots": {
+        "sectionLabel": "Before the conversation", "toolName": "Preparation",
+        "displayLine1": "Whoever speaks first",
+        "displayLine2": "sets the range.",
+        "body": "Not the price — the range. Every number that follows is read as a distance from the first one, which is why the opening figure does most of the work.",
+        "p1Title": "Open high, once", "p1Body": "High enough to be argued with, not high enough to end the conversation.",
+        "p2Title": "Name it plainly", "p2Body": "A number delivered with a caveat has already been discounted.",
+        "p3Title": "Have a floor", "p3Body": "Decided in advance, in writing, when you are not in the room.",
+        "closingLine": "An anchor you did not choose is an anchor somebody chose for you."
+      }
+    },
+    {
+      "layoutId": "body-noir-yellow",
+      "slots": {
+        "sectionLabel": "During", "toolName": "The pause",
+        "displayLine1": "Say the number,",
+        "displayLine2": "then stop.",
+        "body": "The silence after a price feels far longer to the person who said it. Filling it is how a rate gets discounted before anyone has objected to it.",
+        "p1Title": "No justification", "p1Body": "Explaining the number invites an argument about its parts.",
+        "p2Title": "No hedging", "p2Body": "Softening language tells them the figure is negotiable before they decide.",
+        "p3Title": "Let them answer", "p3Body": "Whoever speaks next is usually the one who moves.",
+        "closingLine": "Most discounts are self-inflicted in the four seconds after the number."
+      }
+    },
+    {
+      "layoutId": "body-noir-yellow",
+      "slots": {
+        "sectionLabel": "When they push", "toolName": "The counter",
+        "displayLine1": "A cheaper price is",
+        "displayLine2": "a smaller scope.",
+        "body": "Dropping the figure while keeping the work teaches the other side that your first number was decoration. Moving both keeps the trade honest.",
+        "p1Title": "Trade, never concede", "p1Body": "Every reduction comes out of what is included, visibly.",
+        "p2Title": "Show the arithmetic", "p2Body": "Two rounds becomes one. The number falls because the work did.",
+        "p3Title": "Leave the door open", "p3Body": "The removed piece stays priced, so adding it back is trivial.",
+        "closingLine": "Discounting the price alone prices everything you do afterwards."
+      }
+    },
+    {
+      "layoutId": "body-noir-yellow",
+      "slots": {
+        "sectionLabel": "On timing", "toolName": "The clock",
+        "displayLine1": "Urgency is",
+        "displayLine2": "somebody's leverage.",
+        "body": "A deadline you did not set is a pressure applied to you. Naming it out loud usually reveals that it belongs to a launch or a board meeting rather than to the work.",
+        "p1Title": "Ask what moves it", "p1Body": "Most deadlines have a reason, and the reason is negotiable.",
+        "p2Title": "Price the rush", "p2Body": "Speed is a service. It should appear on the invoice as one.",
+        "p3Title": "Never be the last to know", "p3Body": "A date announced late is a date you had no chance to shape.",
+        "closingLine": "The person under time pressure is the one who concedes, every time."
+      }
+    },
+    {
+      "layoutId": "body-noir-yellow",
+      "slots": {
+        "sectionLabel": "After the yes", "toolName": "The terms",
+        "displayLine1": "Agreement is not",
+        "displayLine2": "the same as terms.",
+        "body": "Most disputes are not about the price at all. They are about what was assumed on either side and written down by neither, which surfaces the week before delivery.",
+        "p1Title": "Write the exclusions", "p1Body": "The list of what you are not doing protects the relationship most.",
+        "p2Title": "Half up front", "p2Body": "It funds the work and it filters out the people who were never going to pay.",
+        "p3Title": "Date the quote", "p3Body": "A price with no expiry is one you will honour in a year at today's rate.",
+        "closingLine": "Every unbilled hour started as an assumption nobody said out loud."
+      }
+    },
+    {
+      "layoutId": "body-noir-yellow",
+      "slots": {
+        "sectionLabel": "The uncomfortable one", "toolName": "The limit",
+        "displayLine1": "None of this works",
+        "displayLine2": "on weak work.",
+        "body": "Negotiation raises what people will pay for a given standard. It does not raise the standard, and a client who feels overcharged does not come back or refer you.",
+        "p1Title": "The rate is earned", "p1Body": "Charge above what you deliver and the market corrects within two projects.",
+        "p2Title": "Referrals price you", "p2Body": "Your real rate is what your last satisfied client says you are worth.",
+        "p3Title": "Raise it slowly", "p3Body": "Increase until you feel resistance. That edge is the actual number.",
+        "closingLine": "Pricing is a lagging indicator of the work, and it always catches up."
+      }
+    },
+    {
+      "layoutId": "cta-noir-yellow",
+      "slots": {
+        "eyebrow": "On the next proposal, not the current one",
+        "displayLine1": "Name it once.",
+        "displayLine2": "Then wait.",
+        "body": "Not a new rate, not a rehearsed speech. One number, said plainly, followed by nothing at all until they answer.",
+        "closingLine": "The four seconds you find hardest are the four that decide the figure.",
+        "buttonLabel": "Take all six",
+        "signoff": "The silence belongs to them"
+      }
+    }
+  ]
+}

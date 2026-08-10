@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html><head><meta charset="utf-8">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+html,body{width:1080px;height:1350px;overflow:hidden;color:#141220;
+  font-family:"Inter",sans-serif;-webkit-font-smoothing:antialiased;text-rendering:geometricPrecision}
+:root{--muted:rgba(20,18,32,.56);--rule:rgba(20,18,32,.2);--accent:#6D4AE0;--tint:#F0EBFC}
+/* Flat, no gradient. edu-bright already owns the linear process, so this family
+   is the branching one: a question, two answers, and the consequence of each.
+   The connectors are drawn as real orthogonal rules rather than arrows or
+   chevrons — a decision tree reads from its geometry. */
+.ground{position:absolute;inset:0;z-index:0;background:#F7F6FB}
+.grain{position:absolute;inset:0;z-index:6;opacity:.16;mix-blend-mode:multiply;pointer-events:none}
+.page{position:absolute;inset:0;display:flex;flex-direction:column;z-index:4;padding:108px 80px 100px}
+.tree{flex:1 1 auto;display:flex;flex-direction:column;justify-content:center}
+.root{max-width:680px;margin:0 auto;border:2px solid #141220;border-radius:18px;
+  padding:32px 36px;text-align:center;background:#FFFFFF}
+.root .q{font-size:36px;font-weight:600;line-height:1.22;letter-spacing:-1.1px}
+.stem{width:2px;height:46px;background:var(--rule);margin:0 auto}
+.split{position:relative;height:50px}
+.split .bar{position:absolute;top:0;left:25%;right:25%;height:2px;background:var(--rule)}
+.split .drop{position:absolute;top:0;bottom:0;width:2px;background:var(--rule)}
+.split .drop.l{left:25%}
+.split .drop.r{right:25%}
+.split .tag{position:absolute;top:50%;transform:translate(-50%,-50%);background:#F7F6FB;
+  padding:0 12px;font-size:23px;font-weight:600;letter-spacing:-.3px}
+.split .tag.l{left:25%}
+.split .tag.r{left:75%}
+.kids{display:flex;gap:36px}
+.kids .node{flex:1 1 0;border:2px solid var(--rule);border-radius:18px;padding:34px 34px;background:#FFFFFF}
+.kids .node.on{border-color:var(--accent);background:var(--tint)}
+.kids .n{font-size:33px;font-weight:600;line-height:1.2;letter-spacing:-.9px}
+.kids .d{margin-top:16px;font-size:26px;font-weight:400;line-height:1.36;color:var(--muted)}
+.kids .r{margin-top:20px;padding-top:16px;border-top:1px solid var(--rule);
+  font-size:25px;font-weight:600;letter-spacing:-.4px}
+.kids .node.on .r{color:var(--accent)}
+.head{display:flex;align-items:center;justify-content:space-between;gap:30px}
+.head .lbl{font-size:27px;font-weight:500;color:var(--accent);letter-spacing:-.4px}
+.head .tool{display:flex;align-items:center;gap:14px;font-size:26px;font-weight:500}
+.head .tool svg{width:38px;height:38px;display:block}
+h2{margin-top:26px;font-size:68px;font-weight:700;line-height:1.03;letter-spacing:-2.8px}
+.sub{margin-top:20px;font-size:29px;font-weight:400;line-height:1.4;color:var(--muted);max-width:880px}
+.tree{margin:40px 0 36px}
+.take{padding:28px 32px;border-radius:16px;background:#141220;color:#F7F6FB}
+.take .k{font-size:23px;font-weight:600;opacity:.62;letter-spacing:-.3px}
+.take .t{margin-top:10px;font-size:32px;font-weight:600;line-height:1.26;letter-spacing:-1.1px}
+</style></head>
+<body>
+<div class="ground"></div>
+<div class="page">
+  <div class="head">
+    <div class="lbl">{{stepTag}}</div>
+    <div class="tool">{{iconSvg1}}<span>{{toolName1}}</span></div>
+  </div>
+  <h2>{{title}}</h2>
+  <p class="sub">{{subtitle}}</p>
+  <div class="tree">
+    <div class="root"><div class="q">{{rootQuestion}}</div></div>
+    <div class="stem"></div>
+    <div class="split">
+      <span class="bar"></span><span class="drop l"></span><span class="drop r"></span>
+      <span class="tag l">{{branchL}}</span><span class="tag r">{{branchR}}</span>
+    </div>
+    <div class="kids">
+      <div class="node"><div class="n">{{cardTitle1}}</div><div class="d">{{cardSub1}}</div><div class="r">{{cardResult1}}</div></div>
+      <div class="node on"><div class="n">{{cardTitle2}}</div><div class="d">{{cardSub2}}</div><div class="r">{{cardResult2}}</div></div>
+    </div>
+  </div>
+  <div class="take"><div class="k">{{takeawayLabel}}</div><div class="t">{{takeawayBody}}</div></div>
+</div>
+<svg class="grain" width="1080" height="1350" viewBox="0 0 1080 1350" preserveAspectRatio="none">
+<filter id="gr"><feTurbulence type="fractalNoise" baseFrequency="0.86" numOctaves="3" seed="67"/><feColorMatrix type="saturate" values="0"/></filter>
+<rect width="1080" height="1350" filter="url(#gr)" opacity="0.42"/></svg>
+</body></html>

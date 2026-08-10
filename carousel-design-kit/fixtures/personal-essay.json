@@ -1,0 +1,97 @@
+{
+  "_note": "Frozen content for design review. Essay family — soft warm gradient built from near neighbours, contour drawing across the lower page, serif display and real prose rather than numbered rows.",
+  "family": "personal-essay",
+  "brief": "What two years of working alone actually taught me",
+  "slides": [
+    {
+      "layoutId": "cover-personal-essay",
+      "slots": {
+        "eyebrow": "Two years, mostly wrong",
+        "titleLine1": "Working alone looked",
+        "titleAccent": "like freedom.",
+        "standfirst": "It is, eventually. The first eighteen months are something else, and nobody describes that part honestly because it does not sound like an achievement.",
+        "item1": "Why the good days stopped being the point",
+        "item2": "The lesson that took a year longer than it should have",
+        "coverNote": "None of this was obvious at the time"
+      }
+    },
+    {
+      "layoutId": "body-personal-essay",
+      "slots": {
+        "sectionLabel": "The first thing",
+        "titleLine1": "Constraint did more",
+        "titleAccent": "than ambition.",
+        "para1": "For most of the first year I believed the problem was that I did not have enough time. I had all of it. What I did not have was anything forcing a decision, and without that I could rewrite the same page for a week and call it work.",
+        "para2": "What changed was arbitrary: I started telling people dates. Not because the dates were meaningful, but because <b>a promise made out loud is a constraint you cannot quietly renegotiate</b> at two in the afternoon.",
+        "pullLine": "Speed was never about effort. It was about having fewer places left to hide."
+      }
+    },
+    {
+      "layoutId": "body-personal-essay",
+      "slots": {
+        "sectionLabel": "The second thing",
+        "titleLine1": "Talent is useless",
+        "titleAccent": "without repetition.",
+        "para1": "I spent a long time looking for better ideas, on the assumption that the work was mostly a search problem. It is not. Nearly everything I have made that worked was the fourth or fifth attempt at something I had already tried and abandoned.",
+        "para2": "The uncomfortable version of this is that <b>the ideas were never the bottleneck</b>. I simply had not done any of them enough times to be good at them, and finding a new one felt more like progress than repeating an old one.",
+        "pullLine": "I kept chasing better ideas. What I needed was a better loop."
+      }
+    },
+    {
+      "layoutId": "body-personal-essay",
+      "slots": {
+        "sectionLabel": "The third thing",
+        "titleLine1": "Nobody is coming",
+        "titleAccent": "to check.",
+        "para1": "This is the part that sounds like freedom and functions like a hazard. There is no review, no colleague noticing you have been stuck for three weeks, and no natural moment where somebody asks what you are actually working on.",
+        "para2": "I ended up manufacturing the check: one person, once a week, who I had to tell what I had finished. <b>Not a mentor and not accountability theatre</b> — just somebody who would notice the same answer twice.",
+        "pullLine": "Autonomy is not the absence of pressure. It is having to build your own."
+      }
+    },
+    {
+      "layoutId": "body-personal-essay",
+      "slots": {
+        "sectionLabel": "The fourth thing",
+        "titleLine1": "The money arrived",
+        "titleAccent": "after the clarity.",
+        "para1": "For a year I described what I did in a way that was accurate and useless. People were polite about it and then hired somebody whose sentence they could repeat to a colleague without getting it wrong.",
+        "para2": "When the sentence got shorter, the work got easier to sell, and none of the underlying skill had changed in the meantime. <b>That still annoys me</b>, and it is still true.",
+        "pullLine": "People pay when they can explain to somebody else why they did."
+      }
+    },
+    {
+      "layoutId": "body-personal-essay",
+      "slots": {
+        "sectionLabel": "The fifth thing",
+        "titleLine1": "The bad weeks",
+        "titleAccent": "are load-bearing.",
+        "para1": "The weeks where nothing shipped used to read as evidence that the whole arrangement was a mistake. They were mostly just weeks. Averaged over a quarter they disappear entirely, but a bad week is experienced at full volume and a quarter is not experienced at all.",
+        "para2": "The only thing that helped was writing down what happened each week, badly, in one line. <b>Not for the record</b> — for the version of me who would otherwise remember the whole month as a failure.",
+        "pullLine": "You judge a year by its worst week unless you write the others down."
+      }
+    },
+    {
+      "layoutId": "body-personal-essay",
+      "slots": {
+        "sectionLabel": "The uncomfortable one",
+        "titleLine1": "Most of it was",
+        "titleAccent": "avoidable.",
+        "para1": "Almost everything above was available to me in advance. People had written it down; I had read it and decided it applied to somebody with different circumstances, which is what everybody does with advice that would require changing something.",
+        "para2": "So I have no clean lesson to offer about this part. <b>Reading it does not do very much</b>, and I do not think it did much for me either until the same mistake had cost me something I could count.",
+        "pullLine": "Advice is cheap because taking it is the expensive part."
+      }
+    },
+    {
+      "layoutId": "cta-personal-essay",
+      "slots": {
+        "eyebrow": "If you are somewhere in the first year",
+        "titleLine1": "Tell one person",
+        "titleAccent": "a date.",
+        "standfirst": "Not a plan, not a system, not a rebuild of how you work. One date, said out loud to somebody who will remember it.",
+        "closingLine": "Everything else on this list took me two years. That one takes an afternoon.",
+        "buttonLabel": "Take the essay",
+        "signoff": "It works because you cannot renegotiate with them"
+      }
+    }
+  ]
+}

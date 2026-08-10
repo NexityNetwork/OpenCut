@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html><head><meta charset="utf-8">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+html,body{width:1080px;height:1350px;overflow:hidden;color:#191722;
+  font-family:"Inter",sans-serif;-webkit-font-smoothing:antialiased;text-rendering:geometricPrecision}
+:root{--muted:rgba(25,23,34,.56);--rule:rgba(25,23,34,.16);--accent:#4B2E83}
+
+.ground{position:absolute;inset:0;z-index:0;background:#F6F5F3}
+.grain{position:absolute;inset:0;z-index:6;opacity:.16;mix-blend-mode:multiply;pointer-events:none}
+.page{position:absolute;inset:0;display:flex;flex-direction:column;z-index:4;padding:100px 80px 92px}
+.label{font-size:25px;font-weight:500;color:var(--muted);letter-spacing:-.2px}
+/* A contact sheet. Each plate is a flat tinted field with its caption set
+   beneath it in small type, the way a proof sheet annotates a frame. The plates
+   carry text rather than pictures — the family is about looking, not photos. */
+.sheet{display:grid;gap:26px}
+.plate{background:rgba(75,46,131,.09);border:1px solid rgba(75,46,131,.22);border-radius:4px;
+  padding:30px 30px 28px;display:flex;flex-direction:column;justify-content:flex-start}
+.plate.on{background:var(--accent);border-color:var(--accent);color:#F7F5FC}
+.plate .t{font-size:31px;font-weight:600;line-height:1.16;letter-spacing:-.9px}
+.plate .b{margin-top:16px;font-size:24px;font-weight:400;line-height:1.36;color:var(--muted)}
+.plate.on .b{color:rgba(247,245,252,.78)}
+.cap{margin-top:12px;font-size:22px;font-weight:500;color:var(--muted);letter-spacing:-.2px}
+</style></head>
+<body>
+<div class="ground"></div>
+<div class="page" style="justify-content:space-between">
+  <div>
+    <div class="label">{{sectionLabel}}</div>
+    <h2 style="margin-top:24px;font-size:74px;font-weight:700;line-height:1.03;letter-spacing:-3px;max-width:860px">{{titleLine1}} <em style="font-style:normal;color:var(--accent)">{{titleAccent}}</em></h2>
+    <p style="margin-top:26px;font-size:30px;font-weight:400;line-height:1.46;color:rgba(25,23,34,.78);max-width:820px">{{body}}</p>
+  </div>
+  <div>
+    <div class="sheet" style="grid-template-columns:1fr 1.3fr;height:352px">
+      <div class="plate"><div class="t">{{plate1}}</div><div class="b">{{plate1Body}}</div></div>
+      <div class="plate on"><div class="t">{{plate2}}</div><div class="b">{{plate2Body}}</div></div>
+    </div>
+    <div class="sheet" style="grid-template-columns:1.3fr 1fr;height:318px;margin-top:26px">
+      <div class="plate"><div class="t">{{plate3}}</div><div class="b">{{plate3Body}}</div></div>
+      <div class="plate"><div class="t">{{plate4}}</div><div class="b">{{plate4Body}}</div></div>
+    </div>
+  </div>
+</div>
+<svg class="grain" width="1080" height="1350" viewBox="0 0 1080 1350" preserveAspectRatio="none">
+<filter id="gr"><feTurbulence type="fractalNoise" baseFrequency="0.88" numOctaves="3" seed="29"/><feColorMatrix type="saturate" values="0"/></filter>
+<rect width="1080" height="1350" filter="url(#gr)" opacity="0.42"/></svg>
+</body></html>

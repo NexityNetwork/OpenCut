@@ -1,0 +1,123 @@
+{
+  "_note": "Frozen content for design review. Axonometric family — flat parallelograms stacked in isometric projection, one layer raised, labelled to the side.",
+  "family": "stack-tour",
+  "brief": "The layers under a decision, and which one people actually argue about",
+  "slides": [
+    {
+      "layoutId": "cover-stack-tour",
+      "slots": {
+        "eyebrow": "On what people are really arguing about",
+        "titleLine1": "Every decision has",
+        "titleAccent": "three layers.",
+        "subtitle": "Six things about where a disagreement actually lives, and why the argument almost never happens there.",
+        "k1": "Where it is discussed",
+        "v1": "The top layer, where everybody can see it.",
+        "k2": "Where it was decided",
+        "v2": "One or two layers down, usually without a meeting.",
+        "coverNote": "The last page is the case where the top layer is the point"
+      }
+    },
+    {
+      "layoutId": "body-stack-tour",
+      "slots": {
+        "sectionLabel": "The visible layer",
+        "titleLine1": "What gets",
+        "titleAccent": "argued about.",
+        "body": "Almost every meeting is spent on the top layer — the wording, the colour, the name — because it is the only one everybody can see and therefore the only one everybody can have an opinion about.",
+        "k1": "Surface",
+        "v1": "Where the discussion happens, and where the least is at stake.",
+        "k2": "Structure",
+        "v2": "Where the decision was actually made, usually silently.",
+        "k3": "Constraint",
+        "v3": "Where it was made for you, before anybody sat down."
+      }
+    },
+    {
+      "layoutId": "body-stack-tour",
+      "slots": {
+        "sectionLabel": "The layer under it",
+        "titleLine1": "Structure decides",
+        "titleAccent": "what surface can be.",
+        "body": "By the time you are choosing words, the shape has already ruled out most of them. Arguing about the top layer when you dislike the one beneath it is <b>how a project spends six weeks going nowhere pleasantly</b>.",
+        "k1": "Surface",
+        "v1": "Cheap to change, and it changes nothing.",
+        "k2": "Structure",
+        "v2": "Expensive to change, and it changes everything.",
+        "k3": "Constraint",
+        "v3": "Not yours to change at all this quarter."
+      }
+    },
+    {
+      "layoutId": "body-stack-tour",
+      "slots": {
+        "sectionLabel": "The layer under that",
+        "titleLine1": "Constraints are",
+        "titleAccent": "somebody else's decision.",
+        "body": "Budget, timeline, platform, the thing that shipped two years ago. These are not up for discussion in the room you are in, and pretending otherwise is <b>the most common way a team wastes a month</b>.",
+        "k1": "Surface",
+        "v1": "Where you have authority and almost no leverage.",
+        "k2": "Structure",
+        "v2": "Where you have some of both, if you ask early.",
+        "k3": "Constraint",
+        "v3": "Where you have leverage only by escalating."
+      }
+    },
+    {
+      "layoutId": "body-stack-tour",
+      "slots": {
+        "sectionLabel": "Where to push",
+        "titleLine1": "The lowest layer",
+        "titleAccent": "you can actually move.",
+        "body": "Leverage is highest at the bottom and permission is lowest. The useful question is not what would be best, it is <b>which is the deepest layer somebody in this room is allowed to change</b>, and then to spend the effort there.",
+        "k1": "Ask what is fixed",
+        "v1": "Explicitly, at the start. Most of it is assumed, not decided.",
+        "k2": "Push one layer down",
+        "v2": "From wording to shape. From shape to premise.",
+        "k3": "Stop at the wall",
+        "v3": "Recognising it early is worth more than being right about it."
+      }
+    },
+    {
+      "layoutId": "body-stack-tour",
+      "slots": {
+        "sectionLabel": "How it goes wrong",
+        "titleLine1": "A surface fix on",
+        "titleAccent": "a structural problem.",
+        "body": "The rewrite that does not help, the redesign that changes nothing, the rename. Each one is an attempt to solve a lower layer from the top, and it fails in the same way every time — <b>it looks different and behaves identically</b>.",
+        "k1": "Symptom",
+        "v1": "Keeps coming back after each fix. That is the tell.",
+        "k2": "Cause",
+        "v2": "Sits one or two layers down from where you are working.",
+        "k3": "Test",
+        "v3": "If it recurs, you fixed the wrong layer."
+      }
+    },
+    {
+      "layoutId": "body-stack-tour",
+      "slots": {
+        "sectionLabel": "The uncomfortable one",
+        "titleLine1": "Sometimes the top",
+        "titleAccent": "layer is the job.",
+        "body": "Not every problem is deep, and treating every request as a symptom of something structural is its own way of avoiding work. Some things genuinely just need the wording fixed, and <b>diagnosing it as profound is a way of not doing it</b>.",
+        "k1": "Ask once",
+        "v1": "Is there a layer under this? Then accept the answer.",
+        "k2": "Do the small thing",
+        "v2": "Most requests are exactly what they appear to be.",
+        "k3": "Save the excavation",
+        "v3": "For the problem that has come back three times."
+      }
+    },
+    {
+      "layoutId": "cta-stack-tour",
+      "slots": {
+        "eyebrow": "At the start of the next disagreement",
+        "titleLine1": "Ask what is fixed",
+        "titleAccent": "before you argue.",
+        "body": "One question, asked out loud in the first five minutes: which parts of this are actually still open. Most of the room is assuming a different answer.",
+        "closingLine": "You cannot win an argument on a layer nobody in the room is allowed to change.",
+        "buttonLabel": "Take all six",
+        "signoff": "Leverage is lowest where permission is highest"
+      }
+    }
+  ]
+}

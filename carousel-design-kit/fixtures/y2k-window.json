@@ -1,0 +1,101 @@
+{
+  "_note": "Frozen content for design review. Machined-plate family — bevelled chrome plates in a hard grid, near-neighbour grey ramp with a one-pixel top highlight and grain against banding. No window chrome anywhere. The closer sets the plates on a dark ground.",
+  "family": "y2k-window",
+  "brief": "Hype cycles, and telling a real shift from a loud one",
+  "slides": [
+    {
+      "layoutId": "cover-y2k-window",
+      "slots": {
+        "eyebrow": "On telling a shift from a noise",
+        "titleLine1": "Everything arrives twice.",
+        "standfirst": "Once as an announcement that changes nothing, and years later as a quiet change nobody announced. Six ways to tell which one you are looking at.",
+        "c1": "What this helps with", "item1": "Deciding whether to spend a quarter on something everybody is talking about.",
+        "c2": "What it will not do", "item2": "Tell you which specific thing wins. Nothing does that, including the winners.",
+        "coverNote": "The last one is why being early is usually indistinguishable from being wrong"
+      }
+    },
+    {
+      "layoutId": "body-y2k-window",
+      "slots": {
+        "sectionLabel": "Who is talking",
+        "titleLine1": "Follow the users, not the conference.",
+        "body": "A real shift shows up first in people quietly changing what they do, and a loud one shows up first in people explaining what everybody should do. The gap between those two populations is <b>the single most reliable signal available</b>.",
+        "c1": "Ask who has switched", "g1": "Not who is excited. Who has actually stopped doing the old thing.",
+        "c2": "Discount the sellers", "g2": "Anybody whose income depends on the shift is not evidence of it.",
+        "c3": "Look for the boring", "g3": "The unglamorous adopters are the ones with a real problem.",
+        "c4": "Count switchers, not trials", "g4": "Trying something is free. Abandoning what you had is not."
+      }
+    },
+    {
+      "layoutId": "body-y2k-window",
+      "slots": {
+        "sectionLabel": "What it replaces",
+        "titleLine1": "New things win by being cheaper at something.",
+        "body": "Every shift that held displaced a specific existing cost — in money, time, or people needed. If nobody can say precisely what is now unnecessary, the thing is <b>an addition to the stack rather than a change in it</b>, and additions do not stick.",
+        "c1": "Name the displaced cost", "g1": "In a sentence, with a number, or it has not been displaced.",
+        "c2": "Check it is not moved", "g2": "Cost pushed to another team is a reorganisation, not a saving.",
+        "c3": "Look at the margin", "g3": "Ten per cent cheaper is a feature. Ten times is a shift.",
+        "c4": "Watch what dies", "g4": "Real change is visible in what stops existing, not what starts."
+      }
+    },
+    {
+      "layoutId": "body-y2k-window",
+      "slots": {
+        "sectionLabel": "How long it takes",
+        "titleLine1": "The timeline is always longer and the effect larger.",
+        "body": "Almost every genuine shift takes about three times as long as its advocates say and ends up bigger than its sceptics allow. Both errors are structural rather than accidental, which means <b>you can correct for them in advance without knowing anything else</b>.",
+        "c1": "Multiply the estimate", "g1": "By three, whoever gave it and however conservative they claimed to be.",
+        "c2": "Do not exit early", "g2": "The trough between announcement and adoption looks exactly like failure.",
+        "c3": "Watch the second wave", "g3": "The companies that matter usually arrive after the first cohort dies.",
+        "c4": "Ignore the peak", "g4": "Nothing about the loudest month predicts anything about year four."
+      }
+    },
+    {
+      "layoutId": "body-y2k-window",
+      "slots": {
+        "sectionLabel": "What it costs to be wrong",
+        "titleLine1": "Ask what you lose in each direction.",
+        "body": "The interesting question is not which way the shift goes but what happens to you if you guess wrong either way. Most of the time the two costs are wildly different, and <b>the asymmetry decides the question without needing a forecast at all</b>.",
+        "c1": "Price both errors", "g1": "Adopting a dud and missing a real one are rarely comparable.",
+        "c2": "Prefer reversible", "g2": "A cheap wrong bet you can unwind beats a correct one you cannot.",
+        "c3": "Buy the option", "g3": "Small deliberate exposure costs little and removes the need to be right.",
+        "c4": "Watch lock-in", "g4": "The cost of being wrong is mostly the cost of getting back out."
+      }
+    },
+    {
+      "layoutId": "body-y2k-window",
+      "slots": {
+        "sectionLabel": "What stays the same",
+        "titleLine1": "Most of your work is not affected.",
+        "body": "Even genuine shifts change one layer and leave the rest untouched, and the mistake is treating a real change in one place as a general change everywhere. Naming the specific layer is <b>the difference between adapting and rebuilding things that were fine</b>.",
+        "c1": "Name the layer", "g1": "Which specific step changes. Everything above and below probably does not.",
+        "c2": "Do not rebuild upward", "g2": "A new foundation rarely justifies replacing what was standing on it.",
+        "c3": "Keep the interfaces", "g3": "What connects the parts outlives whatever is behind any one of them.",
+        "c4": "Change one layer", "g4": "Two at once and you cannot tell which decision was the mistake."
+      }
+    },
+    {
+      "layoutId": "body-y2k-window",
+      "slots": {
+        "sectionLabel": "The uncomfortable one",
+        "titleLine1": "Early and wrong look identical for years.",
+        "body": "There is no test that separates a correct early call from a mistaken one until the thing either happens or does not. Everybody who was right about something big spent a long period <b>indistinguishable from the people who were simply wrong</b>.",
+        "c1": "Accept the ambiguity", "g1": "No amount of analysis resolves it before the outcome does.",
+        "c2": "Size the bet accordingly", "g2": "Conviction you cannot verify should not be funded like conviction you can.",
+        "c3": "Set a review date", "g3": "Decided in advance, so the review is not an argument about feelings.",
+        "c4": "Be willing to be wrong", "g4": "Publicly, on the record. Otherwise you will quietly move the target."
+      }
+    },
+    {
+      "layoutId": "cta-y2k-window",
+      "slots": {
+        "eyebrow": "On the thing everybody is currently sure about",
+        "titleLine1": "Name what it makes unnecessary.",
+        "body": "One sentence, one specific cost that disappears. If you cannot write it, the thing is an addition rather than a shift, whatever the volume around it.",
+        "closingLine": "Nothing that only adds has ever changed anything, and almost everything loud only adds.",
+        "buttonLabel": "Take all six",
+        "signoff": "Then set a date to check"
+      }
+    }
+  ]
+}

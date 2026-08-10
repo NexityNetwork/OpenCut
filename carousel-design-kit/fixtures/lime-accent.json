@@ -1,0 +1,102 @@
+{
+  "_note": "One solid lime wedge per page — hard-edged, anchored into a corner, bleeding off two edges; it moves corner and grows from body to cover to closer. Content lives in the L-shaped field that is left over. A drawn four-week grid carries the argument on the cover and the closer.",
+  "family": "lime-accent",
+  "brief": "How to run a launch week without it eating the month",
+  "slides": [
+    {
+      "layoutId": "cover-lime-accent",
+      "slots": {
+        "eyebrow": "Launch weeks, and the month around them",
+        "headline1": "A launch week",
+        "headline2": "is supposed to",
+        "headline3": "cost a week.",
+        "deck": "It rarely does. The build runs late, the writing happens live, and the fortnight of follow-up afterwards was on nobody's calendar. <b>Here is the version that stays inside its own week</b> — and the case for letting it out.",
+        "figLabel": "Four weeks. Solid is the launch; pale is the tail it takes."
+      }
+    },
+    {
+      "layoutId": "body-lime-accent",
+      "slots": {
+        "kicker": "The week before the week",
+        "title": "It is a publishing schedule, not a build schedule",
+        "lede": "Everything that ships during the week should have been finished the week before. If you are still building on the Tuesday, the week has already taken the month: unplanned work lands on the days after it, and those days were promised to something else.",
+        "row1": "<b>Code complete on the Friday before.</b> The freeze is not renegotiated on the Monday morning.",
+        "row2": "<b>The only work inside the week</b> is publishing, answering and watching what happens.",
+        "row3": "<b>Anything unfinished at the freeze</b> goes in the next release. It does not get squeezed in.",
+        "takeaway": "If the build is not done, you do not have a launch week. You have a deadline with an audience."
+      }
+    },
+    {
+      "layoutId": "body-lime-accent",
+      "slots": {
+        "kicker": "The date holds, the scope moves",
+        "title": "Write the cut list before you announce anything",
+        "lede": "Launch weeks overrun because teams treat the scope as fixed and the calendar as elastic. Reverse it. The date is the one thing you have already told people, so it is the one thing that cannot move — which means the list has to.",
+        "row1": "<b>Name the smallest version</b> that would still be worth announcing on the day.",
+        "row2": "<b>Rank everything above it</b> in advance, so cutting takes a minute rather than a meeting.",
+        "row3": "<b>Cut early.</b> A decision made on the Monday costs a day; the same one on Thursday costs the week.",
+        "takeaway": "Scope you did not choose to cut gets cut anyway — later, worse, and by exhaustion."
+      }
+    },
+    {
+      "layoutId": "body-lime-accent",
+      "slots": {
+        "kicker": "Everything written in advance",
+        "title": "The words go out the door before the week starts",
+        "lede": "Posts, emails, the changelog, the documentation, the replies you can already predict — draft and queue the lot beforehand. Writing under launch pressure is slow, and it is the task that quietly absorbs the days you thought you had spare.",
+        "row1": "<b>One batch writing block</b>, a fortnight out, produces the entire week's output.",
+        "row2": "<b>Schedule it all</b> so that no day depends on somebody remembering to press send.",
+        "row3": "<b>Keep two slots empty</b> for the thing you could not have predicted. There is always one.",
+        "takeaway": "A week with nothing left to write is a week you can spend on people instead."
+      }
+    },
+    {
+      "layoutId": "body-lime-accent",
+      "slots": {
+        "kicker": "One person on the front",
+        "title": "The whole team does not need to be in the week",
+        "lede": "Put one person on inbound for the duration and let everybody else keep their ordinary schedule. A launch that pulls five people out of their work for five days has already spent a fortnight of the month, before anyone counts the recovery.",
+        "row1": "<b>One named owner</b> for questions, escalations and anything that catches fire.",
+        "row2": "<b>Everyone else on normal work</b> — reachable, but not sitting around waiting to be needed.",
+        "row3": "<b>Rotate the owner daily</b> if the volume is real. Nobody should do five days of it.",
+        "takeaway": "The cost of a launch is measured in people-weeks, not in days on the calendar."
+      }
+    },
+    {
+      "layoutId": "body-lime-accent",
+      "slots": {
+        "kicker": "Book the tail",
+        "title": "The fortnight afterwards is what eats the month",
+        "lede": "Launch week ends on the Friday and the work does not. Demonstrations, follow-ups, the bugs that only appear under real usage, the one-off requests from people who like you this week. Left unplanned, that tail wanders into the next two weeks and takes them.",
+        "row1": "<b>Block the following week now</b> and treat it as part of the launch, not as spare capacity.",
+        "row2": "<b>Fix a window for follow-up calls</b> rather than saying yes to each one as it arrives.",
+        "row3": "<b>Give the bug list a deadline.</b> After it, the remainder becomes ordinary backlog.",
+        "takeaway": "Unbooked aftermath is not free time. It is time you will spend without ever deciding to."
+      }
+    },
+    {
+      "layoutId": "body-lime-accent",
+      "slots": {
+        "kicker": "The uncomfortable part",
+        "title": "A launch that costs you nothing reached nobody",
+        "lede": "All of the above assumes the launch is a publishing exercise you can contain. If it actually lands, containment is the wrong goal: the inbound is the work, the bugs belong to real customers, and the demonstrations are revenue. Defending the month at that point is defending the wrong thing.",
+        "row1": "<b>Decide in advance</b> which month you would be willing to spend if the thing works.",
+        "row2": "<b>Hold the freeze and the writing</b> regardless — neither of those ever costs you upside.",
+        "row3": "<b>When the response outgrows the plan</b>, abandon the plan, not the response.",
+        "takeaway": "The failure is not a month spent on a launch. It is not knowing which month you were spending."
+      }
+    },
+    {
+      "layoutId": "cta-lime-accent",
+      "slots": {
+        "eyebrow": "Three things worth keeping, whatever the week does",
+        "step1": "<b>Freeze the build a week early.</b> The launch week is for publishing and answering, nothing else.",
+        "step2": "<b>Write and schedule everything beforehand</b>, and give inbound to one named person at a time.",
+        "step3": "<b>Book the week after in the same breath</b> as the week itself, then hold the line at its edge.",
+        "finalLine1": "Plan the recovery",
+        "finalLine2": "before the launch.",
+        "coda": "Two weeks spent deliberately beats four weeks spent by accident. <b>Decide the size of the hole before you dig it</b>, and a launch stops being something the month has to survive."
+      }
+    }
+  ]
+}

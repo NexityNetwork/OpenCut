@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html><head><meta charset="utf-8">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+html,body{width:1080px;height:1350px;overflow:hidden;color:#1A1512;
+  font-family:"Inter",sans-serif;-webkit-font-smoothing:antialiased;text-rendering:geometricPrecision}
+:root{--ink:#1A1512;--muted:rgba(26,21,18,.68);--rule:rgba(26,21,18,.16);--terra:#C2603A}
+.mesh{position:absolute;inset:0;z-index:0;background:
+  radial-gradient(120% 90% at 14% 14%, #F6E9DA 0%, transparent 56%),
+  radial-gradient(100% 80% at 88% 8%,  #FDF7F0 0%, transparent 52%),
+  radial-gradient(120% 95% at 78% 92%, #EBD9C4 0%, transparent 58%),
+  radial-gradient(110% 90% at 4% 92%,  #FFFDFA 0%, transparent 54%),
+  #F7EFE4}
+.mesh.dark{background:
+  radial-gradient(90% 70% at 78% 8%,   #F09A62 0%, transparent 46%),
+  radial-gradient(120% 90% at 22% 24%, #C2603A 0%, transparent 52%),
+  radial-gradient(130% 100% at 66% 96%,#59200A 0%, transparent 60%),
+  radial-gradient(110% 95% at 4% 96%,  #200B03 0%, transparent 58%),
+  #120704}
+.grain{position:absolute;inset:0;z-index:5;opacity:.28;mix-blend-mode:multiply;pointer-events:none}
+html,body{color:#FCF4EC}
+:root{--muted:rgba(252,244,236,.74);--rule:rgba(252,244,236,.22)}
+.sheet{position:absolute;inset:0;padding:132px 96px 120px;display:flex;flex-direction:column;justify-content:space-between;z-index:4}
+.eyebrow{font-size:27px;font-weight:600;color:#F5A877}
+h1{margin-top:24px;font-size:150px;font-weight:600;line-height:.95;letter-spacing:-6.4px;max-width:960px}
+h1 b{font-weight:700;color:#F5A877}
+.sub{font-size:33px;font-weight:400;line-height:1.42;color:var(--muted);max-width:620px}
+.foot{padding-top:34px;border-top:1px solid var(--rule);display:flex;align-items:center;gap:28px}
+.btn{padding:22px 44px;background:#FCF4EC;color:#160903;border-radius:14px;font-size:29px;font-weight:600;letter-spacing:-.5px}
+.ghost{font-size:24px;font-weight:500;color:var(--muted)}
+</style></head>
+<body>
+<div class="mesh dark"></div>
+<div class="sheet">
+  <div>
+    <div class="eyebrow">{{eyebrow}}</div>
+    <h1>{{ctaLine1}} <b>{{ctaAccent}}</b></h1>
+  </div>
+  <p class="sub">{{ctaBody}}</p>
+  <div class="foot"><div class="btn">{{btnPrimary}}</div><div class="ghost">{{signoff}}</div></div>
+</div>
+<svg class="grain" width="1080" height="1350" viewBox="0 0 1080 1350" preserveAspectRatio="none">
+<filter id="gr"><feTurbulence type="fractalNoise" baseFrequency="0.85" numOctaves="3" seed="44"/><feColorMatrix type="saturate" values="0"/></filter>
+<rect width="1080" height="1350" filter="url(#gr)" opacity="0.5"/></svg>
+</body></html>

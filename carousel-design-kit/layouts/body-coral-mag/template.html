@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html><head><meta charset="utf-8">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+html,body{width:1080px;height:1350px;overflow:hidden;color:#F9F3EF;
+  font-family:"Inter",sans-serif;-webkit-font-smoothing:antialiased;text-rendering:geometricPrecision}
+:root{--ink:#F9F3EF;--muted:rgba(249,243,239,.72);--rule:rgba(249,243,239,.20);--coral:#F0603C}
+.mesh{position:absolute;inset:0;z-index:0;background:
+  radial-gradient(120% 90% at 14% 16%, #F0603C 0%, transparent 56%),
+  radial-gradient(100% 80% at 88% 6%,  #FF8A5E 0%, transparent 50%),
+  radial-gradient(120% 95% at 78% 90%, #A32F16 0%, transparent 58%),
+  radial-gradient(110% 90% at 4% 92%,  #5C1A08 0%, transparent 56%),
+  #24100A}
+.mesh.pale{background:
+  radial-gradient(120% 90% at 16% 14%, #FFC7B2 0%, transparent 56%),
+  radial-gradient(100% 80% at 86% 8%,  #FFE7DC 0%, transparent 52%),
+  radial-gradient(120% 95% at 76% 90%, #FF9A78 0%, transparent 58%),
+  radial-gradient(110% 90% at 6% 92%,  #FFF4EE 0%, transparent 54%),
+  #FDF6F2}
+.grain{position:absolute;inset:0;z-index:1;opacity:.30;mix-blend-mode:overlay;pointer-events:none}
+.obj{position:absolute;z-index:2;pointer-events:none}
+.sheet{position:absolute;inset:0;padding:124px 88px 108px;display:flex;flex-direction:column;justify-content:space-between;z-index:4}
+.obj-canvas{right:-206px;top:400px;width:520px;height:405px;transform:rotate(5deg);opacity:.9}
+.tool{display:flex;align-items:center;gap:20px}
+.tool i{display:block;width:52px;height:52px;flex:0 0 auto}
+.tool i svg{width:100%;height:100%;display:block}
+.tool .n{font-size:44px;font-weight:700;letter-spacing:-1.8px}
+.tool .r{margin-top:4px;font-size:24px;font-weight:500;color:var(--muted);letter-spacing:-.3px}
+h2{margin-top:24px;font-size:82px;font-weight:700;line-height:1.0;letter-spacing:-3.4px;max-width:760px}
+h2 em{font-style:normal;color:#FFD3C2}
+.body{font-size:32px;font-weight:400;line-height:1.44;color:var(--muted);max-width:560px}
+.stats{padding-top:32px;border-top:1px solid var(--rule);display:flex;gap:64px}
+.stat .v{font-size:44px;font-weight:700;letter-spacing:-1.8px;line-height:1}
+.stat .l{margin-top:8px;font-size:23px;font-weight:500;color:var(--muted);letter-spacing:-.3px}
+</style></head>
+<body>
+<div class="mesh"></div>
+<svg class="grain" width="1080" height="1350" viewBox="0 0 1080 1350" preserveAspectRatio="none">
+<filter id="gr"><feTurbulence type="fractalNoise" baseFrequency="0.8" numOctaves="3" seed="12"/><feColorMatrix type="saturate" values="0"/></filter>
+<rect width="1080" height="1350" filter="url(#gr)" opacity="0.55"/></svg>
+<svg class="obj obj-canvas" viewBox="0 0 540 420" fill="none">
+  <defs>
+    <linearGradient id="cg" x1="0" y1="0" x2="0.45" y2="1">
+      <stop offset="0" stop-color="#ffffff" stop-opacity=".30"/>
+      <stop offset="1" stop-color="#ffffff" stop-opacity=".08"/>
+    </linearGradient>
+    <filter id="csh" x="-40%" y="-30%" width="180%" height="190%">
+      <feDropShadow dx="0" dy="30" stdDeviation="30" flood-color="#3A0F04" flood-opacity=".45"/>
+    </filter>
+  </defs>
+  <g filter="url(#csh)">
+    <rect x="26" y="30" width="488" height="360" rx="26" fill="url(#cg)" stroke="rgba(255,255,255,.42)" stroke-width="2"/>
+    <path d="M26 106h488" stroke="rgba(255,255,255,.30)" stroke-width="2"/>
+    <circle cx="72" cy="68" r="10" fill="rgba(255,255,255,.45)"/>
+    <circle cx="104" cy="68" r="10" fill="rgba(255,255,255,.30)"/>
+    <circle cx="136" cy="68" r="10" fill="rgba(255,255,255,.30)"/>
+    <rect x="70" y="150" width="180" height="140" rx="16" stroke="rgba(255,255,255,.48)" stroke-width="2.5" fill="rgba(255,255,255,.10)"/>
+    <circle cx="352" cy="200" r="52" stroke="rgba(255,255,255,.48)" stroke-width="2.5" fill="rgba(255,255,255,.08)"/>
+    <path d="M70 322h396" stroke="rgba(255,255,255,.28)" stroke-width="6" stroke-linecap="round"/>
+    <path d="M296 268 L440 268 L368 150 Z" stroke="rgba(255,255,255,.40)" stroke-width="2.5" fill="none"/>
+  </g>
+</svg>
+<div class="sheet">
+  <div class="head">
+    <div class="tool"><i>{{iconSvg1}}</i><div><div class="n">{{toolName1}}</div><div class="r">{{eyebrow}}</div></div></div>
+    <h2>{{titleWord1}} <em>{{titleWord2}}</em></h2>
+  </div>
+  <p class="body">{{body}}</p>
+  <div class="stats">
+    <div class="stat"><div class="v">{{stat1V}}</div><div class="l">{{stat1L}}</div></div>
+    <div class="stat"><div class="v">{{stat2V}}</div><div class="l">{{stat2L}}</div></div>
+    <div class="stat"><div class="v">{{stat3V}}</div><div class="l">{{stat3L}}</div></div>
+  </div>
+</div>
+</body></html>

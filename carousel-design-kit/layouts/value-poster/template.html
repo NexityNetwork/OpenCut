@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html><head><meta charset="utf-8">
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+html,body{width:1080px;height:1350px;overflow:hidden;background:#0b0b0c;color:#fff;
+  font-family:"Plus Jakarta Sans",sans-serif;-webkit-font-smoothing:antialiased}
+.art{position:absolute;inset:0;width:1080px;height:1350px;object-fit:cover}
+.scrim{position:absolute;inset:0;background:linear-gradient(180deg,rgba(0,0,0,.40) 0%,rgba(0,0,0,0) 24%,rgba(0,0,0,.10) 55%,rgba(0,0,0,.55) 100%)}
+.chrome{position:absolute;top:44px;left:52px;right:52px;display:flex;justify-content:space-between;align-items:flex-start}
+.who .n{font-size:15px;font-weight:700;letter-spacing:-.01em;color:rgba(255,255,255,.94)}
+.who .r{margin-top:2px;font-size:12px;font-weight:500;color:rgba(255,255,255,.55)}
+.rule{position:absolute;top:96px;left:52px;right:52px;height:1px;background:rgba(255,255,255,.28)}
+/* A real card with real depth, sitting ON the art — the glass reads because
+   there is something behind it to refract. */
+.card{position:absolute;left:96px;right:96px;bottom:210px;padding:44px 46px 48px;border-radius:34px;
+  background:rgba(18,18,20,.52);border:1px solid rgba(255,255,255,.14);
+  -webkit-backdrop-filter:blur(26px) saturate(1.2);backdrop-filter:blur(26px) saturate(1.2);
+  box-shadow:0 50px 90px -30px rgba(0,0,0,.75), 0 2px 0 0 rgba(255,255,255,.06) inset}
+.step{display:inline-flex;align-items:center;padding:9px 22px;border-radius:9999px;
+  background:rgba(255,255,255,.14);border:1px solid rgba(255,255,255,.20);
+  font-size:19px;font-weight:600;letter-spacing:-.01em;color:rgba(255,255,255,.92)}
+.card h2{margin-top:30px;font-size:62px;font-weight:500;line-height:1.06;letter-spacing:-.035em;color:#fff}
+.card p{margin-top:20px;font-size:26px;font-weight:400;line-height:1.42;color:rgba(255,255,255,.66);max-width:760px}
+</style></head>
+<body>
+<img class="art" src="{{artSrc}}">
+<div class="scrim"></div>
+<div class="chrome">
+  <div class="who"><div class="n">{{author}}</div><div class="r">{{role}}</div></div>
+  <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,.85)" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M17 7 7 17M7 17V8M7 17h9"/></svg>
+</div>
+<div class="rule"></div>
+<div class="card">
+  <div class="step">{{step}}</div>
+  <h2>{{headline}}</h2>
+  <p>{{sub}}</p>
+</div>
+</body></html>

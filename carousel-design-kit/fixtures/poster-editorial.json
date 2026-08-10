@@ -1,0 +1,94 @@
+{
+  "_note": "Pilot for the image-led poster direction. Beat-based (hook / context / value / action), variable length, every slide sits on generated art. Content mirrors the agent-lineup story so the vibe is the only thing that changed.",
+  "family": "poster-editorial",
+  "brief": "The AI agent that runs my lead generation",
+  "art": {
+    "hook": { "prompt": "abstract 3d render, glossy molten forms in deep amber and near-black, liquid metal folds, soft studio rim lighting, dramatic shadow, editorial poster art, ultra high detail, cinematic, no text", "steps": 8 },
+    "context": { "prompt": "soft blurred gradient bloom, warm apricot and cream diffusing into white, out-of-focus light study, minimal abstract, generous empty space, editorial poster art, no text", "steps": 8 },
+    "value1": { "prompt": "abstract 3d torus knot in polished amber glass, floating over matte black, volumetric studio lighting, long soft shadow, product render aesthetic, ultra high detail, no text", "steps": 8 },
+    "value2": { "prompt": "macro photograph of a dew covered green leaf, deep shadow, single hard light source, rich saturated botanical detail, editorial nature photography, no text", "steps": 8 },
+    "value3": { "prompt": "aerial landscape of rolling green hills at golden hour, a single winding path cutting through, long shadows, cinematic wide vista, no text", "steps": 8 },
+    "action": { "prompt": "abstract 3d render, smooth ivory and pale sand ceramic forms, minimal sculptural curves, soft diffuse studio light, calm and expensive, editorial poster art, no text", "steps": 8 }
+  },
+  "slides": [
+    {
+      "layoutId": "hook-poster",
+      "slots": {
+        "art": "hook",
+        "author": "Catalin Muraru",
+        "role": "Founder, Ultron",
+        "headline": "Your pipeline is empty and you're still doing it by hand —",
+        "pill": "here's why",
+        "iconTheme": "dark"
+      }
+    },
+    {
+      "layoutId": "context-poster",
+      "slots": {
+        "art": "context",
+        "author": "Catalin Muraru",
+        "role": "Founder, Ultron",
+        "headline": "Prospecting doesn't fail because you're lazy. It fails because it's six jobs pretending to be one.",
+        "iconTheme": "light"
+      }
+    },
+    {
+      "layoutId": "value-poster",
+      "slots": {
+        "art": "value1",
+        "author": "Catalin Muraru",
+        "role": "Founder, Ultron",
+        "step": "Step 01",
+        "headline": "Find them while you sleep",
+        "sub": "ICP filters run nightly, not when you remember",
+        "iconTheme": "dark"
+      }
+    },
+    {
+      "layoutId": "context-poster",
+      "slots": {
+        "art": "context",
+        "author": "Catalin Muraru",
+        "role": "Founder, Ultron",
+        "headline": "A list nobody enriched is just a spreadsheet you'll feel guilty about.",
+        "iconTheme": "light"
+      }
+    },
+    {
+      "layoutId": "value-poster",
+      "slots": {
+        "art": "value2",
+        "author": "Catalin Muraru",
+        "role": "Founder, Ultron",
+        "step": "Step 02",
+        "headline": "Enrich before you ever write",
+        "sub": "Role, company, and intent attached to every record",
+        "iconTheme": "dark"
+      }
+    },
+    {
+      "layoutId": "value-poster",
+      "slots": {
+        "art": "value3",
+        "author": "Catalin Muraru",
+        "role": "Founder, Ultron",
+        "step": "Step 03",
+        "headline": "Personalize at a scale you can't fake",
+        "sub": "Three angles per prospect, drawn from live signals",
+        "iconTheme": "dark"
+      }
+    },
+    {
+      "layoutId": "action-poster",
+      "slots": {
+        "art": "action",
+        "author": "Catalin Muraru",
+        "role": "Founder, Ultron",
+        "kicker": "DM",
+        "word": "AGENT",
+        "sub": "and I'll send you the whole six-agent build",
+        "iconTheme": "light"
+      }
+    }
+  ]
+}

@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html><head><meta charset="utf-8">
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+html,body{width:1080px;height:1350px;overflow:hidden;background:#0B0D08;font-family:"Inter",sans-serif;color:#E9EDE1;-webkit-font-smoothing:antialiased}
+body{position:relative}
+
+/* the wedge at its largest, anchored top-left, bleeding off top and left.
+   The remaining field is a staircase that steps out along the hypotenuse. */
+.wedge{position:absolute;inset:0;z-index:1;pointer-events:none}
+.grain{position:absolute;inset:0;z-index:6;opacity:.16;mix-blend-mode:overlay;pointer-events:none}
+
+.cal{position:absolute;top:78px;left:64px;z-index:4;display:grid;
+  grid-template-columns:repeat(7,42px);grid-auto-rows:42px;gap:5px}
+.cell{border:1px solid rgba(11,13,8,.30);border-radius:2px}
+.cell.on{background:#0B0D08;border-color:#0B0D08}
+.cell.dim{background:rgba(11,13,8,.38);border-color:rgba(11,13,8,.38)}
+
+.eyebrow{position:absolute;top:92px;left:604px;width:396px;z-index:4;
+  font-family:"IBM Plex Mono",monospace;font-size:24px;line-height:1.4;color:#C3F53C}
+
+.step{position:absolute;right:80px;z-index:4;display:flex;gap:24px;align-items:flex-start}
+.step .bar{width:30px;height:6px;background:#C3F53C;flex-shrink:0;margin-top:14px}
+.step .t{font-size:27px;line-height:1.45;color:#DDE3D2}
+.step .t b{color:#F2F5EA;font-weight:600}
+.s1{top:206px;left:470px}
+.s2{top:362px;left:352px}
+.s3{top:518px;left:236px}
+
+.rule{position:absolute;top:700px;left:150px;right:80px;height:1px;background:rgba(195,245,60,.30);z-index:4;pointer-events:none}
+.rule2{position:absolute;top:1066px;left:80px;right:80px;height:1px;background:rgba(233,237,225,.14);z-index:4;pointer-events:none}
+
+.final{position:absolute;top:790px;left:80px;width:940px;z-index:4;
+  font-family:"Space Grotesk",sans-serif;font-weight:600;font-size:96px;line-height:1.15;letter-spacing:-2.4px;color:#F2F5EA}
+.final .hi{color:#C3F53C}
+
+.coda{position:absolute;top:1116px;left:80px;width:900px;z-index:4;
+  font-size:30px;line-height:1.5;color:#C6CEB6}
+.coda b{color:#E9EDE1;font-weight:600}
+</style></head>
+<body>
+
+<svg class="wedge" width="1080" height="1350" viewBox="0 0 1080 1350">
+  <polygon points="0,0 640,0 0,780" fill="#C3F53C"/>
+</svg>
+
+<svg class="grain" width="1080" height="1350" viewBox="0 0 1080 1350" preserveAspectRatio="none">
+<filter id="gr"><feTurbulence type="fractalNoise" baseFrequency="0.86" numOctaves="3" seed="41"/>
+<feColorMatrix type="saturate" values="0"/></filter>
+<rect width="1080" height="1350" filter="url(#gr)" opacity="0.45"/></svg>
+
+<div class="cal">
+  <div class="cell"></div><div class="cell"></div><div class="cell"></div><div class="cell"></div><div class="cell"></div><div class="cell"></div><div class="cell"></div>
+  <div class="cell on"></div><div class="cell on"></div><div class="cell on"></div><div class="cell on"></div><div class="cell on"></div><div class="cell on"></div><div class="cell on"></div>
+  <div class="cell dim"></div><div class="cell dim"></div><div class="cell dim"></div><div class="cell dim"></div><div class="cell dim"></div><div class="cell dim"></div><div class="cell dim"></div>
+  <div class="cell"></div><div class="cell"></div><div class="cell"></div><div class="cell"></div><div class="cell"></div><div class="cell"></div><div class="cell"></div>
+</div>
+
+<div class="eyebrow">{{eyebrow}}</div>
+
+<div class="step s1"><div class="bar"></div><div class="t">{{step1}}</div></div>
+<div class="step s2"><div class="bar"></div><div class="t">{{step2}}</div></div>
+<div class="step s3"><div class="bar"></div><div class="t">{{step3}}</div></div>
+
+<div class="rule"></div>
+<div class="rule2"></div>
+<div class="final">{{finalLine1}}<br><span class="hi">{{finalLine2}}</span></div>
+<div class="coda">{{coda}}</div>
+
+</body></html>

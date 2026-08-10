@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html><head><meta charset="utf-8">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+html,body{width:1080px;height:1350px;overflow:hidden;background:#0B0B0C;color:#FAFAF9;
+  font-family:"Inter",sans-serif;-webkit-font-smoothing:antialiased;text-rendering:geometricPrecision}
+:root{--muted:rgba(250,250,249,.78);--faint:rgba(250,250,249,.56);--rule:rgba(250,250,249,.16)}
+.sheet{position:absolute;inset:0;padding:64px 76px 68px;display:flex;flex-direction:column}
+h1{margin-top:58px;font-size:130px;font-weight:600;line-height:1.04;letter-spacing:-.042em;max-width:930px}
+h1 em{font-style:normal;font-weight:700;color:#fff}
+.sub{margin-top:40px;font-size:32px;font-weight:400;line-height:1.5;color:var(--muted);max-width:690px}
+.tools{margin-top:auto;padding-top:34px;border-top:1px solid var(--rule);display:grid;grid-template-columns:repeat(3,1fr);gap:44px}
+.t i{display:block;width:42px;height:42px}
+.t i svg{width:100%;height:100%;display:block}
+.t .n{margin-top:20px;font-size:28px;font-weight:600;letter-spacing:-.022em}
+.t .r{margin-top:10px;font-size:21px;font-weight:400;line-height:1.4;color:var(--muted)}
+.cue{margin-top:40px;padding-top:26px;border-top:1px solid var(--rule);display:flex;justify-content:space-between;align-items:center}
+.cue .l{font-size:23px;font-weight:500;color:var(--muted)}
+.cue .a{display:flex;align-items:center;gap:12px;font-size:23px;font-weight:600}
+</style></head>
+<body>
+<div class="sheet">
+  <h1>{{title}}</h1>
+  <p class="sub">{{description}}</p>
+  <div class="tools">
+    <div class="t"><i>{{iconSvg1}}</i><div class="n">{{toolName1}}</div><div class="r">{{stageRole1}}</div></div>
+    <div class="t"><i>{{iconSvg2}}</i><div class="n">{{toolName2}}</div><div class="r">{{stageRole2}}</div></div>
+    <div class="t"><i>{{iconSvg3}}</i><div class="n">{{toolName3}}</div><div class="r">{{stageRole3}}</div></div>
+  </div>
+  <div class="cue"><div class="l">{{flowCaption}}</div><div class="a">{{ctaText}}
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#FAFAF9" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h13M12 5l7 7-7 7"/></svg></div>
+  </div>
+</div>
+</body></html>

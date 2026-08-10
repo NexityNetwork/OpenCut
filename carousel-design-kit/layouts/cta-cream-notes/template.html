@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html><head><meta charset="utf-8">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+html,body{width:1080px;height:1350px;overflow:hidden;color:#F7EEE1;
+  font-family:"Inter",sans-serif;-webkit-font-smoothing:antialiased;text-rendering:geometricPrecision}
+:root{--muted:rgba(247,238,225,.72);--rule:rgba(247,238,225,.2)}
+.mesh{position:absolute;inset:0;z-index:0;background:
+  radial-gradient(96% 74% at 80% 8%,   #4A3D31 0%, transparent 46%),
+  radial-gradient(120% 92% at 16% 24%, #2A231C 0%, transparent 52%),
+  radial-gradient(130% 100% at 70% 96%,#171310 0%, transparent 58%),
+  radial-gradient(110% 95% at 4% 98%,  #0D0A08 0%, transparent 56%),
+  #1B1712}
+.grain{position:absolute;inset:0;z-index:5;opacity:.26;mix-blend-mode:overlay;pointer-events:none}
+.sheet{position:absolute;inset:0;padding:120px 88px 112px;display:flex;flex-direction:column;
+  justify-content:center;z-index:4}
+.lede{font-size:28px;font-weight:500;color:#E8A26C;letter-spacing:-.4px}
+h1{margin-top:28px;font-size:108px;font-weight:700;line-height:.97;letter-spacing:-4.5px;max-width:880px}
+h1 em{font-style:normal;color:#E8A26C}
+/* Closing paragraphs, in the voice the bodies were written in. */
+.lines{margin-top:44px;display:flex;flex-direction:column;gap:20px}
+.lines p{font-size:32px;font-weight:400;line-height:1.42;color:var(--muted);max-width:840px}
+.lines p b{font-weight:600;color:#F7EEE1}
+.foot{margin-top:66px;padding-top:34px;border-top:1px solid var(--rule);
+  display:flex;align-items:center;gap:28px}
+.btn{padding:22px 44px;background:#F7EEE1;color:#16130E;border-radius:15px;
+  font-size:28px;font-weight:600;letter-spacing:-.5px}
+.ghost{font-size:24px;font-weight:500;color:var(--muted)}
+</style></head>
+<body>
+<div class="mesh"></div>
+<div class="sheet">
+  <div class="lede">{{eyebrow}}</div>
+  <h1>{{titleLine1}} <em>{{titleAccent}}</em></h1>
+  <div class="lines">
+    <p>{{body}}</p>
+    <p>{{body2}}</p>
+  </div>
+  <div class="foot">
+    <div class="btn">{{btnPrimary}}</div>
+    <div class="ghost">{{signoff}}</div>
+  </div>
+</div>
+<svg class="grain" width="1080" height="1350" viewBox="0 0 1080 1350" preserveAspectRatio="none">
+<filter id="gr"><feTurbulence type="fractalNoise" baseFrequency="0.85" numOctaves="3" seed="71"/><feColorMatrix type="saturate" values="0"/></filter>
+<rect width="1080" height="1350" filter="url(#gr)" opacity="0.5"/></svg>
+</body></html>

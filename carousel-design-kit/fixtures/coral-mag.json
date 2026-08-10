@@ -1,0 +1,129 @@
+{
+  "_note": "Frozen content for design review. One tool per page — what it is genuinely for, and what it is not.",
+  "family": "coral-mag",
+  "brief": "The five design tools every brand actually needs",
+  "slides": [
+    {
+      "layoutId": "cover-coral-mag",
+      "slots": {
+        "headWord1": "Five tools.",
+        "headWord2": "No overlap.",
+        "headWord3": "",
+        "subtitle": "Most brand stacks are four tools doing the same job badly. These five each own one thing, and nothing else.",
+        "subEyebrow": "What each one is actually for"
+      }
+    },
+    {
+      "layoutId": "body-coral-mag",
+      "slots": {
+        "iconSlug1": "figma",
+        "eyebrow": "The source of truth",
+        "titleWord1": "Where the brand",
+        "titleWord2": "lives",
+        "body": "Components, tokens and layouts in one file every person works from. The value is not the drawing — it is that nobody has to ask which version is current.",
+        "stat1V": "1 file",
+        "stat1L": "Source of truth",
+        "stat2V": "Live",
+        "stat2L": "For the whole team",
+        "stat3V": "0",
+        "stat3L": "Version arguments",
+        "iconColor1": "#F9F3EF"
+      }
+    },
+    {
+      "layoutId": "body-coral-mag",
+      "slots": {
+        "iconSlug1": "adobeillustrator",
+        "eyebrow": "Precision work",
+        "titleWord1": "Marks that hold at",
+        "titleWord2": "any size",
+        "body": "Logos and icons need to survive an embroidered polo and a favicon. That is a vector problem, and it is the only place vectors are worth the trouble.",
+        "stat1V": "Vector",
+        "stat1L": "Any scale",
+        "stat2V": "Print",
+        "stat2L": "Ready by default",
+        "stat3V": "Once",
+        "stat3L": "Drawn, reused forever",
+        "iconColor1": "#F9F3EF"
+      }
+    },
+    {
+      "layoutId": "body-coral-mag",
+      "slots": {
+        "iconSlug1": "adobephotoshop",
+        "eyebrow": "Image work",
+        "titleWord1": "Where photography gets",
+        "titleWord2": "finished",
+        "body": "Retouching, compositing and colour. If your campaign imagery looks stock, this is usually the step that was skipped rather than the shoot that failed.",
+        "stat1V": "Raw",
+        "stat1L": "In, polished out",
+        "stat2V": "Colour",
+        "stat2L": "Matched to brand",
+        "stat3V": "Depth",
+        "stat3L": "Stock never has",
+        "iconColor1": "#F9F3EF"
+      }
+    },
+    {
+      "layoutId": "body-coral-mag",
+      "slots": {
+        "iconSlug1": "framer",
+        "eyebrow": "The live surface",
+        "titleWord1": "Where the brand meets",
+        "titleWord2": "real people",
+        "body": "A site is the only asset your audience actually touches. It deserves the same system as the logo, not a template chosen in an afternoon.",
+        "stat1V": "Same",
+        "stat1L": "Tokens as the file",
+        "stat2V": "Fast",
+        "stat2L": "To change your mind",
+        "stat3V": "Real",
+        "stat3L": "Not a mockup",
+        "iconColor1": "#F9F3EF"
+      }
+    },
+    {
+      "layoutId": "body-coral-mag",
+      "slots": {
+        "iconSlug1": "notion",
+        "eyebrow": "The rules",
+        "titleWord1": "Where the decisions get",
+        "titleWord2": "written down",
+        "body": "Guidelines nobody can find are guidelines nobody follows. The document matters less than the fact that it is one link, and it is current.",
+        "stat1V": "One link",
+        "stat1L": "For everyone",
+        "stat2V": "Written",
+        "stat2L": "Not remembered",
+        "stat3V": "Current",
+        "stat3L": "Or it is worthless",
+        "iconColor1": "#F9F3EF"
+      }
+    },
+    {
+      "layoutId": "body-coral-mag",
+      "slots": {
+        "iconSlug1": "adobeillustrator",
+        "eyebrow": "The honest part",
+        "titleWord1": "None of this makes the",
+        "titleWord2": "work good",
+        "body": "A perfect stack produces mediocre design at speed. The tools remove friction; taste is still the thing you cannot buy a licence for.",
+        "stat1V": "Speed",
+        "stat1L": "Is not quality",
+        "stat2V": "Taste",
+        "stat2L": "Has no shortcut",
+        "stat3V": "Still",
+        "stat3L": "Your job",
+        "iconColor1": "#F9F3EF"
+      }
+    },
+    {
+      "layoutId": "cta-coral-mag",
+      "slots": {
+        "tag": "Before you buy anything",
+        "headWord1": "Own five.",
+        "headWord2": "Not fifteen.",
+        "body": "Every extra tool is another place the brand can drift. Pick the one that owns each job and delete the rest without ceremony.",
+        "buttonLabel": "Take the stack"
+      }
+    }
+  ]
+}

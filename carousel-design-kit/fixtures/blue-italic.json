@@ -1,0 +1,103 @@
+{
+  "_note": "Frozen content for design review. Consultant / strategist family — italic serif display, one lesson per page with supporting metrics.",
+  "family": "blue-italic",
+  "brief": "How to build an audience without posting every day",
+  "slides": [
+    {
+      "layoutId": "cover-blue-italic",
+      "slots": {
+        "accentLine": "Six habits",
+        "sub1": "that grew an audience",
+        "sub2": "without daily posting",
+        "strip": "The quiet approach"
+      }
+    },
+    {
+      "layoutId": "body-blue-italic",
+      "slots": {
+        "numberLabel": "Habit",
+        "stepTag": "Consistency",
+        "title": "Choose a rhythm you can hold in a bad week",
+        "stripText": "Sustainable beats frequent",
+        "body": "Daily is the advice everyone gives and almost nobody survives. Twice a week for a year beats daily for a month, every time.",
+        "stat1V": "2×", "stat1L": "Per week",
+        "stat2V": "52", "stat2L": "Weeks held",
+        "stat3V": "0", "stat3L": "Burnouts"
+      }
+    },
+    {
+      "layoutId": "body-blue-italic",
+      "slots": {
+        "numberLabel": "Habit",
+        "stepTag": "Depth",
+        "title": "Write one thing worth quoting",
+        "stripText": "Depth travels further",
+        "body": "A single line people repeat does more than twenty posts nobody finishes. Aim for the sentence someone screenshots.",
+        "stat1V": "1", "stat1L": "Real idea",
+        "stat2V": "9×", "stat2L": "More shares",
+        "stat3V": "40%", "stat3L": "Saved"
+      }
+    },
+    {
+      "layoutId": "body-blue-italic",
+      "slots": {
+        "numberLabel": "Habit",
+        "stepTag": "Reuse",
+        "title": "Say the same thing in a new shape",
+        "stripText": "Repetition is not laziness",
+        "body": "Your best idea deserves more than one airing. Most of your audience missed it the first time, and the second framing usually lands harder.",
+        "stat1V": "4×", "stat1L": "Reframes",
+        "stat2V": "3×", "stat2L": "Reach",
+        "stat3V": "0", "stat3L": "New ideas"
+      }
+    },
+    {
+      "layoutId": "body-blue-italic",
+      "slots": {
+        "numberLabel": "Habit",
+        "stepTag": "Reply",
+        "title": "Answer everyone for the first year",
+        "stripText": "Conversation compounds",
+        "body": "Replies are where an audience actually forms. The algorithm rewards it, but more importantly the people remember it.",
+        "stat1V": "100%", "stat1L": "Replied",
+        "stat2V": "12", "stat2L": "Months",
+        "stat3V": "6×", "stat3L": "Retention"
+      }
+    },
+    {
+      "layoutId": "body-blue-italic",
+      "slots": {
+        "numberLabel": "Habit",
+        "stepTag": "Focus",
+        "title": "Be narrow long enough to be known for it",
+        "stripText": "One subject wins",
+        "body": "Breadth feels safe and reads as noise. People follow you for a specific thing, and they leave when that thing goes missing.",
+        "stat1V": "1", "stat1L": "Subject",
+        "stat2V": "18", "stat2L": "Months",
+        "stat3V": "5×", "stat3L": "Recall"
+      }
+    },
+    {
+      "layoutId": "body-blue-italic",
+      "slots": {
+        "numberLabel": "Habit",
+        "stepTag": "Patience",
+        "title": "Judge the year, never the post",
+        "stripText": "Nothing works weekly",
+        "body": "Single posts are noise. The only honest measurement window is long enough that luck averages out, and that window is months.",
+        "stat1V": "12", "stat1L": "Months",
+        "stat2V": "1", "stat2L": "Review",
+        "stat3V": "0", "stat3L": "Panic"
+      }
+    },
+    {
+      "layoutId": "cta-blue-italic",
+      "slots": {
+        "eyebrow": "Your turn",
+        "headline": "Pick one and hold it",
+        "body": "Not all six. The one you can still do in a week where everything else goes wrong is the one that will actually compound.",
+        "buttonLabel": "Start this week"
+      }
+    }
+  ]
+}

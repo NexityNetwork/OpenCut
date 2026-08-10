@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html><head><meta charset="utf-8">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+html,body{width:1080px;height:1350px;overflow:hidden;color:#1E1B2A;
+  font-family:"Inter",sans-serif;-webkit-font-smoothing:antialiased;text-rendering:geometricPrecision}
+:root{--muted:rgba(30,27,42,.56);--rule:rgba(30,27,42,.16);--lilac:#CFC7F2;--blush:#F6D2DC}
+/* Cut paper, not blurred gradients: flat shapes with hard edges, overlapping so
+   the crossings make a third tone by multiply rather than by adding a colour.
+   Two pastels and ink. Content sits in the negative space — no floating white
+   cards, which is what made the original read as a template. */
+.ground{position:absolute;inset:0;z-index:0;background:#F5F4FB}
+.art{position:absolute;inset:0;z-index:1;pointer-events:none;mix-blend-mode:multiply}
+.grain{position:absolute;inset:0;z-index:6;opacity:.16;mix-blend-mode:multiply;pointer-events:none}
+.page{position:absolute;inset:0;display:flex;flex-direction:column;z-index:4;padding:104px 82px 96px}
+.label{font-size:25px;font-weight:500;color:var(--muted);letter-spacing:-.2px}
+.ground{background:#1E1B2A}
+html,body{color:#F5F4FB}
+:root{--muted:rgba(245,244,251,.62);--rule:rgba(245,244,251,.2);--lilac:#6B5BD6;--blush:#C4557A}
+.art{mix-blend-mode:screen;opacity:.5}
+.grain{mix-blend-mode:overlay;opacity:.14}
+.page{justify-content:space-between}
+h1{margin-top:28px;font-size:110px;font-weight:700;line-height:.98;letter-spacing:-4.6px;max-width:800px}
+h1 em{font-style:normal;color:#B7A9FF}
+.sub{margin-top:32px;font-size:31px;font-weight:400;line-height:1.46;color:var(--muted);max-width:680px}
+.close{font-size:44px;font-weight:600;line-height:1.24;letter-spacing:-1.6px;max-width:800px}
+.foot{margin-top:44px;display:flex;align-items:center;gap:26px;padding-top:30px;border-top:1px solid var(--rule)}
+.btn{padding:22px 46px;background:#F5F4FB;color:#1E1B2A;border-radius:999px;font-size:28px;font-weight:600;letter-spacing:-.5px}
+.ghost{font-size:24px;font-weight:500;color:var(--muted)}
+</style></head>
+<body>
+<div class="ground"></div>
+<svg class="art" viewBox="0 0 1080 1350" fill="none">
+  <path d="M0 940 a380 380 0 0 1 380 380 L0 1320 Z" fill="var(--lilac)"/>
+  <circle cx="1130" cy="1330" r="280" fill="var(--blush)"/>
+  <rect x="-180" y="-70" width="440" height="190" rx="95" fill="var(--lilac)" transform="rotate(-22 -180 -70)"/>
+</svg>
+<div class="page">
+  <div>
+    <div class="label" style="color:var(--muted)">{{eyebrow}}</div>
+    <h1>{{titleLine1}} <em>{{titleAccent}}</em></h1>
+    <p class="sub">{{body}}</p>
+  </div>
+  <div>
+    <div class="close">{{closingLine}}</div>
+    <div class="foot"><div class="btn">{{buttonLabel}}</div><div class="ghost">{{signoff}}</div></div>
+  </div>
+</div>
+<svg class="grain" width="1080" height="1350" viewBox="0 0 1080 1350" preserveAspectRatio="none">
+<filter id="gr"><feTurbulence type="fractalNoise" baseFrequency="0.9" numOctaves="3" seed="5"/><feColorMatrix type="saturate" values="0"/></filter>
+<rect width="1080" height="1350" filter="url(#gr)" opacity="0.4"/></svg>
+</body></html>

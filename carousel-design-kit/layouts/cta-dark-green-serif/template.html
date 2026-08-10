@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html><head><meta charset="utf-8">
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+html,body{width:1080px;height:1350px;overflow:hidden;color:#EFEDE4;
+  font-family:"Inter",sans-serif;-webkit-font-smoothing:antialiased;text-rendering:geometricPrecision}
+:root{--muted:rgba(239,237,228,.6);--rule:rgba(239,237,228,.15);--accent:#6FD79B}
+/* Flat ground, drawn structure — no gradient. Where the figures family gets a
+   column grid, an editorial one gets ruled lines: the horizontal axis of a
+   written page rather than the vertical axis of a measured one. */
+.ground{position:absolute;inset:0;z-index:0;background:#0B140F}
+.rules{position:absolute;inset:0;z-index:1;pointer-events:none;
+  background-image:repeating-linear-gradient(180deg,rgba(239,237,228,.05) 0 1px,transparent 1px 62px);
+  background-position:0 118px}
+.grain{position:absolute;inset:0;z-index:6;opacity:.15;mix-blend-mode:overlay;pointer-events:none}
+.serif{font-family:"DM Serif Display",serif;font-weight:400}
+html,body{color:#0B140F}
+:root{--muted:rgba(11,20,15,.68);--rule:rgba(11,20,15,.2)}
+.ground{background:#6FD79B}
+.rules{background-image:repeating-linear-gradient(180deg,rgba(11,20,15,.07) 0 1px,transparent 1px 62px)}
+.grain{mix-blend-mode:multiply;opacity:.12}
+.sheet{position:absolute;inset:0;padding:120px 88px 112px;display:flex;flex-direction:column;z-index:4}
+.eyebrow{font-size:27px;font-weight:500;letter-spacing:-.4px}
+h1{margin-top:34px;font-size:122px;line-height:1.02;letter-spacing:-3.2px;max-width:880px}
+h1 em{font-style:italic;color:#0B140F;opacity:.55}
+.sub{margin-top:38px;font-size:32px;font-weight:400;line-height:1.44;color:var(--muted);max-width:760px}
+/* A closing line in display italic rather than half a page of nothing
+   between the deck and the button. */
+.quote{margin-top:auto;font-size:62px;line-height:1.16;letter-spacing:-1.6px;max-width:880px;opacity:.62}
+.foot{margin-top:74px;display:flex;align-items:center;gap:28px;padding-top:34px;border-top:1px solid var(--rule)}
+.btn{padding:22px 46px;background:#0B140F;color:#EFEDE4;border-radius:14px;font-size:28px;font-weight:600;letter-spacing:-.5px}
+.ghost{font-size:24px;font-weight:500;color:var(--muted)}
+</style></head>
+<body>
+<div class="ground"></div>
+<div class="rules"></div>
+<div class="sheet">
+  <div class="eyebrow">{{eyebrow}}</div>
+  <h1 class="serif">{{headline}} <em>{{headlineAccent}}</em></h1>
+  <p class="sub">{{body}}</p>
+  <div class="quote serif">{{quote}}</div>
+  <div class="foot">
+    <div class="btn">{{buttonLabel}}</div>
+    <div class="ghost">{{signoff}}</div>
+  </div>
+</div>
+<svg class="grain" width="1080" height="1350" viewBox="0 0 1080 1350" preserveAspectRatio="none">
+<filter id="gr"><feTurbulence type="fractalNoise" baseFrequency="0.8" numOctaves="3" seed="29"/><feColorMatrix type="saturate" values="0"/></filter>
+<rect width="1080" height="1350" filter="url(#gr)" opacity="0.5"/></svg>
+</body></html>

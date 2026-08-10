@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html><head><meta charset="utf-8">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+html,body{width:1080px;height:1350px;overflow:hidden;color:#1E1B2A;
+  font-family:"Inter",sans-serif;-webkit-font-smoothing:antialiased;text-rendering:geometricPrecision}
+:root{--muted:rgba(30,27,42,.56);--rule:rgba(30,27,42,.16);--lilac:#CFC7F2;--blush:#F6D2DC}
+/* Cut paper, not blurred gradients: flat shapes with hard edges, overlapping so
+   the crossings make a third tone by multiply rather than by adding a colour.
+   Two pastels and ink. Content sits in the negative space — no floating white
+   cards, which is what made the original read as a template. */
+.ground{position:absolute;inset:0;z-index:0;background:#F5F4FB}
+.art{position:absolute;inset:0;z-index:1;pointer-events:none;mix-blend-mode:multiply}
+.grain{position:absolute;inset:0;z-index:6;opacity:.16;mix-blend-mode:multiply;pointer-events:none}
+.page{position:absolute;inset:0;display:flex;flex-direction:column;z-index:4;padding:104px 82px 96px}
+.label{font-size:25px;font-weight:500;color:var(--muted);letter-spacing:-.2px}
+.page{justify-content:space-between}
+h2{margin-top:26px;font-size:84px;font-weight:700;line-height:1;letter-spacing:-3.4px;max-width:760px}
+h2 em{font-style:normal;color:#6B5BD6}
+.copy{margin-top:30px;font-size:31px;font-weight:400;line-height:1.46;color:rgba(30,27,42,.78);max-width:700px}
+.copy b{font-weight:600;color:#1E1B2A}
+.pull{margin:auto 0;font-size:50px;font-weight:600;line-height:1.22;letter-spacing:-1.8px;
+  max-width:760px;color:rgba(30,27,42,.7)}
+.two{display:flex;gap:44px;padding-top:32px;border-top:1px solid var(--rule)}
+.two > div{flex:1 1 0}
+.two .t{font-size:28px;font-weight:600;letter-spacing:-.6px}
+.two .b{margin-top:12px;font-size:25px;font-weight:400;line-height:1.38;color:var(--muted)}
+</style></head>
+<body>
+<div class="ground"></div>
+<svg class="art" viewBox="0 0 1080 1350" fill="none">
+  <circle cx="1150" cy="70" r="290" fill="var(--blush)"/>
+  <path d="M1080 1120 a230 230 0 0 0 -230 230 L1080 1350 Z" fill="var(--lilac)"/>
+  <rect x="-260" y="560" width="420" height="180" rx="90" fill="var(--lilac)" transform="rotate(-16 -260 560)"/>
+</svg>
+<div class="page">
+  <div>
+    <div class="label">{{sectionLabel}}</div>
+    <h2>{{titleLine1}} <em>{{titleAccent}}</em></h2>
+    <p class="copy">{{body}}</p>
+  </div>
+  <div class="pull">{{pullLine}}</div>
+  <div class="two">
+    <div><div class="t">{{p1Title}}</div><div class="b">{{p1Body}}</div></div>
+    <div><div class="t">{{p2Title}}</div><div class="b">{{p2Body}}</div></div>
+  </div>
+</div>
+<svg class="grain" width="1080" height="1350" viewBox="0 0 1080 1350" preserveAspectRatio="none">
+<filter id="gr"><feTurbulence type="fractalNoise" baseFrequency="0.9" numOctaves="3" seed="5"/><feColorMatrix type="saturate" values="0"/></filter>
+<rect width="1080" height="1350" filter="url(#gr)" opacity="0.4"/></svg>
+</body></html>

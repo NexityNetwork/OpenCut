@@ -1,0 +1,116 @@
+{
+  "_note": "Frozen content for design review. Restraint family — flat sand, a ruled frame inset from the trim, everything centred inside it, and no accent hue at all.",
+  "family": "minimal-beauty",
+  "brief": "Six decisions that keep a small product simple",
+  "slides": [
+    {
+      "layoutId": "cover-minimal-beauty",
+      "slots": {
+        "eyebrow": "On staying small deliberately",
+        "titleLine1": "Everything you add, somebody maintains",
+        "subtitle": "Six decisions that keep a product understandable, each of them a refusal rather than an addition.",
+        "coverNote": "The hardest one is on the last page"
+      }
+    },
+    {
+      "layoutId": "body-minimal-beauty",
+      "slots": {
+        "stepTag": "On features",
+        "title": "Every option is a decision you handed to the user",
+        "subtitle": "A setting looks generous and is usually an argument the team could not settle, moved somewhere it will never be resolved.",
+        "p1Title": "Pick a default",
+        "p1Body": "The right one serves most people and makes the setting unnecessary.",
+        "p2Title": "Name the cost",
+        "p2Body": "Every option doubles what has to be tested and explained forever.",
+        "p3Title": "Remove one first",
+        "p3Body": "Adding is easy to justify. Removing is where the discipline lives.",
+        "pullQuote": "A setting is an argument the team declined to finish."
+      }
+    },
+    {
+      "layoutId": "body-minimal-beauty",
+      "slots": {
+        "stepTag": "On surface",
+        "title": "Nothing on the screen is free",
+        "subtitle": "Each element costs attention whether or not anybody uses it, and the bill is paid by every person who opens the page.",
+        "p1Title": "One thing per view",
+        "p1Body": "If you cannot say what the page is for, neither can anyone else.",
+        "p2Title": "Hide the rare",
+        "p2Body": "Frequency should decide prominence, not how hard something was to build.",
+        "p3Title": "Delete on sight",
+        "p3Body": "Anything you would not add today is something you can take away.",
+        "pullQuote": "Attention is the only budget you cannot raise."
+      }
+    },
+    {
+      "layoutId": "body-minimal-beauty",
+      "slots": {
+        "stepTag": "On structure",
+        "title": "The shape of the data decides the shape of the product",
+        "subtitle": "Interfaces can be redrawn in an afternoon. The model underneath them is what everything else has to agree with for years.",
+        "p1Title": "Name things once",
+        "p1Body": "Two words for the same idea will diverge into two features.",
+        "p2Title": "Model the noun",
+        "p2Body": "Build around what the thing is, not around the screen it appears on.",
+        "p3Title": "Resist the flag",
+        "p3Body": "Each boolean added late is a branch every future feature must handle.",
+        "pullQuote": "Screens are cheap to change. The model underneath is not."
+      }
+    },
+    {
+      "layoutId": "body-minimal-beauty",
+      "slots": {
+        "stepTag": "On dependencies",
+        "title": "Everything you install, you have adopted",
+        "subtitle": "A library solves this week's problem and joins the list of things that break on somebody else's schedule from now on.",
+        "p1Title": "Read it first",
+        "p1Body": "If you would not maintain it, you are betting somebody else will.",
+        "p2Title": "Prefer boring",
+        "p2Body": "Old and dull has survived the failures the new one has not met yet.",
+        "p3Title": "Write the small ones",
+        "p3Body": "Forty lines you understand beats a package you have never opened.",
+        "pullQuote": "Every install is a promise somebody else gets to break."
+      }
+    },
+    {
+      "layoutId": "body-minimal-beauty",
+      "slots": {
+        "stepTag": "On money",
+        "title": "Pricing is a product decision, not a marketing one",
+        "subtitle": "It determines who arrives, what they expect and which requests you are obliged to take seriously afterwards.",
+        "p1Title": "One plan, first",
+        "p1Body": "Tiers before you know your customers encode a guess as structure.",
+        "p2Title": "Charge early",
+        "p2Body": "Free users tell you what is interesting. Paying ones tell you what matters.",
+        "p3Title": "Raise it slowly",
+        "p3Body": "Increase until you feel resistance. That edge is the actual number.",
+        "pullQuote": "Price decides who arrives, and what they will ask you for."
+      }
+    },
+    {
+      "layoutId": "body-minimal-beauty",
+      "slots": {
+        "stepTag": "The hard one",
+        "title": "Simple is a cost you pay continuously",
+        "subtitle": "It is not a state you reach and keep. Every request is reasonable on its own, and the accumulation of reasonable requests is how products become unusable.",
+        "p1Title": "Say no in writing",
+        "p1Body": "A refusal you can point at survives longer than one you remember.",
+        "p2Title": "Count what you kept",
+        "p2Body": "Review what was added each quarter and remove one thing deliberately.",
+        "p3Title": "Nobody thanks you",
+        "p3Body": "The complexity you prevented is invisible, which is why it needs a rule.",
+        "pullQuote": "The complexity you prevented is the work nobody can see."
+      }
+    },
+    {
+      "layoutId": "cta-minimal-beauty",
+      "slots": {
+        "eyebrow": "One refusal, this week",
+        "headline": "Take something out",
+        "body": "Find the option you would not add today, remove it, and see who notices. That is the whole method, and it never stops being the hard part.",
+        "buttonLabel": "Take all six",
+        "signoff": "Nobody will thank you for it"
+      }
+    }
+  ]
+}

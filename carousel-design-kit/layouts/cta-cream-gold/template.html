@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html><head><meta charset="utf-8">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+html,body{width:1080px;height:1350px;overflow:hidden;color:#17140F;
+  font-family:"Inter",sans-serif;-webkit-font-smoothing:antialiased;text-rendering:geometricPrecision}
+:root{--ink:#17140F;--muted:rgba(23,20,15,.68);--rule:rgba(23,20,15,.16);--gold:#A47C2B}
+.mesh{position:absolute;inset:0;z-index:0;background:
+  radial-gradient(110% 85% at 82% 6%,  #F7E9C9 0%, transparent 48%),
+  radial-gradient(120% 90% at 14% 18%, #EFE4D0 0%, transparent 54%),
+  radial-gradient(130% 100% at 74% 94%,#DCC79B 0%, transparent 58%),
+  radial-gradient(110% 95% at 4% 96%,  #FEFCF7 0%, transparent 56%),
+  #F4EDE0}
+.mesh.dark{background:
+  radial-gradient(90% 70% at 80% 8%,   #E0B457 0%, transparent 44%),
+  radial-gradient(120% 90% at 20% 26%, #8A6520 0%, transparent 50%),
+  radial-gradient(130% 100% at 68% 96%,#2E2110 0%, transparent 60%),
+  radial-gradient(110% 95% at 4% 96%,  #100C06 0%, transparent 58%),
+  #0D0A05}
+.grain{position:absolute;inset:0;z-index:5;opacity:.28;mix-blend-mode:multiply;pointer-events:none}
+/* A milled gold bar: banded highlights across a metal face, not a flat swatch.
+   This is the family's one object and it is drawn, not pasted. */
+.bar{position:absolute;z-index:2;border-radius:10px;overflow:hidden;
+  background:linear-gradient(100deg,#8A6520 0%,#E8CE86 14%,#B9902F 27%,#F6E7B4 41%,
+    #A47C2B 55%,#EBD494 69%,#8E6A22 83%,#D9BC6B 100%);
+  box-shadow:0 26px 46px -18px rgba(80,58,14,.45), inset 0 1px 0 rgba(255,255,255,.5)}
+html,body{color:#FBF6EA}
+:root{--muted:rgba(251,246,234,.74);--rule:rgba(251,246,234,.22)}
+.bar{left:96px;top:600px;width:300px;height:14px}
+.sheet{position:absolute;inset:0;padding:132px 96px 120px;display:flex;flex-direction:column;justify-content:space-between;z-index:4}
+.eyebrow{font-size:27px;font-weight:600;color:#E8C878}
+h1{margin-top:22px;font-size:138px;font-weight:600;line-height:.96;letter-spacing:-5.6px;max-width:900px}
+h1 b{font-weight:700;color:#E8C878}
+.sub{font-size:33px;font-weight:400;line-height:1.42;color:var(--muted);max-width:640px}
+.btn{align-self:flex-start;padding:22px 44px;background:#FBF6EA;color:#0D0A05;border-radius:14px;
+  font-size:29px;font-weight:600;letter-spacing:-.5px}
+</style></head>
+<body>
+<div class="mesh dark"></div>
+<div class="sheet">
+  <div>
+    <div class="eyebrow">{{eyebrow}}</div>
+    <h1>{{headlineMain}} <b>{{headlineItalic}}</b></h1>
+  </div>
+  <p class="sub">{{body}}</p>
+  <div class="btn">{{buttonLabel}}</div>
+</div>
+<div class="bar"></div>
+<svg class="grain" width="1080" height="1350" viewBox="0 0 1080 1350" preserveAspectRatio="none">
+<filter id="gr"><feTurbulence type="fractalNoise" baseFrequency="0.85" numOctaves="3" seed="57"/><feColorMatrix type="saturate" values="0"/></filter>
+<rect width="1080" height="1350" filter="url(#gr)" opacity="0.5"/></svg>
+</body></html>

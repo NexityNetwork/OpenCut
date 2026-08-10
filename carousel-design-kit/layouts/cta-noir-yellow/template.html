@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html><head><meta charset="utf-8">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+html,body{width:1080px;height:1350px;overflow:hidden;
+  font-family:"Inter",sans-serif;-webkit-font-smoothing:antialiased;text-rendering:geometricPrecision}
+:root{--ink:#0B0B0A;--paper:#F3EFE6;--gold:#EFB02C}
+/* A hard split rather than a gradient or a texture: every page is two solid
+   fields with a clean boundary between them. Eighth dark family, and the only
+   one built from fields instead of a ground plus marks. Pinyon Script and the
+   all-caps display are gone — a handwritten face at caption size is unreadable
+   and caps at display size is shouting, not noir. */
+.page{position:absolute;inset:0;z-index:4;display:flex;flex-direction:column}
+.dark{background:var(--ink);color:var(--paper);padding:98px 80px 60px;display:flex;flex-direction:column}
+.gold{background:var(--gold);color:var(--ink);padding:60px 80px 92px;display:flex;flex-direction:column}
+.rule{height:8px;background:var(--gold)}
+.label{font-size:26px;font-weight:500;letter-spacing:-.3px;opacity:.66}
+.grain{position:absolute;inset:0;z-index:6;opacity:.14;mix-blend-mode:overlay;pointer-events:none}
+/* The closer inverts the split: gold takes the top, ink the base. */
+.gold{flex:64;justify-content:space-between;padding:98px 80px 60px}
+.gold h1{font-size:128px;font-weight:800;line-height:.94;letter-spacing:-5.4px}
+.gold h1 em{font-style:normal;opacity:.5}
+.gold .sub{font-size:32px;font-weight:400;line-height:1.4;opacity:.76;max-width:720px}
+.dark{flex:36;justify-content:space-between;padding:60px 80px 92px}
+.dark .close{font-size:38px;font-weight:700;line-height:1.24;letter-spacing:-1.4px;max-width:840px}
+.foot{display:flex;align-items:center;gap:26px}
+.btn{padding:22px 46px;background:var(--gold);color:var(--ink);font-size:28px;font-weight:700;letter-spacing:-.5px}
+.ghost{font-size:24px;font-weight:500;opacity:.62}
+</style></head>
+<body>
+<div class="page">
+  <div class="gold">
+    <div class="label">{{eyebrow}}</div>
+    <h1>{{displayLine1}} <em>{{displayLine2}}</em></h1>
+    <p class="sub">{{body}}</p>
+  </div>
+  <div class="rule" style="background:#0B0B0A"></div>
+  <div class="dark">
+    <div class="close">{{closingLine}}</div>
+    <div class="foot"><div class="btn">{{buttonLabel}}</div><div class="ghost">{{signoff}}</div></div>
+  </div>
+</div>
+<svg class="grain" width="1080" height="1350" viewBox="0 0 1080 1350" preserveAspectRatio="none">
+<filter id="gr"><feTurbulence type="fractalNoise" baseFrequency="0.84" numOctaves="3" seed="73"/><feColorMatrix type="saturate" values="0"/></filter>
+<rect width="1080" height="1350" filter="url(#gr)" opacity="0.5"/></svg>
+</body></html>

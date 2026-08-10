@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html><head><meta charset="utf-8">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+html,body{width:1080px;height:1350px;overflow:hidden;background:#FFFFFF;color:#000000;
+  font-family:"Inter",sans-serif;-webkit-font-smoothing:antialiased;text-rendering:geometricPrecision}
+:root{--muted:rgba(0,0,0,.5);--rule:rgba(0,0,0,.22)}
+/* A specimen sheet. One enormous phrase per page against small technical
+   annotations set on hairlines. Black on white and nothing else — the scale
+   contrast between the two sizes is the entire design, so no colour, no rules
+   heavier than a hairline, and no third weight. */
+.page{position:absolute;inset:0;z-index:2;padding:104px 84px 96px;display:flex;flex-direction:column}
+.ann{display:flex;gap:28px;padding-bottom:16px;border-bottom:1px solid var(--rule)}
+.ann div{font-size:22px;font-weight:500;letter-spacing:-.2px;color:var(--muted)}
+.ann div:first-child{color:#000;flex:0 0 300px}
+/* The specimen is set at the largest size the phrase allows and takes whatever
+   the annotations leave, so the sheet is never half empty. */
+.spec{flex:1;display:flex;align-items:center;padding:20px 0}
+.spec h2{font-size:158px;font-weight:800;line-height:.95;letter-spacing:-7.4px}
+.spec h2 span{font-weight:400;letter-spacing:-5.6px}
+.copy{padding-top:24px;border-top:1px solid var(--rule);font-size:28px;font-weight:400;
+  line-height:1.46;color:rgba(0,0,0,.74);max-width:800px}
+.copy b{font-weight:600;color:#000}
+.notes{margin-top:26px;padding-top:20px;border-top:1px solid var(--rule);display:flex;gap:28px}
+.notes .c{flex:1}
+.notes .c .t{font-size:24px;font-weight:600;letter-spacing:-.4px;line-height:1.24}
+.notes .c .g{margin-top:8px;font-size:21px;font-weight:400;line-height:1.36;color:var(--muted)}
+</style></head>
+<body>
+<div class="page">
+  <div class="ann"><div>{{sectionLabel}}</div><div>{{annotation}}</div></div>
+  <div class="spec"><h2>{{titleLine1}} <span>{{titleAccent}}</span></h2></div>
+  <p class="copy">{{body}}</p>
+  <div class="notes">
+    <div class="c"><div class="t">{{k1}}</div><div class="g">{{v1}}</div></div>
+    <div class="c"><div class="t">{{k2}}</div><div class="g">{{v2}}</div></div>
+    <div class="c"><div class="t">{{k3}}</div><div class="g">{{v3}}</div></div>
+  </div>
+</div>
+</body></html>

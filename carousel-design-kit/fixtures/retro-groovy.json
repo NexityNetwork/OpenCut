@@ -1,0 +1,121 @@
+{
+  "_note": "Frozen content for design review. Arc family — concentric bands rising from an edge, drawn as a frame the type sits clear of.",
+  "family": "retro-groovy",
+  "brief": "Why side projects outlive the jobs that funded them",
+  "slides": [
+    {
+      "layoutId": "cover-retro-groovy",
+      "slots": {
+        "eyebrow": "On the work nobody asked for",
+        "titleLine1": "Side projects outlive",
+        "titleAccent": "the jobs that funded them.",
+        "subtitle": "Six things that decide whether the thing you make on Saturdays is still worth something in five years.",
+        "item1": "Why the freedom that starts them also kills them",
+        "item2": "The only return that is actually guaranteed",
+        "coverNote": "The last page is the one survivorship hides"
+      }
+    },
+    {
+      "layoutId": "body-retro-groovy",
+      "slots": {
+        "sectionLabel": "Why they start",
+        "titleLine1": "They begin where",
+        "titleAccent": "the constraints stop.",
+        "body": "Nobody scoped it, nobody is waiting for it, and there is no version of it that gets rejected in review. That is the entire appeal, and it is also <b>why so many die in week three</b> — the same absence of pressure that made it possible makes it optional.",
+        "p1Title": "No brief, no ceiling",
+        "p1Body": "The only project where you get to decide what good means.",
+        "p2Title": "No brief, no floor",
+        "p2Body": "Which is the same fact, and it is what kills most of them.",
+        "p3Title": "Add one obligation",
+        "p3Body": "One person expecting it is enough. Two is a job."
+      }
+    },
+    {
+      "layoutId": "body-retro-groovy",
+      "slots": {
+        "sectionLabel": "What they are actually for",
+        "titleLine1": "A side project is a",
+        "titleAccent": "rehearsal you get to keep.",
+        "body": "The value is rarely the thing itself. It is that you tried a way of working, a tool or a subject at full scale without anybody's money on it, and <b>that experience transfers whole</b> into work that does have money on it.",
+        "p1Title": "Try the method, not the idea",
+        "p1Body": "Pick it because of how you will have to work, not what it is.",
+        "p2Title": "Finish something small",
+        "p2Body": "An unfinished experiment teaches you almost nothing.",
+        "p3Title": "Reuse it deliberately",
+        "p3Body": "The point is the next project, not this one."
+      }
+    },
+    {
+      "layoutId": "body-retro-groovy",
+      "slots": {
+        "sectionLabel": "Why they outlive jobs",
+        "titleLine1": "The job ends and",
+        "titleAccent": "the work stays yours.",
+        "body": "Roles disappear, companies pivot, and the thing you shipped inside one becomes impossible to show or explain. A project with your name on it is <b>the only portfolio that survives an employer</b>, which is why it compounds and salaried work does not.",
+        "p1Title": "It stays visible",
+        "p1Body": "Nothing internal can be shown, five years later, to anybody.",
+        "p2Title": "It is legible",
+        "p2Body": "People understand a finished thing faster than a job title.",
+        "p3Title": "It keeps working",
+        "p3Body": "Long after you have stopped touching it."
+      }
+    },
+    {
+      "layoutId": "body-retro-groovy",
+      "slots": {
+        "sectionLabel": "How they fail",
+        "titleLine1": "Scope is the",
+        "titleAccent": "only real enemy.",
+        "body": "Nobody abandons a project because it was too easy. They abandon it because the finished version was three months away and <b>nothing shippable existed at any point before that</b>, so there was never a moment when stopping felt like completing.",
+        "p1Title": "Ship in a week",
+        "p1Body": "Not a plan for a week. A thing that exists in a week.",
+        "p2Title": "Make it public early",
+        "p2Body": "Embarrassment is a much stronger schedule than intention.",
+        "p3Title": "Cut features, never quality",
+        "p3Body": "A small good thing beats a large abandoned one."
+      }
+    },
+    {
+      "layoutId": "body-retro-groovy",
+      "slots": {
+        "sectionLabel": "What they cost",
+        "titleLine1": "The time is real",
+        "titleAccent": "and it is not free.",
+        "body": "The hours come from somewhere, and pretending otherwise is how people burn a year and resent it. Treating it as leisure is honest; treating it as an investment that must return <b>turns the one unpressured thing you have into another job</b>.",
+        "p1Title": "Name the hours",
+        "p1Body": "Two evenings, or a Saturday morning. Not whatever is left.",
+        "p2Title": "Protect the rest",
+        "p2Body": "A project that eats your recovery is a project that ends badly.",
+        "p3Title": "Allow it to be pointless",
+        "p3Body": "That is the licence the whole thing runs on."
+      }
+    },
+    {
+      "layoutId": "body-retro-groovy",
+      "slots": {
+        "sectionLabel": "The uncomfortable one",
+        "titleLine1": "Most of them",
+        "titleAccent": "do not become anything.",
+        "body": "Survivorship makes this look like a reliable strategy, and it is not. The overwhelming majority are abandoned, ignored, or good and unnoticed, and <b>the ones you have heard about are the exception being described as the method</b>.",
+        "p1Title": "Expect nothing",
+        "p1Body": "Do it because the making is worth the hours on its own.",
+        "p2Title": "Count what you learned",
+        "p2Body": "That return is guaranteed. No other return is.",
+        "p3Title": "Then do another",
+        "p3Body": "The compounding is across projects, not inside one."
+      }
+    },
+    {
+      "layoutId": "cta-retro-groovy",
+      "slots": {
+        "eyebrow": "On the one sitting half-finished",
+        "titleLine1": "Ship the smallest",
+        "titleAccent": "version this week.",
+        "body": "Not the one you designed. Whatever part of it could exist by Sunday and be shown to one person without an explanation attached.",
+        "closingLine": "Finished and small compounds. Ambitious and abandoned teaches you the same lesson every time.",
+        "buttonLabel": "Take all six",
+        "signoff": "The rehearsal is the whole return"
+      }
+    }
+  ]
+}

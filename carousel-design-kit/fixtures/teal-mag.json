@@ -1,0 +1,151 @@
+{
+  "_note": "Frozen content for design review. Spinoff of the coral-mag system — mesh ground, grain, and one drawn frosted-glass object per family.",
+  "family": "teal-mag",
+  "brief": "Five tools that replaced a department",
+  "slides": [
+    {
+      "layoutId": "cover-teal-mag",
+      "slots": {
+        "eyebrow": "What a two-person studio actually runs on",
+        "titleLine1": "Five tools.",
+        "titleAccent": "One department.",
+        "subtitle": "Each one absorbed a job that used to need a hire, and none of them overlap.",
+        "stat1V": "5",
+        "stat1L": "tools, total",
+        "stat2V": "0",
+        "stat2L": "overlap between them",
+        "stat3V": "2",
+        "stat3L": "people running all of it",
+        "iconSlug1": "figma",
+        "iconSlug2": "notion",
+        "iconSlug3": "linear",
+        "iconSlug4": "stripe",
+        "iconSlug5": "slack",
+        "iconColor1": "#EEF7F4",
+        "iconColor2": "#EEF7F4",
+        "iconColor3": "#EEF7F4",
+        "iconColor4": "#EEF7F4",
+        "iconColor5": "#EEF7F4"
+      }
+    },
+    {
+      "layoutId": "body-teal-mag",
+      "slots": {
+        "iconSlug1": "figma",
+        "toolName": "Figma",
+        "toolRole": "Where the work is decided",
+        "title": "Two people on one frame",
+        "titleAccent": "settle it in ten minutes",
+        "body": "A thread cannot resolve a visual disagreement. Putting both people in the same file removes the argument rather than shortening it.",
+        "stat1V": "0",
+        "stat1L": "handoff meetings",
+        "stat2V": "1",
+        "stat2L": "file, always current",
+        "stat3V": "10 min",
+        "stat3L": "to agree",
+        "iconColor1": "#EEF7F4"
+      }
+    },
+    {
+      "layoutId": "body-teal-mag",
+      "slots": {
+        "iconSlug1": "notion",
+        "toolName": "Notion",
+        "toolRole": "Where the reasoning lives",
+        "title": "Write down why,",
+        "titleAccent": "not only what",
+        "body": "Teams re-argue settled decisions because nobody recorded the reasoning. One paragraph on the day it was decided ends the cycle.",
+        "stat1V": "1 page",
+        "stat1L": "per decision",
+        "stat2V": "same day",
+        "stat2L": "or never",
+        "stat3V": "4×",
+        "stat3L": "fewer repeats",
+        "iconColor1": "#EEF7F4"
+      }
+    },
+    {
+      "layoutId": "body-teal-mag",
+      "slots": {
+        "iconSlug1": "linear",
+        "toolName": "Linear",
+        "toolRole": "Where scope is cut",
+        "title": "If it cannot ship this week",
+        "titleAccent": "it is still too big",
+        "body": "Long scope is not ambition, it is deferred learning. Every week between deciding and shipping is a week spent guessing.",
+        "stat1V": "1 week",
+        "stat1L": "maximum age",
+        "stat2V": "1",
+        "stat2L": "owner per item",
+        "stat3V": "−40%",
+        "stat3L": "abandoned work",
+        "iconColor1": "#EEF7F4"
+      }
+    },
+    {
+      "layoutId": "body-teal-mag",
+      "slots": {
+        "iconSlug1": "stripe",
+        "toolName": "Stripe",
+        "toolRole": "Where the truth is",
+        "title": "The only number that is",
+        "titleAccent": "not a vanity metric",
+        "body": "Revenue is checked once a day and nothing else is, because everything else moves too slowly to be worth watching more often.",
+        "stat1V": "once",
+        "stat1L": "a day",
+        "stat2V": "0",
+        "stat2L": "dashboards built",
+        "stat3V": "1",
+        "stat3L": "number that matters",
+        "iconColor1": "#EEF7F4"
+      }
+    },
+    {
+      "layoutId": "body-teal-mag",
+      "slots": {
+        "iconSlug1": "slack",
+        "toolName": "Slack",
+        "toolRole": "Where the noise goes",
+        "title": "Being available is not",
+        "titleAccent": "the same as being useful",
+        "body": "A quick question takes a minute to ask and twenty to answer, because the person answering has to rebuild the context they just lost.",
+        "stat1V": "21 min",
+        "stat1L": "per interruption",
+        "stat2V": "2×",
+        "stat2L": "a day, batched",
+        "stat3V": "−4 hrs",
+        "stat3L": "per week",
+        "iconColor1": "#EEF7F4"
+      }
+    },
+    {
+      "layoutId": "body-teal-mag",
+      "slots": {
+        "iconSlug1": "figma",
+        "toolName": "The catch",
+        "toolRole": "What five tools costs",
+        "title": "Five places to look,",
+        "titleAccent": "and one gap between them",
+        "body": "Fewer tools means fewer places to hide, and the thing that falls through always falls between two of them rather than inside one.",
+        "stat1V": "5",
+        "stat1L": "places to check",
+        "stat2V": "1",
+        "stat2L": "real risk",
+        "stat3V": "0",
+        "stat3L": "that fix themselves",
+        "iconColor1": "#EEF7F4"
+      }
+    },
+    {
+      "layoutId": "cta-teal-mag",
+      "slots": {
+        "eyebrow": "Before you buy anything",
+        "titleLine1": "Cancel one.",
+        "titleAccent": "Not five.",
+        "body": "Pick the subscription you would not defend if somebody asked, and let the gap tell you whether you needed it.",
+        "btnPrimary": "Take the whole stack",
+        "signoff": "The gap is the only honest test"
+      }
+    }
+  ]
+}

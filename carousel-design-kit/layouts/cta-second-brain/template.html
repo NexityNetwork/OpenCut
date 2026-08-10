@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html><head><meta charset="utf-8">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+html,body{width:1080px;height:1350px;overflow:hidden;color:#F2F1E6;
+  font-family:"Inter",sans-serif;-webkit-font-smoothing:antialiased;text-rendering:geometricPrecision}
+:root{--muted:rgba(242,241,230,.62);--rule:rgba(242,241,230,.2);--accent:#A9BC5F}
+/* The page is a filing card: a protruding tab carrying the section label, a
+   hairline border, and ruled lines behind the content. Stationery drawn
+   precisely — the rules are the card's, not a texture laid over it. */
+.ground{position:absolute;inset:0;z-index:0;background:#1D1B14}
+.grain{position:absolute;inset:0;z-index:6;opacity:.18;mix-blend-mode:overlay;pointer-events:none}
+.card{position:absolute;left:56px;right:56px;top:112px;bottom:64px;background:#F9F6EF;
+  border:1px solid rgba(29,27,20,.2);z-index:2;
+  box-shadow:0 30px 60px -32px rgba(29,27,20,.3)}
+.ruled{position:absolute;inset:0;z-index:1;pointer-events:none;
+  background-image:repeating-linear-gradient(180deg,transparent 0 57px,rgba(242,241,230,.07) 57px 58px);
+  background-position:0 128px}
+.tab{position:absolute;left:56px;top:56px;height:58px;padding:0 34px;background:#26241A;
+  border:1px solid rgba(242,241,230,.18);border-bottom:0;display:flex;align-items:center;
+  font-size:25px;font-weight:600;letter-spacing:-.3px;z-index:3}
+.tab.on{background:var(--accent);border-color:var(--accent);color:#1D1B14}
+.page{position:absolute;left:56px;right:56px;top:112px;bottom:64px;z-index:4;
+  padding:56px 52px 48px;display:flex;flex-direction:column;justify-content:space-between}
+.label{font-size:25px;font-weight:500;color:var(--muted);letter-spacing:-.2px}
+h1{margin-top:22px;font-size:92px;font-weight:700;line-height:1.02;letter-spacing:-3.7px}
+h1 em{font-style:normal;color:var(--accent)}
+.sub{margin-top:28px;font-size:30px;font-weight:400;line-height:1.44;color:var(--muted);max-width:700px}
+.close{font-size:40px;font-weight:600;line-height:1.24;letter-spacing:-1.4px;max-width:780px}
+.foot{margin-top:34px;display:flex;align-items:center;gap:24px;padding-top:24px;border-top:1px solid var(--rule)}
+.btn{padding:20px 42px;background:var(--accent);color:#1D1B14;font-size:27px;font-weight:600;letter-spacing:-.4px}
+.ghost{font-size:23px;font-weight:500;color:var(--muted)}
+</style></head>
+<body>
+<div class="ground"></div>
+<div class="card"><div class="ruled"></div></div>
+<div class="tab on">{{tabLabel}}</div>
+<div class="page">
+  <div>
+    <div class="label">{{eyebrow}}</div>
+    <h1>{{titleLine1}} <em>{{titleAccent}}</em></h1>
+    <p class="sub">{{body}}</p>
+  </div>
+  <div>
+    <div class="close">{{closingLine}}</div>
+    <div class="foot"><div class="btn">{{buttonLabel}}</div><div class="ghost">{{signoff}}</div></div>
+  </div>
+</div>
+<svg class="grain" width="1080" height="1350" viewBox="0 0 1080 1350" preserveAspectRatio="none">
+<filter id="gr"><feTurbulence type="fractalNoise" baseFrequency="0.9" numOctaves="3" seed="77"/><feColorMatrix type="saturate" values="0"/></filter>
+<rect width="1080" height="1350" filter="url(#gr)" opacity="0.4"/></svg>
+</body></html>

@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html><head><meta charset="utf-8">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+html,body{width:1080px;height:1350px;overflow:hidden;background:#C2542A;color:#F6EFE4;
+  font-family:"Inter",sans-serif;-webkit-font-smoothing:antialiased;text-rendering:geometricPrecision}
+:root{--muted:rgba(246,239,228,.66);--ink:#3C1509}
+/* Holes punched out of a flooded field: large perfect circles in a darker tone,
+   asymmetric, bleeding off the edges. Flat and hard-edged — no shadows, no
+   gradients, no glow. The type always sits in the clear, and the circles carry
+   across the join between the terracotta field and the cream one. */
+/* Absolutely positioned rather than drawn in a viewBox: the cream field's
+   height depends on the copy, and a scaled viewBox would squash a circle into
+   an ellipse the moment the copy changed length. */
+.o{position:absolute;border-radius:50%;pointer-events:none}
+.page{position:absolute;inset:0;z-index:3;display:flex;flex-direction:column}
+.top{position:relative;padding:112px 92px 56px}
+.label{position:relative;font-size:26px;font-weight:600;color:var(--muted);letter-spacing:-.4px}
+h2{position:relative;margin-top:22px;font-size:76px;font-weight:700;line-height:1.02;letter-spacing:-3.2px;max-width:680px}
+.copy{position:relative;margin-top:26px;font-size:29px;font-weight:400;line-height:1.46;color:rgba(246,239,228,.82);max-width:700px}
+.copy b{font-weight:600;color:#F6EFE4}
+.field{position:relative;flex:1;background:#F6EFE4;color:var(--ink);overflow:hidden}
+.inner{position:relative;height:100%;padding:0 92px 0;display:flex;flex-direction:column}
+.row{flex:1;display:flex;align-items:center;gap:32px;border-top:2px solid rgba(60,21,9,.2)}
+.row:first-child{border-top:none}
+.row .k{flex:0 0 262px;font-size:29px;font-weight:600;letter-spacing:-.6px;line-height:1.22}
+.row .v{font-size:25px;font-weight:400;line-height:1.4;color:rgba(60,21,9,.66);max-width:400px}
+</style></head>
+<body>
+<div class="page">
+  <div class="top">
+    <div class="o" style="width:392px;height:392px;right:-118px;top:-56px;background:#9E3F1C"></div>
+    <div class="label">{{sectionLabel}}</div>
+    <h2>{{titleLine1}}</h2>
+    <p class="copy">{{body}}</p>
+  </div>
+  <div class="field">
+    <div class="o" style="width:376px;height:376px;right:-134px;bottom:-118px;background:#C2542A"></div>
+    <div class="o" style="width:126px;height:126px;left:-56px;top:56px;background:#C2542A"></div>
+    <div class="inner">
+      <div class="row"><div class="k">{{k1}}</div><div class="v">{{v1}}</div></div>
+      <div class="row"><div class="k">{{k2}}</div><div class="v">{{v2}}</div></div>
+      <div class="row"><div class="k">{{k3}}</div><div class="v">{{v3}}</div></div>
+    </div>
+  </div>
+</div>
+</body></html>

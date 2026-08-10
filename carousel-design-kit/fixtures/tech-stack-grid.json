@@ -1,0 +1,125 @@
+{
+  "_note": "Frozen content for design review. Taxonomy family — a ruled table of cells, one raised into the accent per page. Dark ground, pale gold. No logos: the subject is kinds of problem, not tools.",
+  "family": "tech-stack-grid",
+  "brief": "The kinds of problem there are, and why the wrong kind gets solved",
+  "slides": [
+    {
+      "layoutId": "cover-tech-stack-grid",
+      "slots": {
+        "eyebrow": "On diagnosing before deciding",
+        "titleLine1": "Most solutions are",
+        "titleAccent": "answers to the wrong kind.",
+        "standfirst": "Six categories of problem that look alike from the outside and need completely different responses.",
+        "c1": "Missing information", "g1": "Nobody knows the answer yet. Everything else is premature.",
+        "c2": "Missing agreement", "g2": "Everybody knows, and two people want different things.",
+        "c3": "Missing capacity", "g3": "The plan is right and there is nobody free to do it.",
+        "c4": "Missing incentive", "g4": "It is clear, agreed and possible, and nothing happens.",
+        "coverNote": "The last page is the category nobody wants to be in"
+      }
+    },
+    {
+      "layoutId": "body-tech-stack-grid",
+      "slots": {
+        "sectionLabel": "Not knowing",
+        "titleLine1": "An information problem",
+        "titleAccent": "cannot be decided.",
+        "body": "Everybody in the room has an opinion and none of them has evidence, so the meeting produces a decision that is really a preference. The only move that helps is <b>a cheap way to find out</b>, and it is almost never the thing on the agenda.",
+        "c1": "The signature", "g1": "Confident disagreement about a matter of fact.",
+        "c2": "The wrong move", "g2": "Escalating to whoever is most senior in the room.",
+        "c3": "The right move", "g3": "Name the fact, then find the cheapest test of it.",
+        "c4": "The trap", "g4": "Research that takes longer than acting and learning would.",
+        "c5": "The tell you fixed it", "g5": "Somebody changes their mind without losing anything.",
+        "c6": "What it turns into", "g6": "Left alone, it becomes a disagreement about people."
+      }
+    },
+    {
+      "layoutId": "body-tech-stack-grid",
+      "slots": {
+        "sectionLabel": "Not agreeing",
+        "titleLine1": "A disagreement is not",
+        "titleAccent": "a misunderstanding.",
+        "body": "Explaining harder is the standard response and it never works, because both sides already understand. What is actually in dispute is which cost to accept, and <b>no amount of clarity makes somebody want a different outcome</b>.",
+        "c1": "The signature", "g1": "The same argument, restated more slowly, twice.",
+        "c2": "The wrong move", "g2": "Another deck. Another walkthrough. More detail.",
+        "c3": "The right move", "g3": "State both costs out loud and pick which one to pay.",
+        "c4": "The trap", "g4": "A compromise that pays half of each cost and buys neither.",
+        "c5": "The tell you fixed it", "g5": "Somebody says what they are giving up, and means it.",
+        "c6": "What it turns into", "g6": "Left alone, it goes quiet and comes back at delivery."
+      }
+    },
+    {
+      "layoutId": "body-tech-stack-grid",
+      "slots": {
+        "sectionLabel": "Not enough hands",
+        "titleLine1": "A capacity problem",
+        "titleAccent": "only takes subtraction.",
+        "body": "Everything is agreed, understood and impossible, because the same four people are on every list. Prioritising does not help unless something is genuinely stopped, and <b>a plan with no removals is a wish about how fast people work</b>.",
+        "c1": "The signature", "g1": "Every item is important and everything is late.",
+        "c2": "The wrong move", "g2": "Reordering. It moves the queue without shortening it.",
+        "c3": "The right move", "g3": "Stop something visibly, so the stop is real.",
+        "c4": "The trap", "g4": "Hiring, which costs capacity before it adds any.",
+        "c5": "The tell you fixed it", "g5": "Somebody has a free week and it is not an accident.",
+        "c6": "What it turns into", "g6": "Left alone, it becomes attrition, then a hiring problem."
+      }
+    },
+    {
+      "layoutId": "body-tech-stack-grid",
+      "slots": {
+        "sectionLabel": "Nobody gains",
+        "titleLine1": "An incentive problem",
+        "titleAccent": "looks like laziness.",
+        "body": "It is clear, agreed and possible, and it does not happen, which reads as a people problem to everybody above it. The honest reading is that <b>doing it costs somebody something and doing nothing costs them nothing</b>.",
+        "c1": "The signature", "g1": "Reasonable people, agreed plan, no movement at all.",
+        "c2": "The wrong move", "g2": "Repeating the request with more urgency in it.",
+        "c3": "The right move", "g3": "Find who pays and who benefits, then make them the same.",
+        "c4": "The trap", "g4": "Treating it as a character flaw in whoever is stuck.",
+        "c5": "The tell you fixed it", "g5": "It starts moving without anybody being asked again.",
+        "c6": "What it turns into", "g6": "Left alone, it becomes a process nobody follows."
+      }
+    },
+    {
+      "layoutId": "body-tech-stack-grid",
+      "slots": {
+        "sectionLabel": "Wrong question",
+        "titleLine1": "Some problems are only",
+        "titleAccent": "badly stated.",
+        "body": "A question phrased as a choice between two options hides the assumption that those are the options. Restating what has to be true underneath usually dissolves it, and <b>the dissolved version is the only kind that stays solved</b>.",
+        "c1": "The signature", "g1": "A binary choice that both sides find unsatisfying.",
+        "c2": "The wrong move", "g2": "Arguing the two options harder and longer.",
+        "c3": "The right move", "g3": "Ask what has to be true for either to be right.",
+        "c4": "The trap", "g4": "Reframing as a way of avoiding a real decision.",
+        "c5": "The tell you fixed it", "g5": "The original question stops being interesting.",
+        "c6": "What it turns into", "g6": "Left alone, it is re-litigated every quarter forever."
+      }
+    },
+    {
+      "layoutId": "body-tech-stack-grid",
+      "slots": {
+        "sectionLabel": "The uncomfortable one",
+        "titleLine1": "Some problems are",
+        "titleAccent": "the price of the thing.",
+        "body": "Every arrangement worth having produces a specific recurring difficulty, and that difficulty is not a defect to be engineered out. Treating a permanent cost as a temporary failure produces <b>years of solutions to something that was never going away</b>.",
+        "c1": "The signature", "g1": "The same fix, shipped annually, by different people.",
+        "c2": "The wrong move", "g2": "A new system, on the theory the last one was wrong.",
+        "c3": "The right move", "g3": "Name it as a cost and decide whether it is worth paying.",
+        "c4": "The trap", "g4": "Calling it a cost when you simply have not tried.",
+        "c5": "The tell you fixed it", "g5": "It stops being on the agenda and nothing gets worse.",
+        "c6": "What it turns into", "g6": "Left alone, it consumes the budget for real problems."
+      }
+    },
+    {
+      "layoutId": "cta-tech-stack-grid",
+      "slots": {
+        "eyebrow": "On the thing that will not move",
+        "titleLine1": "Name the kind",
+        "titleAccent": "before the fix.",
+        "body": "Take whatever has been stuck longest and put it in one of the six. The category rules out most of what has already been tried on it.",
+        "c1": "It takes a minute", "g1": "You almost always know which one it is immediately.",
+        "c2": "It costs nothing", "g2": "And it stops the next round of the wrong solution.",
+        "closingLine": "Nearly every failed fix is the right answer to a category the problem was never in.",
+        "buttonLabel": "Take all six",
+        "signoff": "Diagnosis is most of the work"
+      }
+    }
+  ]
+}

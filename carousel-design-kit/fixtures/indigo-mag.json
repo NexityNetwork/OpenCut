@@ -1,0 +1,151 @@
+{
+  "_note": "Frozen content for design review. Spinoff of the coral-mag system — mesh ground, grain, and one drawn frosted-glass object per family.",
+  "family": "indigo-mag",
+  "brief": "What actually makes a model useful in production",
+  "slides": [
+    {
+      "layoutId": "cover-indigo-mag",
+      "slots": {
+        "eyebrow": "Six months of getting this wrong first",
+        "titleLine1": "The model was",
+        "titleAccent": "never the hard part.",
+        "subtitle": "Six things that decide whether an AI feature works, and only one of them is the model.",
+        "stat1V": "6",
+        "stat1L": "things that matter",
+        "stat2V": "1",
+        "stat2L": "of them is the model",
+        "stat3V": "5",
+        "stat3L": "nobody budgets for",
+        "iconSlug1": "openai",
+        "iconSlug2": "anthropic",
+        "iconSlug3": "python",
+        "iconSlug4": "postgresql",
+        "iconSlug5": "github",
+        "iconColor1": "#F0EEFB",
+        "iconColor2": "#F0EEFB",
+        "iconColor3": "#F0EEFB",
+        "iconColor4": "#F0EEFB",
+        "iconColor5": "#F0EEFB"
+      }
+    },
+    {
+      "layoutId": "body-indigo-mag",
+      "slots": {
+        "iconSlug1": "python",
+        "toolName": "The data",
+        "toolRole": "What goes in",
+        "title": "Fixing the documents beat",
+        "titleAccent": "every model upgrade",
+        "body": "The same pipeline and the same model, with the source material cleaned and dated, moved accuracy fifty points. A bigger model moved it two.",
+        "stat1V": "+50",
+        "stat1L": "points from the data",
+        "stat2V": "+2",
+        "stat2L": "from the model",
+        "stat3V": "1 week",
+        "stat3L": "of cleaning",
+        "iconColor1": "#F0EEFB"
+      }
+    },
+    {
+      "layoutId": "body-indigo-mag",
+      "slots": {
+        "iconSlug1": "postgresql",
+        "toolName": "Retrieval",
+        "toolRole": "What gets found",
+        "title": "If it was not retrieved",
+        "titleAccent": "no model recovers it",
+        "body": "Generation is the last step and the least important one. Everything that decides whether an answer is right happens before the model is called.",
+        "stat1V": "88%",
+        "stat1L": "recall, reranked",
+        "stat2V": "62%",
+        "stat2L": "without",
+        "stat3V": "12 ms",
+        "stat3L": "added",
+        "iconColor1": "#F0EEFB"
+      }
+    },
+    {
+      "layoutId": "body-indigo-mag",
+      "slots": {
+        "iconSlug1": "openai",
+        "toolName": "Evaluation",
+        "toolRole": "How you know",
+        "title": "Thirty real questions beat",
+        "titleAccent": "any benchmark score",
+        "body": "Public benchmarks measure a different job than yours. A small set of questions from your own users is the only score that predicts anything.",
+        "stat1V": "30",
+        "stat1L": "questions, minimum",
+        "stat2V": "1 afternoon",
+        "stat2L": "to build",
+        "stat3V": "0",
+        "stat3L": "benchmarks used",
+        "iconColor1": "#F0EEFB"
+      }
+    },
+    {
+      "layoutId": "body-indigo-mag",
+      "slots": {
+        "iconSlug1": "anthropic",
+        "toolName": "The prompt",
+        "toolRole": "What you ask for",
+        "title": "Most prompt work is",
+        "titleAccent": "specification, not magic",
+        "body": "The gains that hold up come from stating the task precisely and giving examples. The tricks that trend stop working within a release.",
+        "stat1V": "3",
+        "stat1L": "examples is usually enough",
+        "stat2V": "1",
+        "stat2L": "clear task statement",
+        "stat3V": "0",
+        "stat3L": "incantations",
+        "iconColor1": "#F0EEFB"
+      }
+    },
+    {
+      "layoutId": "body-indigo-mag",
+      "slots": {
+        "iconSlug1": "github",
+        "toolName": "Observability",
+        "toolRole": "What you log",
+        "title": "Log the retrieved passages,",
+        "titleAccent": "not just the answer",
+        "body": "Without the inputs recorded, every complaint about a wrong answer is unfalsifiable and every fix is a guess dressed as a decision.",
+        "stat1V": "100%",
+        "stat1L": "of calls logged",
+        "stat2V": "1 line",
+        "stat2L": "of code",
+        "stat3V": "∞",
+        "stat3L": "arguments prevented",
+        "iconColor1": "#F0EEFB"
+      }
+    },
+    {
+      "layoutId": "body-indigo-mag",
+      "slots": {
+        "iconSlug1": "python",
+        "toolName": "The catch",
+        "toolRole": "What none of it fixes",
+        "title": "A useful feature still needs",
+        "titleAccent": "somebody to want it",
+        "body": "All six make a working system. None of them makes it a product, and the failure mode is a technically excellent thing nobody opens twice.",
+        "stat1V": "6",
+        "stat1L": "solved problems",
+        "stat2V": "1",
+        "stat2L": "unsolved",
+        "stat3V": "0",
+        "stat3L": "users, if wrong",
+        "iconColor1": "#F0EEFB"
+      }
+    },
+    {
+      "layoutId": "cta-indigo-mag",
+      "slots": {
+        "eyebrow": "Before you buy anything",
+        "titleLine1": "Measure retrieval",
+        "titleAccent": "before anything else.",
+        "body": "Take thirty real questions, check whether the right passage comes back at all, and only then argue about which model to use.",
+        "btnPrimary": "Take the whole method",
+        "signoff": "Thirty questions is an afternoon"
+      }
+    }
+  ]
+}

@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html><head><meta charset="utf-8">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+html,body{width:1080px;height:1350px;overflow:hidden;background:#E3D6C2;
+  font-family:"Inter",sans-serif;-webkit-font-smoothing:antialiased;text-rendering:geometricPrecision}
+:root{--ink:#12171B;--sand:#E3D6C2;--hair-on-ink:rgba(227,214,194,.24);--hair-on-sand:rgba(18,23,27,.22)}
+
+/* The closer inverts the split — sand on the left at 640, ink on the right at
+   440 — and the gauge that ran part-full through every body page is finally
+   solid: the whole lower half of the ink field is a sand block, and the last
+   words sit inside it. Commitment drawn as a filled measure. */
+.page{position:absolute;inset:0;display:flex;z-index:4}
+.sand{flex:1;background:var(--sand);color:var(--ink);
+  padding:66px 54px 60px;display:flex;flex-direction:column}
+.ink{flex:0 0 440px;background:var(--ink);color:var(--sand);
+  padding:66px 46px 0;display:flex;flex-direction:column}
+
+.kicker{font-family:"IBM Plex Mono",monospace;font-size:24px;font-weight:400;letter-spacing:.02em;opacity:.62}
+.ink .kicker{opacity:.72}
+
+h2{font-family:"Space Grotesk",sans-serif;font-size:83px;font-weight:700;
+  line-height:1.16;letter-spacing:-3.4px;margin-top:30px;margin-bottom:40px}
+h2 span{display:block}
+h2 .soft{opacity:.52}
+
+.commit{margin:0 -46px 0;padding:34px 46px 48px;background:var(--sand);color:var(--ink);
+  border-left:4px solid var(--ink);
+  flex:1;display:flex;flex-direction:column;justify-content:space-between;gap:26px}
+.commit .lab{font-family:"IBM Plex Mono",monospace;font-size:24px;opacity:.6}
+.commit .txt{font-size:30px;line-height:1.42;font-weight:500;letter-spacing:-.3px}
+.commit .txt b{font-weight:700}
+.commit .end{padding-top:24px;border-top:3px solid var(--ink);
+  font-family:"Space Grotesk",sans-serif;font-size:34px;line-height:1.24;
+  font-weight:700;letter-spacing:-1.1px}
+
+.lede{font-size:31px;line-height:1.45;margin-top:24px;padding-bottom:30px}
+.lede b{font-weight:600}
+.rules{flex:1;display:flex;flex-direction:column}
+.rule{flex:1;display:flex;align-items:center;gap:24px;padding:20px 0;
+  border-top:1px solid var(--hair-on-sand)}
+.rule .dash{flex:0 0 40px;height:3px;background:var(--ink);opacity:.55}
+.rule .t{font-size:28px;line-height:1.38;font-weight:500}
+.last{margin-top:26px;padding-top:26px;border-top:3px solid var(--ink);
+  font-family:"Space Grotesk",sans-serif;font-size:40px;line-height:1.24;
+  font-weight:700;letter-spacing:-1.4px}
+.grain{position:absolute;inset:0;z-index:6;opacity:.13;mix-blend-mode:overlay;pointer-events:none}
+</style></head>
+<body>
+<div class="page">
+  <div class="sand">
+    <div class="kicker">{{kicker}}</div>
+    <div class="lede">{{lede}}</div>
+    <div class="rules">
+      <div class="rule"><div class="dash"></div><div class="t">{{rule1}}</div></div>
+      <div class="rule"><div class="dash"></div><div class="t">{{rule2}}</div></div>
+      <div class="rule"><div class="dash"></div><div class="t">{{rule3}}</div></div>
+    </div>
+    <div class="last">{{last}}</div>
+  </div>
+  <div class="ink">
+    <div class="kicker">{{sideKicker}}</div>
+    <h2><span>{{d1}}</span><span>{{d2}}</span><span class="soft">{{d3}}</span></h2>
+    <div class="commit">
+      <div class="lab">{{commitLabel}}</div>
+      <div class="txt">{{commitText}}</div>
+      <div class="end">{{commitEnd}}</div>
+    </div>
+  </div>
+</div>
+<svg class="grain" width="1080" height="1350" viewBox="0 0 1080 1350" preserveAspectRatio="none">
+<filter id="gr"><feTurbulence type="fractalNoise" baseFrequency="0.86" numOctaves="3" seed="59"/>
+<feColorMatrix type="saturate" values="0"/></filter>
+<rect width="1080" height="1350" filter="url(#gr)" opacity="0.45"/></svg>
+</body></html>

@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html><head><meta charset="utf-8">
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,700;0,900;1,400;1,700&family=Lato:wght@300;400;700&display=swap" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+html,body{width:1080px;height:1350px;overflow:hidden;background:#FBF7F0;
+  font-family:"Lato",sans-serif;color:#17120E;-webkit-font-smoothing:antialiased}
+.grain{position:absolute;inset:0;z-index:6;opacity:.13;mix-blend-mode:multiply;pointer-events:none}
+
+.frame{position:absolute;inset:0;padding:58px 72px 54px;display:flex;flex-direction:column}
+
+/* thick rule across the head — one continuous bar whose red length is exactly
+   the sidebar measure, so the rule diagrams the column split beneath it */
+.headrule{display:flex;height:16px;flex-shrink:0}
+.headrule .hr-main{flex:1;background:#17120E}
+.headrule .hr-side{width:300px;background:#C8102E}
+
+.kicker{margin-top:24px;font-size:25px;font-weight:700;color:#C8102E;line-height:1.2;flex-shrink:0}
+
+.headline{margin-top:12px;font-family:"Playfair Display",serif;font-weight:900;
+  font-size:104px;line-height:1.08;letter-spacing:-2.6px;flex-shrink:0}
+.headline .accent{font-style:italic;font-weight:700;color:#C8102E}
+
+.hair{height:2px;background:#17120E;opacity:.24;margin-top:28px;flex-shrink:0}
+
+.spread{flex:1;display:grid;grid-template-columns:600px 1fr;margin-top:30px;min-height:0}
+.col-main{padding-right:44px;display:flex;flex-direction:column;justify-content:space-between;min-height:0}
+.col-side{border-left:2px solid rgba(23,18,14,.24);padding-left:34px;
+  display:flex;flex-direction:column;justify-content:space-between;min-height:0}
+
+.standfirst{font-family:"Playfair Display",serif;font-style:italic;font-weight:400;
+  font-size:37px;line-height:1.34;color:#231C16}
+
+.brk{width:66px;height:5px;background:#C8102E;flex-shrink:0}
+.lead{font-size:30px;line-height:1.5;color:#2C251E}
+.lead b{font-weight:700;color:#17120E}
+.dropcap{float:left;font-family:"Playfair Display",serif;font-weight:900;color:#C8102E;
+  font-size:150px;line-height:.72;margin:10px 16px 0 0}
+
+.note .tick{width:44px;height:5px;background:#C8102E;margin-bottom:13px}
+.note .lbl{font-size:25px;font-weight:700;line-height:1.24;color:#17120E}
+.note .txt{margin-top:9px;font-size:24px;line-height:1.5;color:#5B5147}
+.note .txt b{font-weight:700;color:#17120E}
+
+.footrule{display:flex;height:6px;margin-top:30px;flex-shrink:0}
+.footrule .fr-main{flex:1;background:#17120E}
+.footrule .fr-side{width:300px;background:#C8102E}
+</style></head>
+<body>
+<div class="frame">
+  <div class="headrule"><div class="hr-main"></div><div class="hr-side"></div></div>
+
+  <div class="kicker">{{kicker}}</div>
+  <h1 class="headline">{{headLine1}}<br>{{headLine2}}<br><em class="accent">{{headAccent}}</em></h1>
+  <div class="hair"></div>
+
+  <div class="spread">
+    <div class="col-main">
+      <div class="standfirst">{{standfirst}}</div>
+      <div class="brk"></div>
+      <p class="lead"><span class="dropcap">{{dropCap}}</span>{{lead}}</p>
+    </div>
+    <div class="col-side">
+      <div class="note">
+        <div class="tick"></div>
+        <div class="lbl">{{note1Label}}</div>
+        <div class="txt">{{note1Body}}</div>
+      </div>
+      <div class="note">
+        <div class="tick"></div>
+        <div class="lbl">{{note2Label}}</div>
+        <div class="txt">{{note2Body}}</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="footrule"><div class="fr-main"></div><div class="fr-side"></div></div>
+</div>
+<svg class="grain" width="1080" height="1350" viewBox="0 0 1080 1350" preserveAspectRatio="none">
+<filter id="gr"><feTurbulence type="fractalNoise" baseFrequency="0.86" numOctaves="3" seed="41"/>
+<feColorMatrix type="saturate" values="0"/></filter>
+<rect width="1080" height="1350" filter="url(#gr)" opacity="0.45"/></svg>
+</body></html>

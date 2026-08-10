@@ -1,0 +1,89 @@
+{
+  "_note": "Frozen content for design review. Narrative runs hook, context, then one tool per page, then the close.",
+  "family": "bold-split",
+  "brief": "The six-tool stack behind a one-person agency",
+  "slides": [
+    {
+      "layoutId": "cover-bold-split",
+      "slots": {
+        "title": "One person. Eleven clients. No team.",
+        "sub": "Six tools carry the work a small agency would hire four people to do. Here is each one and the job it actually replaced."
+      }
+    },
+    {
+      "layoutId": "body-bold-split",
+      "slots": {
+        "stepTag": "The problem",
+        "title": "Running solo fails at the seams",
+        "body": "The work is never what breaks you. What breaks you is the handoff between the work — the brief nobody wrote down, the invoice nobody sent, the follow-up nobody remembered.",
+        "stat1V": "11", "stat1L": "Clients",
+        "stat2V": "0", "stat2L": "Employees",
+        "stat3V": "6", "stat3L": "Tools"
+      }
+    },
+    {
+      "layoutId": "body-bold-split",
+      "slots": {
+        "stepTag": "Foundation",
+        "title": "One home for every client",
+        "body": "Briefs, notes, SOPs and deliverables live in a single workspace. Nothing gets lost between a call and the work that follows it.",
+        "stat1V": "1", "stat1L": "Workspace",
+        "stat2V": "0", "stat2L": "Lost briefs",
+        "stat3V": "4 hrs", "stat3L": "Saved weekly"
+      }
+    },
+    {
+      "layoutId": "body-bold-split",
+      "slots": {
+        "stepTag": "Delivery",
+        "title": "Tasks move without drama",
+        "body": "Every request becomes a tracked item with an owner and a status. You always know what is next and what is blocked, without asking anyone.",
+        "stat1V": "10×", "stat1L": "Clearer",
+        "stat2V": "5 min", "stat2L": "To set up",
+        "stat3V": "0", "stat3L": "Missed asks"
+      }
+    },
+    {
+      "layoutId": "body-bold-split",
+      "slots": {
+        "stepTag": "Craft",
+        "title": "Faster than the idea gets cold",
+        "body": "Mockups and decks come out of components built once. Scope conversations happen over something real instead of a paragraph.",
+        "stat1V": "2×", "stat1L": "Faster",
+        "stat2V": "1", "stat2L": "Component set",
+        "stat3V": "3", "stat3L": "Fewer rounds"
+      }
+    },
+    {
+      "layoutId": "body-bold-split",
+      "slots": {
+        "stepTag": "Money",
+        "title": "Invoices that send themselves",
+        "body": "Contracts, deposits and reminders run on a schedule. The most awkward conversation in freelancing stops being a conversation.",
+        "stat1V": "0", "stat1L": "Chasing",
+        "stat2V": "12 days", "stat2L": "Faster paid",
+        "stat3V": "100%", "stat3L": "Collected"
+      }
+    },
+    {
+      "layoutId": "body-bold-split",
+      "slots": {
+        "stepTag": "Pipeline",
+        "title": "Next month is never a surprise",
+        "body": "Leads, proposals and renewals sit in one view. The quiet month you did not see coming is the one that ends a solo practice.",
+        "stat1V": "90", "stat1L": "Days visible",
+        "stat2V": "3", "stat2L": "In pipeline",
+        "stat3V": "0", "stat3L": "Dry months"
+      }
+    },
+    {
+      "layoutId": "cta-bold-split",
+      "slots": {
+        "eyebrow": "The honest part",
+        "headline": "Tools do not make you an agency",
+        "body": "They remove the reasons one person cannot hold eleven clients. The work is still the work — this just stops the seams from failing.",
+        "buttonLabel": "Take the stack"
+      }
+    }
+  ]
+}

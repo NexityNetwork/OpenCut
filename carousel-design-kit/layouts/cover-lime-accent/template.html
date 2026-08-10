@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html><head><meta charset="utf-8">
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+html,body{width:1080px;height:1350px;overflow:hidden;background:#0B0D08;font-family:"Inter",sans-serif;color:#E9EDE1;-webkit-font-smoothing:antialiased}
+body{position:relative}
+
+/* ---- the system: one solid lime wedge, anchored bottom-right, bleeding off
+       the right and bottom edges. Content lives in the L that remains. ---- */
+.wedge{position:absolute;inset:0;z-index:1;pointer-events:none}
+.grain{position:absolute;inset:0;z-index:6;opacity:.16;mix-blend-mode:overlay;pointer-events:none}
+
+.eyebrow{position:absolute;top:88px;left:80px;z-index:4;
+  font-family:"IBM Plex Mono",monospace;font-size:25px;font-weight:400;color:#C3F53C;letter-spacing:.01em}
+.rule-top{position:absolute;top:132px;left:80px;width:920px;height:1px;background:rgba(195,245,60,.30);z-index:4;pointer-events:none}
+
+.headline{position:absolute;top:176px;left:80px;width:930px;z-index:4;
+  font-family:"Space Grotesk",sans-serif;font-weight:600;font-size:94px;line-height:1.15;letter-spacing:-2.6px;color:#F2F5EA}
+.headline .hi{color:#C3F53C}
+
+.rule-right{position:absolute;top:132px;left:1000px;width:1px;height:495px;background:rgba(195,245,60,.22);z-index:4;pointer-events:none}
+
+.deck{position:absolute;top:574px;left:80px;width:610px;z-index:4;
+  font-size:30px;line-height:1.52;font-weight:400;color:#C6CEB6}
+.deck b{color:#E9EDE1;font-weight:600}
+
+.figlabel{position:absolute;top:886px;left:80px;width:520px;z-index:4;
+  font-family:"IBM Plex Mono",monospace;font-size:23px;line-height:1.45;color:#8E9880}
+
+.cal{position:absolute;top:990px;left:80px;z-index:4;display:grid;
+  grid-template-columns:repeat(7,39px);grid-auto-rows:39px;gap:6px}
+.cell{border:1px solid rgba(195,245,60,.30);border-radius:2px}
+.cell.on{background:#C3F53C;border-color:#C3F53C}
+.cell.dim{background:rgba(195,245,60,.42);border-color:rgba(195,245,60,.42)}
+.cell.faint{background:rgba(195,245,60,.16);border-color:rgba(195,245,60,.20)}
+</style></head>
+<body>
+
+<svg class="wedge" width="1080" height="1350" viewBox="0 0 1080 1350">
+  <polygon points="1080,556 1080,1350 190,1350" fill="#C3F53C"/>
+  <g stroke="#0B0D08" stroke-width="2" opacity="0.13">
+    <line x1="1080" y1="556" x2="662" y2="1350"/>
+    <line x1="1080" y1="670" x2="722" y2="1350"/>
+    <line x1="1080" y1="784" x2="782" y2="1350"/>
+    <line x1="1080" y1="898" x2="842" y2="1350"/>
+    <line x1="1080" y1="1012" x2="902" y2="1350"/>
+    <line x1="1080" y1="1126" x2="962" y2="1350"/>
+    <line x1="1080" y1="1240" x2="1022" y2="1350"/>
+  </g>
+</svg>
+
+<svg class="grain" width="1080" height="1350" viewBox="0 0 1080 1350" preserveAspectRatio="none">
+<filter id="gr"><feTurbulence type="fractalNoise" baseFrequency="0.86" numOctaves="3" seed="41"/>
+<feColorMatrix type="saturate" values="0"/></filter>
+<rect width="1080" height="1350" filter="url(#gr)" opacity="0.45"/></svg>
+
+<div class="eyebrow">{{eyebrow}}</div>
+<div class="rule-top"></div>
+<div class="rule-right"></div>
+
+<div class="headline">{{headline1}}<br>{{headline2}}<br><span class="hi">{{headline3}}</span></div>
+
+<div class="deck">{{deck}}</div>
+
+<div class="figlabel">{{figLabel}}</div>
+<div class="cal">
+  <div class="cell"></div><div class="cell"></div><div class="cell"></div><div class="cell"></div><div class="cell"></div><div class="cell"></div><div class="cell"></div>
+  <div class="cell on"></div><div class="cell on"></div><div class="cell on"></div><div class="cell on"></div><div class="cell on"></div><div class="cell on"></div><div class="cell on"></div>
+  <div class="cell dim"></div><div class="cell dim"></div><div class="cell dim"></div><div class="cell dim"></div><div class="cell dim"></div><div class="cell"></div><div class="cell"></div>
+  <div class="cell faint"></div><div class="cell faint"></div><div class="cell faint"></div><div class="cell"></div><div class="cell"></div><div class="cell"></div><div class="cell"></div>
+</div>
+
+</body></html>

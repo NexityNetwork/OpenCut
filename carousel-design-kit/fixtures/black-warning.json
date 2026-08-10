@@ -1,0 +1,81 @@
+{
+  "_note": "Frozen content for design review. Editorial-lesson family — one principle per page with a callout.",
+  "family": "black-warning",
+  "brief": "Design principles I wish someone had told me earlier",
+  "slides": [
+    {
+      "layoutId": "cover-black-warning",
+      "slots": {
+        "eyebrow": "Design principle",
+        "titleLine1": "Every layout is a",
+        "titleAccent": "hierarchy",
+        "body": "Six principles that fixed more of my work than any tool or plugin ever did.",
+        "ctaLabel": "Start here"
+      }
+    },
+    {
+      "layoutId": "body-black-warning",
+      "slots": {
+        "title": "If everything is emphasised, nothing is",
+        "body": "Bold, colour, size and motion all compete for the same attention budget. Spend it once per screen and the screen finally works.",
+        "calloutLabel": "Do this",
+        "calloutBody": "Pick the one element the reader must see, then weaken everything around it."
+      }
+    },
+    {
+      "layoutId": "body-black-warning",
+      "slots": {
+        "title": "Whitespace is not wasted space",
+        "body": "Crowding is what makes an interface feel cheap. Room around an element is what tells the eye the element matters.",
+        "calloutLabel": "Do this",
+        "calloutBody": "Double the space around your most important block before you touch anything else."
+      }
+    },
+    {
+      "layoutId": "body-black-warning",
+      "slots": {
+        "title": "Contrast carries more than colour",
+        "body": "Scale, weight and density separate things far more reliably than hue, and they survive being screenshotted, printed or read in sunlight.",
+        "calloutLabel": "Do this",
+        "calloutBody": "Turn the design greyscale. If the hierarchy vanishes, colour was doing the work."
+      }
+    },
+    {
+      "layoutId": "body-black-warning",
+      "slots": {
+        "title": "Alignment is invisible until it is wrong",
+        "body": "Nobody praises a clean grid, but everyone feels a broken one. Most designs that look amateur are just misaligned by a few pixels.",
+        "calloutLabel": "Do this",
+        "calloutBody": "Draw one line down the left edge of the layout and make everything meet it."
+      }
+    },
+    {
+      "layoutId": "body-black-warning",
+      "slots": {
+        "title": "Repetition beats novelty",
+        "body": "A system that repeats reads as intentional. A screen where every element is invented fresh reads as noise, however good each piece is.",
+        "calloutLabel": "Do this",
+        "calloutBody": "Reuse a spacing value and a corner radius everywhere before inventing a new one."
+      }
+    },
+    {
+      "layoutId": "body-black-warning",
+      "slots": {
+        "title": "Type does most of the work",
+        "body": "Before the illustration, the gradient or the animation, the typography decides whether the thing feels considered or thrown together.",
+        "calloutLabel": "Do this",
+        "calloutBody": "Fix the type scale first and half your layout problems disappear on their own."
+      }
+    },
+    {
+      "layoutId": "cta-black-warning",
+      "slots": {
+        "eyebrow": "Your move",
+        "headlineLine1": "Fix one of these",
+        "headlineAccent": "this week",
+        "body": "Not all six. Pick the one your current project breaks most often and hold the line on it until it is habit.",
+        "buttonLabel": "Save this for the next build"
+      }
+    }
+  ]
+}

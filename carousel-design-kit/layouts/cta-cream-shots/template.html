@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html><head><meta charset="utf-8">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+html,body{width:1080px;height:1350px;overflow:hidden;color:#16130E;
+  font-family:"Inter",sans-serif;-webkit-font-smoothing:antialiased;text-rendering:geometricPrecision}
+:root{--ink:#16130E;--muted:rgba(22,19,14,.66);--rule:rgba(22,19,14,.14);--accent:#C2542A}
+.mesh{position:absolute;inset:0;z-index:0;background:
+  radial-gradient(110% 85% at 84% 6%,  #FBF3E6 0%, transparent 48%),
+  radial-gradient(120% 90% at 12% 18%, #F2E7D6 0%, transparent 54%),
+  radial-gradient(130% 100% at 76% 94%,#E4D3BB 0%, transparent 58%),
+  radial-gradient(110% 95% at 4% 96%,  #FFFDF9 0%, transparent 56%),
+  #F6EFE3}
+.mesh.dark{background:
+  radial-gradient(90% 70% at 80% 8%,   #E0824A 0%, transparent 44%),
+  radial-gradient(120% 90% at 20% 26%, #8A3E18 0%, transparent 50%),
+  radial-gradient(130% 100% at 68% 96%,#2A1409 0%, transparent 60%),
+  radial-gradient(110% 95% at 4% 96%,  #100804 0%, transparent 58%),
+  #0E0704}
+.grain{position:absolute;inset:0;z-index:5;opacity:.28;mix-blend-mode:multiply;pointer-events:none}
+.tile{border-radius:26%;background:#FFFCF7;display:flex;align-items:center;justify-content:center;
+  box-shadow:0 20px 34px -14px rgba(70,44,18,.34), inset 0 1px 0 rgba(255,255,255,.9);
+  border:1px solid rgba(22,19,14,.08)}
+.tile svg{width:56%;height:56%;display:block}
+/* Like the cover, the closing page carries no frame — the screenshots belong
+   to the body pages. */
+/* Title and tools sit centred as one block; the action rail stays pinned to
+   the base so the page does not read as two things drifting apart. */
+.sheet{position:absolute;inset:0;padding:122px 88px 112px;display:flex;flex-direction:column;justify-content:center;z-index:4}
+html,body{color:#FBF3EA}
+:root{--muted:rgba(251,243,234,.74);--rule:rgba(251,243,234,.22)}
+.tile{background:rgba(255,252,247,.95)}
+h1{font-size:128px;font-weight:600;line-height:.96;letter-spacing:-5.4px;max-width:900px}
+h1 b{font-weight:700;color:#F0A472}
+.sub{margin-top:38px;font-size:34px;font-weight:400;line-height:1.4;color:var(--muted);max-width:700px}
+.dock{display:flex;align-items:center;gap:24px;margin-top:84px}
+.dock .tile{width:128px;height:128px}
+.foot{position:absolute;left:88px;right:88px;bottom:112px;
+  display:flex;align-items:center;gap:28px;padding-top:34px;border-top:1px solid var(--rule)}
+.btn{padding:23px 46px;background:#FBF3EA;color:#0E0704;border-radius:14px;font-size:29px;font-weight:600;letter-spacing:-.5px}
+.ghost{font-size:25px;font-weight:500;color:var(--muted)}
+</style></head>
+<body>
+<div class="mesh dark"></div>
+<div class="sheet">
+  <div>
+    <h1>{{titleLine1}} <b>{{titleAccent}}</b></h1>
+    <p class="sub">{{body}}</p>
+  </div>
+  <div class="dock">
+    <div class="tile">{{iconSvg1}}</div><div class="tile">{{iconSvg2}}</div>
+    <div class="tile">{{iconSvg3}}</div><div class="tile">{{iconSvg4}}</div>
+    <div class="tile">{{iconSvg5}}</div>
+  </div>
+  <div class="foot"><div class="btn">{{btnPrimary}}</div><div class="ghost">{{signoff}}</div></div>
+</div>
+<svg class="grain" width="1080" height="1350" viewBox="0 0 1080 1350" preserveAspectRatio="none">
+<filter id="gr"><feTurbulence type="fractalNoise" baseFrequency="0.85" numOctaves="3" seed="71"/><feColorMatrix type="saturate" values="0"/></filter>
+<rect width="1080" height="1350" filter="url(#gr)" opacity="0.5"/></svg>
+</body></html>

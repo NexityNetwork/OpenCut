@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html><head><meta charset="utf-8">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+html,body{width:1080px;height:1350px;overflow:hidden;color:#F2F1EE;
+  font-family:"Inter",sans-serif;-webkit-font-smoothing:antialiased;text-rendering:geometricPrecision}
+:root{--muted:rgba(242,241,238,.62);--rule:rgba(242,241,238,.16);--accent:#FF4B33}
+/* No gradient. A gradient here is a wash pretending to be a design, and
+   tuning it only ever produces a better-looking wash. The ground is flat and
+   the structure is DRAWN: a column system in hairlines and a measured scale,
+   which is what a page led by figures should be built on. */
+.mesh{position:absolute;inset:0;z-index:0;background:#0D0D11}
+.cols{position:absolute;inset:0;z-index:1;pointer-events:none;
+  background-image:repeating-linear-gradient(90deg,rgba(242,241,238,.055) 0 1px,transparent 1px 168px);
+  background-position:84px 0}
+.grain{position:absolute;inset:0;z-index:6;opacity:.16;mix-blend-mode:overlay;pointer-events:none}
+/* Blocks follow the text with fixed gaps and the tool row is pushed to the
+   base; distributing everything evenly left a hole through the middle. */
+.sheet{position:absolute;inset:0;padding:120px 84px 116px;display:flex;flex-direction:column;z-index:4}
+.lede{font-size:28px;font-weight:500;color:var(--accent);letter-spacing:-.4px}
+h1{margin-top:30px;font-size:126px;font-weight:700;line-height:.95;letter-spacing:-5.4px;max-width:920px}
+h1 em{font-style:normal;color:var(--accent)}
+.sub{margin-top:36px;font-size:32px;font-weight:400;line-height:1.4;color:var(--muted);max-width:700px}
+/* Figures set as type. The old version boxed them in cards, which made three
+   numbers look like a dashboard nobody asked for. */
+.scale{height:15px;border-top:1px solid rgba(242,241,238,.26);
+  background-image:repeating-linear-gradient(90deg,rgba(242,241,238,.26) 0 1px,transparent 1px 42px);
+  background-size:100% 13px;background-repeat:no-repeat}
+.scale.lead{margin-top:82px}
+.figs{margin-top:38px;display:flex;gap:84px}
+.fig .v{font-size:96px;font-weight:700;letter-spacing:-4px;line-height:1}
+.fig .l{margin-top:14px;font-size:25px;font-weight:400;color:var(--muted);letter-spacing:-.3px;max-width:220px}
+.rule{height:1px;background:var(--rule);margin-top:auto}
+.dock{margin-top:44px;display:flex;align-items:center;gap:42px}
+.dock svg{width:56px;height:56px;display:block}
+</style></head>
+<body>
+<div class="mesh"></div>
+<div class="cols"></div>
+<div class="sheet">
+  <div class="lede">{{subline}}</div>
+  <h1>{{titleLine1}} <em>{{titleAccent}}</em></h1>
+  <p class="sub">{{tag}}</p>
+  <div class="scale lead"></div>
+  <div class="figs">
+    <div class="fig"><div class="v">{{stat1V}}</div><div class="l">{{stat1L}}</div></div>
+    <div class="fig"><div class="v">{{stat2V}}</div><div class="l">{{stat2L}}</div></div>
+    <div class="fig"><div class="v">{{stat3V}}</div><div class="l">{{stat3L}}</div></div>
+  </div>
+  <div class="rule"></div>
+  <div class="dock">
+    {{iconSvg1}}{{iconSvg2}}{{iconSvg3}}{{iconSvg4}}{{iconSvg5}}
+  </div>
+</div>
+<svg class="grain" width="1080" height="1350" viewBox="0 0 1080 1350" preserveAspectRatio="none">
+<filter id="gr"><feTurbulence type="fractalNoise" baseFrequency="0.82" numOctaves="3" seed="43"/><feColorMatrix type="saturate" values="0"/></filter>
+<rect width="1080" height="1350" filter="url(#gr)" opacity="0.5"/></svg>
+</body></html>

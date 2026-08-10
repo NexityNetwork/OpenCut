@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html><head><meta charset="utf-8">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+html,body{width:1080px;height:1350px;overflow:hidden;color:#101418;
+  font-family:"Inter",sans-serif;-webkit-font-smoothing:antialiased;text-rendering:geometricPrecision}
+:root{--muted:rgba(16,20,24,.56);--rule:rgba(16,20,24,.14);--accent:#0F766E;--weak:#9AA3AB}
+/* Flat, no gradient. The drawn system is the comparison itself: a single rule
+   down the centre of the page, which is the axis both sides are read against.
+   Two panels carrying identical structure fill symmetrically, so this split
+   cannot open the gap a split of unrelated columns always does. */
+.ground{position:absolute;inset:0;z-index:0;background:#F4F5F6}
+.grain{position:absolute;inset:0;z-index:6;opacity:.18;mix-blend-mode:multiply;pointer-events:none}
+.page{position:absolute;inset:0;display:flex;flex-direction:column;z-index:4;padding:110px 76px 102px}
+/* A grid, not two independent columns. Side by side, each column sized its own
+   rows and the rules stopped lining up across the gutter the moment one claim
+   ran a line longer — which is exactly the thing a comparison must not do. */
+.two{position:relative;flex:1 1 auto;display:grid;grid-template-columns:1fr 1fr;column-gap:44px;min-height:0}
+.two::after{content:"";position:absolute;top:0;bottom:0;left:50%;width:1px;background:var(--rule)}
+.cap{display:flex;align-items:center;gap:14px;font-size:26px;font-weight:600;letter-spacing:-.5px;align-self:end}
+.cap .dot{width:15px;height:15px;border-radius:50%;background:var(--weak);flex:0 0 auto}
+.cap.good{color:var(--accent)}
+.cap.good .dot{background:var(--accent)}
+.claim{padding:22px 0 30px;font-size:38px;font-weight:600;line-height:1.18;letter-spacing:-1.3px}
+.at{padding:22px 0;border-top:1px solid var(--rule);font-size:26px;font-weight:400;
+  line-height:1.32;color:var(--muted);display:flex;align-items:center}
+.at.good{color:rgba(16,20,24,.78)}
+.two{grid-template-rows:auto auto 1fr 1fr 1fr}
+.head{display:flex;align-items:center;justify-content:space-between;gap:30px}
+.head .lbl{font-size:27px;font-weight:500;color:var(--accent);letter-spacing:-.4px}
+.head .tool{display:flex;align-items:center;gap:14px;font-size:26px;font-weight:500}
+.head .tool svg{width:38px;height:38px;display:block}
+h2{margin-top:28px;font-size:72px;font-weight:700;line-height:1.03;letter-spacing:-2.9px}
+.two{margin-top:52px;margin-bottom:44px}
+.close{padding-top:32px;border-top:1px solid var(--rule);font-size:34px;font-weight:600;
+  line-height:1.28;letter-spacing:-1.1px;max-width:900px}
+.close b{color:var(--accent)}
+</style></head>
+<body>
+<div class="ground"></div>
+<div class="page">
+  <div class="head">
+    <div class="lbl">{{stepTag}}</div>
+    <div class="tool">{{iconSvg1}}<span>{{toolName1}}</span></div>
+  </div>
+  <h2>{{titleLine1}}</h2>
+  <div class="two">
+    <div class="cap"><span class="dot"></span>{{badLabel}}</div>
+    <div class="cap good"><span class="dot"></span>{{goodLabel}}</div>
+    <div class="claim">{{badClaim}}</div>
+    <div class="claim">{{goodClaim}}</div>
+    <div class="at">{{bad1}}</div><div class="at good">{{good1}}</div>
+    <div class="at">{{bad2}}</div><div class="at good">{{good2}}</div>
+    <div class="at">{{bad3}}</div><div class="at good">{{good3}}</div>
+  </div>
+  <div class="close">{{body}}</div>
+</div>
+<svg class="grain" width="1080" height="1350" viewBox="0 0 1080 1350" preserveAspectRatio="none">
+<filter id="gr"><feTurbulence type="fractalNoise" baseFrequency="0.86" numOctaves="3" seed="53"/><feColorMatrix type="saturate" values="0"/></filter>
+<rect width="1080" height="1350" filter="url(#gr)" opacity="0.42"/></svg>
+</body></html>

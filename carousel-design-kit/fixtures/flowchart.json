@@ -1,0 +1,148 @@
+{
+  "_note": "Frozen content for design review. Branching family — one question per page, two answers, and the consequence of each. Connectors drawn as orthogonal rules, no arrows.",
+  "family": "flowchart",
+  "brief": "Six decisions that quietly determine whether a project ships",
+  "slides": [
+    {
+      "layoutId": "cover-flowchart",
+      "slots": {
+        "eyebrow": "Six forks, and the one nobody notices taking",
+        "headlineLine1": "Projects rarely fail.",
+        "headlineLine2": "They get decided badly.",
+        "subtitle": "Each of these is a two-minute choice made early, and each one determines about a month of what follows.",
+        "rootQuestion": "Does anyone outside the team want this?",
+        "branchL": "Not sure", "branchR": "Yes, provably",
+        "cardTitle1": "Build it and find out",
+        "cardSub1": "The most expensive way to answer a question that costs an afternoon.",
+        "cardTitle2": "Name who, specifically",
+        "cardSub2": "One named person who asked beats a segment that might.",
+        "iconSlug1": "linear", "iconSlug2": "figma", "iconSlug3": "notion", "iconSlug4": "github"
+      }
+    },
+    {
+      "layoutId": "body-flowchart",
+      "slots": {
+        "stepTag": "At the start", "toolName1": "Notion", "iconSlug1": "notion",
+        "title": "Who asked for this?",
+        "subtitle": "The answer determines whether you are building a product or an opinion.",
+        "rootQuestion": "Can you name the person who asked?",
+        "branchL": "No", "branchR": "Yes",
+        "cardTitle1": "It came from inside",
+        "cardSub1": "Internal ideas are not worse, they are just unvalidated and feel identical to validated ones.",
+        "cardResult1": "Find one user first",
+        "cardTitle2": "You have a starting point",
+        "cardSub2": "One real request is a thread you can pull. Ten guesses are not.",
+        "cardResult2": "Go and watch them work",
+        "takeawayLabel": "The takeaway",
+        "takeawayBody": "A named person beats a market size on every slide it appears on."
+      }
+    },
+    {
+      "layoutId": "body-flowchart",
+      "slots": {
+        "stepTag": "Setting scope", "toolName1": "Linear", "iconSlug1": "linear",
+        "title": "Can this ship in a week?",
+        "subtitle": "Not whether it should, whether it could. The answer is a measurement of how much you are guessing.",
+        "rootQuestion": "Could a usable version ship this week?",
+        "branchL": "No", "branchR": "Yes",
+        "cardTitle1": "The scope hides assumptions",
+        "cardSub1": "Long projects are not more ambitious. They defer the moment you learn you were wrong.",
+        "cardResult1": "Cut it until it fits",
+        "cardTitle2": "You will learn in seven days",
+        "cardSub2": "Whatever comes back changes the next version, which is the entire point.",
+        "cardResult2": "Ship it and watch",
+        "takeawayLabel": "The takeaway",
+        "takeawayBody": "Scope is a bet on how long you can afford to be wrong for."
+      }
+    },
+    {
+      "layoutId": "body-flowchart",
+      "slots": {
+        "stepTag": "When it stalls", "toolName1": "GitHub", "iconSlug1": "github",
+        "title": "Is it blocked, or is it waiting?",
+        "subtitle": "These look identical on a board and need opposite responses.",
+        "rootQuestion": "Is somebody actively working on it?",
+        "branchL": "No, it is waiting", "branchR": "Yes, it is hard",
+        "cardTitle1": "Waiting on a person",
+        "cardSub1": "Most delay is queueing, not difficulty, and queueing is fixable by one message.",
+        "cardResult1": "Go and ask, today",
+        "cardTitle2": "Genuinely difficult",
+        "cardSub2": "Rare, and worth protecting. Adding people here makes it slower, not faster.",
+        "cardResult2": "Leave them alone",
+        "takeawayLabel": "The takeaway",
+        "takeawayBody": "Nine times in ten a stalled task is waiting on a person, not a problem."
+      }
+    },
+    {
+      "layoutId": "body-flowchart",
+      "slots": {
+        "stepTag": "Before you add", "toolName1": "Figma", "iconSlug1": "figma",
+        "title": "Is this a feature or a symptom?",
+        "subtitle": "Requests describe solutions. The useful work is getting back to what went wrong.",
+        "rootQuestion": "Did they describe a problem or a control?",
+        "branchL": "A control", "branchR": "A problem",
+        "cardTitle1": "They designed it for you",
+        "cardSub1": "A specific request usually means a specific frustration you have not heard yet.",
+        "cardResult1": "Ask what happened",
+        "cardTitle2": "You can pick the fix",
+        "cardSub2": "Knowing the problem leaves the solution open, which is where the leverage is.",
+        "cardResult2": "Solve it your way",
+        "takeawayLabel": "The takeaway",
+        "takeawayBody": "Every toggle in a settings page is a conversation somebody skipped."
+      }
+    },
+    {
+      "layoutId": "body-flowchart",
+      "slots": {
+        "stepTag": "Before you rewrite", "toolName1": "GitHub", "iconSlug1": "github",
+        "title": "Is it bad, or is it just old?",
+        "subtitle": "Code you did not write and do not understand feels identical to code that is genuinely wrong.",
+        "rootQuestion": "Has it caused a real incident?",
+        "branchL": "Not yet", "branchR": "Repeatedly",
+        "cardTitle1": "It offends, it does not fail",
+        "cardSub1": "Rewrites trade a known set of bugs for an unknown one, on a schedule nobody believes.",
+        "cardResult1": "Leave it and move on",
+        "cardTitle2": "It has earned the rewrite",
+        "cardSub2": "Replace the part that broke, not the system it lives in.",
+        "cardResult2": "Replace one piece",
+        "takeawayLabel": "The takeaway",
+        "takeawayBody": "Ugly and working outlives elegant and half-finished, every time."
+      }
+    },
+    {
+      "layoutId": "body-flowchart",
+      "slots": {
+        "stepTag": "The uncomfortable one", "toolName1": "Linear", "iconSlug1": "linear",
+        "title": "Would you make this call again?",
+        "subtitle": "The only way any of these improve is by checking them afterwards, which almost nobody does.",
+        "rootQuestion": "Did you write down what you expected?",
+        "branchL": "No", "branchR": "Yes",
+        "cardTitle1": "You will remember being right",
+        "cardSub1": "Memory edits the prediction to match the outcome, reliably and invisibly.",
+        "cardResult1": "Nothing to learn from",
+        "cardTitle2": "You can actually check",
+        "cardSub2": "One line written in advance is the difference between experience and anecdote.",
+        "cardResult2": "Compare it and adjust",
+        "takeawayLabel": "The takeaway",
+        "takeawayBody": "A decision you cannot review is a decision you will keep repeating."
+      }
+    },
+    {
+      "layoutId": "cta-flowchart",
+      "slots": {
+        "eyebrow": "One fork, on the current project",
+        "headlineLine1": "Write the prediction",
+        "headlineLine2": "before the decision.",
+        "subtitle": "One sentence on what you expect to happen, dated. It costs nothing and it is the only thing that turns six of these into experience.",
+        "rootQuestion": "Did you write down what you expected?",
+        "branchL": "No", "branchR": "Yes",
+        "cardTitle1": "You have opinions",
+        "cardSub1": "Confident, unfalsifiable, and identical to everyone else's.",
+        "cardTitle2": "You have a record",
+        "cardSub2": "Boring, checkable, and the reason the next call is better.",
+        "buttonLabel": "Take all six",
+        "signoff": "The record is the whole method"
+      }
+    }
+  ]
+}

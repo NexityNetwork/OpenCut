@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html><head><meta charset="utf-8">
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+html,body{width:1080px;height:1350px;overflow:hidden;color:#EFEDE4;
+  font-family:"Inter",sans-serif;-webkit-font-smoothing:antialiased;text-rendering:geometricPrecision}
+:root{--muted:rgba(239,237,228,.6);--rule:rgba(239,237,228,.15);--accent:#6FD79B}
+/* Flat ground, drawn structure — no gradient. Where the figures family gets a
+   column grid, an editorial one gets ruled lines: the horizontal axis of a
+   written page rather than the vertical axis of a measured one. */
+.ground{position:absolute;inset:0;z-index:0;background:#0B140F}
+.rules{position:absolute;inset:0;z-index:1;pointer-events:none;
+  background-image:repeating-linear-gradient(180deg,rgba(239,237,228,.05) 0 1px,transparent 1px 62px);
+  background-position:0 118px}
+.grain{position:absolute;inset:0;z-index:6;opacity:.15;mix-blend-mode:overlay;pointer-events:none}
+.serif{font-family:"DM Serif Display",serif;font-weight:400}
+.sheet{position:absolute;inset:0;padding:116px 88px 108px;display:flex;flex-direction:column;z-index:4}
+.head{display:flex;align-items:center;justify-content:space-between;gap:32px}
+.head .lbl{font-size:26px;font-weight:500;color:var(--muted);letter-spacing:-.4px}
+.head .tool{display:flex;align-items:center;gap:15px;font-size:25px;font-weight:500}
+.head .tool svg{width:38px;height:38px;display:block}
+h2{margin-top:54px;font-size:88px;line-height:1.04;letter-spacing:-2.4px;max-width:900px}
+h2 em{font-style:italic;color:var(--accent)}
+.lede{margin-top:30px;font-size:31px;font-weight:400;line-height:1.44;color:rgba(239,237,228,.76);max-width:860px}
+.lede b{font-weight:600;color:#EFEDE4}
+/* Three points, separated by rules rather than boxed in cards — the ruled
+   ground already provides the horizontal rhythm to sit them on. */
+.points{margin-top:auto;display:flex;flex-direction:column}
+.pt{display:flex;gap:34px;padding:38px 0;border-top:1px solid var(--rule)}
+.pt .t{flex:0 0 318px;font-size:32px;line-height:1.24;letter-spacing:-.6px;color:var(--accent)}
+.pt .b{flex:1 1 auto;font-size:28px;font-weight:400;line-height:1.42;color:var(--muted)}
+</style></head>
+<body>
+<div class="ground"></div>
+<div class="rules"></div>
+<div class="sheet">
+  <div class="head">
+    <div class="lbl">{{stepTag}}</div>
+    <div class="tool">{{iconSvg1}}<span>{{toolName1}}</span></div>
+  </div>
+  <h2 class="serif">{{title}}</h2>
+  <p class="lede">{{body}}</p>
+  <div class="points">
+    <div class="pt"><div class="t serif">{{p1Title}}</div><div class="b">{{p1Body}}</div></div>
+    <div class="pt"><div class="t serif">{{p2Title}}</div><div class="b">{{p2Body}}</div></div>
+    <div class="pt"><div class="t serif">{{p3Title}}</div><div class="b">{{p3Body}}</div></div>
+  </div>
+</div>
+<svg class="grain" width="1080" height="1350" viewBox="0 0 1080 1350" preserveAspectRatio="none">
+<filter id="gr"><feTurbulence type="fractalNoise" baseFrequency="0.8" numOctaves="3" seed="29"/><feColorMatrix type="saturate" values="0"/></filter>
+<rect width="1080" height="1350" filter="url(#gr)" opacity="0.5"/></svg>
+</body></html>

@@ -1,0 +1,168 @@
+{
+  "_note": "Frozen content for design review. Comparison family — every page sets the common approach against the one that holds up, both sides carrying identical structure so the split fills symmetrically.",
+  "family": "design-tile",
+  "brief": "Six habits that look professional and quietly cost you the job",
+  "slides": [
+    {
+      "layoutId": "cover-design-tile",
+      "slots": {
+        "eyebrow": "Six comparisons, one uncomfortable pattern",
+        "titleLine1": "Everything you were taught to do",
+        "titleAccent": "loses the work.",
+        "body": "Not because it is wrong, but because it was taught by people who were competing against a different room.",
+        "badLabel": "What you were taught",
+        "badClaim": "Look prepared, look senior, look certain.",
+        "goodLabel": "What actually wins",
+        "goodClaim": "Be the only person who names the real problem.",
+        "iconSlug1": "figma",
+        "iconSlug2": "notion",
+        "iconSlug3": "linear",
+        "iconSlug4": "slack",
+        "iconSlug5": "github",
+        "bad1": "Rewards the person who sounds most certain.",
+        "good1": "Rewards the person who is most useful to think with.",
+        "bad2": "Taught in rooms where everyone had the same training.",
+        "good2": "Works in rooms where nobody has read the same book."
+      }
+    },
+    {
+      "layoutId": "body-design-tile",
+      "slots": {
+        "stepTag": "The pitch",
+        "toolName1": "Figma",
+        "iconSlug1": "figma",
+        "titleLine1": "Presenting three options is not generosity",
+        "badLabel": "What most people do",
+        "badClaim": "Show three directions and let the client choose.",
+        "bad1": "Reads as an unwillingness to commit to a view.",
+        "bad2": "Splits the room, because everyone picks a different one.",
+        "bad3": "Triples the work and gets paid for one of them.",
+        "goodLabel": "What holds up",
+        "goodClaim": "Show one, and show what you rejected.",
+        "good1": "A recommendation is what they are paying you for.",
+        "good2": "The rejected work proves the choice was considered.",
+        "good3": "The conversation becomes why, not which.",
+        "body": "Three options moves the decision to the person with the least context. <b>That is not service, it is abdication</b>."
+      }
+    },
+    {
+      "layoutId": "body-design-tile",
+      "slots": {
+        "stepTag": "The update",
+        "toolName1": "Slack",
+        "iconSlug1": "slack",
+        "titleLine1": "Nobody has ever been reassured by a status report",
+        "badLabel": "What most people do",
+        "badClaim": "Send a summary of everything that happened.",
+        "bad1": "Volume reads as effort, not as progress.",
+        "bad2": "Buries the one thing they needed to know.",
+        "bad3": "Takes an afternoon and gets skimmed in nine seconds.",
+        "goodLabel": "What holds up",
+        "goodClaim": "Send what changed and what you need.",
+        "good1": "Three lines, sent on the day it happened.",
+        "good2": "Bad news first, while it is still cheap.",
+        "good3": "Ends with a question or it ends with nothing.",
+        "body": "The update exists to prevent surprises, not to prove work happened. <b>Anything longer is proving</b>."
+      }
+    },
+    {
+      "layoutId": "body-design-tile",
+      "slots": {
+        "stepTag": "The disagreement",
+        "toolName1": "Notion",
+        "iconSlug1": "notion",
+        "titleLine1": "Being right in the room is worth almost nothing",
+        "badLabel": "What most people do",
+        "badClaim": "Win the argument with the better case.",
+        "bad1": "Nobody changes position in front of an audience.",
+        "bad2": "The loser now has a reason to be right later.",
+        "bad3": "The decision reverses quietly the following week.",
+        "goodLabel": "What holds up",
+        "goodClaim": "Make the case before the room exists.",
+        "good1": "One conversation each, ahead of the meeting.",
+        "good2": "People defend positions they helped shape.",
+        "good3": "The meeting becomes a confirmation, not a fight.",
+        "body": "Meetings do not decide, they ratify. <b>The decision was made in the conversations before it</b>."
+      }
+    },
+    {
+      "layoutId": "body-design-tile",
+      "slots": {
+        "stepTag": "The estimate",
+        "toolName1": "Linear",
+        "iconSlug1": "linear",
+        "titleLine1": "A confident number is not a useful one",
+        "badLabel": "What most people do",
+        "badClaim": "Give a single date and defend it.",
+        "bad1": "Sounds decisive and is wrong about half the time.",
+        "bad2": "Every slip becomes a broken promise.",
+        "bad3": "Encourages padding, which nobody believes anyway.",
+        "goodLabel": "What holds up",
+        "goodClaim": "Give a range and what would narrow it.",
+        "good1": "Names the unknown instead of pricing it invisibly.",
+        "good2": "Turns a deadline into a shared problem.",
+        "good3": "Updating a range is normal; moving a date is a failure.",
+        "body": "The date was never the deliverable. <b>Knowing when it will be knowable is</b>."
+      }
+    },
+    {
+      "layoutId": "body-design-tile",
+      "slots": {
+        "stepTag": "The handover",
+        "toolName1": "GitHub",
+        "iconSlug1": "github",
+        "titleLine1": "Work only you can run is not an achievement",
+        "badLabel": "What most people do",
+        "badClaim": "Stay the person who knows how it works.",
+        "bad1": "Feels like security and functions like a ceiling.",
+        "bad2": "Every holiday becomes a negotiation.",
+        "bad3": "You get kept in the role you are best at escaping.",
+        "goodLabel": "What holds up",
+        "goodClaim": "Make yourself removable, visibly.",
+        "good1": "Write it down for a competent stranger in a hurry.",
+        "good2": "Watch someone else run it once, saying nothing.",
+        "good3": "Being replaceable is what makes you promotable.",
+        "body": "Indispensable is a compliment people pay you <b>right before they stop considering you for anything else</b>."
+      }
+    },
+    {
+      "layoutId": "body-design-tile",
+      "slots": {
+        "stepTag": "The uncomfortable one",
+        "toolName1": "Figma",
+        "iconSlug1": "figma",
+        "titleLine1": "None of this works if the work is not good",
+        "badLabel": "What people hope",
+        "badClaim": "Communicate well enough and the work is forgiven.",
+        "bad1": "Buys one project, occasionally two.",
+        "bad2": "Referrals stop before anyone tells you why.",
+        "bad3": "The reputation arrives before you do, either way.",
+        "goodLabel": "What is actually true",
+        "goodClaim": "These make good work land. Nothing more.",
+        "good1": "They remove the reasons good work gets rejected.",
+        "good2": "They cannot manufacture a reason to be chosen.",
+        "good3": "The craft is still the only durable part.",
+        "body": "Every habit here raises the ceiling on work that is already good. <b>None of them raises the floor</b>."
+      }
+    },
+    {
+      "layoutId": "cta-design-tile",
+      "slots": {
+        "eyebrow": "Try one on the next thing you send",
+        "headlineLine1": "Pick the one that",
+        "headlineAccent": "makes you nervous.",
+        "body": "The habit you would defend hardest is usually the one doing the most damage, because defending it is how it survived this long.",
+        "badLabel": "The comfortable choice",
+        "badClaim": "Change the update. Nobody will object.",
+        "goodLabel": "The one that pays",
+        "goodClaim": "Show one direction and stand behind it.",
+        "buttonLabel": "Take all six",
+        "signoff": "The nervous one is the one that changes something",
+        "bad1": "Low risk, and nobody will thank you for it.",
+        "good1": "Feels exposed, and it is the one that gets remembered.",
+        "bad2": "You can do it this afternoon.",
+        "good2": "You will put it off until something forces it."
+      }
+    }
+  ]
+}

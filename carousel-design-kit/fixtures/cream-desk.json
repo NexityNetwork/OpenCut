@@ -1,0 +1,89 @@
+{
+  "_note": "Frozen content for design review. Laptop family — tool and description on one line at the top, the machine holding the screen, a note and a number on the rule below.",
+  "family": "cream-desk",
+  "brief": "The six screens a product actually gets built on",
+  "slides": [
+    {
+      "layoutId": "cover-cream-desk",
+      "slots": {
+        "titleLine1": "Six screens,",
+        "titleAccent": "one product.",
+        "subtitle": "Every step from an idea to a paying customer, and the window it happens in.",
+        "iconSlug1": "figma", "iconSlug2": "linear", "iconSlug3": "github",
+        "iconSlug4": "notion", "iconSlug5": "stripe"
+      }
+    },
+    {
+      "layoutId": "body-cream-desk",
+      "slots": {
+        "iconSlug1": "figma", "toolName": "Figma",
+        "toolTagline": "Where the argument gets settled, because two people looking at the same frame stop describing it to each other.",
+        "useNote": "Design, decks and anything that needs showing",
+        "useMetric": "0 handoffs",
+        "shot": "shot-figma.png"
+      }
+    },
+    {
+      "layoutId": "body-cream-desk",
+      "slots": {
+        "iconSlug1": "linear", "toolName": "Linear",
+        "toolTagline": "The list that decides what ships. One owner, one date, and nothing sits longer than a week.",
+        "useNote": "Scope, owners and the week's cut line",
+        "useMetric": "1 week max",
+        "shot": "shot-linear.png"
+      }
+    },
+    {
+      "layoutId": "body-cream-desk",
+      "slots": {
+        "iconSlug1": "anthropic", "toolName": "Claude",
+        "toolTagline": "The first draft of the code, the copy and the thing nobody wanted to start on a Monday.",
+        "useNote": "Drafting, review and the reading you skipped",
+        "useMetric": "70% faster",
+        "shot": "shot-claude.png"
+      }
+    },
+    {
+      "layoutId": "body-cream-desk",
+      "slots": {
+        "iconSlug1": "notion", "toolName": "Notion",
+        "toolTagline": "Why a decision was made, written down once, so the same discussion does not return every quarter.",
+        "useNote": "Decisions, specs and the reasoning behind both",
+        "useMetric": "1 page each",
+        "shot": "shot-notion.png"
+      }
+    },
+    {
+      "layoutId": "body-cream-desk",
+      "slots": {
+        "iconSlug1": "stripe", "toolName": "Stripe",
+        "toolTagline": "The only screen that tells you whether any of the previous five were worth opening.",
+        "useNote": "Payments, invoices and one dashboard",
+        "useMetric": "once a day",
+        "shot": "shot-stripe.png"
+      }
+    },
+    {
+      "layoutId": "body-cream-desk",
+      "slots": {
+        "iconSlug1": "slack", "toolName": "The catch",
+        "toolTagline": "Six windows is six places to look, and the thing that falls through always falls between two of them.",
+        "useNote": "Fewer tools than most, still one too many",
+        "useMetric": "real risk",
+        "shot": "shot-slack.png"
+      }
+    },
+    {
+      "layoutId": "cta-cream-desk",
+      "slots": {
+        "titleLine1": "The tools are",
+        "titleAccent": "not the work.",
+        "body": "Every team with exactly this setup still ships slowly if a decision waits on approval. Change who decides first.",
+        "iconSlug1": "figma", "iconSlug2": "linear", "iconSlug3": "github",
+        "iconSlug4": "notion", "iconSlug5": "stripe",
+        "btnPrimary": "Take the whole setup",
+        "signoff": "Software makes a good process faster, not a bad one good"
+      }
+    }
+  ]
+}

@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=Playfair+Display:ital,wght@0,700;0,800;0,900;1,400;1,600;1,800&display=swap" rel="stylesheet">
+<style>
+  *{margin:0;padding:0;box-sizing:border-box;}
+  :root{
+    --paper:#F2F4F7;
+    --ink:#101820;
+    --navy:#14304F;
+    --hair:rgba(20,48,79,0.28);
+  }
+  html,body{
+    width:1080px;height:1350px;overflow:hidden;
+    background:var(--paper);
+    color:var(--ink);
+    font-family:"Inter",system-ui,sans-serif;
+    -webkit-font-smoothing:antialiased;
+  }
+  .grain{position:absolute;inset:0;z-index:6;opacity:.14;mix-blend-mode:multiply;pointer-events:none}
+
+  .page{
+    position:absolute;inset:0;
+    padding:66px 76px 0 76px;
+    display:flex;flex-direction:column;
+    z-index:2;
+  }
+
+  .mast-rule{height:6px;background:var(--navy);}
+  .mast-rule.thin{height:1.5px;background:var(--navy);opacity:.45;margin-top:7px;}
+  .mast-row{display:flex;align-items:baseline;justify-content:space-between;margin-top:18px;gap:40px;}
+  .kicker{font-size:24px;font-weight:700;letter-spacing:.02em;color:var(--navy);}
+  .strap{font-size:23px;font-weight:500;color:rgba(16,24,32,.52);text-align:right;}
+
+  .title{
+    font-family:"Playfair Display",serif;font-weight:900;
+    font-size:84px;line-height:1.14;letter-spacing:-0.018em;
+    margin-top:26px;
+  }
+  .title .accent{color:var(--navy);}
+
+  .standfirst{
+    margin-top:24px;
+    font-size:30px;font-weight:500;line-height:1.42;letter-spacing:-0.008em;
+    color:rgba(16,24,32,.86);
+  }
+
+  .heavy{height:8px;background:var(--navy);margin-top:26px;}
+
+  .cols{
+    flex:1;min-height:0;
+    display:grid;grid-template-columns:1fr 1fr;
+    margin-top:26px;
+  }
+  .col{font-size:27px;line-height:1.62;color:rgba(16,24,32,.9);}
+  .col.left{padding-right:44px;}
+  .col.right{padding-left:44px;border-left:1.5px solid var(--hair);}
+  .col b{font-weight:700;color:var(--ink);}
+
+  /* full-bleed reversed close */
+  .close{
+    margin:26px -76px 0 -76px;
+    background:var(--navy);color:var(--paper);
+    padding:46px 76px 52px 76px;
+  }
+  .close .lede{
+    font-size:24px;font-weight:600;letter-spacing:.02em;
+    color:rgba(242,244,247,.62);
+  }
+  .close .final{
+    margin-top:20px;
+    font-family:"Playfair Display",serif;font-style:italic;font-weight:600;
+    font-size:46px;line-height:1.26;letter-spacing:-0.01em;
+  }
+</style>
+</head>
+<body>
+  <div class="page">
+    <div class="mast-rule"></div>
+    <div class="mast-rule thin"></div>
+    <div class="mast-row">
+      <div class="kicker">{{kicker}}</div>
+      <div class="strap">{{strap}}</div>
+    </div>
+
+    <div class="title">{{titleLine1}}<br><span class="accent">{{titleLine2}}</span></div>
+
+    <div class="standfirst">{{standfirst}}</div>
+
+    <div class="heavy"></div>
+
+    <div class="cols">
+      <div class="col left"><p>{{para1}}</p></div>
+      <div class="col right"><p>{{para2}}</p></div>
+    </div>
+
+    <div class="close">
+      <div class="lede">{{closeLabel}}</div>
+      <div class="final">{{closingLine}}</div>
+    </div>
+  </div>
+
+  <svg class="grain" width="1080" height="1350" viewBox="0 0 1080 1350" preserveAspectRatio="none">
+    <filter id="gr"><feTurbulence type="fractalNoise" baseFrequency="0.86" numOctaves="3" seed="41"/>
+    <feColorMatrix type="saturate" values="0"/></filter>
+    <rect width="1080" height="1350" filter="url(#gr)" opacity="0.45"/>
+  </svg>
+</body>
+</html>

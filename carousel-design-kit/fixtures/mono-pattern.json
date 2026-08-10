@@ -1,0 +1,142 @@
+{
+  "_note": "Frozen content for design review. Mono family — the voice is earned because the subject is command-line tools. Every page shows the same transform: what goes in, what acts, what comes out.",
+  "family": "mono-pattern",
+  "brief": "Six command-line tools that removed a step each",
+  "slides": [
+    {
+      "layoutId": "cover-mono-pattern",
+      "slots": {
+        "eyebrow": "Six replacements, one afternoon to install",
+        "titleLine1": "The tools you already have",
+        "titleAccent": "are the slow ones.",
+        "subtitle": "Six drop-in replacements for commands you type every day. Each one removes a wait rather than adding a capability.",
+        "k1": "grep",
+        "v1": "replaced by a search that skips what git ignores",
+        "k2": "cat",
+        "v2": "replaced by a viewer that shows syntax and line numbers",
+        "k3": "find",
+        "v3": "replaced by a matcher that reads the same ignore rules",
+        "k4": "history",
+        "v4": "replaced by a filter you type into instead of scroll",
+        "coverNote": "Everything below is a single install command"
+      }
+    },
+    {
+      "layoutId": "body-mono-pattern",
+      "slots": {
+        "toolName": "ripgrep",
+        "sectionLabel": "replaces grep",
+        "titleLine1": "The search that",
+        "titleAccent": "skips the noise.",
+        "body": "It reads your ignore files by default, so a search across a repository never descends into dependencies or build output. That single default is most of the speed difference.",
+        "flowIn": "a string, somewhere in the repository",
+        "flowAct": "rg searches only the tracked files",
+        "flowOut": "matches, with paths and line numbers",
+        "note1Title": "best for",
+        "note1Body": "Finding where something is used before you change it.",
+        "note2Title": "the catch",
+        "note2Body": "It honours ignore rules, so anything deliberately ignored stays invisible."
+      }
+    },
+    {
+      "layoutId": "body-mono-pattern",
+      "slots": {
+        "toolName": "fzf",
+        "sectionLabel": "replaces scrolling",
+        "titleLine1": "The picker that",
+        "titleAccent": "reads any list.",
+        "body": "It takes lines on standard input and returns the one you chose, which means every list you already produce becomes selectable without writing anything new.",
+        "flowIn": "any list of lines on standard input",
+        "flowAct": "fzf filters as you type",
+        "flowOut": "the one line you picked, on standard output",
+        "note1Title": "best for",
+        "note1Body": "Branches, history, files, and anything you were about to copy by hand.",
+        "note2Title": "the catch",
+        "note2Body": "It is only as good as the list you pipe into it, which is where the work is."
+      }
+    },
+    {
+      "layoutId": "body-mono-pattern",
+      "slots": {
+        "toolName": "bat",
+        "sectionLabel": "replaces cat",
+        "titleLine1": "The viewer that",
+        "titleAccent": "shows the shape.",
+        "body": "Syntax highlighting, line numbers and the git status of each line, which turns reading a file in the terminal from a dump into something you can navigate.",
+        "flowIn": "a file you want to read, not edit",
+        "flowAct": "bat renders it with syntax and line numbers",
+        "flowOut": "a page you can actually scan",
+        "note1Title": "best for",
+        "note1Body": "Checking a config or a script before you run it.",
+        "note2Title": "the catch",
+        "note2Body": "It pages by default, which breaks scripts that expected raw output."
+      }
+    },
+    {
+      "layoutId": "body-mono-pattern",
+      "slots": {
+        "toolName": "fd",
+        "sectionLabel": "replaces find",
+        "titleLine1": "The matcher that",
+        "titleAccent": "expects a name.",
+        "body": "The common case is finding a file by part of its name, and that case takes one word rather than four flags. Everything else is still there when you need it.",
+        "flowIn": "part of a filename you half remember",
+        "flowAct": "fd walks the tree, ignoring what git ignores",
+        "flowOut": "paths, ordered and coloured",
+        "note1Title": "best for",
+        "note1Body": "The nine times in ten when you only know part of the name.",
+        "note2Title": "the catch",
+        "note2Body": "Different flags from find, so muscle memory fights you for a week."
+      }
+    },
+    {
+      "layoutId": "body-mono-pattern",
+      "slots": {
+        "toolName": "jq",
+        "sectionLabel": "replaces reading it yourself",
+        "titleLine1": "The filter that",
+        "titleAccent": "understands the shape.",
+        "body": "Structured output stops being something you squint at and becomes something you query, which is the difference between checking an API response and understanding it.",
+        "flowIn": "a response nobody wants to read",
+        "flowAct": "jq selects the fields that matter",
+        "flowOut": "the two values you were looking for",
+        "note1Title": "best for",
+        "note1Body": "Any command that already speaks structured output.",
+        "note2Title": "the catch",
+        "note2Body": "It is a language, not a flag, and the first hour feels like a bad trade."
+      }
+    },
+    {
+      "layoutId": "body-mono-pattern",
+      "slots": {
+        "toolName": "the catch",
+        "sectionLabel": "worth saying out loud",
+        "titleLine1": "None of this is",
+        "titleAccent": "on the other machine.",
+        "body": "Every one of these is an install away on your laptop and absent from the server you will be debugging at three in the morning. The old commands are the ones that are always there.",
+        "flowIn": "a habit built on tools you installed",
+        "flowAct": "a server with none of them",
+        "flowOut": "the original commands, remembered badly",
+        "note1Title": "best for",
+        "note1Body": "Local work, where you control what is installed.",
+        "note2Title": "the catch",
+        "note2Body": "Keep enough of the originals to survive a bare machine."
+      }
+    },
+    {
+      "layoutId": "cta-mono-pattern",
+      "slots": {
+        "eyebrow": "One command, then use it for a week",
+        "titleLine1": "Replace one.",
+        "titleAccent": "Not six.",
+        "body": "Pick the command you type most and swap only that one. A week of using it is the only test that tells you whether the habit sticks.",
+        "flowIn": "the command you type most often",
+        "flowAct": "one install, one alias",
+        "flowOut": "a week of evidence instead of an opinion",
+        "buttonLabel": "Take all six",
+        "signoff": "The other five keep until this one sticks",
+        "closingLine": "A tool you installed and never typed again cost you nothing but the evening."
+      }
+    }
+  ]
+}

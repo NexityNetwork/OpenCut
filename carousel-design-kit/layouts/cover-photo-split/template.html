@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html><head><meta charset="utf-8">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+html,body{width:1080px;height:1350px;overflow:hidden;background:#12171B;
+  font-family:"Inter",sans-serif;-webkit-font-smoothing:antialiased;text-rendering:geometricPrecision}
+:root{--ink:#12171B;--sand:#E3D6C2;--hair-on-ink:rgba(227,214,194,.24);--hair-on-sand:rgba(18,23,27,.24)}
+
+/* A hard VERTICAL split: two solid fields, no bleed between them. The ink
+   field carries the display and the drawn diagram; the sand counter-field
+   carries the argument. The proportion moves per page kind — 700/380 here,
+   500/580 on body pages, 640/440 inverted on the closer — so the family never
+   reads as a fixed 50/50 template. */
+.page{position:absolute;inset:0;display:flex;z-index:4}
+.ink{flex:0 0 700px;background:var(--ink);color:var(--sand);
+  padding:70px 62px 66px;display:flex;flex-direction:column;justify-content:space-between}
+.sand{flex:1;background:var(--sand);color:var(--ink);
+  padding:70px 44px 66px;display:flex;flex-direction:column}
+
+.kicker{font-family:"IBM Plex Mono",monospace;font-size:24px;font-weight:400;letter-spacing:.02em;opacity:.72}
+
+h1{font-family:"Space Grotesk",sans-serif;font-size:94px;font-weight:700;
+  line-height:1.14;letter-spacing:-3.6px}
+h1 span{display:block}
+h1 .soft{color:var(--sand);opacity:.5}
+
+/* Drawn, not decorative: information gathered against time spent looking.
+   It rises fast, flattens early, and the shaded region is everything you keep
+   paying for after the curve stops moving. */
+.plot{width:100%}
+.plot svg{display:block;width:576px;height:320px}
+.plotcaps{display:flex;justify-content:space-between;gap:28px;margin-top:16px;
+  font-family:"IBM Plex Mono",monospace;font-size:23px;line-height:1.3;opacity:.66}
+.plotcaps div:last-child{text-align:right}
+
+.premise{font-size:31px;line-height:1.42;font-weight:400;padding-top:26px;
+  border-top:1px solid var(--hair-on-ink);opacity:.9}
+.premise b{font-weight:600;opacity:1}
+
+.standfirst{font-size:27px;line-height:1.5;margin-top:28px;padding-bottom:34px}
+.standfirst b{font-weight:600}
+.rows{flex:1;display:flex;flex-direction:column}
+.row{flex:1;display:flex;flex-direction:column;justify-content:center;gap:9px;
+  padding:22px 0;border-top:1px solid var(--hair-on-sand)}
+.row .k{font-family:"IBM Plex Mono",monospace;font-size:23px;opacity:.62}
+.row .v{font-size:25px;line-height:1.36;font-weight:500}
+.grain{position:absolute;inset:0;z-index:6;opacity:.13;mix-blend-mode:overlay;pointer-events:none}
+</style></head>
+<body>
+<div class="page">
+  <div class="ink">
+    <div class="kicker">{{kicker}}</div>
+    <h1><span>{{d1}}</span><span>{{d2}}</span><span class="soft">{{d3}}</span></h1>
+    <div class="plot">
+      <svg viewBox="0 0 576 286" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <g stroke="#E3D6C2" stroke-opacity="0.22" stroke-width="1">
+          <line x1="10" y1="18" x2="10" y2="248"/>
+          <line x1="10" y1="248" x2="570" y2="248"/>
+          <line x1="10" y1="196" x2="570" y2="196"/>
+          <line x1="10" y1="140" x2="570" y2="140"/>
+          <line x1="10" y1="84" x2="570" y2="84"/>
+        </g>
+        <path d="M10 246 C 78 238 128 152 196 112 C 300 52 424 40 570 34 L570 248 L10 248 Z"
+              fill="#E3D6C2" fill-opacity="0.07"/>
+        <path d="M196 112 C 300 52 424 40 570 34 L570 248 L196 248 Z"
+              fill="#E3D6C2" fill-opacity="0.14"/>
+        <path d="M10 246 C 78 238 128 152 196 112 C 300 52 424 40 570 34"
+              stroke="#E3D6C2" stroke-width="3.2" stroke-linecap="round"/>
+        <line x1="196" y1="104" x2="196" y2="266" stroke="#E3D6C2" stroke-opacity="0.6"
+              stroke-width="2" stroke-dasharray="7 8"/>
+        <circle cx="196" cy="112" r="8" fill="#E3D6C2"/>
+        <g stroke="#E3D6C2" stroke-opacity="0.4" stroke-width="2">
+          <line x1="290" y1="248" x2="290" y2="256"/>
+          <line x1="384" y1="248" x2="384" y2="256"/>
+          <line x1="478" y1="248" x2="478" y2="256"/>
+        </g>
+      </svg>
+      <div class="plotcaps"><div>{{plotCapA}}</div><div>{{plotCapB}}</div></div>
+    </div>
+    <div class="premise">{{premise}}</div>
+  </div>
+  <div class="sand">
+    <div class="kicker">{{sideKicker}}</div>
+    <div class="standfirst">{{standfirst}}</div>
+    <div class="rows">
+      <div class="row"><div class="k">{{r1k}}</div><div class="v">{{r1v}}</div></div>
+      <div class="row"><div class="k">{{r2k}}</div><div class="v">{{r2v}}</div></div>
+      <div class="row"><div class="k">{{r3k}}</div><div class="v">{{r3v}}</div></div>
+    </div>
+  </div>
+</div>
+<svg class="grain" width="1080" height="1350" viewBox="0 0 1080 1350" preserveAspectRatio="none">
+<filter id="gr"><feTurbulence type="fractalNoise" baseFrequency="0.86" numOctaves="3" seed="41"/>
+<feColorMatrix type="saturate" values="0"/></filter>
+<rect width="1080" height="1350" filter="url(#gr)" opacity="0.45"/></svg>
+</body></html>

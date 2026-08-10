@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html><head><meta charset="utf-8">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+html,body{width:1080px;height:1350px;overflow:hidden;color:#F7F2EC;
+  font-family:"Inter",sans-serif;-webkit-font-smoothing:antialiased;text-rendering:geometricPrecision}
+:root{--ink:#F7F2EC;--muted:rgba(247,242,236,.70);--rule:rgba(247,242,236,.16);--orange:#F2733F}
+/* A real mesh: four saturated radial stops that ARE the ground, not faint
+   blobs sitting on a flat fill. That was why the old ones read muddy. */
+.mesh{position:absolute;inset:0;z-index:0}
+.mesh.dark{background:
+  radial-gradient(120% 90% at 16% 18%, #C4522A 0%, transparent 55%),
+  radial-gradient(100% 80% at 86% 8%,  #F2733F 0%, transparent 50%),
+  radial-gradient(120% 95% at 74% 86%, #8A3418 0%, transparent 58%),
+  radial-gradient(110% 90% at 6% 92%,  #4A1B0C 0%, transparent 55%),
+  #16110D}
+.mesh.light{background:
+  radial-gradient(120% 90% at 18% 16%, #FFB489 0%, transparent 55%),
+  radial-gradient(100% 80% at 84% 10%, #FFE0CB 0%, transparent 52%),
+  radial-gradient(120% 95% at 72% 88%, #FF9256 0%, transparent 56%),
+  radial-gradient(110% 90% at 8% 90%,  #FFF1E6 0%, transparent 54%),
+  #FBF4EE}
+/* Grain keeps the large colour fields from banding on export. */
+.grain{position:absolute;inset:0;z-index:1;opacity:.30;mix-blend-mode:overlay;pointer-events:none}
+.sheet{position:absolute;inset:0;padding:104px 84px 96px;display:flex;flex-direction:column;justify-content:center;z-index:4}
+.obj{position:absolute;z-index:2;pointer-events:none}
+.obj-stack{right:-190px;bottom:-130px;width:560px;height:440px;transform:rotate(6deg);opacity:.9}
+h2{font-size:80px;font-weight:700;line-height:1.02;letter-spacing:-3.2px;max-width:830px;
+  text-shadow:0 2px 34px rgba(30,10,4,.32)}
+h2 em{font-style:normal;color:#FFD9C4}
+.steps{margin-top:52px}
+.step{padding:32px 0;border-top:1px solid var(--rule)}
+.step:last-child{border-bottom:1px solid var(--rule)}
+.step .t{font-size:40px;font-weight:600;letter-spacing:-1.4px}
+.step .s{margin-top:12px;font-size:27px;font-weight:400;line-height:1.4;color:var(--muted);max-width:800px}
+</style></head>
+<body>
+<div class="mesh dark"></div>
+<svg class="grain" width="1080" height="1350" viewBox="0 0 1080 1350" preserveAspectRatio="none">
+<filter id="gr"><feTurbulence type="fractalNoise" baseFrequency="0.8" numOctaves="3" seed="9"/><feColorMatrix type="saturate" values="0"/></filter>
+<rect width="1080" height="1350" filter="url(#gr)" opacity="0.55"/></svg>
+<svg class="obj obj-stack" viewBox="0 0 560 440" fill="none">
+  <defs>
+    <linearGradient id="sg" x1="0" y1="0" x2="0.5" y2="1">
+      <stop offset="0" stop-color="#ffffff" stop-opacity=".32"/>
+      <stop offset="1" stop-color="#ffffff" stop-opacity=".08"/>
+    </linearGradient>
+    <filter id="ssh" x="-40%" y="-30%" width="180%" height="190%">
+      <feDropShadow dx="0" dy="30" stdDeviation="30" flood-color="#2A0E04" flood-opacity=".42"/>
+    </filter>
+  </defs>
+  <g filter="url(#ssh)">
+    <rect x="86" y="40" width="400" height="230" rx="26" fill="url(#sg)" stroke="rgba(255,255,255,.30)" stroke-width="2" opacity=".55"/>
+    <rect x="56" y="96" width="448" height="252" rx="28" fill="url(#sg)" stroke="rgba(255,255,255,.38)" stroke-width="2" opacity=".8"/>
+    <rect x="26" y="156" width="508" height="262" rx="30" fill="url(#sg)" stroke="rgba(255,255,255,.48)" stroke-width="2"/>
+    <path d="M74 226h300M74 276h220M74 326h260" stroke="rgba(255,255,255,.38)" stroke-width="6" stroke-linecap="round"/>
+  </g>
+</svg>
+<div class="sheet">
+  <h2>{{titleMain}} <em>{{titleAccent}}</em> {{titleTail}}</h2>
+  <div class="steps">
+    <div class="step"><div class="t">{{step1Title}}</div><div class="s">{{step1Sub}}</div></div>
+    <div class="step"><div class="t">{{step2Title}}</div><div class="s">{{step2Sub}}</div></div>
+    <div class="step"><div class="t">{{step3Title}}</div><div class="s">{{step3Sub}}</div></div>
+  </div>
+</div>
+</body></html>

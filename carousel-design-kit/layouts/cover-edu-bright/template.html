@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html><head><meta charset="utf-8">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+html,body{width:1080px;height:1350px;overflow:hidden;color:#17170F;
+  font-family:"Inter",sans-serif;-webkit-font-smoothing:antialiased;text-rendering:geometricPrecision}
+:root{--muted:rgba(23,23,15,.56);--rule:rgba(23,23,15,.14);--accent:#E0A93B;--ink:#17170F}
+/* Warm paper, flat, no gradient. This family teaches, so the diagrams ARE the
+   design — a chart, a flow and a table, each drawn properly instead of four
+   competing colours doing the work a structure should do. Two colours: ink and
+   one lime, with the lime always carrying ink type on top of it. */
+.ground{position:absolute;inset:0;z-index:0;background:#FBF9F3}
+.grain{position:absolute;inset:0;z-index:6;opacity:.18;mix-blend-mode:multiply;pointer-events:none}
+.page{position:absolute;inset:0;display:flex;flex-direction:column;z-index:4;padding:108px 80px 100px}
+.head{display:flex;align-items:center;justify-content:space-between;gap:30px}
+.head .lbl{font-size:27px;font-weight:600;letter-spacing:-.4px}
+.head .tools{display:flex;align-items:center;gap:22px}
+.head .tools svg{width:36px;height:36px;display:block}
+h2{margin-top:26px;font-size:70px;font-weight:700;line-height:1.03;letter-spacing:-2.9px}
+h2 em{font-style:normal;padding:0 2px;
+  background:linear-gradient(to top,var(--accent) 0 16px,transparent 16px)}
+.sub{margin-top:22px;font-size:29px;font-weight:400;line-height:1.4;color:var(--muted);max-width:880px}
+/* One takeaway per page, on a lime bar. It is the only filled element, which is
+   what makes it read as the conclusion rather than as decoration. */
+.take{margin-top:auto;background:var(--accent);border-radius:14px;padding:30px 34px}
+.take .k{font-size:23px;font-weight:600;letter-spacing:-.3px;opacity:.72}
+.take .t{margin-top:10px;font-size:33px;font-weight:600;line-height:1.28;letter-spacing:-1.1px}
+.eyebrow{font-size:28px;font-weight:500;letter-spacing:-.4px}
+h1{margin-top:28px;font-size:102px;font-weight:700;line-height:.97;letter-spacing:-4.9px}
+h1 em{font-style:normal;padding:0 2px;
+  background:linear-gradient(to top,var(--accent) 0 16px,transparent 16px)}
+.lede{margin-top:30px;font-size:31px;font-weight:400;line-height:1.4;color:var(--muted);max-width:780px}
+/* A contents strip built from the same knobs the flow pages use, so the cover
+   previews the system instead of showing a decorative chart nobody can read. */
+.index{flex:1 1 auto;min-height:0;margin:44px 0 34px;display:flex;flex-direction:column;justify-content:center}
+.ix{display:flex;align-items:center;gap:24px;padding:19px 0;border-top:1px solid var(--rule)}
+.ix .k{flex:0 0 54px;height:54px;border-radius:50%;border:2px solid var(--ink);
+  display:flex;align-items:center;justify-content:center;font-size:23px;font-weight:700}
+.ix.hi .k{background:var(--accent);border-color:var(--accent)}
+.ix .t{font-size:30px;font-weight:500;letter-spacing:-.6px}
+.foot{display:flex;align-items:center;gap:30px;padding-top:32px;border-top:1px solid var(--rule)}
+.foot svg{width:46px;height:46px;display:block}
+</style></head>
+<body>
+<div class="ground"></div>
+<div class="page">
+  <div class="eyebrow">{{eyebrow}}</div>
+  <h1>{{titleLine1}} <em>{{titleAccent}}</em></h1>
+  <p class="lede">{{lede}}</p>
+  <div class="index">
+    <div class="ix"><div class="k">{{k1}}</div><div class="t">{{barLbl1}}</div></div>
+    <div class="ix"><div class="k">{{k2}}</div><div class="t">{{barLbl2}}</div></div>
+    <div class="ix hi"><div class="k">{{k3}}</div><div class="t">{{barLbl3}}</div></div>
+    <div class="ix"><div class="k">{{k4}}</div><div class="t">{{barLbl4}}</div></div>
+    <div class="ix"><div class="k">{{k5}}</div><div class="t">{{barLbl5}}</div></div>
+  </div>
+  <div class="foot">{{iconSvg1}}{{iconSvg2}}{{iconSvg3}}{{iconSvg4}}{{iconSvg5}}</div>
+</div>
+<svg class="grain" width="1080" height="1350" viewBox="0 0 1080 1350" preserveAspectRatio="none">
+<filter id="gr"><feTurbulence type="fractalNoise" baseFrequency="0.86" numOctaves="3" seed="37"/><feColorMatrix type="saturate" values="0"/></filter>
+<rect width="1080" height="1350" filter="url(#gr)" opacity="0.42"/></svg>
+</body></html>

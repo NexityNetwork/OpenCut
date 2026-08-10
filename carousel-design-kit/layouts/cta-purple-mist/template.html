@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html><head><meta charset="utf-8">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+html,body{width:1080px;height:1350px;overflow:hidden;color:#1B1430;
+  font-family:"Inter",sans-serif;-webkit-font-smoothing:antialiased;text-rendering:geometricPrecision}
+:root{--muted:rgba(27,20,48,.66);--rule:rgba(27,20,48,.24);--accent:#2B1F52}
+/* Flat aubergine, no gradient and no glow. The drawing is orbit work: ellipses
+   tilted off-axis and stroked, never filled — a mist family that earns the name
+   through line density instead of a blur. The rings sit low so type stays clear
+   of them. */
+.ground{position:absolute;inset:0;z-index:0;background:#C0AEFF}
+.draw{position:absolute;inset:0;z-index:1;pointer-events:none}
+.grain{position:absolute;inset:0;z-index:6;opacity:.15;mix-blend-mode:multiply;pointer-events:none}
+.page{position:absolute;inset:0;display:flex;flex-direction:column;z-index:4;padding:104px 82px 96px;
+  justify-content:space-between}
+.label{font-size:25px;font-weight:500;color:var(--muted);letter-spacing:-.2px}
+h1{margin-top:28px;font-size:108px;font-weight:700;line-height:.98;letter-spacing:-4.5px;max-width:860px}
+h1 em{font-style:normal;color:var(--accent)}
+.sub{margin-top:32px;font-size:32px;font-weight:400;line-height:1.44;color:var(--muted);max-width:720px}
+.close{font-size:44px;font-weight:600;line-height:1.24;letter-spacing:-1.6px;max-width:820px;color:#1B1430}
+.foot{margin-top:40px;display:flex;align-items:center;gap:26px;padding-top:28px;border-top:1px solid var(--rule)}
+.btn{padding:22px 46px;background:#1B1430;color:#F1EEFA;border-radius:999px;font-size:28px;font-weight:600;letter-spacing:-.5px}
+.ghost{font-size:24px;font-weight:500;color:var(--muted)}
+</style></head>
+<body>
+<div class="ground"></div>
+<svg class="draw" viewBox="0 0 1080 1350" fill="none">
+  <ellipse cx="250" cy="812" rx="120" ry="41" transform="rotate(14 250 812)" stroke="#2B1F52" stroke-opacity="0.34" stroke-width="1.6" fill="none"/>
+  <ellipse cx="250" cy="812" rx="158" ry="54" transform="rotate(17 250 812)" stroke="#2B1F52" stroke-opacity="0.31" stroke-width="1.6" fill="none"/>
+  <ellipse cx="250" cy="812" rx="196" ry="67" transform="rotate(20 250 812)" stroke="#2B1F52" stroke-opacity="0.28" stroke-width="1.6" fill="none"/>
+  <ellipse cx="250" cy="812" rx="234" ry="80" transform="rotate(23 250 812)" stroke="#2B1F52" stroke-opacity="0.25" stroke-width="1.6" fill="none"/>
+  <ellipse cx="250" cy="812" rx="272" ry="92" transform="rotate(26 250 812)" stroke="#2B1F52" stroke-opacity="0.22" stroke-width="1.6" fill="none"/>
+  <ellipse cx="250" cy="812" rx="310" ry="105" transform="rotate(29 250 812)" stroke="#2B1F52" stroke-opacity="0.19" stroke-width="1.6" fill="none"/>
+</svg>
+<div class="page">
+  <div>
+    <div class="label">{{eyebrow}}</div>
+    <h1>{{titleLine1}} <em>{{titleAccent}}</em></h1>
+    <p class="sub">{{body}}</p>
+  </div>
+  <div>
+    <div class="close">{{closingLine}}</div>
+    <div class="foot"><div class="btn">{{buttonLabel}}</div><div class="ghost">{{signoff}}</div></div>
+  </div>
+</div>
+<svg class="grain" width="1080" height="1350" viewBox="0 0 1080 1350" preserveAspectRatio="none">
+<filter id="gr"><feTurbulence type="fractalNoise" baseFrequency="0.84" numOctaves="3" seed="91"/><feColorMatrix type="saturate" values="0"/></filter>
+<rect width="1080" height="1350" filter="url(#gr)" opacity="0.5"/></svg>
+</body></html>

@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html><head><meta charset="utf-8">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Fraunces:ital,wght@1,400;1,600&display=swap" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+html,body{width:1080px;height:1350px;overflow:hidden;background:#F7F5F2;color:#16161A;
+  font-family:"Inter",sans-serif;-webkit-font-smoothing:antialiased;text-rendering:geometricPrecision}
+/* Two-tone comparison palette: clay for the old way, green for the new one.
+   Colour is spent only where the slide is actually making a comparison. */
+:root{--ink:#16161A;--muted:#63636B;--faint:#93939C;--rule:rgba(22,22,26,.14);
+      --before:#B4462A;--beforeBg:rgba(180,70,42,.06);--beforeRule:rgba(180,70,42,.24);
+      --after:#1B7A55;--afterBg:rgba(27,122,85,.06);--afterRule:rgba(27,122,85,.24)}
+.sheet{position:absolute;inset:0;padding:76px 76px 72px;display:flex;flex-direction:column}
+h1,h2{font-weight:600;letter-spacing:-.042em;line-height:1.02}
+.accent{color:var(--after)}
+.desc{font-size:31px;font-weight:400;line-height:1.42;color:var(--muted)}
+.pane{border-radius:14px;padding:34px 36px}
+.pane .lab{font-size:21px;font-weight:600;letter-spacing:-.01em}
+.pane .txt{margin-top:14px;font-size:28px;font-weight:400;line-height:1.38;color:var(--ink)}
+.pane .stat{margin-top:22px;font-size:34px;font-weight:600;letter-spacing:-.03em}
+.marks{display:flex;align-items:center;gap:20px}
+.marks span{width:30px;height:30px}
+.marks span svg{width:100%;height:100%;display:block}
+h1{font-size:112px;max-width:900px}
+.desc{margin-top:34px;max-width:780px}
+.cmp{margin-top:auto;display:grid;grid-template-columns:1fr 1fr;gap:22px}
+.col{border-radius:14px;padding:34px 34px 36px}
+.col.b{background:var(--beforeBg);border:1px solid var(--beforeRule)}
+.col.a{background:var(--afterBg);border:1px solid var(--afterRule)}
+.col .h{font-size:22px;font-weight:600;letter-spacing:-.012em}
+.col.b .h{color:var(--before)} .col.a .h{color:var(--after)}
+.item{margin-top:30px}
+.item .l{font-size:26px;font-weight:500;line-height:1.32;letter-spacing:-.018em}
+.item .s{margin-top:8px;font-size:24px;font-weight:600;letter-spacing:-.022em}
+.col.b .s{color:var(--before)} .col.a .s{color:var(--after)}
+.foot{margin-top:44px;padding-top:28px;border-top:1px solid var(--rule);display:flex;justify-content:space-between;align-items:center}
+.foot .c{font-size:24px;font-weight:600;letter-spacing:-.02em}
+h1 .accent{font-family:"Fraunces",serif;font-style:italic;font-weight:600;letter-spacing:-.02em}
+</style></head>
+<body>
+<div class="sheet">
+  <h1>{{title}} <span class="accent">{{titleAccent}}</span></h1>
+  <p class="desc">{{description}}</p>
+  <div class="cmp">
+    <div class="col b">
+      <div class="h">Before</div>
+      <div class="item"><div class="l">{{badLabel1}}</div><div class="s">{{badStat1}}</div></div>
+      <div class="item"><div class="l">{{badLabel2}}</div><div class="s">{{badStat2}}</div></div>
+    </div>
+    <div class="col a">
+      <div class="h">After</div>
+      <div class="item"><div class="l">{{goodLabel1}}</div><div class="s">{{goodStat1}}</div></div>
+      <div class="item"><div class="l">{{goodLabel2}}</div><div class="s">{{goodStat2}}</div></div>
+    </div>
+  </div>
+  <div class="foot">
+    <div class="marks"><span>{{iconSvg1}}</span><span>{{iconSvg2}}</span><span>{{iconSvg3}}</span><span>{{iconSvg4}}</span></div>
+    <div class="c">{{ctaText}}</div>
+  </div>
+</div>
+</body></html>

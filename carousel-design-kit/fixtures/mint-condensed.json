@@ -1,0 +1,110 @@
+{
+  "_note": "Frozen content for design review. Statement-led family — one sentence per page set at display size in a condensed face, with the clause it turns on carrying the mint.",
+  "family": "mint-condensed",
+  "brief": "A guide to protecting your attention",
+  "slides": [
+    {
+      "layoutId": "cover-mint-condensed",
+      "slots": {
+        "eyebrow": "A guide to getting one thing finished",
+        "titleLine1": "Focus is not",
+        "titleBold": "concentration",
+        "tagline": "It is what you have already refused. Six pages on removing the things that were going to interrupt you anyway.",
+        "item1": "Why your best hours are the ones you give away",
+        "item2": "What an open tab actually costs",
+        "item3": "The refusal that makes the rest unnecessary",
+        "coverNote": "None of this requires an app"
+      }
+    },
+    {
+      "layoutId": "body-mint-condensed",
+      "slots": {
+        "sectionLabel": "On what it actually is",
+        "bodyLine1": "Focus is choosing one thing and letting",
+        "bodyLine2": "everything else wait",
+        "bodyLine3": "It is not a state you enter by trying harder. It is the consequence of having decided, in advance, what you are not going to do today.",
+        "f1Title": "The decision comes first",
+        "f1Body": "Nobody concentrates their way out of an unclear priority.",
+        "f2Title": "Waiting is the mechanism",
+        "f2Body": "Everything else still gets done, later, and knowing that is what allows the first thing to finish."
+      }
+    },
+    {
+      "layoutId": "body-mint-condensed",
+      "slots": {
+        "sectionLabel": "On your environment",
+        "bodyLine1": "Attention leaks when the room",
+        "bodyLine2": "stays noisy",
+        "bodyLine3": "Every notification you can receive is a decision you have to make, and you make it whether or not you open the message.",
+        "f1Title": "Silence beats discipline",
+        "f1Body": "Turning it off costs nothing. Resisting it costs something every time.",
+        "f2Title": "Out of sight is enough",
+        "f2Body": "A phone in another room is a different phone from the same one face down."
+      }
+    },
+    {
+      "layoutId": "body-mint-condensed",
+      "slots": {
+        "sectionLabel": "On when you work",
+        "bodyLine1": "Your best two hours are usually",
+        "bodyLine2": "already spent",
+        "bodyLine3": "Most people give their sharpest part of the day to email and meetings, then attempt the difficult work on whatever is left of it.",
+        "f1Title": "Protect the window",
+        "f1Body": "Book it before anyone else can, and treat it as immovable.",
+        "f2Title": "Everything else is fine later",
+        "f2Body": "Correspondence at four in the afternoon is indistinguishable from correspondence at nine."
+      }
+    },
+    {
+      "layoutId": "body-mint-condensed",
+      "slots": {
+        "sectionLabel": "On starting",
+        "bodyLine1": "The hard part is never the work, it is",
+        "bodyLine2": "the first sentence",
+        "bodyLine3": "Beginning is the expensive step, which is why the tidying, the reading and the tooling all feel so urgent right before it.",
+        "f1Title": "Start badly on purpose",
+        "f1Body": "A rough first version removes the blank page, which was the actual obstacle.",
+        "f2Title": "Leave it unfinished",
+        "f2Body": "Stopping mid-sentence gives tomorrow a running start instead of a cold one."
+      }
+    },
+    {
+      "layoutId": "body-mint-condensed",
+      "slots": {
+        "sectionLabel": "On interruption",
+        "bodyLine1": "A quick question is never",
+        "bodyLine2": "quick",
+        "bodyLine3": "Asking takes a minute and answering takes twenty, because the person answering has to rebuild the context they had just finished assembling.",
+        "f1Title": "Batch the answers",
+        "f1Body": "Twice a day is responsive. Continuously is a second job.",
+        "f2Title": "Available is not useful",
+        "f2Body": "The most helpful person on a team is often the one who finished something."
+      }
+    },
+    {
+      "layoutId": "body-mint-condensed",
+      "slots": {
+        "sectionLabel": "The uncomfortable one",
+        "bodyLine1": "None of this works if you have not",
+        "bodyLine2": "decided what matters",
+        "bodyLine3": "Every technique here protects a priority. Applied without one, they produce a very well-defended day in which nothing important happens.",
+        "f1Title": "Pick before you protect",
+        "f1Body": "The hour is only worth defending once you know what it is for.",
+        "f2Title": "One thing, written down",
+        "f2Body": "If you cannot name it in a sentence, the problem is not your concentration."
+      }
+    },
+    {
+      "layoutId": "cta-mint-condensed",
+      "slots": {
+        "eyebrow": "Tomorrow morning, before anything else",
+        "ctaQuestion": "Name it, then",
+        "titleBold": "guard it",
+        "tagline": "One sentence on what matters today, and two hours in the calendar with nothing else in them.",
+        "closingLine": "The technique is trivial. Deciding what deserves the hours is the whole difficulty.",
+        "buttonLabel": "Take all six",
+        "signoff": "No app required, which is why it works"
+      }
+    }
+  ]
+}

@@ -1,0 +1,107 @@
+{
+  "_note": "Frozen content for design review. Spinoff of cream-table: every page holds a device frame the user fills with their own screenshot. Rendered here with the slots empty so the placeholder state is what gets judged.",
+  "family": "cream-shots",
+  "brief": "The five screens a one-person business actually runs on",
+  "slides": [
+    {
+      "layoutId": "cover-cream-shots",
+      "slots": {
+        "titleLine1": "Five screens.",
+        "titleAccent": "That is the company.",
+        "subtitle": "Not the stack diagram anyone posts. The five things actually open on the second monitor at four in the afternoon.",
+        "iconSlug1": "notion",
+        "iconSlug2": "linear",
+        "iconSlug3": "anthropic",
+        "iconSlug4": "figma",
+        "iconSlug5": "stripe"
+      }
+    },
+    {
+      "layoutId": "body-cream-shots",
+      "slots": {
+        "iconSlug1": "notion",
+        "toolName": "Notion",
+        "toolTagline": "One page the whole week points at",
+        "bigStatement": "Everything lives in <b>one database</b> with three views, because four private lists is how work goes missing.",
+        "useNote": "Replaced a task app, a wiki and a spreadsheet",
+        "useMetric": "3 apps gone",
+        "shot": "shot-notion.png"
+      }
+    },
+    {
+      "layoutId": "body-cream-shots",
+      "slots": {
+        "iconSlug1": "linear",
+        "toolName": "Linear",
+        "toolTagline": "The list that decides what ships",
+        "bigStatement": "If it is not on the board it is not happening, and <b>nothing sits</b> longer than a week without being cut or closed.",
+        "useNote": "Every item has one owner and one date",
+        "useMetric": "1 week max",
+        "shot": "shot-linear.png"
+      }
+    },
+    {
+      "layoutId": "body-cream-shots",
+      "slots": {
+        "iconSlug1": "anthropic",
+        "toolName": "Claude",
+        "toolTagline": "The first draft of nearly everything",
+        "bigStatement": "The blank page is the expensive part. A rough version in thirty seconds changes <b>what you are willing to start</b>.",
+        "useNote": "Drafting, editing and the reading you skipped",
+        "useMetric": "70% faster",
+        "shot": "shot-claude.png"
+      }
+    },
+    {
+      "layoutId": "body-cream-shots",
+      "slots": {
+        "iconSlug1": "figma",
+        "toolName": "Figma",
+        "toolTagline": "Where an argument gets settled",
+        "bigStatement": "Two people looking at the same frame settle in ten minutes what a thread <b>would not settle in three days</b>.",
+        "useNote": "Design, decks and anything that needs showing",
+        "useMetric": "0 handoffs",
+        "shot": "shot-figma.png"
+      }
+    },
+    {
+      "layoutId": "body-cream-shots",
+      "slots": {
+        "iconSlug1": "stripe",
+        "toolName": "Stripe",
+        "toolTagline": "The only number that is not a vanity metric",
+        "bigStatement": "Revenue is checked once a day and <b>nothing else is</b>, because the rest moves too slowly to be worth watching.",
+        "useNote": "Payments, invoices and one dashboard",
+        "useMetric": "once a day",
+        "shot": "shot-stripe.png"
+      }
+    },
+    {
+      "layoutId": "body-cream-shots",
+      "slots": {
+        "iconSlug1": "slack",
+        "toolName": "The catch",
+        "toolTagline": "What five screens costs you",
+        "bigStatement": "Five tools is five places to look, and the thing that falls through <b>always falls between them</b>.",
+        "useNote": "Fewer tools than most, still one too many",
+        "useMetric": "real risk",
+        "shot": "shot-slack.png"
+      }
+    },
+    {
+      "layoutId": "cta-cream-shots",
+      "slots": {
+        "titleLine1": "Keep the five.",
+        "titleAccent": "Cut the rest.",
+        "body": "Everything past the fifth tool earns its place by being opened, not by sounding useful when somebody asks what you run.",
+        "iconSlug1": "notion",
+        "iconSlug2": "linear",
+        "iconSlug3": "anthropic",
+        "iconSlug4": "figma",
+        "iconSlug5": "stripe",
+        "btnPrimary": "Take the whole stack",
+        "signoff": "The sixth one is always the one to go"
+      }
+    }
+  ]
+}

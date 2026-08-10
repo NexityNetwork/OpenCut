@@ -1,0 +1,95 @@
+{
+  "_note": "Frozen content for design review. Tri-fold family — the sheet is folded in three, each panel catching the light differently, with the creases drawn as a hairline and a soft band either side. No tools: the subject is the document.",
+  "family": "paper-fold",
+  "brief": "How to write a brief somebody can act on",
+  "slides": [
+    {
+      "layoutId": "cover-paper-fold",
+      "slots": {
+        "eyebrow": "On the page everything else depends on",
+        "titleLine1": "Most projects fail",
+        "titleAccent": "on page one.",
+        "subtitle": "Six things a brief has to contain before anybody can begin, and the one everybody leaves out.",
+        "item1": "Why a list of requirements is not a brief",
+        "item2": "The sentence that saves a month"
+      }
+    },
+    {
+      "layoutId": "body-paper-fold",
+      "slots": {
+        "sectionLabel": "The first thing",
+        "titleLine1": "Say what changes,",
+        "titleAccent": "not what to build.",
+        "body": "A brief that describes the solution has already made the expensive decision, usually by the person furthest from the work. Describing the <b>change you want in the world</b> leaves the method open to whoever knows it best.",
+        "p1Title": "Write the after", "p1Body": "What is different for somebody once this exists and works.",
+        "p2Title": "Delete the how", "p2Body": "Every implementation detail in a brief is a constraint nobody argued for."
+      }
+    },
+    {
+      "layoutId": "body-paper-fold",
+      "slots": {
+        "sectionLabel": "The second thing",
+        "titleLine1": "Name who it is",
+        "titleAccent": "for, specifically.",
+        "body": "Not a segment, not a persona — a person you could describe by their Tuesday. Broad audiences produce broad work, and <b>broad work is the kind nobody remembers commissioning</b>.",
+        "p1Title": "One reader", "p1Body": "If two people want opposite things, you have two briefs.",
+        "p2Title": "Their situation", "p2Body": "What they are doing immediately before they encounter this."
+      }
+    },
+    {
+      "layoutId": "body-paper-fold",
+      "slots": {
+        "sectionLabel": "The third thing",
+        "titleLine1": "State the real",
+        "titleAccent": "deadline.",
+        "body": "There is usually a launch, a board meeting or a season behind the date, and the date without its reason cannot be negotiated. <b>A deadline you can explain is a deadline you can move</b>.",
+        "p1Title": "Why that day", "p1Body": "The reason behind the date is what makes trade-offs possible.",
+        "p2Title": "What slips first", "p2Body": "Decided now, calmly, rather than in the last week under pressure."
+      }
+    },
+    {
+      "layoutId": "body-paper-fold",
+      "slots": {
+        "sectionLabel": "The fourth thing",
+        "titleLine1": "Write down what",
+        "titleAccent": "is out of scope.",
+        "body": "The exclusions do more work than the inclusions, because every unbilled hour and every late argument began as <b>an assumption both sides held and neither wrote down</b>.",
+        "p1Title": "Name the edges", "p1Body": "What this deliberately does not cover, in plain words.",
+        "p2Title": "Price the extras", "p2Body": "Agreeing a rate in advance turns an argument into an invoice."
+      }
+    },
+    {
+      "layoutId": "body-paper-fold",
+      "slots": {
+        "sectionLabel": "The fifth thing",
+        "titleLine1": "Say who decides,",
+        "titleAccent": "by name.",
+        "body": "A brief with no named decision-maker produces work that is reviewed by everybody and approved by nobody, which is <b>how a two-week project becomes a two-month one</b>.",
+        "p1Title": "One name", "p1Body": "Committees do not decide, they schedule another conversation.",
+        "p2Title": "One date to review", "p2Body": "Booked before the work begins, not found afterwards."
+      }
+    },
+    {
+      "layoutId": "body-paper-fold",
+      "slots": {
+        "sectionLabel": "The one everybody skips",
+        "titleLine1": "Write how you will",
+        "titleAccent": "know it worked.",
+        "body": "Without it, success is whatever the loudest person felt on the day of the review. With it, the argument happens now, in the calm, when <b>changing your mind is still free</b>.",
+        "p1Title": "One measure", "p1Body": "Named in advance, even if it is rough and arguable.",
+        "p2Title": "One date to check", "p2Body": "A month after delivery, when the answer is actually available."
+      }
+    },
+    {
+      "layoutId": "cta-paper-fold",
+      "slots": {
+        "eyebrow": "Before the next kick-off",
+        "titleLine1": "One page.",
+        "titleAccent": "Six sentences.",
+        "body": "What changes, who for, by when and why then, what is excluded, who decides, and how you will know. Anything longer is a document nobody finishes reading.",
+        "buttonLabel": "Take the whole page",
+        "signoff": "The sixth sentence is the one that gets skipped"
+      }
+    }
+  ]
+}

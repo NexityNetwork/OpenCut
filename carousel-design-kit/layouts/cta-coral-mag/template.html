@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html><head><meta charset="utf-8">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+html,body{width:1080px;height:1350px;overflow:hidden;color:#F9F3EF;
+  font-family:"Inter",sans-serif;-webkit-font-smoothing:antialiased;text-rendering:geometricPrecision}
+:root{--ink:#F9F3EF;--muted:rgba(249,243,239,.72);--rule:rgba(249,243,239,.20);--coral:#F0603C}
+.mesh{position:absolute;inset:0;z-index:0;background:
+  radial-gradient(120% 90% at 14% 16%, #F0603C 0%, transparent 56%),
+  radial-gradient(100% 80% at 88% 6%,  #FF8A5E 0%, transparent 50%),
+  radial-gradient(120% 95% at 78% 90%, #A32F16 0%, transparent 58%),
+  radial-gradient(110% 90% at 4% 92%,  #5C1A08 0%, transparent 56%),
+  #24100A}
+.mesh.pale{background:
+  radial-gradient(120% 90% at 16% 14%, #FFC7B2 0%, transparent 56%),
+  radial-gradient(100% 80% at 86% 8%,  #FFE7DC 0%, transparent 52%),
+  radial-gradient(120% 95% at 76% 90%, #FF9A78 0%, transparent 58%),
+  radial-gradient(110% 90% at 6% 92%,  #FFF4EE 0%, transparent 54%),
+  #FDF6F2}
+.grain{position:absolute;inset:0;z-index:1;opacity:.30;mix-blend-mode:overlay;pointer-events:none}
+.obj{position:absolute;z-index:2;pointer-events:none}
+.sheet{position:absolute;inset:0;padding:124px 88px 108px;display:flex;flex-direction:column;justify-content:space-between;z-index:4}
+html,body{color:#2A0F05}
+:root{--muted:rgba(42,15,5,.72);--rule:rgba(42,15,5,.20)}
+.obj-swatch{right:-130px;top:540px;width:500px;height:400px;transform:rotate(5deg)}
+.obj-swatch rect{stroke:rgba(42,15,5,.34);fill:rgba(42,15,5,.07)}
+.obj-swatch path{stroke:rgba(42,15,5,.34)}
+.tag{font-size:28px;font-weight:600;color:#B4341A}
+h1{margin-top:20px;font-size:104px;font-weight:700;line-height:1.0;letter-spacing:-4px;max-width:800px}
+h1 em{font-style:normal;color:#B4341A}
+.body{font-size:33px;font-weight:400;line-height:1.42;color:var(--muted);max-width:660px}
+.btn{align-self:flex-start;padding:22px 44px;background:#2A0F05;color:#FDF6F2;border-radius:14px;
+  font-size:29px;font-weight:600;letter-spacing:-.5px}
+</style></head>
+<body>
+<div class="mesh pale"></div>
+<svg class="grain" width="1080" height="1350" viewBox="0 0 1080 1350" preserveAspectRatio="none">
+<filter id="gr"><feTurbulence type="fractalNoise" baseFrequency="0.8" numOctaves="3" seed="12"/><feColorMatrix type="saturate" values="0"/></filter>
+<rect width="1080" height="1350" filter="url(#gr)" opacity="0.55"/></svg>
+<svg class="obj obj-swatch" viewBox="0 0 520 420" fill="none">
+  <defs>
+    <filter id="wsh" x="-40%" y="-30%" width="180%" height="190%">
+      <feDropShadow dx="0" dy="28" stdDeviation="28" flood-color="#3A0F04" flood-opacity=".42"/>
+    </filter>
+  </defs>
+  <g filter="url(#wsh)">
+    <rect x="24" y="118" width="150" height="230" rx="20" fill="rgba(255,255,255,.16)" stroke="rgba(255,255,255,.44)" stroke-width="2" transform="rotate(-8 99 233)"/>
+    <rect x="182" y="86" width="150" height="230" rx="20" fill="rgba(255,255,255,.24)" stroke="rgba(255,255,255,.50)" stroke-width="2" transform="rotate(-2 257 201)"/>
+    <rect x="340" y="112" width="150" height="230" rx="20" fill="rgba(255,255,255,.14)" stroke="rgba(255,255,255,.40)" stroke-width="2" transform="rotate(7 415 227)"/>
+    <path d="M60 300h78M218 268h78M376 296h78" stroke="rgba(255,255,255,.46)" stroke-width="6" stroke-linecap="round"/>
+  </g>
+</svg>
+<div class="sheet">
+  <div class="head">
+    <div class="tag">{{tag}}</div>
+    <h1>{{headWord1}} <em>{{headWord2}}</em></h1>
+  </div>
+  <p class="body">{{body}}</p>
+  <div class="btn">{{buttonLabel}}</div>
+</div>
+</body></html>

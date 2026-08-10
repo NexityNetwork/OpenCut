@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html><head><meta charset="utf-8">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+html,body{width:1080px;height:1350px;overflow:hidden;color:#E7ECF5;
+  font-family:"Inter",sans-serif;-webkit-font-smoothing:antialiased;text-rendering:geometricPrecision}
+:root{--muted:rgba(231,236,245,.58);--rule:rgba(231,236,245,.15);--accent:#F6A44C}
+/* Flat ground, drawn structure — no gradient. Each dark family gets its own
+   system: columns for the figures one, ruled lines for the editorial one, and
+   a dot matrix here, which is the only one of the three that reads as a plane
+   rather than a page. */
+.ground{position:absolute;inset:0;z-index:0;background:#0B1220}
+.dots{position:absolute;inset:0;z-index:1;pointer-events:none;
+  background-image:radial-gradient(rgba(231,236,245,.13) 1.4px,transparent 1.4px);
+  background-size:54px 54px;background-position:84px 90px}
+.grain{position:absolute;inset:0;z-index:6;opacity:.14;mix-blend-mode:overlay;pointer-events:none}
+/* Stays navy. The accent arrives as a full-measure rule and the action rather
+   than as a flooded ground. */
+.sheet{position:absolute;inset:0;padding:120px 84px 114px;display:flex;flex-direction:column;z-index:4}
+.eyebrow{font-size:27px;font-weight:500;color:var(--accent);letter-spacing:-.4px}
+.bar{margin-top:30px;height:8px;background:var(--accent);width:100%}
+h1{margin-top:52px;font-size:118px;font-weight:700;line-height:.96;letter-spacing:-5px;max-width:900px}
+h1 em{font-style:normal;color:var(--accent)}
+.sub{margin-top:36px;font-size:32px;font-weight:400;line-height:1.42;color:var(--muted);max-width:760px}
+.close{margin-top:auto;font-size:46px;font-weight:600;line-height:1.22;letter-spacing:-1.8px;max-width:860px;color:rgba(231,236,245,.82)}
+.foot{margin-top:60px;display:flex;align-items:center;gap:28px;padding-top:32px;border-top:1px solid var(--rule)}
+.btn{padding:22px 46px;background:var(--accent);color:#0B1220;border-radius:14px;font-size:28px;font-weight:600;letter-spacing:-.5px}
+.ghost{font-size:24px;font-weight:500;color:var(--muted)}
+</style></head>
+<body>
+<div class="ground"></div>
+<div class="dots"></div>
+<div class="sheet">
+  <div class="eyebrow">{{eyebrow}}</div>
+  <div class="bar"></div>
+  <h1>{{titleMain}} <em>{{titleAccent}}</em></h1>
+  <p class="sub">{{body}}</p>
+  <div class="close">{{closingLine}}</div>
+  <div class="foot">
+    <div class="btn">{{buttonLabel}}</div>
+    <div class="ghost">{{signoff}}</div>
+  </div>
+</div>
+<svg class="grain" width="1080" height="1350" viewBox="0 0 1080 1350" preserveAspectRatio="none">
+<filter id="gr"><feTurbulence type="fractalNoise" baseFrequency="0.8" numOctaves="3" seed="61"/><feColorMatrix type="saturate" values="0"/></filter>
+<rect width="1080" height="1350" filter="url(#gr)" opacity="0.5"/></svg>
+</body></html>

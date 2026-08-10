@@ -1,0 +1,151 @@
+{
+  "_note": "Frozen content for design review. Spinoff of the coral-mag system — mesh ground, grain, and one drawn frosted-glass object per family.",
+  "family": "wine-mag",
+  "brief": "Six habits that decide whether a brand holds together",
+  "slides": [
+    {
+      "layoutId": "cover-wine-mag",
+      "slots": {
+        "eyebrow": "Consistency is a system, not a preference",
+        "titleLine1": "A brand is",
+        "titleAccent": "what survives editing.",
+        "subtitle": "Six decisions that keep a brand recognisable once other people start using it without you.",
+        "stat1V": "6",
+        "stat1L": "decisions",
+        "stat2V": "1",
+        "stat2L": "that nobody documents",
+        "stat3V": "∞",
+        "stat3L": "people who will apply them",
+        "iconSlug1": "figma",
+        "iconSlug2": "adobeillustrator",
+        "iconSlug3": "adobephotoshop",
+        "iconSlug4": "framer",
+        "iconSlug5": "notion",
+        "iconColor1": "#FBEFF1",
+        "iconColor2": "#FBEFF1",
+        "iconColor3": "#FBEFF1",
+        "iconColor4": "#FBEFF1",
+        "iconColor5": "#FBEFF1"
+      }
+    },
+    {
+      "layoutId": "body-wine-mag",
+      "slots": {
+        "iconSlug1": "figma",
+        "toolName": "The library",
+        "toolRole": "Where it is defined",
+        "title": "Components beat",
+        "titleAccent": "a document about components",
+        "body": "A guideline that has to be read gets ignored. A component that has to be used gets used, which is the entire mechanism of consistency at scale.",
+        "stat1V": "1",
+        "stat1L": "source of truth",
+        "stat2V": "0",
+        "stat2L": "documents to read",
+        "stat3V": "live",
+        "stat3L": "always current",
+        "iconColor1": "#FBEFF1"
+      }
+    },
+    {
+      "layoutId": "body-wine-mag",
+      "slots": {
+        "iconSlug1": "adobeillustrator",
+        "toolName": "The mark",
+        "toolRole": "How it survives",
+        "title": "A logo that needs a minimum size",
+        "titleAccent": "is a logo that will break",
+        "body": "It will be applied at fourteen pixels and on a two-metre banner by people who have never met you. Both have to work without supervision.",
+        "stat1V": "14 px",
+        "stat1L": "and still legible",
+        "stat2V": "2 m",
+        "stat2L": "and still clean",
+        "stat3V": "1",
+        "stat3L": "vector, forever",
+        "iconColor1": "#FBEFF1"
+      }
+    },
+    {
+      "layoutId": "body-wine-mag",
+      "slots": {
+        "iconSlug1": "adobephotoshop",
+        "toolName": "The imagery",
+        "toolRole": "What it looks like",
+        "title": "Colour discipline does more",
+        "titleAccent": "than art direction",
+        "body": "A consistent grade across mediocre photography reads as a brand. Beautiful photography in five different grades reads as a stock library.",
+        "stat1V": "1",
+        "stat1L": "grade, applied to all",
+        "stat2V": "3",
+        "stat2L": "approved treatments",
+        "stat3V": "0",
+        "stat3L": "exceptions",
+        "iconColor1": "#FBEFF1"
+      }
+    },
+    {
+      "layoutId": "body-wine-mag",
+      "slots": {
+        "iconSlug1": "framer",
+        "toolName": "The site",
+        "toolRole": "Where people meet it",
+        "title": "The website is the only asset",
+        "titleAccent": "your audience actually touches",
+        "body": "It deserves the same scrutiny as the mark and usually gets a fraction of it, because it feels like a template rather than an identity decision.",
+        "stat1V": "1",
+        "stat1L": "asset that gets seen",
+        "stat2V": "100%",
+        "stat2L": "of first impressions",
+        "stat3V": "1 week",
+        "stat3L": "to get right",
+        "iconColor1": "#FBEFF1"
+      }
+    },
+    {
+      "layoutId": "body-wine-mag",
+      "slots": {
+        "iconSlug1": "notion",
+        "toolName": "The rules",
+        "toolRole": "How it is held",
+        "title": "Guidelines nobody can find",
+        "titleAccent": "are guidelines nobody follows",
+        "body": "The document matters far less than the fact that it is one link, current, and short enough that somebody in a hurry will actually read it.",
+        "stat1V": "1",
+        "stat1L": "link, shared everywhere",
+        "stat2V": "2 pages",
+        "stat2L": "maximum",
+        "stat3V": "current",
+        "stat3L": "or worthless",
+        "iconColor1": "#FBEFF1"
+      }
+    },
+    {
+      "layoutId": "body-wine-mag",
+      "slots": {
+        "iconSlug1": "figma",
+        "toolName": "The catch",
+        "toolRole": "What none of it does",
+        "title": "Consistency makes work",
+        "titleAccent": "recognisable, not good",
+        "body": "A perfectly applied system produces mediocre work at speed. These decisions remove friction; they cannot supply the thing worth being consistent about.",
+        "stat1V": "6",
+        "stat1L": "habits, applied",
+        "stat2V": "0",
+        "stat2L": "taste supplied",
+        "stat3V": "1",
+        "stat3L": "judgement, still yours",
+        "iconColor1": "#FBEFF1"
+      }
+    },
+    {
+      "layoutId": "cta-wine-mag",
+      "slots": {
+        "eyebrow": "Before you buy anything",
+        "titleLine1": "Own five.",
+        "titleAccent": "Not fifteen.",
+        "body": "Every extra tool is another place the brand drifts. Pick the ones that own a job each, and delete the rest without ceremony.",
+        "btnPrimary": "Take the stack",
+        "signoff": "Drift happens in the gaps"
+      }
+    }
+  ]
+}

@@ -1,0 +1,105 @@
+{
+  "_note": "Frozen content for design review. Instructional family — prose carries the page, the screen sits underneath as evidence rather than as the subject.",
+  "family": "cream-notes",
+  "brief": "Setting up a system that runs without you watching it",
+  "slides": [
+    {
+      "layoutId": "cover-cream-notes",
+      "slots": {
+        "eyebrow": "Written down once, then left alone",
+        "titleLine1": "Build it so you",
+        "titleAccent": "stop touching it.",
+        "subtitle": "Six pieces, each set up in an afternoon. Nothing clever, nothing that breaks when you go on holiday, and <b>no step that depends on you remembering it</b>.",
+        "iconSlug1": "notion",
+        "iconSlug2": "linear",
+        "iconSlug3": "stripe",
+        "iconSlug4": "anthropic",
+        "iconSlug5": "slack"
+      }
+    },
+    {
+      "layoutId": "body-cream-notes",
+      "slots": {
+        "iconSlug1": "notion",
+        "toolTagline": "Where everything points",
+        "noteTitle": "One database. Three views. Nothing else.",
+        "line1": "Create the database first and resist adding properties for a week.",
+        "line2": "<b>Status, owner, date.</b> Every view is a filter on those three, which is why three is enough.",
+        "line3": "<b>Everything else</b> is a page inside a row, not a new database — that is the mistake that turns this into work.",
+        "shot": "shot-notion.png"
+      }
+    },
+    {
+      "layoutId": "body-cream-notes",
+      "slots": {
+        "iconSlug1": "linear",
+        "toolTagline": "Where work is decided",
+        "noteTitle": "If it cannot ship this week, cut it.",
+        "line1": "Scope is not ambition; it is how long you are willing to guess for.",
+        "line2": "<b>One owner per item.</b> Committees do not decide, they schedule, and the schedule is the delay.",
+        "line3": "<b>Anything untouched for a week</b> gets closed or halved. Nothing is allowed to quietly persist.",
+        "shot": "shot-linear.png"
+      }
+    },
+    {
+      "layoutId": "body-cream-notes",
+      "slots": {
+        "iconSlug1": "stripe",
+        "toolTagline": "How the money side is wired",
+        "noteTitle": "Check revenue once. Then close the tab.",
+        "line1": "One dashboard, opened in the morning and not again.",
+        "line2": "<b>Payments</b> and invoices run themselves; the only manual step left is deciding what to charge.",
+        "line3": "<b>Failed charges</b> retry on their own, which used to be an afternoon of chasing people.",
+        "shot": "shot-stripe.png"
+      }
+    },
+    {
+      "layoutId": "body-cream-notes",
+      "slots": {
+        "iconSlug1": "anthropic",
+        "toolTagline": "Where the drafting happens",
+        "noteTitle": "Never start from an empty page again.",
+        "line1": "Feed it enough of your own writing that the draft sounds like you on a good day.",
+        "line2": "<b>Ask for three angles</b> rather than one version, so you stop defending your first idea by default.",
+        "line3": "<b>Check anything load-bearing.</b> Fluency is not accuracy, and it will never flag the difference.",
+        "shot": "shot-claude.png"
+      }
+    },
+    {
+      "layoutId": "body-cream-notes",
+      "slots": {
+        "iconSlug1": "slack",
+        "toolTagline": "Where the noise gets contained",
+        "noteTitle": "Two piles: needs a decision, and everything else.",
+        "line1": "Most messages want a decision, not a reply, and sorting for that is the whole job.",
+        "line2": "<b>Urgent and loud</b> look identical here. Deadline pressure is real; social pressure is negotiable.",
+        "line3": "<b>Anything longer than a paragraph</b> belongs in the database, where it can still be found next month.",
+        "shot": "shot-slack.png"
+      }
+    },
+    {
+      "layoutId": "body-cream-notes",
+      "slots": {
+        "iconSlug1": "figma",
+        "toolTagline": "The part nobody sets up",
+        "noteTitle": "Write down why, not only what.",
+        "line1": "Teams re-litigate settled decisions because nobody recorded the reasoning behind them.",
+        "line2": "<b>One paragraph per decision</b> is enough, and it has to be written the day it is made.",
+        "line3": "<b>If you cannot say why</b>, you will have the same discussion again within the quarter.",
+        "shot": "shot-figma.png"
+      }
+    },
+    {
+      "layoutId": "cta-cream-notes",
+      "slots": {
+        "eyebrow": "Where to start",
+        "titleLine1": "Start with one.",
+        "titleAccent": "Not six.",
+        "body": "The database first, because everything else eventually points at it. Give it an afternoon and leave the properties alone for a week.",
+        "body2": "A system you built in one sitting and never revisited is worth more than a perfect one you are still configuring in March.",
+        "btnPrimary": "Take the whole setup",
+        "signoff": "The afternoon is the entire cost"
+      }
+    }
+  ]
+}

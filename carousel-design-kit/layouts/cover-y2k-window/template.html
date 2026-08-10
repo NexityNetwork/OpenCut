@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html><head><meta charset="utf-8">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+html,body{width:1080px;height:1350px;overflow:hidden;background:#DCE2E8;color:#0C1014;
+  font-family:"Inter",sans-serif;-webkit-font-smoothing:antialiased;text-rendering:geometricPrecision}
+:root{--muted:rgba(12,16,20,.58);--rule:rgba(12,16,20,.16)}
+/* Bevelled metal plates: a real chrome gradient built from near neighbours —
+   light top edge, mid face, dark bottom — with a crisp one-pixel highlight
+   along the top. No window chrome, no title bars, no dialog boxes: the
+   reference is a machined plate, not a piece of a desktop. */
+.plate{position:relative;
+  background:linear-gradient(180deg,#F3F6F8 0%,#DEE4EA 26%,#C6CFD7 58%,#AEB9C3 82%,#98A5B1 100%);
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.95), inset 0 -1px 0 rgba(12,16,20,.22)}
+/* The grain keeps the four-stop ramp from banding at this size. It is the only
+   positioned child of a plate, and a positioned element paints above in-flow
+   content whatever the DOM order — so everything else on a plate is lifted into
+   the same layer or the grain covers the type. */
+.plate>.gr{position:absolute;inset:0;opacity:.32;mix-blend-mode:multiply;pointer-events:none}
+.plate>*:not(.gr){position:relative}
+/* Dark plates use the same ramp inverted, so the two read as the same material
+   under different light rather than as two different surfaces. */
+.plate.dk{color:#EAEEF2;
+  background:linear-gradient(180deg,#39424C 0%,#262E37 30%,#161C23 66%,#0C1014 100%);
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.16), inset 0 -1px 0 rgba(0,0,0,.5)}
+.plate.dk .g{color:rgba(234,238,242,.6)}
+.page{position:absolute;inset:0;z-index:2;padding:104px 84px 92px;display:flex;flex-direction:column;gap:22px}
+.head{padding:44px 48px 48px}
+.eyebrow{font-size:25px;font-weight:500;color:var(--muted);letter-spacing:-.3px}
+h1{margin-top:22px;font-size:100px;font-weight:700;line-height:1;letter-spacing:-4.2px;max-width:800px}
+.stand{margin-top:26px;font-size:32px;font-weight:400;line-height:1.4;color:var(--muted);max-width:770px}
+.grid{flex:1;display:flex;gap:22px}
+.cell{flex:1;padding:38px 40px;display:flex;flex-direction:column;justify-content:center}
+.cell .t{font-size:29px;font-weight:600;letter-spacing:-.6px;line-height:1.26}
+.cell .g{margin-top:14px;font-size:24px;font-weight:400;line-height:1.38;color:var(--muted)}
+.note{padding:26px 48px;font-size:24px;color:var(--muted)}
+</style></head>
+<body>
+<svg width="0" height="0" style="position:absolute">
+<filter id="gr"><feTurbulence type="fractalNoise" baseFrequency="0.85" numOctaves="3" seed="21"/><feColorMatrix type="saturate" values="0"/></filter>
+</svg>
+<div class="page">
+  <div class="plate head">
+    <svg class="gr" width="100%" height="100%" preserveAspectRatio="none"><rect width="100%" height="100%" filter="url(#gr)" opacity="0.4"/></svg>
+    <div class="eyebrow">{{eyebrow}}</div>
+    <h1>{{titleLine1}}</h1>
+    <p class="stand">{{standfirst}}</p>
+  </div>
+  <div class="grid">
+    <div class="plate cell">
+      <svg class="gr" width="100%" height="100%" preserveAspectRatio="none"><rect width="100%" height="100%" filter="url(#gr)" opacity="0.4"/></svg>
+      <div class="t">{{c1}}</div><div class="g">{{item1}}</div>
+    </div>
+    <div class="plate cell dk">
+      <svg class="gr" width="100%" height="100%" preserveAspectRatio="none"><rect width="100%" height="100%" filter="url(#gr)" opacity="0.4"/></svg>
+      <div class="t">{{c2}}</div><div class="g">{{item2}}</div>
+    </div>
+  </div>
+  <div class="plate note">
+    <svg class="gr" width="100%" height="100%" preserveAspectRatio="none"><rect width="100%" height="100%" filter="url(#gr)" opacity="0.4"/></svg>
+    {{coverNote}}
+  </div>
+</div>
+</body></html>

@@ -1,0 +1,189 @@
+{
+  "_note": "Picker metadata. `title` names the JOB the template does, `note` says what it holds and when it wins, `points` is how many repeating sub-items a body page takes, `needs` are HARD requirements — a family tagged screenshots is unusable without real screenshots, logos without real named tools, numbers without real figures. All three fields were derived from the templates' actual slots, not from how the pages look. A family missing here falls back to its slug and its fixture brief.",
+
+  "agent-lineup": { "title": "Component roster", "points": 3, "needs": ["logos"],
+    "note": "One named component per page with three tools under it and a result line. Only for a system made of named parts — it has no slot for an argument. Near-black cards." },
+
+  "before-after": { "title": "Before / after with figures", "points": 0, "needs": ["logos", "numbers"],
+    "note": "Two panes per page, a bad figure against a good one. Unusable unless the subject is a genuine before-and-after with real numbers. Warm paper, clay against green." },
+
+  "beige-paper": { "title": "One paragraph per page", "points": 0, "needs": [],
+    "note": "A title and a single paragraph. No lists, no data, no logos — the lowest-capacity prose family here. For a slow first-person reflection. Soft beige, serif, drawn swash." },
+
+  "black-mindmap": { "title": "Five-pill list", "points": 5, "needs": [],
+    "note": "Five short pills per page and nothing else — no paragraph, no glosses. Black with a green marker. Still carries an uppercase eyebrow and a swipe arrow from the original set." },
+
+  "black-warning": { "title": "Statement and callout", "points": 0, "needs": [],
+    "note": "One paragraph plus one callout per page. Almost no structure, which is the point — for blunt rules and things people get wrong. Near-white with heavy black marks." },
+
+  "blue-italic": { "title": "Three figures, editorial", "points": 0, "needs": ["numbers"],
+    "note": "Three figure-and-label pairs plus a paragraph and a strip line. Needs real numbers. Pale stone, a half-circle bleeding off one edge, italic accent." },
+
+  "bold-split": { "title": "Three figures, split panel", "points": 0, "needs": ["numbers"],
+    "note": "Three figure-and-label pairs and a paragraph. Needs real numbers. Ink on cream cut by a deep angled slate panel — stronger diagonal than the other figure families." },
+
+  "claude-target": { "title": "Three-step method", "points": 3, "needs": [],
+    "note": "Three titled steps per page, each with one line under it. No figures or tools required. For a method or sequence. Saturated colour mesh with one drawn object." },
+
+  "condensed-pill": { "title": "Time saved per tactic", "points": 0, "needs": ["logos", "numbers"],
+    "note": "One tactic per page with a savings figure and two tool marks. Needs both to work. Built specifically for hours-back subjects. Warm paper, one solid pill." },
+
+  "coral-mag": { "title": "Three figures, magazine", "points": 0, "needs": ["logos", "numbers"],
+    "note": "Three figure pairs, a paragraph and one named tool. Needs numbers and a tool worth naming. Coral mesh, large editorial display." },
+
+  "cream-3d": { "title": "Three figures and a tip", "points": 0, "needs": ["logos", "numbers"],
+    "note": "Three figure pairs, a paragraph and a separate tip block, with one named tool. Needs numbers. Cool stone gradient, terracotta accent, very large type." },
+
+  "cream-best": { "title": "Tool shortlist", "points": 0, "needs": ["logos", "numbers"],
+    "note": "One headline figure and one tile per page over a logo row. Only for a shortlist where the tools themselves are the subject. Cream and green meshes." },
+
+  "cream-claude": { "title": "Three blocks with metrics", "points": 3, "needs": ["logos", "numbers"],
+    "note": "Three titled blocks, each carrying its own metric, plus four tool marks. Needs a figure per block. Cream mesh with a terracotta strip." },
+
+  "cream-desk": { "title": "Screenshot and use metric", "points": 0, "needs": ["screenshots", "logos", "numbers"],
+    "note": "One real product screenshot per page with the tool name, a use metric and a note. Unusable without actual screenshots. Bright cream, screen set flat." },
+
+  "cream-gold": { "title": "Three pillars and a price", "points": 3, "needs": ["numbers"],
+    "note": "Three pillars, a price figure and a pull quote. Needs a number worth naming out loud — built for rates and money. Cream with a single gold bar." },
+
+  "cream-notes": { "title": "Annotated screenshot", "points": 3, "needs": ["screenshots"],
+    "note": "One real screenshot per page annotated with three short lines. Unusable without actual screenshots. For showing a setup rather than describing it. Cream, margin-note feel." },
+
+  "cream-shots": { "title": "Screenshot and statement", "points": 0, "needs": ["screenshots", "logos", "numbers"],
+    "note": "One real screenshot per page under a large statement, plus a use metric. The cleanest of the screenshot set. Cream, screen held square in the frame." },
+
+  "cream-slab": { "title": "Screenshot, captioned", "points": 0, "needs": ["screenshots", "logos"],
+    "note": "One real screenshot per page with a single caption line — the least copy of the screenshot set apart from cream-tilt. Cream with a dark slab behind the screen." },
+
+  "cream-table": { "title": "Compatibility table", "points": 3, "needs": ["logos"],
+    "note": "Two use blocks with metrics over a five-logo compatibility row. For what a tool works with, not what it does. Cream mesh with docked tiles." },
+
+  "cream-tilt": { "title": "Screenshot, no copy", "points": 0, "needs": ["screenshots", "logos"],
+    "note": "One real screenshot per page with a tool name and tagline and nothing else. The lowest text capacity in the set. Cream, device tilted and bleeding off frame." },
+
+  "dark-blob": { "title": "Three figures, dark", "points": 0, "needs": ["logos", "numbers"],
+    "note": "Three figure pairs and a paragraph with one named tool. Needs numbers. Near-black with a hot orange mass per page — the loudest of the dark figure families." },
+
+  "dark-green-serif": { "title": "Three points, serif", "points": 3, "needs": ["logos"],
+    "note": "Three titled points and a paragraph. No figures required. Reflective register — good for the parts of a job nobody writes down. Deep green-black, mint, serif display." },
+
+  "dark-navy": { "title": "Three figures and an insight", "points": 0, "needs": ["logos", "numbers"],
+    "note": "Three figure pairs, a paragraph and a separate insight line. Needs numbers. Navy proportional bands with a filled panel closing the foot." },
+
+  "dark-pill-glow": { "title": "Two-sided comparison", "points": 0, "needs": ["logos", "numbers"],
+    "note": "A left/right pill pair with a value on each side. Very compact and needs a genuinely two-sided figure. Very dark blue with a cool blue accent." },
+
+  "data-table": { "title": "Four-bar chart", "points": 0, "needs": ["logos", "numbers"],
+    "note": "Four labelled bars with percentages and values in their own column. Completely unusable without real quantities. Paper with a blue accent." },
+
+  "design-tile": { "title": "Right against wrong", "points": 0, "needs": ["logos"],
+    "note": "Three wrong practices set against three right ones, each side with a claim. Only for subjects that split cleanly in two. Cool grey with teal tiles." },
+
+  "edu-bright": { "title": "Chart, flow and table", "points": 0, "needs": ["logos", "numbers"],
+    "note": "Its body pages are three different shapes — a five-bar chart, a flow and a table. Needs real figures. For explaining how something works and where it breaks. Warm off-white, amber." },
+
+  "ember-dark": { "title": "Three figures, monochrome", "points": 0, "needs": ["logos", "numbers"],
+    "note": "Three figure pairs, a paragraph and an insight line, centred on one mark. Needs numbers. Near-black run monochrome in bone — no second colour anywhere." },
+
+  "flowchart": { "title": "Decision tree", "points": 2, "needs": ["logos"],
+    "note": "A root question splitting into two branches with a card under each. Only for a real either/or — it cannot hold three options. Pale lilac, violet, drawn flow." },
+
+  "grid-italic": { "title": "Three metrics and bullets", "points": 3, "needs": ["logos", "numbers"],
+    "note": "Three metrics plus three bullets and a paragraph. Needs numbers. Warm paper, deep red, a ruled grid with italic display — old-print feel." },
+
+  "highlight-box": { "title": "Three facts, highlighted", "points": 3, "needs": ["logos", "numbers"],
+    "note": "Three facts each carrying a metric, plus one statement with a highlighted clause. Needs a figure per fact. Black with acid yellow as the only colour." },
+
+  "indigo-mag": { "title": "Three figures and a named tool", "points": 0, "needs": ["logos", "numbers"],
+    "note": "Three figure pairs, a paragraph, and one tool with its role spelled out. Needs numbers. Indigo mesh with a stat dock along the foot." },
+
+  "leak-dark": { "title": "Three blocks, dark", "points": 3, "needs": ["logos"],
+    "note": "Three titled blocks and a subtitle. No figures required. Cold and forensic — suits things that only break once real users arrive. Almost pure black, pale cyan." },
+
+  "lime-accent": { "title": "Calendar week", "points": 3, "needs": [],
+    "note": "Three rows read against a calendar grid, plus a takeaway. Only for something genuinely scheduled — a launch week, a sprint. Near-black with a lime wedge." },
+
+  "linkedin-pro": { "title": "Four-paragraph essay", "points": 4, "needs": [],
+    "note": "Four paragraphs, a standfirst and a pull line. Prose, not lists — no figure or logo slots at all. The most conservative family here. Grey paper, navy, serif display." },
+
+  "mag-editorial": { "title": "Magazine feature", "points": 2, "needs": [],
+    "note": "Two columns with a dropcap, a quote and three margin notes. The highest word count in the set. For a long argued piece. Cream spread with hairlines." },
+
+  "minimal-beauty": { "title": "Three points and a pull quote", "points": 3, "needs": [],
+    "note": "Three titled points and a pull quote. No data, no logos, very little on the page. Pick it when restraint is itself the argument. Warm putty, type and space." },
+
+  "mint-condensed": { "title": "Two points, condensed", "points": 2, "needs": [],
+    "note": "Three body lines and two titled points — deliberately low capacity. For attention, focus, saying less. Pale mint-grey with condensed display type." },
+
+  "mono-pattern": { "title": "In / act / out flow", "points": 2, "needs": [],
+    "note": "Two notes plus a three-part input-action-output flow. For a small mechanical process with a clear shape. Warm paper, rust, a repeating field as texture." },
+
+  "noir-yellow": { "title": "Three points, no imagery", "points": 3, "needs": [],
+    "note": "Three titled points, two display lines and a closing line. Nothing drawn anywhere. Hard and adult — built for negotiating, money and refusal. Black and gold." },
+
+  "paper-fold": { "title": "Two points, light", "points": 2, "needs": [],
+    "note": "Two titled points and a paragraph. Deliberately sparse — do not force a third. For instructions and briefs. Warm paper folded, forest green." },
+
+  "pastel-soft": { "title": "Two points and a pull line", "points": 2, "needs": [],
+    "note": "Two titled points and a pull line. Gentle register; suits persistence and slow subjects. Lilac-white with soft shapes held out at the corners." },
+
+  "personal-essay": { "title": "Two-paragraph essay", "points": 2, "needs": [],
+    "note": "Two paragraphs and a pull line — prose only, no list slots at all. The most first-person family here. Warm gradient with contour drawings, serif display." },
+
+  "photo-split": { "title": "Three rows and a gauge", "points": 3, "needs": ["numbers"],
+    "note": "Three key/value rows plus a percentage gauge and an aside. Needs one real figure for the gauge. For decisions made without enough information. Cold slate against sand." },
+
+  "photo-tag": { "title": "Four captioned plates", "points": 4, "needs": [],
+    "note": "Four captioned plates per page, each with a real gloss — one of the highest item counts here. For a set of methods. Off-white grid, one plate raised in purple." },
+
+  "pixel-block": { "title": "One figure, in blocks", "points": 2, "needs": ["numbers"],
+    "note": "Two points and a single headline figure drawn as blocks. Needs something countable. For estimates and whole numbers. Pale grey with a red accent." },
+
+  "purple-mist": { "title": "Three points, orbit", "points": 3, "needs": [],
+    "note": "Three titled points and a paragraph. No data required. Deep aubergine with tilted ellipses stroked and never filled, kept clear of the type." },
+
+  "retro-groovy": { "title": "Three points, informal", "points": 3, "needs": [],
+    "note": "Three titled points and a paragraph. Loosest register of the three-point families. Sand and burnt orange with curved shapes at the edges." },
+
+  "rounded-card": { "title": "Three plates, product", "points": 3, "needs": [],
+    "note": "Three captioned plates and a paragraph. Product-flavoured without needing screenshots. For first impressions and onboarding. Cool grey, slate blue, soft corners." },
+
+  "second-brain": { "title": "Three points, filed", "points": 3, "needs": [],
+    "note": "Three titled points under a filing tab. For systems, notes and anything meant to survive being left alone. Warm paper with olive." },
+
+  "shout-orange": { "title": "One statement per page", "points": 0, "needs": [],
+    "note": "A title, an accent phrase and one paragraph. Nothing else fits — the lowest capacity and the highest impact in the set. A flooded orange page, type at maximum size." },
+
+  "stack-tour": { "title": "Three layers", "points": 3, "needs": [],
+    "note": "Three key/value pairs read top to bottom as layers, plus a paragraph. Only for genuinely layered subjects. Cold slate with a pale blue accent." },
+
+  "stencil-stamp": { "title": "Three points and a stamp", "points": 3, "needs": [],
+    "note": "Three titled points plus a two-line stamp phrase per page. Paper with crop marks, a registration frame and one band inked red. Suits process and approval subjects." },
+
+  "swiss-grid": { "title": "Three points, Swiss grid", "points": 3, "needs": [],
+    "note": "Three key/value pairs and a long paragraph set narrow — it wants more words than the other three-point families. Strict six-column grid with visible hairlines, white and one red." },
+
+  "teal-mag": { "title": "Three figures, teal", "points": 0, "needs": ["logos", "numbers"],
+    "note": "Three figure pairs, a paragraph and one named tool with its role. Needs numbers. Teal mesh with a stat dock — the brightest of the magazine families." },
+
+  "tech-stack-grid": { "title": "Six-cell taxonomy", "points": 6, "needs": [],
+    "note": "Six paired cells per page — the highest item count in the set. Keep the same six angles on every page or it stops reading as a taxonomy. Near-black and pale gold, no logos." },
+
+  "terminal-glow": { "title": "Three points, phosphor", "points": 3, "needs": [],
+    "note": "Three key/value pairs and a paragraph. True black with scan lines as the ground and one register lit green. No terminal chrome, so it suits method rather than code." },
+
+  "terracotta": { "title": "Three points, punched", "points": 3, "needs": [],
+    "note": "Three key/value pairs and a paragraph. Two flat fields split hard with perfect circles punched through both. No shadows, no gradients — cut paper." },
+
+  "tool-list": { "title": "Four-item checklist", "points": 4, "needs": [],
+    "note": "Four hanging entries and a paragraph — more items per page than the three-point families. Paper and deep olive, everything hung off one line, no boxes at all." },
+
+  "typo-sample": { "title": "Type specimen", "points": 3, "needs": [],
+    "note": "One enormous phrase per page over three small key/value notes. The phrase does all the work, so it has to be short and good. Black on white only, no third colour." },
+
+  "wine-mag": { "title": "Three figures, wine", "points": 0, "needs": ["logos", "numbers"],
+    "note": "Three figure pairs, a paragraph and one named tool with its role. Needs numbers. Wine mesh with a pink accent — the warmest magazine family." },
+
+  "y2k-window": { "title": "Four-cell grid", "points": 4, "needs": [],
+    "note": "Four paired cells in a two-by-two grid. Silver bevelled chrome plates, one inverted per page. No window chrome, so it reads as machined rather than as a desktop." }
+}

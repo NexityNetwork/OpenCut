@@ -1,0 +1,103 @@
+{
+  "_note": "Frozen content for design review. Phosphor family — scan lines as the ground texture, wide registers alternating in tone, one lit per page. No terminal chrome, no prompts, no monospace body copy.",
+  "family": "terminal-glow",
+  "brief": "Debugging as a discipline applied to things that are not code",
+  "slides": [
+    {
+      "layoutId": "cover-terminal-glow",
+      "slots": {
+        "eyebrow": "On finding out what is actually wrong",
+        "titleLine1": "Guessing is not",
+        "titleAccent": "investigating.",
+        "standfirst": "Six habits taken from debugging and pointed at a stuck project, a bad hire, a launch that underperformed.",
+        "item1": "Why the first explanation is almost never the cause",
+        "item2": "The one question that ends a circular argument",
+        "coverNote": "The last page is the reason most investigations stop too early"
+      }
+    },
+    {
+      "layoutId": "body-terminal-glow",
+      "slots": {
+        "sectionLabel": "Reproduce it first",
+        "titleLine1": "You cannot fix",
+        "titleAccent": "what you cannot repeat.",
+        "body": "Most of the effort goes into theories about a thing that has happened once. Until you can make it happen on purpose you have no way to tell a fix from a coincidence, and <b>every change after that point is superstition with a deployment attached</b>.",
+        "k1": "Make it happen again", "v1": "Deliberately, from a known start. Nothing before this counts as evidence.",
+        "k2": "Write down the recipe", "v2": "The exact conditions, not the summary. The summary is where the detail dies.",
+        "k3": "If you cannot, say so", "v3": "An unreproducible problem is a different problem and needs a different plan."
+      }
+    },
+    {
+      "layoutId": "body-terminal-glow",
+      "slots": {
+        "sectionLabel": "Change one thing",
+        "titleLine1": "Two changes at once",
+        "titleAccent": "teach you nothing.",
+        "body": "Shipping three fixes together and watching the number recover tells you that one of them worked, which you already assumed. The instinct to do everything at once comes from urgency, and <b>urgency is exactly when you can least afford an uninterpretable result</b>.",
+        "k1": "One variable, then look", "v1": "Slower per round and far faster to an actual answer.",
+        "k2": "Undo before the next", "v2": "Otherwise you are testing combinations you never intended to build.",
+        "k3": "Keep the boring log", "v3": "What you changed, what happened. Nobody remembers round four correctly."
+      }
+    },
+    {
+      "layoutId": "body-terminal-glow",
+      "slots": {
+        "sectionLabel": "Bisect the space",
+        "titleLine1": "Halve it, do not",
+        "titleAccent": "search it.",
+        "body": "Faced with forty possible causes, most people start at the one they find most interesting. Cutting the space in half repeatedly reaches the answer in six steps regardless of where it is, and <b>it works even when you have no intuition at all</b>.",
+        "k1": "Find a midpoint", "v1": "Any split that rules out half is worth more than a clever guess.",
+        "k2": "Rule out, do not confirm", "v2": "Elimination survives being wrong about which half you expected.",
+        "k3": "Trust the method", "v3": "It is unsatisfying right until the step where it lands on the cause."
+      }
+    },
+    {
+      "layoutId": "body-terminal-glow",
+      "slots": {
+        "sectionLabel": "Read the actual signal",
+        "titleLine1": "The report is",
+        "titleAccent": "not the evidence.",
+        "body": "What somebody tells you happened has already been through their interpretation of it, and the interpretation is where the useful detail was lost. Going to the raw thing — the log, the recording, the original message — <b>almost always contradicts the summary in one specific way</b>.",
+        "k1": "Go to the source", "v1": "One layer of retelling is enough to remove the decisive detail.",
+        "k2": "Read the whole line", "v2": "The part everybody quotes is rarely the part that matters.",
+        "k3": "Note what is absent", "v3": "The thing that should be there and is not is the strongest clue available."
+      }
+    },
+    {
+      "layoutId": "body-terminal-glow",
+      "slots": {
+        "sectionLabel": "Question the assumption",
+        "titleLine1": "It is always in",
+        "titleAccent": "the part you trust.",
+        "body": "The search stops at the boundary of what you consider impossible, which is why difficult problems live exactly there. When every candidate is exhausted the honest next step is to <b>verify something you have never once checked because it obviously works</b>.",
+        "k1": "List what you assume", "v1": "Out loud. The list is shorter and stranger than you expect.",
+        "k2": "Check the boring one", "v2": "Clock, spelling, permission, whether it is even running at all.",
+        "k3": "Distrust 'obviously'", "v3": "Every time the word appears you have stopped looking at something."
+      }
+    },
+    {
+      "layoutId": "body-terminal-glow",
+      "slots": {
+        "sectionLabel": "The uncomfortable one",
+        "titleLine1": "Most investigations",
+        "titleAccent": "stop at plausible.",
+        "body": "A story that explains the symptom feels identical to the cause, and the relief of having one ends the search. The test is whether you can use the explanation to <b>make the problem come back on demand</b>, and most explanations that get shipped cannot.",
+        "k1": "Plausible is not proven", "v1": "A story that fits and a cause that predicts are different objects.",
+        "k2": "Try to break it", "v2": "If the explanation is right you can turn the fault on and off at will.",
+        "k3": "Say what would disprove it", "v3": "An explanation with no failing case is a preference, not a finding."
+      }
+    },
+    {
+      "layoutId": "cta-terminal-glow",
+      "slots": {
+        "eyebrow": "On the thing nobody has got to the bottom of",
+        "titleLine1": "Make it happen",
+        "titleAccent": "on purpose.",
+        "body": "Take the recurring problem everybody has a theory about and try to cause it deliberately. Whether you can is more informative than any of the theories.",
+        "closingLine": "If you cannot turn it on, you cannot claim to have turned it off.",
+        "buttonLabel": "Take all six",
+        "signoff": "Reproduce, then decide"
+      }
+    }
+  ]
+}

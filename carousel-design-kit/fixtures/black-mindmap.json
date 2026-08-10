@@ -1,0 +1,93 @@
+{
+  "_note": "Frozen content for design review. Mind-map family — each body slide is one theme with the failure modes hanging off it.",
+  "family": "black-mindmap",
+  "brief": "The four pillars of building agents that actually ship",
+  "slides": [
+    {
+      "layoutId": "cover-black-mindmap",
+      "slots": {
+        "eyebrow": "Save this one",
+        "headlineLine1": "Why most agents",
+        "headlineLine2": "never ship",
+        "swipeNote": "Every failure I hit, mapped"
+      }
+    },
+    {
+      "layoutId": "body-black-mindmap",
+      "slots": {
+        "title": "Prompts",
+        "pill1": "Vague instructions",
+        "pill2": "No constraints",
+        "pill3": "Passive language",
+        "pill4": "Over-explaining",
+        "pill5": "No success criteria"
+      }
+    },
+    {
+      "layoutId": "body-black-mindmap",
+      "slots": {
+        "title": "Memory",
+        "pill1": "Everything in context",
+        "pill2": "No summarisation",
+        "pill3": "Stale facts",
+        "pill4": "No recency bias",
+        "pill5": "Silent truncation"
+      }
+    },
+    {
+      "layoutId": "body-black-mindmap",
+      "slots": {
+        "title": "Tools",
+        "pill1": "Ambiguous names",
+        "pill2": "Unbounded output",
+        "pill3": "No dry run",
+        "pill4": "Errors swallowed",
+        "pill5": "No retry limit"
+      }
+    },
+    {
+      "layoutId": "body-black-mindmap",
+      "slots": {
+        "title": "Control",
+        "pill1": "Model-driven loops",
+        "pill2": "No stopping rule",
+        "pill3": "Hidden state",
+        "pill4": "No checkpoints",
+        "pill5": "Nothing logged"
+      }
+    },
+    {
+      "layoutId": "body-black-mindmap",
+      "slots": {
+        "title": "Evaluation",
+        "pill1": "Vibes as a metric",
+        "pill2": "One happy path",
+        "pill3": "No regression set",
+        "pill4": "Scored by the author",
+        "pill5": "Never re-run"
+      }
+    },
+    {
+      "layoutId": "body-black-mindmap",
+      "slots": {
+        "title": "Handoff",
+        "pill1": "No failure surface",
+        "pill2": "Silent retries",
+        "pill3": "No human override",
+        "pill4": "Unclear ownership",
+        "pill5": "No rollback"
+      }
+    },
+    {
+      "layoutId": "cta-black-mindmap",
+      "slots": {
+        "eyebrow": "Your move",
+        "headlineLine1": "Fix the map",
+        "headlineLine2": "before the model",
+        "body": "Almost none of this is a model problem. It is scaffolding, and scaffolding is the part you can actually control.",
+        "buttonLabel": "Save this for the next build",
+        "closing": "The rest is just iteration"
+      }
+    }
+  ]
+}

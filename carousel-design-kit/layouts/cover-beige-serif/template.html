@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html><head><meta charset="utf-8">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Fraunces:ital,opsz,wght@0,9..144,300..600;1,9..144,300..600&display=swap" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+html,body{width:1080px;height:1350px;overflow:hidden;background:#F3EEE5;color:#1C1917;
+  font-family:"Inter",sans-serif;-webkit-font-smoothing:antialiased;text-rendering:geometricPrecision}
+:root{--ink:#1C1917;--muted:#6E655B;--rule:rgba(28,25,23,.16);--ochre:#A8541F}
+/* Life without extra colour: a warm bloom bleeding off one corner, paper
+   grain over the whole sheet, and one hand-drawn mark per page. */
+.bloom{position:absolute;border-radius:50%;filter:blur(78px);pointer-events:none}
+.grain{position:absolute;inset:0;opacity:.34;mix-blend-mode:multiply;pointer-events:none}
+.sheet{position:absolute;inset:0;padding:88px 88px 84px;display:flex;flex-direction:column}
+.serif{font-family:"Fraunces",serif;font-weight:400;letter-spacing:-.022em;line-height:1.05}
+.mark{position:absolute;pointer-events:none}
+.b1{width:900px;height:900px;right:-280px;top:-240px;background:radial-gradient(circle,#D98A4A 0%,transparent 66%);opacity:.5}
+.b2{width:700px;height:700px;left:-260px;bottom:-260px;background:radial-gradient(circle,#A8541F 0%,transparent 68%);opacity:.24}
+h1{margin-top:auto;font-size:112px;max-width:880px;position:relative;z-index:2}
+h1 em{font-style:italic;color:var(--ochre)}
+.swash{left:88px;bottom:206px;width:560px;height:70px}
+.cue{margin-top:70px;font-family:"Fraunces",serif;font-style:italic;font-size:34px;color:var(--muted);position:relative;z-index:2}
+</style></head>
+<body>
+<div class="bloom b1"></div><div class="bloom b2"></div>
+<div class="sheet">
+  <h1 class="serif">{{headline}}</h1>
+  <div class="cue">{{cue}}</div>
+</div>
+<svg class="mark swash" viewBox="0 0 560 70" fill="none"><path d="M6 46C118 14 246 8 358 26c58 9 118 26 196 18" stroke="#A8541F" stroke-width="6" stroke-linecap="round" opacity=".55"/></svg>
+<svg class="grain" width="1080" height="1350" viewBox="0 0 1080 1350" preserveAspectRatio="none"><filter id="g"><feTurbulence type="fractalNoise" baseFrequency="0.78" numOctaves="3" seed="4"/><feColorMatrix type="saturate" values="0"/></filter><rect width="1080" height="1350" filter="url(#g)" opacity="0.5"/></svg>
+</body></html>

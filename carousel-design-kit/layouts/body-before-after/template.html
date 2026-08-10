@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html><head><meta charset="utf-8">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Fraunces:ital,wght@1,400;1,600&display=swap" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+html,body{width:1080px;height:1350px;overflow:hidden;background:#F7F5F2;color:#16161A;
+  font-family:"Inter",sans-serif;-webkit-font-smoothing:antialiased;text-rendering:geometricPrecision}
+/* Two-tone comparison palette: clay for the old way, green for the new one.
+   Colour is spent only where the slide is actually making a comparison. */
+:root{--ink:#16161A;--muted:#63636B;--faint:#93939C;--rule:rgba(22,22,26,.14);
+      --before:#B4462A;--beforeBg:rgba(180,70,42,.06);--beforeRule:rgba(180,70,42,.24);
+      --after:#1B7A55;--afterBg:rgba(27,122,85,.06);--afterRule:rgba(27,122,85,.24)}
+.sheet{position:absolute;inset:0;padding:76px 76px 72px;display:flex;flex-direction:column}
+h1,h2{font-weight:600;letter-spacing:-.042em;line-height:1.02}
+.accent{color:var(--after)}
+.desc{font-size:31px;font-weight:400;line-height:1.42;color:var(--muted)}
+.pane{border-radius:14px;padding:34px 36px}
+.pane .lab{font-size:21px;font-weight:600;letter-spacing:-.01em}
+.pane .txt{margin-top:14px;font-size:28px;font-weight:400;line-height:1.38;color:var(--ink)}
+.pane .stat{margin-top:22px;font-size:34px;font-weight:600;letter-spacing:-.03em}
+.marks{display:flex;align-items:center;gap:20px}
+.marks span{width:30px;height:30px}
+.marks span svg{width:100%;height:100%;display:block}
+.lbl{font-size:21px;font-weight:500;color:var(--faint);letter-spacing:-.01em}
+/* Bars encode the stat, so the comparison is visible before it is read. */
+.bar{margin-top:18px;height:8px;border-radius:99px;background:rgba(22,22,26,.07);overflow:hidden}
+.bar i{display:block;height:100%;border-radius:99px}
+.pane.b .bar i{background:var(--before)} .pane.a .bar i{background:var(--after)}
+h2{margin-top:8px;font-size:86px;max-width:800px}
+h2 .accent{font-family:"Fraunces",serif;font-style:italic;font-weight:600;letter-spacing:-.02em}
+.desc{margin-top:26px;max-width:840px}
+.stack{margin-top:54px;flex:1;min-height:0;display:flex;flex-direction:column;gap:18px}
+.stack .pane{flex:1;display:flex;flex-direction:column;justify-content:center}
+.pane.b{background:var(--beforeBg);border:1px solid var(--beforeRule)}
+.pane.a{background:var(--afterBg);border:1px solid var(--afterRule)}
+.pane.b .lab,.pane.b .stat{color:var(--before)}
+.pane.a .lab,.pane.a .stat{color:var(--after)}
+.pane .row{display:flex;justify-content:space-between;align-items:flex-end;gap:30px}
+.arrow{display:flex;align-items:center;gap:16px;padding-left:4px}
+.arrow .t{font-size:22px;font-weight:500;color:var(--muted)}
+</style></head>
+<body>
+<div class="sheet">
+  <h2>{{title}} <span class="accent">{{titleAccent}}</span></h2>
+  <p class="desc">{{description}}</p>
+  <div class="stack">
+    <div class="pane b">
+      <div class="lab">{{badLabel}}</div>
+      <div class="txt">{{badText}}</div>
+      <div class="row"><div class="stat">{{badStat}}</div><div class="marks"><span>{{iconSvg1}}</span><span>{{iconSvg2}}</span></div></div>
+      <div class="bar"><i style="width:{{badBar}}%"></i></div>
+    </div>
+    <div class="arrow">
+      <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="#63636B" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v14M6 13l6 6 6-6"/></svg>
+      <div class="t">{{ctaArrow}}</div>
+    </div>
+    <div class="pane a">
+      <div class="lab">{{goodLabel}}</div>
+      <div class="txt">{{goodText}}</div>
+      <div class="row"><div class="stat">{{goodStat}}</div><div class="marks"><span>{{iconSvg3}}</span><span>{{iconSvg4}}</span><span>{{iconSvg5}}</span></div></div>
+      <div class="bar"><i style="width:{{goodBar}}%"></i></div>
+    </div>
+  </div>
+</div>
+</body></html>

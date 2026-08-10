@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html><head><meta charset="utf-8">
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+html,body{width:1080px;height:1350px;overflow:hidden;color:#171512;
+  font-family:"Space Grotesk",sans-serif;-webkit-font-smoothing:antialiased;text-rendering:geometricPrecision}
+:root{--muted:rgba(23,21,18,.56);--rule:rgba(23,21,18,.18);--accent:#B4501F}
+/* Mono everywhere flattened the page into one texture. It now appears only
+   where it means something — the commands, the transform, the small labels —
+   and a grotesque carries the display. The pattern in the name is a lattice
+   the page is set on, drawn fine enough to read as paper rather than as a grid. */
+.ground{position:absolute;inset:0;z-index:0;background:#F4F1EA}
+.lattice{position:absolute;inset:0;z-index:1;pointer-events:none;opacity:.5;
+  background-image:radial-gradient(rgba(23,21,18,.16) 1px,transparent 1px);
+  background-size:26px 26px;background-position:78px 100px}
+.grain{position:absolute;inset:0;z-index:6;opacity:.18;mix-blend-mode:multiply;pointer-events:none}
+.page{position:absolute;inset:0;display:flex;flex-direction:column;z-index:4;padding:100px 78px 92px}
+.mono{font-family:"IBM Plex Mono",monospace}
+.label{font-family:"IBM Plex Mono",monospace;font-size:23px;font-weight:500;color:var(--muted)}
+/* The transform runs full width of the trim and steps right, so the three
+   stages read as a movement rather than as three stacked boxes. */
+.flow{margin:0 -78px;display:flex;flex-direction:column}
+.bar{font-family:"IBM Plex Mono",monospace;font-size:26px;font-weight:500;
+  padding:26px 78px;border-top:1.5px solid var(--rule);display:flex;align-items:baseline;gap:22px}
+.bar .k{flex:0 0 96px;font-size:21px;font-weight:600;color:var(--muted);letter-spacing:.04em}
+.bar.act{background:var(--accent);color:#FFF6F1;border-color:var(--accent);font-weight:600}
+.bar.act .k{color:rgba(255,246,241,.72)}
+.bar.out{background:#171512;color:#F4F1EA;border-color:#171512;font-weight:600}
+.bar.out .k{color:rgba(244,241,234,.6)}
+.bar.s1{padding-left:78px}
+.bar.s2{padding-left:126px}
+.bar.s3{padding-left:174px}
+.page{justify-content:space-between}
+h1{margin-top:28px;font-size:104px;font-weight:700;line-height:.98;letter-spacing:-4.4px}
+h1 em{font-style:normal;color:var(--accent)}
+.sub{margin-top:32px;font-size:30px;font-weight:400;line-height:1.44;color:var(--muted);max-width:740px;
+  font-family:"IBM Plex Mono",monospace}
+.list{display:flex;flex-direction:column}
+.list div{display:flex;gap:28px;padding:22px 0;border-top:1px solid var(--rule);font-size:26px}
+.list .k{flex:0 0 180px;font-family:"IBM Plex Mono",monospace;font-weight:600}
+.list .v{color:var(--muted)}
+.foot{margin-top:32px;padding-top:24px;border-top:1px solid var(--rule);font-size:23px;color:var(--muted);
+  font-family:"IBM Plex Mono",monospace}
+</style></head>
+<body>
+<div class="ground"></div><div class="lattice"></div>
+<div class="page">
+  <div>
+    <div class="label">{{eyebrow}}</div>
+    <h1>{{titleLine1}} <em>{{titleAccent}}</em></h1>
+    <p class="sub">{{subtitle}}</p>
+  </div>
+  <div>
+    <div class="list">
+      <div><span class="k">{{k1}}</span><span class="v">{{v1}}</span></div>
+      <div><span class="k">{{k2}}</span><span class="v">{{v2}}</span></div>
+      <div><span class="k">{{k3}}</span><span class="v">{{v3}}</span></div>
+      <div><span class="k">{{k4}}</span><span class="v">{{v4}}</span></div>
+    </div>
+    <div class="foot">{{coverNote}}</div>
+  </div>
+</div>
+<svg class="grain" width="1080" height="1350" viewBox="0 0 1080 1350" preserveAspectRatio="none">
+<filter id="gr"><feTurbulence type="fractalNoise" baseFrequency="0.88" numOctaves="3" seed="59"/><feColorMatrix type="saturate" values="0"/></filter>
+<rect width="1080" height="1350" filter="url(#gr)" opacity="0.4"/></svg>
+</body></html>

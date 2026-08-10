@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html><head><meta charset="utf-8">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+html,body{width:1080px;height:1350px;overflow:hidden;color:#16130E;
+  font-family:"Inter",sans-serif;-webkit-font-smoothing:antialiased;text-rendering:geometricPrecision}
+:root{--ink:#16130E;--muted:rgba(22,19,14,.66);--rule:rgba(22,19,14,.14);--accent:#C2542A}
+.mesh{position:absolute;inset:0;z-index:0;background:
+  radial-gradient(110% 85% at 84% 6%,  #FBF3E6 0%, transparent 48%),
+  radial-gradient(120% 90% at 12% 18%, #F2E7D6 0%, transparent 54%),
+  radial-gradient(130% 100% at 76% 94%,#E4D3BB 0%, transparent 58%),
+  radial-gradient(110% 95% at 4% 96%,  #FFFDF9 0%, transparent 56%),
+  #F6EFE3}
+.mesh.dark{background:
+  radial-gradient(90% 70% at 80% 8%,   #E0824A 0%, transparent 44%),
+  radial-gradient(120% 90% at 20% 26%, #8A3E18 0%, transparent 50%),
+  radial-gradient(130% 100% at 68% 96%,#2A1409 0%, transparent 60%),
+  radial-gradient(110% 95% at 4% 96%,  #100804 0%, transparent 58%),
+  #0E0704}
+.grain{position:absolute;inset:0;z-index:5;opacity:.28;mix-blend-mode:multiply;pointer-events:none}
+/* App tiles: the tools are the subject of this family, so they are set as
+   real objects — rounded plates with depth, brand colour intact. */
+.tile{border-radius:26%;background:#FFFCF7;display:flex;align-items:center;justify-content:center;
+  box-shadow:0 20px 34px -14px rgba(70,44,18,.34), inset 0 1px 0 rgba(255,255,255,.9);
+  border:1px solid rgba(22,19,14,.08)}
+.tile svg{width:56%;height:56%;display:block}
+.sheet{position:absolute;inset:0;padding:126px 92px 116px;display:flex;flex-direction:column;justify-content:space-between;z-index:4}
+/* One tool, set large enough to be the image on the page. */
+.hero{display:flex;align-items:center;gap:36px}
+.hero .tile{width:180px;height:180px;flex:0 0 auto}
+.hero .n{font-size:96px;font-weight:700;letter-spacing:-4px;line-height:1}
+.hero .t{margin-top:10px;font-size:28px;font-weight:500;color:var(--muted);letter-spacing:-.4px}
+.claim{font-size:44px;font-weight:600;line-height:1.2;letter-spacing:-1.8px;max-width:880px}
+.claim b{font-weight:700;color:var(--accent)}
+.uses{display:flex;flex-direction:column}
+.use{display:grid;grid-template-columns:1fr auto;gap:40px;align-items:baseline;padding:28px 0;border-top:1px solid var(--rule)}
+.use:last-child{border-bottom:1px solid var(--rule)}
+.use .t{font-size:30px;font-weight:600;letter-spacing:-1px}
+.use .d{margin-top:7px;font-size:24px;font-weight:400;line-height:1.4;color:var(--muted);max-width:640px}
+.use .m{font-size:25px;font-weight:600;color:var(--accent);white-space:nowrap}
+.pairs{display:flex;align-items:center;gap:20px}
+.pairs .lbl{font-size:24px;font-weight:500;color:var(--muted);margin-right:8px}
+.pairs .tile{width:60px;height:60px}
+</style></head>
+<body>
+<div class="mesh"></div>
+<div class="sheet">
+  <div class="hero">
+    <div class="tile">{{iconSvg1}}</div>
+    <div><div class="n">{{toolName}}</div><div class="t">{{toolTagline}}</div></div>
+  </div>
+  <p class="claim">{{bigStatement}}</p>
+  <div class="uses">
+    <div class="use"><div><div class="t">{{use1Title}}</div><div class="d">{{use1Body}}</div></div><div class="m">{{use1Metric}}</div></div>
+    <div class="use"><div><div class="t">{{use2Title}}</div><div class="d">{{use2Body}}</div></div><div class="m">{{use2Metric}}</div></div>
+    <div class="use"><div><div class="t">{{use3Title}}</div><div class="d">{{use3Body}}</div></div><div class="m">{{use3Metric}}</div></div>
+  </div>
+  <div class="pairs">
+    <div class="lbl">{{compatLabel}}</div>
+    <div class="tile">{{iconSvg2}}</div><div class="tile">{{iconSvg3}}</div>
+    <div class="tile">{{iconSvg4}}</div><div class="tile">{{iconSvg5}}</div>
+  </div>
+</div>
+<svg class="grain" width="1080" height="1350" viewBox="0 0 1080 1350" preserveAspectRatio="none">
+<filter id="gr"><feTurbulence type="fractalNoise" baseFrequency="0.85" numOctaves="3" seed="63"/><feColorMatrix type="saturate" values="0"/></filter>
+<rect width="1080" height="1350" filter="url(#gr)" opacity="0.5"/></svg>
+</body></html>

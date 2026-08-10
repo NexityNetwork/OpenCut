@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html><head><meta charset="utf-8">
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+html,body{width:1080px;height:1350px;overflow:hidden;background:#0B0D08;font-family:"Inter",sans-serif;color:#E9EDE1;-webkit-font-smoothing:antialiased}
+body{position:relative}
+
+/* the wedge, smaller here, anchored top-right, bleeding off top and right */
+.wedge{position:absolute;inset:0;z-index:1;pointer-events:none}
+.grain{position:absolute;inset:0;z-index:6;opacity:.16;mix-blend-mode:overlay;pointer-events:none}
+
+.kicker{position:absolute;top:86px;left:80px;z-index:4;
+  font-family:"IBM Plex Mono",monospace;font-size:24px;color:#C3F53C}
+.kickrule{position:absolute;top:134px;left:80px;width:640px;height:1px;background:rgba(195,245,60,.28);z-index:4;pointer-events:none}
+.title{position:absolute;top:170px;left:80px;width:700px;z-index:4;
+  font-family:"Space Grotesk",sans-serif;font-weight:600;font-size:72px;line-height:1.18;letter-spacing:-1.8px;color:#F2F5EA}
+.title b{color:#C3F53C;font-weight:600}
+
+.stack{position:absolute;top:492px;left:80px;right:80px;bottom:82px;z-index:4;display:flex;flex-direction:column}
+
+.lede{font-size:30px;line-height:1.53;color:#C6CEB6;padding-bottom:34px;border-bottom:1px solid rgba(195,245,60,.28)}
+.lede b{color:#EDF1E4;font-weight:600}
+
+.rows{flex:1;display:flex;flex-direction:column;min-height:0}
+.row{flex:1;display:flex;align-items:center;gap:26px;border-bottom:1px solid rgba(233,237,225,.12)}
+.row .bar{width:30px;height:6px;background:#C3F53C;flex-shrink:0}
+.row .t{font-size:27px;line-height:1.42;color:#DDE3D2;font-weight:400}
+.row .t b{color:#F2F5EA;font-weight:600}
+
+.take{margin-top:34px;border-left:6px solid #C3F53C;background:rgba(195,245,60,.06);
+  padding:30px 34px;font-family:"Space Grotesk",sans-serif;font-size:33px;line-height:1.36;font-weight:500;color:#EFF3E7;letter-spacing:-.4px}
+.take b{color:#C3F53C;font-weight:600}
+</style></head>
+<body>
+
+<svg class="wedge" width="1080" height="1350" viewBox="0 0 1080 1350">
+  <polygon points="600,0 1080,0 1080,430" fill="#C3F53C"/>
+</svg>
+
+<svg class="grain" width="1080" height="1350" viewBox="0 0 1080 1350" preserveAspectRatio="none">
+<filter id="gr"><feTurbulence type="fractalNoise" baseFrequency="0.86" numOctaves="3" seed="41"/>
+<feColorMatrix type="saturate" values="0"/></filter>
+<rect width="1080" height="1350" filter="url(#gr)" opacity="0.45"/></svg>
+
+<div class="kicker">{{kicker}}</div>
+<div class="kickrule"></div>
+<div class="title">{{title}}</div>
+
+<div class="stack">
+  <div class="lede">{{lede}}</div>
+  <div class="rows">
+    <div class="row"><div class="bar"></div><div class="t">{{row1}}</div></div>
+    <div class="row"><div class="bar"></div><div class="t">{{row2}}</div></div>
+    <div class="row"><div class="bar"></div><div class="t">{{row3}}</div></div>
+  </div>
+  <div class="take">{{takeaway}}</div>
+</div>
+
+</body></html>

@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html><head><meta charset="utf-8">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+html,body{width:1080px;height:1350px;overflow:hidden;color:#16130E;
+  font-family:"Inter",sans-serif;-webkit-font-smoothing:antialiased;text-rendering:geometricPrecision}
+:root{--ink:#16130E;--muted:rgba(22,19,14,.66);--rule:rgba(22,19,14,.14);--accent:#C2542A}
+.mesh{position:absolute;inset:0;z-index:0;background:
+  radial-gradient(110% 85% at 84% 6%,  #FBF3E6 0%, transparent 48%),
+  radial-gradient(120% 90% at 12% 18%, #F2E7D6 0%, transparent 54%),
+  radial-gradient(130% 100% at 76% 94%,#E4D3BB 0%, transparent 58%),
+  radial-gradient(110% 95% at 4% 96%,  #FFFDF9 0%, transparent 56%),
+  #F6EFE3}
+.grain{position:absolute;inset:0;z-index:5;opacity:.28;mix-blend-mode:multiply;pointer-events:none}
+.tile{border-radius:26%;background:#FFFCF7;display:flex;align-items:center;justify-content:center;
+  box-shadow:0 20px 34px -14px rgba(70,44,18,.34), inset 0 1px 0 rgba(255,255,255,.9);
+  border:1px solid rgba(22,19,14,.08)}
+.tile svg{width:56%;height:56%;display:block}
+/* An instructional set, so the cover reads as the top of a written piece:
+   standfirst, headline, opening paragraph, then the tools it will use. */
+.sheet{position:absolute;inset:0;padding:120px 88px 112px;display:flex;flex-direction:column;
+  justify-content:center;z-index:4}
+.lede{font-size:28px;font-weight:500;color:var(--accent);letter-spacing:-.4px}
+h1{margin-top:28px;font-size:112px;font-weight:700;line-height:.97;letter-spacing:-4.7px;max-width:880px}
+h1 em{font-style:normal;color:var(--accent)}
+.para{margin-top:40px;font-size:33px;font-weight:400;line-height:1.44;color:rgba(22,19,14,.78);max-width:820px}
+.para b{font-weight:600;color:var(--ink)}
+.rule{height:1px;background:var(--rule);margin:64px 0 40px}
+.dock{display:flex;align-items:center;gap:20px}
+.dock .tile{width:104px;height:104px}
+</style></head>
+<body>
+<div class="mesh"></div>
+<div class="sheet">
+  <div class="lede">{{eyebrow}}</div>
+  <h1>{{titleLine1}} <em>{{titleAccent}}</em></h1>
+  <p class="para">{{subtitle}}</p>
+  <div class="rule"></div>
+  <div class="dock">
+    <div class="tile">{{iconSvg1}}</div><div class="tile">{{iconSvg2}}</div>
+    <div class="tile">{{iconSvg3}}</div><div class="tile">{{iconSvg4}}</div>
+    <div class="tile">{{iconSvg5}}</div>
+  </div>
+</div>
+<svg class="grain" width="1080" height="1350" viewBox="0 0 1080 1350" preserveAspectRatio="none">
+<filter id="gr"><feTurbulence type="fractalNoise" baseFrequency="0.85" numOctaves="3" seed="71"/><feColorMatrix type="saturate" values="0"/></filter>
+<rect width="1080" height="1350" filter="url(#gr)" opacity="0.5"/></svg>
+</body></html>

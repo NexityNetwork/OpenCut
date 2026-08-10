@@ -1,0 +1,100 @@
+{
+  "_note": "Frozen content for design review. Dark family where the figure is the image — one measured effect per page, set at display scale, with the argument underneath.",
+  "family": "dark-blob",
+  "brief": "Six changes and what each one actually moved",
+  "slides": [
+    {
+      "layoutId": "cover-dark-blob",
+      "slots": {
+        "subline": "Measured over two quarters",
+        "titleLine1": "Six changes.",
+        "titleAccent": "One that mattered.",
+        "tag": "Every team tries all six. Only one of them reliably changes how long work takes, and it is not the one anybody expects.",
+        "stat1V": "6", "stat1L": "changes tried",
+        "stat2V": "1", "stat2L": "worth keeping",
+        "stat3V": "2 qtrs", "stat3L": "of evidence",
+        "iconTheme": "dark",
+        "iconSlug1": "linear", "iconSlug2": "github", "iconSlug3": "notion",
+        "iconSlug4": "figma", "iconSlug5": "slack"
+      }
+    },
+    {
+      "layoutId": "body-dark-blob",
+      "slots": {
+        "stepTag": "Cut the batch size", "toolName1": "Linear", "iconSlug1": "linear", "iconTheme": "dark",
+        "stat1V": "2×", "stat1L": "less rework per shipped change",
+        "titleLine1": "Small changes are not less ambitious",
+        "body": "Large scope is not ambition, it is <b>deferred learning</b>. Every week between deciding and shipping is a week spent guessing about what people wanted.",
+        "stat2V": "1 week", "stat2L": "maximum age",
+        "stat3V": "−40%", "stat3L": "abandoned work"
+      }
+    },
+    {
+      "layoutId": "body-dark-blob",
+      "slots": {
+        "stepTag": "Name one owner", "toolName1": "Notion", "iconSlug1": "notion", "iconTheme": "dark",
+        "stat1V": "80%", "stat1L": "of blocked items were waiting on nobody in particular",
+        "titleLine1": "Committees do not decide, they schedule",
+        "body": "One named person gathering input and choosing is faster, and when it goes wrong it is <b>fixable by that same person</b> rather than by another meeting.",
+        "stat2V": "1", "stat2L": "owner per decision",
+        "stat3V": "−6 days", "stat3L": "median wait"
+      }
+    },
+    {
+      "layoutId": "body-dark-blob",
+      "slots": {
+        "stepTag": "Shorten the review queue", "toolName1": "GitHub", "iconSlug1": "github", "iconTheme": "dark",
+        "stat1V": "4 hrs", "stat1L": "median wait, down from a day and a half",
+        "titleLine1": "A change waiting is not idle, it is rotting",
+        "body": "Context leaves the author's head within hours. The longer a change sits, the slower the review becomes, which is <b>the queue feeding itself</b>.",
+        "stat2V": "−70%", "stat2L": "review time",
+        "stat3V": "3×", "stat3L": "smaller changes"
+      }
+    },
+    {
+      "layoutId": "body-dark-blob",
+      "slots": {
+        "stepTag": "Delete the handoff", "toolName1": "Figma", "iconSlug1": "figma", "iconTheme": "dark",
+        "stat1V": "0", "stat1L": "handoff meetings left on the calendar",
+        "titleLine1": "The meeting existed because the work was sequential",
+        "body": "Design explaining itself to engineering is a symptom of working in order. Working in the same file <b>removes the meeting entirely</b> rather than shortening it.",
+        "stat2V": "−4 hrs", "stat2L": "per week, per person",
+        "stat3V": "1 file", "stat3L": "instead of a spec"
+      }
+    },
+    {
+      "layoutId": "body-dark-blob",
+      "slots": {
+        "stepTag": "Write down the reasoning", "toolName1": "Notion", "iconSlug1": "notion", "iconTheme": "dark",
+        "stat1V": "1 page", "stat1L": "per decision, written the day it was made",
+        "titleLine1": "Teams re-argue settled decisions every quarter",
+        "body": "Not because anyone forgot the decision, but because nobody recorded <b>why</b> it was made. The record is what stops the same discussion recurring.",
+        "stat2V": "−1 hr", "stat2L": "per recurring argument",
+        "stat3V": "same day", "stat3L": "or it does not happen"
+      }
+    },
+    {
+      "layoutId": "body-dark-blob",
+      "slots": {
+        "stepTag": "The one that did not work", "toolName1": "Slack", "iconSlug1": "slack", "iconTheme": "dark",
+        "stat1V": "0", "stat1L": "measurable effect from changing the tools",
+        "titleLine1": "Software makes a good process faster, not a bad one good",
+        "body": "Every team with this exact stack still ships slowly if a decision waits on approval. <b>Change who decides</b> before changing what they decide in.",
+        "stat2V": "5 tools", "stat2L": "swapped, no change",
+        "stat3V": "1 rule", "stat3L": "changed everything"
+      }
+    },
+    {
+      "layoutId": "cta-dark-blob",
+      "slots": {
+        "statV": "1",
+        "statL": "change, made this week, measured next month",
+        "headline": "Pick the place",
+        "headlineAccent": "work waits.",
+        "subline": "Not all six. Find the single step where things sit longest and remove the wait. Then measure it, because the ones that feel productive rarely are.",
+        "btnPrimary": "Take the whole method",
+        "signoff": "The measuring is the part everyone skips"
+      }
+    }
+  ]
+}

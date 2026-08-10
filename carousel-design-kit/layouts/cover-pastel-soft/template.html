@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html><head><meta charset="utf-8">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+html,body{width:1080px;height:1350px;overflow:hidden;color:#1E1B2A;
+  font-family:"Inter",sans-serif;-webkit-font-smoothing:antialiased;text-rendering:geometricPrecision}
+:root{--muted:rgba(30,27,42,.56);--rule:rgba(30,27,42,.16);--lilac:#CFC7F2;--blush:#F6D2DC}
+/* Cut paper, not blurred gradients: flat shapes with hard edges, overlapping so
+   the crossings make a third tone by multiply rather than by adding a colour.
+   Two pastels and ink. Content sits in the negative space — no floating white
+   cards, which is what made the original read as a template. */
+.ground{position:absolute;inset:0;z-index:0;background:#F5F4FB}
+.art{position:absolute;inset:0;z-index:1;pointer-events:none;mix-blend-mode:multiply}
+.grain{position:absolute;inset:0;z-index:6;opacity:.16;mix-blend-mode:multiply;pointer-events:none}
+.page{position:absolute;inset:0;display:flex;flex-direction:column;z-index:4;padding:104px 82px 96px}
+.label{font-size:25px;font-weight:500;color:var(--muted);letter-spacing:-.2px}
+.page{justify-content:space-between}
+h1{margin-top:28px;font-size:114px;font-weight:700;line-height:.98;letter-spacing:-4.8px;max-width:800px}
+h1 em{font-style:normal;color:#6B5BD6}
+.sub{margin-top:32px;font-size:31px;font-weight:400;line-height:1.46;color:var(--muted);max-width:640px}
+.lines{display:flex;flex-direction:column}
+.lines div{padding:19px 0;border-top:1px solid var(--rule);font-size:27px;font-weight:500;letter-spacing:-.5px}
+.foot{margin-top:30px;padding-top:24px;border-top:1px solid var(--rule);font-size:24px;color:var(--muted)}
+</style></head>
+<body>
+<div class="ground"></div>
+<svg class="art" viewBox="0 0 1080 1350" fill="none">
+  <path d="M1080 900 a380 380 0 0 0 -380 380 L1080 1280 Z" fill="var(--lilac)"/>
+  <circle cx="-40" cy="1330" r="300" fill="var(--blush)"/>
+  <rect x="880" y="-90" width="460" height="200" rx="100" fill="var(--lilac)" transform="rotate(24 880 -90)"/>
+</svg>
+<div class="page">
+  <div>
+    <div class="label">{{eyebrow}}</div>
+    <h1>{{titleLine1}} <em>{{titleAccent}}</em></h1>
+    <p class="sub">{{subtitle}}</p>
+  </div>
+  <div>
+    <div class="lines"><div>{{item1}}</div><div>{{item2}}</div></div>
+    <div class="foot">{{coverNote}}</div>
+  </div>
+</div>
+<svg class="grain" width="1080" height="1350" viewBox="0 0 1080 1350" preserveAspectRatio="none">
+<filter id="gr"><feTurbulence type="fractalNoise" baseFrequency="0.9" numOctaves="3" seed="5"/><feColorMatrix type="saturate" values="0"/></filter>
+<rect width="1080" height="1350" filter="url(#gr)" opacity="0.4"/></svg>
+</body></html>

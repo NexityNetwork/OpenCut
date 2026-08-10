@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html><head><meta charset="utf-8">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+html,body{width:1080px;height:1350px;overflow:hidden;color:#16130E;
+  font-family:"Inter",sans-serif;-webkit-font-smoothing:antialiased;text-rendering:geometricPrecision}
+:root{--ink:#16130E;--muted:rgba(22,19,14,.66);--rule:rgba(22,19,14,.14);--accent:#C2542A}
+.mesh{position:absolute;inset:0;z-index:0;background:
+  radial-gradient(110% 85% at 84% 6%,  #FBF3E6 0%, transparent 48%),
+  radial-gradient(120% 90% at 12% 18%, #F2E7D6 0%, transparent 54%),
+  radial-gradient(130% 100% at 76% 94%,#E4D3BB 0%, transparent 58%),
+  radial-gradient(110% 95% at 4% 96%,  #FFFDF9 0%, transparent 56%),
+  #F6EFE3}
+.grain{position:absolute;inset:0;z-index:5;opacity:.28;mix-blend-mode:multiply;pointer-events:none}
+.tile{border-radius:26%;background:#FFFCF7;display:flex;align-items:center;justify-content:center;
+  box-shadow:0 20px 34px -14px rgba(70,44,18,.34), inset 0 1px 0 rgba(255,255,255,.9);
+  border:1px solid rgba(22,19,14,.08)}
+.tile svg{width:56%;height:56%;display:block}
+.sheet{position:absolute;inset:0;padding:126px 88px 118px;display:flex;flex-direction:column;
+  justify-content:space-between;z-index:4}
+.hero{display:flex;align-items:flex-start;gap:32px}
+.hero .tile{width:152px;height:152px;flex:0 0 auto}
+.hero h2{font-size:74px;font-weight:700;letter-spacing:-3px;line-height:1}
+.hero p{margin-top:14px;font-size:31px;font-weight:400;line-height:1.36;color:var(--muted);max-width:640px}
+/* A laptop rather than a floating rectangle. The base is what sells it, so it
+   gets a real hinge shadow and a lid lip instead of a drawn outline. */
+.mac{align-self:center}
+.mac .lid{padding:15px 15px 17px;border-radius:22px 22px 8px 8px;background:#211C16;
+  box-shadow:0 44px 78px -34px rgba(70,44,18,.5), inset 0 1px 0 rgba(255,255,255,.13)}
+.mac .inner{position:relative;width:806px;height:504px;border-radius:9px;overflow:hidden;
+  background:linear-gradient(166deg,#FDF8F0,#F1E5D2)}
+.mac .shot{display:block;width:100%;height:100%;object-fit:cover;object-position:top center}
+.mac .empty{position:absolute;inset:20px;border-radius:12px;
+  border:1.5px dashed rgba(22,19,14,.17);display:flex;align-items:center;justify-content:center;
+  color:rgba(22,19,14,.36);font-size:24px;font-weight:500;letter-spacing:-.35px}
+.mac .base{position:relative;width:912px;height:19px;margin-left:-38px;border-radius:0 0 12px 12px;
+  background:linear-gradient(#3A322A,#221D18 42%,#151210);
+  box-shadow:0 22px 30px -18px rgba(70,44,18,.55)}
+.mac .base::after{content:"";position:absolute;left:50%;top:0;transform:translateX(-50%);
+  width:132px;height:7px;border-radius:0 0 9px 9px;background:rgba(0,0,0,.42)}
+.foot{display:flex;align-items:center;justify-content:space-between;gap:32px;
+  padding-top:26px;border-top:1px solid var(--rule)}
+.foot .n{font-size:26px;font-weight:400;color:var(--muted)}
+.foot .m{font-size:26px;font-weight:600;color:var(--accent)}
+</style></head>
+<body>
+<div class="mesh"></div>
+<div class="sheet">
+  <div class="hero">
+    <div class="tile">{{iconSvg1}}</div>
+    <div><h2>{{toolName}}</h2><p>{{toolTagline}}</p></div>
+  </div>
+  <div class="mac">
+    <div class="lid">
+      <div class="inner">
+        <img class="shot" src="{{shotSrc}}" onerror="this.outerHTML='&lt;div class=\'empty\'&gt;Your screenshot goes here&lt;/div&gt;'">
+      </div>
+    </div>
+    <div class="base"></div>
+  </div>
+  <div class="foot"><div class="n">{{useNote}}</div><div class="m">{{useMetric}}</div></div>
+</div>
+<svg class="grain" width="1080" height="1350" viewBox="0 0 1080 1350" preserveAspectRatio="none">
+<filter id="gr"><feTurbulence type="fractalNoise" baseFrequency="0.85" numOctaves="3" seed="71"/><feColorMatrix type="saturate" values="0"/></filter>
+<rect width="1080" height="1350" filter="url(#gr)" opacity="0.5"/></svg>
+</body></html>

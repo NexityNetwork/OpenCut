@@ -1,0 +1,103 @@
+{
+  "_note": "Frozen content for design review. Orbit family — tilted ellipses stroked and never filled, set low or wide so type stays clear of them. Flat aubergine, closes on the accent.",
+  "family": "purple-mist",
+  "brief": "Where creative direction comes from when nobody hands you a brief",
+  "slides": [
+    {
+      "layoutId": "cover-purple-mist",
+      "slots": {
+        "eyebrow": "On having to decide it yourself",
+        "titleLine1": "Nobody is going to tell you",
+        "titleAccent": "what it should look like.",
+        "subtitle": "Six places direction actually comes from once there is no client, no brand guide and no art director to disagree with.",
+        "item1": "Why a reference is not a direction",
+        "item2": "The constraint that does the deciding for you",
+        "coverNote": "The last one is why most of this is harder than it sounds"
+      }
+    },
+    {
+      "layoutId": "body-purple-mist",
+      "slots": {
+        "sectionLabel": "Start from a constraint",
+        "titleLine1": "A limit decides more than",
+        "titleAccent": "a mood board.",
+        "body": "References tell you what you like, which is a very long list and settles nothing. One real constraint — a single colour, one typeface, no photography — eliminates most of the options before you have to have an opinion about them, and <b>the remaining decisions are the ones worth making</b>.",
+        "p1Title": "Pick the limit first", "p1Body": "Before the ideas, so it shapes them rather than filtering them afterwards.",
+        "p2Title": "Make it uncomfortable", "p2Body": "A constraint you would have chosen anyway is not doing any work.",
+        "p3Title": "Keep it for the whole piece", "p3Body": "A rule abandoned halfway leaves the work looking undecided rather than free."
+      }
+    },
+    {
+      "layoutId": "body-purple-mist",
+      "slots": {
+        "sectionLabel": "Steal structure, not surface",
+        "titleLine1": "Copy how it is built,",
+        "titleAccent": "never how it looks.",
+        "body": "Surface copies age immediately and read as derivative to anyone who saw the original. What survives borrowing is the underlying decision — the proportion, the rhythm, the way the thing withholds information — and <b>almost nobody can see you took it</b>.",
+        "p1Title": "Describe it in words", "p1Body": "If you cannot say what it does, you are copying the finish.",
+        "p2Title": "Rebuild without looking", "p2Body": "What you remember is the structure. What you forget was decoration.",
+        "p3Title": "Change the material", "p3Body": "The same structure in a different medium stops being a reference."
+      }
+    },
+    {
+      "layoutId": "body-purple-mist",
+      "slots": {
+        "sectionLabel": "Decide the feeling early",
+        "titleLine1": "Name the one word",
+        "titleAccent": "before you open anything.",
+        "body": "Not a mood, an adjective you would defend: austere, generous, abrupt, warm. It is the only test that resolves an argument between two options that both look fine, and <b>without it you will pick whichever you made most recently</b>.",
+        "p1Title": "One word, written down", "p1Body": "Two words is a compromise and will produce a compromise.",
+        "p2Title": "Test against it, not taste", "p2Body": "Ask which option is more austere, not which one you prefer.",
+        "p3Title": "Say it out loud once", "p3Body": "If it embarrasses you slightly, it is specific enough to be useful."
+      }
+    },
+    {
+      "layoutId": "body-purple-mist",
+      "slots": {
+        "sectionLabel": "Work at the wrong size",
+        "titleLine1": "Design it small,",
+        "titleAccent": "finish it large.",
+        "body": "At small size only arrangement survives, and arrangement is the part that decides whether anything works. Starting large lets you fix a broken structure with detail, which produces work that is <b>immaculate up close and confused from across the room</b>.",
+        "p1Title": "Thumbnail everything", "p1Body": "Six arrangements at postcard size beats one at full size.",
+        "p2Title": "Detail last, deliberately", "p2Body": "Craft applied early defends decisions that should have been changed.",
+        "p3Title": "Check both distances", "p3Body": "Anything that only works at one of them is not finished."
+      }
+    },
+    {
+      "layoutId": "body-purple-mist",
+      "slots": {
+        "sectionLabel": "Make the ugly version",
+        "titleLine1": "The rough one tells you",
+        "titleAccent": "what the idea is.",
+        "body": "A polished first attempt is impossible to judge, because the finish flatters the decision underneath it. Building the deliberately crude version takes an hour and reveals whether there is <b>anything there other than execution</b>.",
+        "p1Title": "No craft on version one", "p1Body": "Default settings, wrong typeface, no spacing decisions at all.",
+        "p2Title": "Show it to nobody", "p2Body": "This one is for you. Feedback on a rough version is about the roughness.",
+        "p3Title": "Keep what still reads", "p3Body": "Whatever survives being made badly is the actual idea."
+      }
+    },
+    {
+      "layoutId": "body-purple-mist",
+      "slots": {
+        "sectionLabel": "The uncomfortable one",
+        "titleLine1": "Direction is a decision,",
+        "titleAccent": "not a discovery.",
+        "body": "None of this reveals a right answer, because there is not one waiting to be found. Every method here exists to get you to commit sooner, and the work that reads as having a strong direction is usually just <b>work where somebody stopped considering alternatives early</b>.",
+        "p1Title": "Commit before you are sure", "p1Body": "Certainty arrives from the work, never before it.",
+        "p2Title": "Consistency reads as intent", "p2Body": "One decision applied everywhere looks deliberate. Six good ones do not.",
+        "p3Title": "You could have chosen otherwise", "p3Body": "That is true of every piece you admire, including the ones that look inevitable."
+      }
+    },
+    {
+      "layoutId": "cta-purple-mist",
+      "slots": {
+        "eyebrow": "On the thing you keep restarting",
+        "titleLine1": "Pick one limit.",
+        "titleAccent": "Then stop choosing.",
+        "body": "One colour, or one typeface, or one thing you will not do. Apply it to the whole piece without exception and see what it decides on your behalf.",
+        "closingLine": "The direction was never out there. It is whichever constraint you were willing to keep.",
+        "buttonLabel": "Take all six",
+        "signoff": "Commitment is what reads as taste"
+      }
+    }
+  ]
+}

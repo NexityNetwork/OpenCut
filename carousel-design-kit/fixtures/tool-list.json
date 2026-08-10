@@ -1,0 +1,101 @@
+{
+  "_note": "Frozen content for design review. Hanging-indent family — every entry's opening phrase hangs out into the left margin in olive, the rest indents past a single line at 264px, separated by full-width hairlines. No boxes anywhere.",
+  "family": "tool-list",
+  "brief": "A checklist for shipping something you will not be embarrassed by",
+  "slides": [
+    {
+      "layoutId": "cover-tool-list",
+      "slots": {
+        "eyebrow": "On the hour before you send it",
+        "titleLine1": "The last check nobody does.",
+        "standfirst": "Six passes over a finished piece of work, in the order that finds the most for the least effort.",
+        "h1": "What it catches", "item1": "The errors that survive every earlier round because nobody was looking for them",
+        "h2": "What it costs", "item2": "About forty minutes, and the version of you that wanted to be finished",
+        "h3": "One warning", "coverNote": "The last pass is the one people skip, and it is the one that matters"
+      }
+    },
+    {
+      "layoutId": "body-tool-list",
+      "slots": {
+        "sectionLabel": "Read it cold",
+        "titleLine1": "Start from the top, as a stranger.",
+        "body": "Not scanning for the bits you were worried about — reading the whole thing in order, the way somebody who has never seen it will. Almost every serious problem is <b>visible in the first ninety seconds to anybody but you</b>.",
+        "h1": "Do it in one sitting", "v1": "Stopping to fix puts you back inside the work and ends the cold read.",
+        "h2": "Mark, do not repair", "v2": "A list of marks is worth more than three repairs and a lost thread.",
+        "h3": "Note where you slowed", "v3": "Every place you reread a line is a place somebody else stops entirely.",
+        "h4": "Check the very start", "v4": "The opening is written first and revised least, which is the wrong way round."
+      }
+    },
+    {
+      "layoutId": "body-tool-list",
+      "slots": {
+        "sectionLabel": "Check the claims",
+        "titleLine1": "Every number has a source or it goes.",
+        "body": "Figures acquire confidence by being repeated, including by you, and the one that turns out to be wrong is always the one nobody could remember the origin of. If you cannot find where it came from in a minute, <b>the honest move is to delete it</b>.",
+        "h1": "Trace each one", "v1": "To the actual source, not to the place you saw it quoted.",
+        "h2": "Date them", "v2": "A true figure from four years ago is a false claim about now.",
+        "h3": "Cut the decorative", "v3": "Numbers used for texture rather than argument are pure risk.",
+        "h4": "Say who says", "v4": "Attribution converts a claim you are defending into one you are reporting."
+      }
+    },
+    {
+      "layoutId": "body-tool-list",
+      "slots": {
+        "sectionLabel": "Cut the last tenth",
+        "titleLine1": "Remove ten per cent after you finish.",
+        "body": "Not a rewrite — a removal pass, made when the work is already done and you are least willing to do it. The tenth that goes is almost never load-bearing, and taking it out is <b>the cheapest quality improvement available at that stage</b>.",
+        "h1": "Cut whole units", "v1": "A paragraph, a section, a slide. Trimming words tightens without shortening.",
+        "h2": "Start with your favourite", "v2": "The part you are proudest of is usually the part serving you.",
+        "h3": "Keep the offcuts", "v3": "Somewhere else. Deleting is much easier when it is not destroying.",
+        "h4": "Read it after", "v4": "If nothing is missing, the cut was correct and you can go further."
+      }
+    },
+    {
+      "layoutId": "body-tool-list",
+      "slots": {
+        "sectionLabel": "Test one path",
+        "titleLine1": "Do the thing you are asking for.",
+        "body": "Follow your own instruction end to end, exactly as written, without the knowledge you have and they do not. Roughly half the time it does not work, and the failure is <b>always in a step you considered too obvious to write down</b>.",
+        "h1": "Use the real thing", "v1": "The actual link, the actual file, on the machine somebody else has.",
+        "h2": "Do not improvise", "v2": "Where you had to improvise is exactly where the instruction is missing.",
+        "h3": "Time it honestly", "v3": "If it takes twice as long as you claimed, say the real number.",
+        "h4": "Watch one person", "v4": "Ten minutes of somebody else trying beats an hour of you checking."
+      }
+    },
+    {
+      "layoutId": "body-tool-list",
+      "slots": {
+        "sectionLabel": "Fix the frame",
+        "titleLine1": "The last thing they see is the first thing they judge.",
+        "body": "Titles, file names, the preview line, the opening sentence — the parts made last, in a hurry, after the real work was finished. They carry a disproportionate share of the impression, and <b>they are the cheapest things in the whole piece to improve</b>.",
+        "h1": "Rewrite the title last", "v1": "You only know what the thing is once it exists.",
+        "h2": "Name files properly", "v2": "Somebody will see the name before they see anything inside it.",
+        "h3": "Check what previews", "v3": "The first eighty characters are doing more work than page two.",
+        "h4": "Look at it small", "v4": "Most people will meet this as a thumbnail and a line of text."
+      }
+    },
+    {
+      "layoutId": "body-tool-list",
+      "slots": {
+        "sectionLabel": "The uncomfortable one",
+        "titleLine1": "Another pass is usually procrastination.",
+        "body": "Every item here has a stopping point, and past it more checking produces changes rather than improvements. The signal is simple: when a pass finds only things you could argue either way, <b>you are no longer editing, you are delaying</b>.",
+        "h1": "Count the findings", "v1": "A pass that finds nothing real is the last pass, by definition.",
+        "h2": "Set the number first", "v2": "Decide how many passes before you start. Then do exactly that many.",
+        "h3": "Watch for reversals", "v3": "Changing something back is the clearest evidence you are done.",
+        "h4": "Send it slightly early", "v4": "The last hour improves almost nothing and costs the whole afternoon."
+      }
+    },
+    {
+      "layoutId": "cta-tool-list",
+      "slots": {
+        "eyebrow": "On the thing you are about to send",
+        "titleLine1": "Read it cold, then cut a tenth.",
+        "body": "Two passes, about forty minutes between them. They catch more than the other four put together, and neither of them requires anybody else.",
+        "closingLine": "Everything on this list is cheaper than the conversation about why it went out wrong.",
+        "buttonLabel": "Take all six",
+        "signoff": "Then stop, and send it"
+      }
+    }
+  ]
+}

@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html><head><meta charset="utf-8">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+html,body{width:1080px;height:1350px;overflow:hidden;color:#1D1B14;
+  font-family:"Inter",sans-serif;-webkit-font-smoothing:antialiased;text-rendering:geometricPrecision}
+:root{--muted:rgba(29,27,20,.56);--rule:rgba(29,27,20,.14);--accent:#6B7A3A}
+/* The page is a filing card: a protruding tab carrying the section label, a
+   hairline border, and ruled lines behind the content. Stationery drawn
+   precisely — the rules are the card's, not a texture laid over it. */
+.ground{position:absolute;inset:0;z-index:0;background:#EFEAE0}
+.grain{position:absolute;inset:0;z-index:6;opacity:.18;mix-blend-mode:multiply;pointer-events:none}
+.card{position:absolute;left:56px;right:56px;top:112px;bottom:64px;background:#F9F6EF;
+  border:1px solid rgba(29,27,20,.2);z-index:2;
+  box-shadow:0 30px 60px -32px rgba(29,27,20,.3)}
+.ruled{position:absolute;inset:0;z-index:1;pointer-events:none;
+  background-image:repeating-linear-gradient(180deg,transparent 0 57px,rgba(29,27,20,.075) 57px 58px);
+  background-position:0 128px}
+.tab{position:absolute;left:56px;top:56px;height:58px;padding:0 34px;background:#F9F6EF;
+  border:1px solid rgba(29,27,20,.2);border-bottom:0;display:flex;align-items:center;
+  font-size:25px;font-weight:600;letter-spacing:-.3px;z-index:3}
+.tab.on{background:var(--accent);border-color:var(--accent);color:#F4F6EC}
+.page{position:absolute;left:56px;right:56px;top:112px;bottom:64px;z-index:4;
+  padding:56px 52px 48px;display:flex;flex-direction:column;justify-content:space-between}
+.label{font-size:25px;font-weight:500;color:var(--muted);letter-spacing:-.2px}
+h1{margin-top:22px;font-size:96px;font-weight:700;line-height:1.02;letter-spacing:-3.9px}
+h1 em{font-style:normal;color:var(--accent)}
+.sub{margin-top:28px;font-size:30px;font-weight:400;line-height:1.44;color:var(--muted);max-width:660px}
+.lines{display:flex;flex-direction:column}
+.lines div{padding:18px 0;border-top:1px solid var(--rule);font-size:26px;font-weight:500;letter-spacing:-.4px}
+.foot{margin-top:24px;padding-top:20px;border-top:1px solid var(--rule);font-size:23px;color:var(--muted)}
+</style></head>
+<body>
+<div class="ground"></div>
+<div class="card"><div class="ruled"></div></div>
+<div class="tab on">{{tabLabel}}</div>
+<div class="page">
+  <div>
+    <div class="label">{{eyebrow}}</div>
+    <h1>{{titleLine1}} <em>{{titleAccent}}</em></h1>
+    <p class="sub">{{subtitle}}</p>
+  </div>
+  <div>
+    <div class="lines"><div>{{item1}}</div><div>{{item2}}</div></div>
+    <div class="foot">{{coverNote}}</div>
+  </div>
+</div>
+<svg class="grain" width="1080" height="1350" viewBox="0 0 1080 1350" preserveAspectRatio="none">
+<filter id="gr"><feTurbulence type="fractalNoise" baseFrequency="0.9" numOctaves="3" seed="77"/><feColorMatrix type="saturate" values="0"/></filter>
+<rect width="1080" height="1350" filter="url(#gr)" opacity="0.4"/></svg>
+</body></html>

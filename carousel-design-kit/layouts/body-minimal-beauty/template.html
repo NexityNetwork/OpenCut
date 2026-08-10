@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html><head><meta charset="utf-8">
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@500;600;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+html,body{width:1080px;height:1350px;overflow:hidden;color:#1A1814;
+  font-family:"Inter",sans-serif;-webkit-font-smoothing:antialiased;text-rendering:geometricPrecision}
+:root{--muted:rgba(26,24,20,.6);--rule:rgba(26,24,20,.22)}
+/* Flat sand, no gradient and no accent hue — the restraint is the family. The
+   structure is a ruled frame inset from the trim with everything centred inside
+   it, which is the one composition none of the other light families use.
+   Italiana is replaced: it is a hairline face that disappears at any size.
+   Playfair carries the display at a real weight and Inter takes everything else. */
+.ground{position:absolute;inset:0;z-index:0;background:#E7DFD0}
+.frame{position:absolute;inset:56px;z-index:1;border:1px solid var(--rule);pointer-events:none}
+.grain{position:absolute;inset:0;z-index:6;opacity:.2;mix-blend-mode:multiply;pointer-events:none}
+.page{position:absolute;inset:56px;z-index:4;padding:74px 76px 70px;display:flex;flex-direction:column;
+  align-items:center;text-align:center}
+.serif{font-family:"Playfair Display",serif}
+.label{font-size:25px;font-weight:500;color:var(--muted);letter-spacing:-.2px}
+h2{margin-top:40px;font-size:88px;font-weight:700;line-height:1.06;letter-spacing:-2.6px;max-width:820px}
+.lede{margin-top:34px;font-size:30px;font-weight:400;line-height:1.46;color:var(--muted);max-width:700px}
+/* Three columns divided by hairlines, which is the frame's own logic turned
+   inward rather than a row of cards dropped on top of it. */
+.pull{margin:auto 0;font-size:54px;font-weight:500;line-height:1.24;letter-spacing:-1.6px;
+  max-width:760px;color:rgba(26,24,20,.82)}
+.cols{display:grid;grid-template-columns:repeat(3,1fr);width:100%;
+  padding-top:46px;border-top:1px solid var(--rule)}
+.cols > div{padding:0 18px}
+.cols > div + div{border-left:1px solid var(--rule)}
+.cols .t{font-size:29px;font-weight:600;line-height:1.2;letter-spacing:-.6px}
+.cols .b{margin-top:14px;font-size:24px;font-weight:400;line-height:1.36;color:var(--muted)}
+</style></head>
+<body>
+<div class="ground"></div><div class="frame"></div>
+<div class="page">
+  <div class="label">{{stepTag}}</div>
+  <h2 class="serif">{{title}}</h2>
+  <p class="lede">{{subtitle}}</p>
+  <div class="pull serif">{{pullQuote}}</div>
+  <div class="cols">
+    <div><div class="t serif">{{p1Title}}</div><div class="b">{{p1Body}}</div></div>
+    <div><div class="t serif">{{p2Title}}</div><div class="b">{{p2Body}}</div></div>
+    <div><div class="t serif">{{p3Title}}</div><div class="b">{{p3Body}}</div></div>
+  </div>
+</div>
+<svg class="grain" width="1080" height="1350" viewBox="0 0 1080 1350" preserveAspectRatio="none">
+<filter id="gr"><feTurbulence type="fractalNoise" baseFrequency="0.88" numOctaves="3" seed="19"/><feColorMatrix type="saturate" values="0"/></filter>
+<rect width="1080" height="1350" filter="url(#gr)" opacity="0.4"/></svg>
+</body></html>

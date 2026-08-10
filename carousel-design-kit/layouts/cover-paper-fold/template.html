@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html><head><meta charset="utf-8">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+html,body{width:1080px;height:1350px;overflow:hidden;color:#1B1A16;
+  font-family:"Inter",sans-serif;-webkit-font-smoothing:antialiased;text-rendering:geometricPrecision}
+:root{--muted:rgba(27,26,22,.58);--rule:rgba(27,26,22,.16);--accent:#2F5D3F}
+/* The name is the structure: a sheet folded in three. Each panel catches the
+   light differently and the creases are drawn as a hairline with a soft band
+   either side, which is what a fold actually looks like on paper. No gradient
+   ground, no tools — this family is about the document, not the software. */
+.sheet{position:absolute;inset:0;z-index:2;display:flex;flex-direction:column}
+.panel{position:relative;padding:0 82px;display:flex;flex-direction:column;justify-content:center}
+.p1{background:#F7F2E7}
+.p2{background:#F1EADC}
+.p3{background:#EDE4D3}
+.crease{position:relative;height:0;z-index:3}
+.crease::before{content:"";position:absolute;left:0;right:0;top:-1px;height:1px;background:rgba(27,26,22,.22)}
+.crease::after{content:"";position:absolute;left:0;right:0;top:-26px;height:52px;
+  background:linear-gradient(180deg,rgba(27,26,22,.055) 0%,transparent 48%,rgba(255,255,255,.5) 52%,transparent 100%)}
+.grain{position:absolute;inset:0;z-index:6;opacity:.2;mix-blend-mode:multiply;pointer-events:none}
+.label{font-size:25px;font-weight:500;color:var(--muted);letter-spacing:-.2px}
+.p1{flex:40}
+.p2{flex:34}
+.p3{flex:26}
+h1{margin-top:26px;font-size:106px;font-weight:700;line-height:1;letter-spacing:-4.4px}
+h1 em{font-style:normal;color:var(--accent)}
+.sub{font-size:31px;font-weight:400;line-height:1.44;color:var(--muted);max-width:720px}
+.lines{display:flex;flex-direction:column}
+.lines div{padding:19px 0;border-top:1px solid var(--rule);font-size:27px;font-weight:500;letter-spacing:-.5px}
+.foot{font-size:25px;color:var(--muted)}
+</style></head>
+<body>
+<div class="sheet">
+  <div class="panel p1">
+    <div class="label">{{eyebrow}}</div>
+    <h1>{{titleLine1}} <em>{{titleAccent}}</em></h1>
+  </div>
+  <div class="crease"></div>
+  <div class="panel p2"><p class="sub">{{subtitle}}</p></div>
+  <div class="crease"></div>
+  <div class="panel p3">
+    <div class="lines"><div>{{item1}}</div><div>{{item2}}</div></div>
+  </div>
+</div>
+<svg class="grain" width="1080" height="1350" viewBox="0 0 1080 1350" preserveAspectRatio="none">
+<filter id="gr"><feTurbulence type="fractalNoise" baseFrequency="0.9" numOctaves="3" seed="7"/><feColorMatrix type="saturate" values="0"/></filter>
+<rect width="1080" height="1350" filter="url(#gr)" opacity="0.4"/></svg>
+</body></html>

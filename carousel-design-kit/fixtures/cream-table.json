@@ -1,0 +1,101 @@
+{
+  "_note": "Frozen content for design review. Tools are the subject — one per page, set large, with what it replaced and what it costs.",
+  "family": "cream-table",
+  "brief": "Five tools that replaced eight hundred a month of software",
+  "slides": [
+    {
+      "layoutId": "cover-cream-table",
+      "slots": {
+        "titleLine1": "I cancelled",
+        "titleAccent": "eleven subscriptions.",
+        "titleItalic": "Five tools now do what fourteen were doing badly, and the bill went from eight hundred a month to under fifty.",
+        "iconSlug1": "notion", "iconSlug2": "googledrive", "iconSlug3": "anthropic",
+        "iconSlug4": "perplexity", "iconSlug5": "loom"
+      }
+    },
+    {
+      "layoutId": "body-cream-table",
+      "slots": {
+        "iconSlug1": "notion", "toolName": "Notion", "toolTagline": "Docs, tasks and light databases",
+        "bigStatement": "It replaced three apps with <b>one database</b> and one place everyone actually looks.",
+        "use1Title": "Project tracking", "use1Body": "Tasks, owners and deadlines in a view the whole team shares rather than four private lists.", "use1Metric": "3 apps gone",
+        "use2Title": "Team documents", "use2Body": "Notes and decisions searchable instead of buried in a folder nobody opens.", "use2Metric": "$0",
+        "use3Title": "A workable CRM", "use3Body": "Leads, notes and follow-ups in a pipeline that took an afternoon to build.", "use3Metric": "1 afternoon",
+        "compatLabel": "Sits alongside",
+        "iconSlug2": "slack", "iconSlug3": "figma", "iconSlug4": "linear", "iconSlug5": "gmail"
+      }
+    },
+    {
+      "layoutId": "body-cream-table",
+      "slots": {
+        "iconSlug1": "googledrive", "toolName": "Drive", "toolTagline": "Storage that quietly runs everything",
+        "bigStatement": "It killed the file tool, the template library and <b>every handoff argument</b> in one move.",
+        "use1Title": "Client folders", "use1Body": "Deliverables shared with clean permissions and a link that does not expire.", "use1Metric": "$0",
+        "use2Title": "Asset library", "use2Body": "Brand files, exports and backups in one place with actual version history.", "use2Metric": "2 TB",
+        "use3Title": "Instant sharing", "use3Body": "No onboarding, no seat, no account for the client to create before they can look.", "use3Metric": "1 click",
+        "compatLabel": "Sits alongside",
+        "iconSlug2": "notion", "iconSlug3": "gmail", "iconSlug4": "figma", "iconSlug5": "slack"
+      }
+    },
+    {
+      "layoutId": "body-cream-table",
+      "slots": {
+        "iconSlug1": "anthropic", "toolName": "Claude", "toolTagline": "A writing and reasoning partner",
+        "bigStatement": "It replaced copy tools, brainstorming calls and <b>most of the drafting time</b>.",
+        "use1Title": "Draft faster", "use1Body": "Rough notes into a clear first version, which is the expensive part of writing.", "use1Metric": "70% faster",
+        "use2Title": "Edit deeper", "use2Body": "Tone, structure and clarity without losing the way you actually sound.", "use2Metric": "2 rounds",
+        "use3Title": "Expand an idea", "use3Body": "Angles and outlines when you are stuck, which beats staring at the page.", "use3Metric": "3 angles",
+        "compatLabel": "Sits alongside",
+        "iconSlug2": "notion", "iconSlug3": "githubcopilot", "iconSlug4": "slack", "iconSlug5": "linear"
+      }
+    },
+    {
+      "layoutId": "body-cream-table",
+      "slots": {
+        "iconSlug1": "perplexity", "toolName": "Perplexity", "toolTagline": "Answers with the source attached",
+        "bigStatement": "It replaced twenty open tabs and <b>the guesswork</b> that came with them.",
+        "use1Title": "Fast scans", "use1Body": "A read on a market or a competitor in twenty minutes rather than an afternoon.", "use1Metric": "20 min",
+        "use2Title": "Sources shown", "use2Body": "Every claim carries a link, so you can check the one that matters.", "use2Metric": "cited",
+        "use3Title": "Comparisons", "use3Body": "Options set side by side against criteria you chose, not a listicle.", "use3Metric": "1 table",
+        "compatLabel": "Sits alongside",
+        "iconSlug2": "anthropic", "iconSlug3": "notion", "iconSlug4": "googlechrome", "iconSlug5": "slack"
+      }
+    },
+    {
+      "layoutId": "body-cream-table",
+      "slots": {
+        "iconSlug1": "loom", "toolName": "Loom", "toolTagline": "The meeting that did not happen",
+        "bigStatement": "It replaced status calls, long update threads and <b>most of the calendar</b>.",
+        "use1Title": "Async updates", "use1Body": "Three minutes recorded beats thirty minutes of five people listening.", "use1Metric": "−4 hrs",
+        "use2Title": "Walkthroughs", "use2Body": "Showing the screen removes the paragraph nobody was going to read anyway.", "use2Metric": "1 take",
+        "use3Title": "Feedback in place", "use3Body": "Comments land at the timestamp, so the context is never lost.", "use3Metric": "0 threads",
+        "compatLabel": "Sits alongside",
+        "iconSlug2": "slack", "iconSlug3": "notion", "iconSlug4": "gmail", "iconSlug5": "linear"
+      }
+    },
+    {
+      "layoutId": "body-cream-table",
+      "slots": {
+        "iconSlug1": "stripe", "toolName": "The catch", "toolTagline": "What consolidating actually costs",
+        "bigStatement": "Fewer tools means <b>fewer places to hide</b>, and one outage takes more with it.",
+        "use1Title": "Single point of failure", "use1Body": "When the one workspace is down, four jobs stop instead of one.", "use1Metric": "real risk",
+        "use2Title": "Export before you commit", "use2Body": "Anything you cannot get out in a usable format is not a tool, it is a landlord.", "use2Metric": "check first",
+        "use3Title": "General beats specialist, until it does not", "use3Body": "One app doing five jobs does each one about eighty per cent as well.", "use3Metric": "≈ 80%",
+        "compatLabel": "Sits alongside",
+        "iconSlug2": "notion", "iconSlug3": "googledrive", "iconSlug4": "anthropic", "iconSlug5": "loom"
+      }
+    },
+    {
+      "layoutId": "cta-cream-table",
+      "slots": {
+        "titleLine1": "Cancel one",
+        "titleAccent": "this month.",
+        "body": "Not all eleven. Pick the subscription you would not notice losing and let the gap tell you whether you actually needed it.",
+        "iconSlug1": "notion", "iconSlug2": "googledrive", "iconSlug3": "anthropic",
+        "iconSlug4": "perplexity", "iconSlug5": "loom",
+        "btnPrimary": "Take the whole stack",
+        "signoff": "The bill is the easy part to measure"
+      }
+    }
+  ]
+}

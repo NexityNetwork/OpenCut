@@ -1,0 +1,165 @@
+{
+  "_note": "Hard vertical split: slate ink field carries the display and a drawn gathering-curve/gauge, sand counter-field carries the argument; the proportion shifts per page kind and inverts on the closer.",
+  "family": "photo-split",
+  "brief": "Making decisions when you will never have enough information",
+  "slides": [
+    {
+      "layoutId": "cover-photo-split",
+      "slots": {
+        "kicker": "Judgement under uncertainty",
+        "d1": "Enough",
+        "d2": "information",
+        "d3": "never arrives",
+        "plotCapA": "time spent looking",
+        "plotCapB": "the part you pay for twice",
+        "premise": "The skill was never gathering. It is choosing well <b>while the gaps are still open</b>, and being honest that they stay open.",
+        "sideKicker": "Six notes",
+        "standfirst": "Every decision that matters gets made early, on partial evidence, by someone who would rather wait another fortnight. What follows is how to do that without dressing the delay up as research.",
+        "r1k": "The gap",
+        "r1v": "It does not close. It moves, and it moves with you.",
+        "r2k": "The cost",
+        "r2v": "Paid in weeks, and rarely counted anywhere.",
+        "r3k": "The test",
+        "r3v": "Can you name the one fact that would change the answer?"
+      }
+    },
+    {
+      "layoutId": "body-photo-split",
+      "slots": {
+        "kicker": "The missing facts",
+        "c1": "The facts",
+        "c2": "are not",
+        "c3": "hiding",
+        "knownPct": "31%",
+        "gaugeLabel": "the part that is knowable in advance",
+        "aside": "Some of the answer is not late. It has not been born yet.",
+        "lede": "Most of what you are waiting for does not exist. Whether the market wants it, whether the hire works out, whether the team can actually build the thing — these are not facts sitting in a drawer you have failed to open. They are made by the decision and they arrive after it.",
+        "r1k": "Found by looking",
+        "r1v": "Precedent, prior art, what a thing costs today. Real, and worth one afternoon.",
+        "r2k": "Made by choosing",
+        "r2v": "Everything downstream of the commitment. No amount of reading produces it early.",
+        "r3k": "The confusion",
+        "r3v": "We treat the second kind as though it were the first, and call the wait diligence.",
+        "pull": "You cannot read your way to a fact that has not happened yet."
+      }
+    },
+    {
+      "layoutId": "body-photo-split",
+      "slots": {
+        "kicker": "Diminishing returns",
+        "c1": "Research",
+        "c2": "has a",
+        "c3": "knee",
+        "knownPct": "44%",
+        "gaugeLabel": "what the first afternoon already bought",
+        "aside": "The curve flattens long before the anxiety does.",
+        "lede": "The first afternoon of looking moves you further than the following three weeks. After the knee in the curve you are buying reassurance at the price of accuracy, and the exchange rate is dreadful.",
+        "r1k": "The early hours",
+        "r1v": "Cheap, and they change the shape of the question you are asking.",
+        "r2k": "Everything after",
+        "r2v": "The same facts, restated by new voices. That is agreement, not evidence.",
+        "r3k": "The tell",
+        "r3v": "Sources stop surprising you. The signal is to stop, not to widen the search.",
+        "pull": "Past the knee, more evidence buys comfort and calls it rigour."
+      }
+    },
+    {
+      "layoutId": "body-photo-split",
+      "slots": {
+        "kicker": "The cost of the pause",
+        "c1": "Waiting",
+        "c2": "is a bet",
+        "c3": "as well",
+        "knownPct": "34%",
+        "gaugeLabel": "what you knew when the window shut",
+        "aside": "Delay feels free because it never appears on an invoice.",
+        "lede": "Choosing not to choose keeps the current arrangement in place, silently, with none of the scrutiny you would apply to a real proposal. It is still a position. It still has a price, and the price compounds.",
+        "r1k": "What you keep",
+        "r1v": "A status quo nobody has had to defend out loud in months.",
+        "r2k": "What you spend",
+        "r2v": "Weeks of the one input you can never buy back.",
+        "r3k": "What expires",
+        "r3v": "Half the options you were protecting have closed by the time you look up.",
+        "pull": "A postponed decision is the default option, bought at full price."
+      }
+    },
+    {
+      "layoutId": "body-photo-split",
+      "slots": {
+        "kicker": "A better question",
+        "c1": "What would",
+        "c2": "change",
+        "c3": "the answer",
+        "knownPct": "37%",
+        "gaugeLabel": "evidence that would actually move you",
+        "aside": "Most deliberation cannot say what would end it.",
+        "lede": "Stop asking whether you know enough. You never will, and the question carries no stopping rule. Ask instead which specific piece of evidence would make you choose differently — then look at whether you can get it this week.",
+        "r1k": "Nameable and cheap",
+        "r1v": "Go and get it. That is what research is for, and it takes a day.",
+        "r2k": "Nameable and out of reach",
+        "r2v": "Decide now. Waiting for it has no end date attached.",
+        "r3k": "Not nameable at all",
+        "r3v": "Then nothing you learn will move you, and the deliberation is a hiding place.",
+        "pull": "A question with no stopping rule is not a question."
+      }
+    },
+    {
+      "layoutId": "body-photo-split",
+      "slots": {
+        "kicker": "Sizing the bet",
+        "c1": "Match your",
+        "c2": "speed to",
+        "c3": "the exit",
+        "knownPct": "40%",
+        "gaugeLabel": "what more waiting could still buy",
+        "aside": "The same caution applied to everything is simply slowness.",
+        "lede": "The variable that should set your pace is not how important the decision feels. It is what leaving costs. A choice you can walk out of in a fortnight deserves an hour. One you will live inside for three years deserves the slow, expensive kind of thinking.",
+        "r1k": "Cheap to leave",
+        "r1v": "Decide in the meeting. Doing it returns better information than studying it.",
+        "r2k": "Costly to leave",
+        "r2v": "Slow down and pay for evidence. This is where the research earns out.",
+        "r3k": "Impossible to leave",
+        "r3v": "Treat the waiting as the work, and stay willing to walk away entirely.",
+        "pull": "Speed is not a virtue. It is a setting, and the exit sets it."
+      }
+    },
+    {
+      "layoutId": "body-photo-split",
+      "slots": {
+        "kicker": "Where this breaks",
+        "c1": "Undo is",
+        "c2": "mostly a",
+        "c3": "story",
+        "knownPct": "30%",
+        "gaugeLabel": "how well you can judge your own exits",
+        "aside": "A framework for deciding is mostly a framework for feeling ready.",
+        "lede": "Everything above leans on reversibility, and reversibility is something we assert rather than test. You can cancel the contract. You cannot un-tell the team what you thought of them. Organisations keep the shape of a decision long after the decision is formally undone.",
+        "r1k": "The shape that stays",
+        "r1v": "Hires, structures and code outlive the choice that produced them.",
+        "r2k": "The unbounded case",
+        "r2v": "When being wrong has no floor, deciding quickly is not brave, it is careless.",
+        "r3k": "The honest position",
+        "r3v": "Sometimes the disciplined move is refusing the bet, not taking it faster.",
+        "pull": "None of this makes you right. It stops you calling the delay research."
+      }
+    },
+    {
+      "layoutId": "cta-photo-split",
+      "slots": {
+        "kicker": "Closing note",
+        "lede": "The missing information is not coming. What arrives instead is a deadline, a rough sense of the shape, and the certainty that anything you learned next would have landed after the moment had passed.",
+        "rule1": "Name the fact that would change the answer, then fetch it or stop looking.",
+        "rule2": "Set the pace by what leaving costs, never by how large the decision feels.",
+        "rule3": "Say plainly that you are guessing. It is the only part of this that stays honest.",
+        "last": "Certainty was never on the table. Only the timing was.",
+        "sideKicker": "The last note",
+        "d1": "Choose",
+        "d2": "inside",
+        "d3": "the gap",
+        "commitLabel": "what commitment buys",
+        "commitText": "The evidence you were waiting for sits downstream of the choice. It starts arriving the hour you commit and not one minute before, which is why the people who look decisive are usually just <b>further through the same fog</b>.",
+        "commitEnd": "Move, and the ground gives you something to read."
+      }
+    }
+  ]
+}

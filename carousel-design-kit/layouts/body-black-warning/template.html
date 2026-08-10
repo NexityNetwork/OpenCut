@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html><head><meta charset="utf-8">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+html,body{width:1080px;height:1350px;overflow:hidden;background:#FAFAFA;color:#141414;
+  font-family:"Inter",sans-serif;-webkit-font-smoothing:antialiased;text-rendering:geometricPrecision}
+/* One blue. It marks the callout rule, the callout label and the arrow —
+   nothing else on the page is coloured. */
+:root{--blue:#3457D5;--muted:#4B5563}
+/* A soft field of that same blue so the grey ground has depth instead of
+   reading as an empty sheet. */
+.wash{position:absolute;right:-260px;top:-240px;width:940px;height:940px;border-radius:50%;
+  background:radial-gradient(circle,rgba(52,87,213,.16) 0%,transparent 66%);filter:blur(24px)}
+/* Flowed rather than pinned top-and-bottom — the old version anchored the
+   callout to the floor and left a 350px hole under the body copy. */
+.sheet{position:absolute;inset:0;padding:110px 75px 100px;display:flex;flex-direction:column;justify-content:center}
+.title{font-size:78px;font-weight:600;line-height:1.08;letter-spacing:-2.6px;max-width:900px}
+.body{margin-top:44px;font-size:44px;font-weight:400;line-height:1.42;color:var(--muted);max-width:940px}
+.callout{margin-top:64px;padding:6px 0 6px 34px;border-left:4px solid var(--blue)}
+.callout .lbl{font-size:24px;font-weight:600;color:var(--blue);letter-spacing:-.2px}
+.callout p{margin-top:14px;font-size:38px;font-weight:500;line-height:1.4;max-width:900px}
+.mark{position:absolute;pointer-events:none}
+.mark-lg{right:-120px;bottom:-110px;width:460px;height:460px}
+.mark-sm{right:-96px;bottom:-96px;width:400px;height:400px}
+</style></head>
+<body>
+<div class="wash"></div>
+<svg class="mark mark-sm" viewBox="0 0 200 200" fill="none">
+  <circle cx="100" cy="100" r="96" stroke="#3457D5" stroke-width="1.4" opacity=".26"/>
+  <circle cx="100" cy="100" r="62" stroke="#3457D5" stroke-width="1.4" opacity=".38"/>
+  <path d="M100 4 A96 96 0 0 1 196 100" stroke="#3457D5" stroke-width="3" opacity=".9"/>
+  <circle cx="100" cy="100" r="7" fill="#3457D5"/>
+</svg>
+<div class="sheet">
+  <div class="title">{{title}}</div>
+  <div class="body">{{body}}</div>
+  <div class="callout">
+    <div class="lbl">{{calloutLabel}}</div>
+    <p>{{calloutBody}}</p>
+  </div></div>
+</body></html>

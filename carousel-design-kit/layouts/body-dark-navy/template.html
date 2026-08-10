@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html><head><meta charset="utf-8">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+html,body{width:1080px;height:1350px;overflow:hidden;color:#E7ECF5;
+  font-family:"Inter",sans-serif;-webkit-font-smoothing:antialiased;text-rendering:geometricPrecision}
+:root{--muted:rgba(231,236,245,.58);--rule:rgba(231,236,245,.15);--accent:#F6A44C}
+/* Flat ground, drawn structure — no gradient. Each dark family gets its own
+   system: columns for the figures one, ruled lines for the editorial one, and
+   a dot matrix here, which is the only one of the three that reads as a plane
+   rather than a page. */
+.ground{position:absolute;inset:0;z-index:0;background:#0B1220}
+.dots{position:absolute;inset:0;z-index:1;pointer-events:none;
+  background-image:radial-gradient(rgba(231,236,245,.13) 1.4px,transparent 1.4px);
+  background-size:54px 54px;background-position:84px 90px}
+.grain{position:absolute;inset:0;z-index:6;opacity:.14;mix-blend-mode:overlay;pointer-events:none}
+/* Proportional bands rather than columns. The page is divided into three
+   bands whose heights are fixed ratios, each centring its own content, so the
+   layout tiles the frame exactly no matter how long the copy runs. The old
+   two-column split could not do this: a narrow rail with three figures in it
+   has to stretch them across a thousand pixels, and the wide column beside it
+   empties out whenever the argument is short. */
+.page{position:absolute;inset:0;display:flex;flex-direction:column;z-index:4}
+.band{padding:0 84px}
+.a{flex:52;display:flex;flex-direction:column;padding-top:104px;padding-bottom:44px}
+.a .mid{flex:1 1 auto;display:flex;align-items:center}
+.head{display:flex;align-items:center;justify-content:space-between;gap:32px}
+.head .lbl{font-size:27px;font-weight:500;color:var(--accent);letter-spacing:-.4px}
+.head .tool{display:flex;align-items:center;gap:15px;font-size:26px;font-weight:500}
+.head .tool svg{width:38px;height:38px;display:block}
+h2{font-size:92px;font-weight:700;line-height:1.01;letter-spacing:-3.8px}
+.b{flex:40;display:flex;flex-direction:column;justify-content:space-between;gap:38px;
+  padding-top:42px;padding-bottom:44px;border-top:1px solid var(--rule)}
+.body{font-size:35px;font-weight:400;line-height:1.44;color:rgba(231,236,245,.78)}
+.body b{font-weight:600;color:#E7ECF5}
+.figs{display:flex;gap:74px}
+.figs .v{font-size:50px;font-weight:700;letter-spacing:-2px;line-height:1}
+.figs .l{margin-top:9px;font-size:23px;font-weight:400;color:var(--muted);letter-spacing:-.3px}
+/* A filled panel bleeding to the page edges: the bottom third of the page can
+   never read as empty because it is a block of colour holding the payoff. */
+.c{flex:40;background:#141F33;border-top:3px solid var(--accent);
+  padding:0 84px;display:flex;flex-direction:column;justify-content:center}
+.c .k{font-size:25px;font-weight:500;color:var(--accent);letter-spacing:-.3px}
+.c .t{margin-top:20px;font-size:58px;font-weight:600;line-height:1.18;letter-spacing:-2.2px}
+</style></head>
+<body>
+<div class="ground"></div>
+<div class="dots"></div>
+<div class="page">
+  <div class="band a">
+    <div class="head">
+      <div class="lbl">{{stepLabel}}</div>
+      <div class="tool">{{iconSvg1}}<span>{{toolName1}}</span></div>
+    </div>
+    <div class="mid"><h2>{{titleMain}}</h2></div>
+  </div>
+  <div class="band b">
+    <p class="body">{{body}}</p>
+    <div class="figs">
+      <div><div class="v">{{stat1V}}</div><div class="l">{{stat1L}}</div></div>
+      <div><div class="v">{{stat2V}}</div><div class="l">{{stat2L}}</div></div>
+      <div><div class="v">{{stat3V}}</div><div class="l">{{stat3L}}</div></div>
+    </div>
+  </div>
+  <div class="c">
+    <div class="k">{{insightLabel}}</div>
+    <div class="t">{{insightText}}</div>
+  </div>
+</div>
+<svg class="grain" width="1080" height="1350" viewBox="0 0 1080 1350" preserveAspectRatio="none">
+<filter id="gr"><feTurbulence type="fractalNoise" baseFrequency="0.8" numOctaves="3" seed="61"/><feColorMatrix type="saturate" values="0"/></filter>
+<rect width="1080" height="1350" filter="url(#gr)" opacity="0.5"/></svg>
+</body></html>

@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html><head><meta charset="utf-8">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+html,body{width:1080px;height:1350px;overflow:hidden;color:#17170F;
+  font-family:"Inter",sans-serif;-webkit-font-smoothing:antialiased;text-rendering:geometricPrecision}
+:root{--muted:rgba(23,23,15,.56);--rule:rgba(23,23,15,.14);--accent:#E0A93B;--ink:#17170F}
+/* Warm paper, flat, no gradient. This family teaches, so the diagrams ARE the
+   design — a chart, a flow and a table, each drawn properly instead of four
+   competing colours doing the work a structure should do. Two colours: ink and
+   one lime, with the lime always carrying ink type on top of it. */
+.ground{position:absolute;inset:0;z-index:0;background:#FBF9F3}
+.grain{position:absolute;inset:0;z-index:6;opacity:.18;mix-blend-mode:multiply;pointer-events:none}
+.page{position:absolute;inset:0;display:flex;flex-direction:column;z-index:4;padding:108px 80px 100px}
+.head{display:flex;align-items:center;justify-content:space-between;gap:30px}
+.head .lbl{font-size:27px;font-weight:600;letter-spacing:-.4px}
+.head .tools{display:flex;align-items:center;gap:22px}
+.head .tools svg{width:36px;height:36px;display:block}
+h2{margin-top:26px;font-size:70px;font-weight:700;line-height:1.03;letter-spacing:-2.9px}
+h2 em{font-style:normal;padding:0 2px;
+  background:linear-gradient(to top,var(--accent) 0 16px,transparent 16px)}
+.sub{margin-top:22px;font-size:29px;font-weight:400;line-height:1.4;color:var(--muted);max-width:880px}
+/* One takeaway per page, on a lime bar. It is the only filled element, which is
+   what makes it read as the conclusion rather than as decoration. */
+.take{margin-top:auto;background:var(--accent);border-radius:14px;padding:30px 34px}
+.take .k{font-size:23px;font-weight:600;letter-spacing:-.3px;opacity:.72}
+.take .t{margin-top:10px;font-size:33px;font-weight:600;line-height:1.28;letter-spacing:-1.1px}
+.flow{flex:1 1 auto;margin:44px 0 40px;display:flex;flex-direction:column;justify-content:center;gap:0}
+.step{display:flex;align-items:stretch;gap:28px}
+.step .rail{flex:0 0 66px;display:flex;flex-direction:column;align-items:center}
+.step .knob{width:66px;height:66px;border-radius:50%;border:2px solid var(--ink);
+  display:flex;align-items:center;justify-content:center;font-size:27px;font-weight:700;
+  background:#FBF9F3;flex:0 0 auto}
+.step.hi .knob{background:var(--accent);border-color:var(--accent)}
+/* The connector is a drawn line between knobs, not a chevron or an arrow — the
+   sequence is legible from the geometry alone. */
+.step .wire{flex:1 1 auto;width:2px;background:var(--rule);min-height:22px}
+.step:last-child .wire{display:none}
+.step .card{flex:1 1 auto;padding:0 0 34px}
+.step .n{font-size:38px;font-weight:600;letter-spacing:-1.3px;line-height:1.14}
+.step .d{margin-top:10px;font-size:27px;font-weight:400;line-height:1.38;color:var(--muted)}
+.meta{display:flex;justify-content:space-between;font-size:23px;font-weight:500;
+  color:var(--muted);letter-spacing:-.3px;padding-bottom:22px}
+</style></head>
+<body>
+<div class="ground"></div>
+<div class="page">
+  <div class="head">
+    <div class="lbl">{{sectionLabel}}</div>
+    <div class="tools">{{iconSvg1}}{{iconSvg2}}{{iconSvg3}}{{iconSvg4}}</div>
+  </div>
+  <h2>{{title}} <em>{{titleAccent}}</em></h2>
+  <p class="sub">{{subtitle}}</p>
+  <div class="flow">
+    <div class="meta"><span>{{flowTitle}}</span><span>{{flowMeta}}</span></div>
+    <div class="step"><div class="rail"><div class="knob">{{node1Glyph}}</div><div class="wire"></div></div>
+      <div class="card"><div class="n">{{node1Name}}</div><div class="d">{{node1Sub}}</div></div></div>
+    <div class="step hi"><div class="rail"><div class="knob">{{node2Glyph}}</div><div class="wire"></div></div>
+      <div class="card"><div class="n">{{node2Name}}</div><div class="d">{{node2Sub}}</div></div></div>
+    <div class="step"><div class="rail"><div class="knob">{{node3Glyph}}</div><div class="wire"></div></div>
+      <div class="card"><div class="n">{{node3Name}}</div><div class="d">{{node3Sub}}</div></div></div>
+    <div class="step"><div class="rail"><div class="knob">{{node4Glyph}}</div><div class="wire"></div></div>
+      <div class="card"><div class="n">{{node4Name}}</div><div class="d">{{node4Sub}}</div></div></div>
+  </div>
+  <div class="take"><div class="k">{{insightLabel}}</div><div class="t">{{insightText}}</div></div>
+</div>
+<svg class="grain" width="1080" height="1350" viewBox="0 0 1080 1350" preserveAspectRatio="none">
+<filter id="gr"><feTurbulence type="fractalNoise" baseFrequency="0.86" numOctaves="3" seed="37"/><feColorMatrix type="saturate" values="0"/></filter>
+<rect width="1080" height="1350" filter="url(#gr)" opacity="0.42"/></svg>
+</body></html>

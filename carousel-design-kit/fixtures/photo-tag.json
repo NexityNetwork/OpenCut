@@ -1,0 +1,110 @@
+{
+  "_note": "Frozen content for design review. Contact-sheet family — captioned plates in an asymmetric grid, one raised in the accent per page. The plates carry text, not pictures.",
+  "family": "photo-tag",
+  "brief": "How to look at your own work without flinching or flattering it",
+  "slides": [
+    {
+      "layoutId": "cover-photo-tag",
+      "slots": {
+        "eyebrow": "On reviewing your own work",
+        "titleLine1": "You cannot see it",
+        "titleAccent": "on the day you made it.",
+        "subtitle": "Six ways to judge work you are too close to, none of which involve waiting until you feel objective.",
+        "plate1": "The problem", "plate1Body": "Fresh work is indistinguishable from good work for about forty-eight hours.",
+        "plate2": "The method", "plate2Body": "Change the conditions you look under, not how hard you look.",
+        "coverNote": "The last one is the reason the other five keep failing"
+      }
+    },
+    {
+      "layoutId": "body-photo-tag",
+      "slots": {
+        "sectionLabel": "Change the distance",
+        "titleLine1": "Shrink it until only",
+        "titleAccent": "the structure survives.",
+        "body": "At full size you read the parts you laboured over. At a tenth of the size you see only the arrangement, which is the thing a stranger sees first and the thing you are least able to judge up close.",
+        "plate1": "Scale it down", "plate1Body": "If the shape stops working small, the detail was never the problem.",
+        "plate2": "Squint at it", "plate2Body": "Blur removes craft and leaves hierarchy. Hierarchy is what fails.",
+        "plate3": "Turn it upside down", "plate3Body": "Reading stops and looking starts, which is the whole trick.",
+        "plate4": "Put it beside the best", "plate4Body": "Not to feel bad. To see which decisions you never actually made."
+      }
+    },
+    {
+      "layoutId": "body-photo-tag",
+      "slots": {
+        "sectionLabel": "Change the time",
+        "titleLine1": "A week later it is",
+        "titleAccent": "somebody else's work.",
+        "body": "The attachment fades faster than the memory of the effort, which is why a gap of days is worth more than a gap of hours. You do not become more objective; you simply stop defending the parts that cost you something.",
+        "plate1": "Sleep on it once", "plate1Body": "One night removes most of the sunk cost you are protecting.",
+        "plate2": "Never review at night", "plate2Body": "Tired judgement is uniformly harsher and uniformly wrong.",
+        "plate3": "Reread before you rewrite", "plate3Body": "Half of what you were about to cut is fine.",
+        "plate4": "Set the deadline anyway", "plate4Body": "Distance improves judgement and does not improve the work."
+      }
+    },
+    {
+      "layoutId": "body-photo-tag",
+      "slots": {
+        "sectionLabel": "Change the question",
+        "titleLine1": "Do not ask whether",
+        "titleAccent": "you like it.",
+        "body": "Liking is the least useful signal available and the first one you reach for. Every question that produces a decision is a question about somebody else, or about what the work is for.",
+        "plate1": "What is it for", "plate1Body": "Answer in one sentence, or the review has nothing to measure against.",
+        "plate2": "Who is confused", "plate2Body": "Name the specific person and what specifically loses them.",
+        "plate3": "What would you cut", "plate3Body": "Forced removal finds what is load-bearing faster than praise does.",
+        "plate4": "What is missing", "plate4Body": "The harder question, and the one nobody volunteers unprompted."
+      }
+    },
+    {
+      "layoutId": "body-photo-tag",
+      "slots": {
+        "sectionLabel": "Change who is asking",
+        "titleLine1": "Feedback needs",
+        "titleAccent": "a direction.",
+        "body": "Unbounded feedback returns whatever the reader noticed first, which is usually a colour. Naming what you want examined is not defensiveness; it is the difference between an opinion and a review.",
+        "plate1": "Say what to ignore", "plate1Body": "Rough edges you already know about, so nobody spends the round on them.",
+        "plate2": "Ask one question", "plate2Body": "More than one and you get the easiest answered, not the hardest.",
+        "plate3": "Watch, do not explain", "plate3Body": "The explanation you give is the thing the work should have done.",
+        "plate4": "Take notes, not sides", "plate4Body": "Argue with feedback tomorrow. Record it today."
+      }
+    },
+    {
+      "layoutId": "body-photo-tag",
+      "slots": {
+        "sectionLabel": "Change what counts",
+        "titleLine1": "Effort is invisible",
+        "titleAccent": "to everyone else.",
+        "body": "The hours went into the part nobody will look at, and you cannot stop yourself from weighting it. Nothing about the work communicates what it cost, which is a fact about all work and not a failure of this one.",
+        "plate1": "Cost is not quality", "plate1Body": "The hardest section is frequently the most disposable one.",
+        "plate2": "Kill your best sentence", "plate2Body": "If the piece survives, it was decoration all along.",
+        "plate3": "Ship the boring version", "plate3Body": "Then find out which cleverness anybody actually missed.",
+        "plate4": "Keep the offcuts", "plate4Body": "What was wrong here is often exactly right somewhere else."
+      }
+    },
+    {
+      "layoutId": "body-photo-tag",
+      "slots": {
+        "sectionLabel": "The uncomfortable one",
+        "titleLine1": "Judgement improves",
+        "titleAccent": "faster than skill.",
+        "body": "That gap is the whole difficulty, and it never closes — it is why the work looks worse to you each year while looking better to everybody else. There is no technique in this set that fixes it, because it is not a problem.",
+        "plate1": "The gap is the sign", "plate1Body": "Being able to see the flaw is what precedes being able to fix it.",
+        "plate2": "It never closes", "plate2Body": "It widens with taste, which is what improving actually feels like.",
+        "plate3": "Ship anyway", "plate3Body": "Waiting for work you are happy with means waiting permanently.",
+        "plate4": "Judge the trend", "plate4Body": "This piece against the last one, not against the one in your head."
+      }
+    },
+    {
+      "layoutId": "cta-photo-tag",
+      "slots": {
+        "eyebrow": "On the thing you are avoiding sending",
+        "titleLine1": "Shrink it, sleep on it,",
+        "titleAccent": "then send it.",
+        "body": "Three of the six take an evening between them, and the piece you are protecting is almost certainly finished already.",
+        "plate1": "What it costs", "plate1Body": "One night, and the version of you who wanted to keep polishing.",
+        "plate2": "What it buys", "plate2Body": "The only feedback that has ever improved anything — somebody else's.",
+        "buttonLabel": "Take all six",
+        "signoff": "Nothing improves in a folder"
+      }
+    }
+  ]
+}

@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html><head><meta charset="utf-8">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+html,body{width:1080px;height:1350px;overflow:hidden;background:#F4F4F2;color:#1B1D18;
+  font-family:"Inter",sans-serif;-webkit-font-smoothing:antialiased;text-rendering:geometricPrecision}
+:root{--muted:rgba(27,29,24,.58);--rule:rgba(27,29,24,.2);--accent:#4E5A2E}
+/* Everything hangs off one line at 264px. The opening phrase of each entry sits
+   out in the left margin in the accent and the rest is indented past it,
+   separated by full-width hairlines. No boxes, no panels, no fills — the indent
+   is the entire structure. */
+.page{position:absolute;inset:0;z-index:2;padding:116px 92px 104px;display:flex;flex-direction:column}
+.head{display:flex;gap:32px}
+.head .h{flex:0 0 232px;padding-top:12px;font-size:27px;font-weight:600;color:var(--accent);
+  letter-spacing:-.5px;line-height:1.22}
+.head .m{flex:1}
+h2{font-size:70px;font-weight:700;line-height:1.02;letter-spacing:-2.9px}
+.copy{margin-top:26px;font-size:29px;font-weight:400;line-height:1.46;color:rgba(27,29,24,.76)}
+.copy b{font-weight:600;color:#1B1D18}
+.list{flex:1;margin-top:50px;display:flex;flex-direction:column;border-bottom:1px solid var(--rule)}
+.en{flex:1;display:flex;gap:32px;padding:24px 0 0;border-top:1px solid var(--rule)}
+.en .h{flex:0 0 232px;font-size:28px;font-weight:600;color:var(--accent);letter-spacing:-.6px;line-height:1.22}
+.en .b{font-size:26px;font-weight:400;line-height:1.42;color:var(--muted);max-width:600px}
+</style></head>
+<body>
+<div class="page">
+  <div class="head">
+    <div class="h">{{sectionLabel}}</div>
+    <div class="m">
+      <h2>{{titleLine1}}</h2>
+      <p class="copy">{{body}}</p>
+    </div>
+  </div>
+  <div class="list">
+    <div class="en"><div class="h">{{h1}}</div><div class="b">{{v1}}</div></div>
+    <div class="en"><div class="h">{{h2}}</div><div class="b">{{v2}}</div></div>
+    <div class="en"><div class="h">{{h3}}</div><div class="b">{{v3}}</div></div>
+    <div class="en"><div class="h">{{h4}}</div><div class="b">{{v4}}</div></div>
+  </div>
+</div>
+</body></html>

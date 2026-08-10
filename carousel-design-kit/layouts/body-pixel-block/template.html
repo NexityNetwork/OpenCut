@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html><head><meta charset="utf-8">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+html,body{width:1080px;height:1350px;overflow:hidden;color:#15161A;
+  font-family:"Inter",sans-serif;-webkit-font-smoothing:antialiased;text-rendering:geometricPrecision}
+:root{--muted:rgba(21,22,26,.56);--rule:rgba(21,22,26,.16);--accent:#E03B2F;--cell:rgba(21,22,26,.10)}
+/* Flat stone, no gradient. The grid is not a texture — the filled cells are a
+   quantity the caption refers to, so the block is a reading of the number
+   rather than an illustration of it. Hard edges, no rounding, no nostalgia. */
+.ground{position:absolute;inset:0;z-index:0;background:#EDEDE8}
+.grain{position:absolute;inset:0;z-index:6;opacity:.16;mix-blend-mode:multiply;pointer-events:none}
+.page{position:absolute;inset:0;display:flex;flex-direction:column;z-index:4;padding:100px 80px 92px;
+  justify-content:space-between}
+.label{font-size:25px;font-weight:500;color:var(--muted);letter-spacing:-.2px}
+.blk{display:grid;grid-template-columns:repeat(14,1fr);gap:8px}
+.blk i{display:block;aspect-ratio:1;background:var(--cell)}
+.blk i.on{background:var(--accent)}
+.blk i.mid{background:rgba(224,59,47,.34)}
+.read{display:flex;align-items:baseline;gap:20px;margin-top:26px}
+.read .v{font-size:64px;font-weight:700;letter-spacing:-2.6px;line-height:1;color:var(--accent)}
+.read .l{font-size:26px;font-weight:400;line-height:1.34;color:var(--muted);max-width:640px}
+h2{margin-top:24px;font-size:76px;font-weight:700;line-height:1.02;letter-spacing:-3.1px;max-width:880px}
+h2 em{font-style:normal;color:var(--accent)}
+.copy{margin-top:26px;font-size:30px;font-weight:400;line-height:1.46;color:rgba(21,22,26,.78);max-width:840px}
+.copy b{font-weight:600;color:#15161A}
+.two{display:flex;gap:44px;padding-top:28px;border-top:1px solid var(--rule);margin-top:30px}
+.two > div{flex:1 1 0}
+.two .t{font-size:27px;font-weight:600;letter-spacing:-.6px}
+.two .b{margin-top:12px;font-size:25px;font-weight:400;line-height:1.38;color:var(--muted)}
+</style></head>
+<body>
+<div class="ground"></div>
+<div class="page">
+  <div>
+    <div class="label">{{sectionLabel}}</div>
+    <h2>{{titleLine1}} <em>{{titleAccent}}</em></h2>
+    <p class="copy">{{body}}</p>
+  </div>
+  <div>
+    <div class="blk">{{blockCells}}</div>
+    <div class="read"><div class="v">{{readValue}}</div><div class="l">{{readLabel}}</div></div>
+    <div class="two">
+      <div><div class="t">{{p1Title}}</div><div class="b">{{p1Body}}</div></div>
+      <div><div class="t">{{p2Title}}</div><div class="b">{{p2Body}}</div></div>
+    </div>
+  </div>
+</div>
+<svg class="grain" width="1080" height="1350" viewBox="0 0 1080 1350" preserveAspectRatio="none">
+<filter id="gr"><feTurbulence type="fractalNoise" baseFrequency="0.88" numOctaves="3" seed="13"/><feColorMatrix type="saturate" values="0"/></filter>
+<rect width="1080" height="1350" filter="url(#gr)" opacity="0.42"/></svg>
+</body></html>

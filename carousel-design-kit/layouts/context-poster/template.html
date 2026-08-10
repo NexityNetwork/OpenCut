@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html><head><meta charset="utf-8">
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+html,body{width:1080px;height:1350px;overflow:hidden;background:#FAF8F6;color:#111;
+  font-family:"Plus Jakarta Sans",sans-serif;-webkit-font-smoothing:antialiased}
+/* The art bleeds in as a soft bloom rather than filling the frame — the
+   statement is the subject, the colour is atmosphere behind it. */
+.bloom{position:absolute;right:-180px;bottom:-220px;width:1100px;height:1100px;
+  object-fit:cover;filter:blur(2px) saturate(1.05);
+  -webkit-mask-image:radial-gradient(60% 60% at 55% 45%,#000 38%,transparent 78%);
+          mask-image:radial-gradient(60% 60% at 55% 45%,#000 38%,transparent 78%)}
+.bloom2{position:absolute;left:-260px;top:-160px;width:760px;height:760px;object-fit:cover;opacity:.85;
+  filter:blur(4px);
+  -webkit-mask-image:radial-gradient(55% 55% at 50% 50%,#000 30%,transparent 74%);
+          mask-image:radial-gradient(55% 55% at 50% 50%,#000 30%,transparent 74%)}
+.chrome{position:absolute;top:44px;left:52px;right:52px;display:flex;justify-content:space-between;align-items:flex-start}
+.who .n{font-size:15px;font-weight:700;letter-spacing:-.01em;color:#161616}
+.who .r{margin-top:2px;font-size:12px;font-weight:500;color:rgba(0,0,0,.45)}
+.rule{position:absolute;top:96px;left:52px;right:52px;height:1px;background:rgba(0,0,0,.16)}
+.body{position:absolute;left:52px;right:52px;top:160px}
+h1{font-size:88px;font-weight:500;line-height:1.05;letter-spacing:-.04em;color:#0E0E0E;max-width:880px}
+/* The hand-drawn zigzag from the reference set — one gestural mark that stops
+   the page reading as a slide and starts it reading as a poster. */
+.mark{position:absolute;left:0;bottom:250px;width:1080px;height:220px;overflow:visible}
+</style></head>
+<body>
+<img class="bloom" src="{{artSrc}}">
+<img class="bloom2" src="{{artSrc}}">
+<div class="chrome">
+  <div class="who"><div class="n">{{author}}</div><div class="r">{{role}}</div></div>
+  <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="rgba(0,0,0,.6)" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M17 7 7 17M7 17V8M7 17h9"/></svg>
+</div>
+<div class="rule"></div>
+<div class="body"><h1>{{headline}}</h1></div>
+<svg class="mark" viewBox="0 0 1080 220" fill="none">
+  <path d="M-40 96 C 210 34, 430 150, 606 118 L 470 214 M606 118 L 545 26 M606 118 C 800 84, 950 132, 1120 74"
+        stroke="#0E0E0E" stroke-width="9" stroke-linecap="round" stroke-linejoin="round"/>
+</svg>
+</body></html>

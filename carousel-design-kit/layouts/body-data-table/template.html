@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html><head><meta charset="utf-8">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+html,body{width:1080px;height:1350px;overflow:hidden;color:#14161A;
+  font-family:"Inter",sans-serif;-webkit-font-smoothing:antialiased;text-rendering:geometricPrecision}
+:root{--muted:rgba(20,22,26,.58);--rule:rgba(20,22,26,.13);--track:#E6E4DE;--accent:#1F4BD8}
+/* Flat paper, no gradient. The structure here is the chart itself: the family
+   is the only one in the set that is led by a measurement, so the drawn system
+   is an axis — gridlines the bars are read against, not texture behind them. */
+.ground{position:absolute;inset:0;z-index:0;background:#F7F6F2}
+.grain{position:absolute;inset:0;z-index:6;opacity:.2;mix-blend-mode:multiply;pointer-events:none}
+.page{position:absolute;inset:0;display:flex;flex-direction:column;z-index:4;padding:112px 84px 104px}
+/* Rows stretch to fill their band, so a chart of three bars and a chart of
+   five both occupy the page exactly. */
+.chart{flex:1 1 auto;display:flex;flex-direction:column;position:relative}
+.chart .axis{position:absolute;top:0;bottom:0;left:322px;right:194px;pointer-events:none;
+  background-image:repeating-linear-gradient(90deg,var(--rule) 0 1px,transparent 1px 149px)}
+.row{flex:1 1 0;display:flex;align-items:center;gap:26px;min-height:0}
+.row .k{flex:0 0 296px;font-size:29px;font-weight:500;line-height:1.22;letter-spacing:-.5px}
+.row .track{flex:1 1 auto;height:52px;background:var(--track);border-radius:4px;position:relative}
+.row .fill{position:absolute;left:0;top:0;bottom:0;background:var(--accent);border-radius:4px}
+.row.mute .fill{background:#B9BDC7}
+/* The value gets its own column at the axis end. Hung off the end of the bar
+   it ran straight off the frame as soon as a bar passed about eighty per cent. */
+.row .v{flex:0 0 168px;text-align:right;font-size:30px;font-weight:600;
+  letter-spacing:-.6px;line-height:1.16}
+.head{display:flex;align-items:center;justify-content:space-between;gap:30px}
+.head .lbl{font-size:27px;font-weight:500;color:var(--accent);letter-spacing:-.4px}
+.head .tool{display:flex;align-items:center;gap:14px;font-size:26px;font-weight:500}
+.head .tool svg{width:38px;height:38px;display:block}
+h2{margin-top:30px;font-size:74px;font-weight:700;line-height:1.03;letter-spacing:-3px}
+.unit{margin-top:22px;font-size:26px;font-weight:400;color:var(--muted);letter-spacing:-.3px}
+.chart{margin-top:44px;margin-bottom:44px}
+.close{padding-top:34px;border-top:1px solid var(--rule);font-size:36px;font-weight:600;
+  line-height:1.26;letter-spacing:-1.2px;max-width:900px}
+.close b{color:var(--accent)}
+</style></head>
+<body>
+<div class="ground"></div>
+<div class="page">
+  <div class="head">
+    <div class="lbl">{{eyebrow}}</div>
+    <div class="tool">{{iconSvg1}}<span>{{toolName}}</span></div>
+  </div>
+  <h2>{{title}}</h2>
+  <div class="unit">{{unitNote}}</div>
+  <div class="chart">
+    <div class="axis"></div>
+    <div class="row"><div class="k">{{bar1Label}}</div><div class="track"><div class="fill" style="width:{{bar1Pct}}%"></div></div><div class="v">{{bar1Val}}</div></div>
+    <div class="row"><div class="k">{{bar2Label}}</div><div class="track"><div class="fill" style="width:{{bar2Pct}}%"></div></div><div class="v">{{bar2Val}}</div></div>
+    <div class="row"><div class="k">{{bar3Label}}</div><div class="track"><div class="fill" style="width:{{bar3Pct}}%"></div></div><div class="v">{{bar3Val}}</div></div>
+    <div class="row mute"><div class="k">{{bar4Label}}</div><div class="track"><div class="fill" style="width:{{bar4Pct}}%"></div></div><div class="v">{{bar4Val}}</div></div>
+  </div>
+  <div class="close">{{body}}</div>
+</div>
+<svg class="grain" width="1080" height="1350" viewBox="0 0 1080 1350" preserveAspectRatio="none">
+<filter id="gr"><feTurbulence type="fractalNoise" baseFrequency="0.86" numOctaves="3" seed="11"/><feColorMatrix type="saturate" values="0"/></filter>
+<rect width="1080" height="1350" filter="url(#gr)" opacity="0.42"/></svg>
+</body></html>

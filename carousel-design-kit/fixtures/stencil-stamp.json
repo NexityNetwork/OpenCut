@@ -1,0 +1,137 @@
+{
+  "_note": "Frozen content for design review. Print-furniture family — crop marks, a registration frame and a rotated stamp block, used as the design rather than as decoration.",
+  "family": "stencil-stamp",
+  "brief": "Quality gates, and why approval is not the same as quality",
+  "slides": [
+    {
+      "layoutId": "cover-stencil-stamp",
+      "slots": {
+        "stampText": "Approved",
+        "stampSub": "by somebody, on a date",
+        "eyebrow": "On quality gates",
+        "titleLine1": "Approval is not",
+        "titleAccent": "quality.",
+        "subtitle": "Six things a sign-off actually tells you, and the one it never does.",
+        "item1": "Why a green checklist is a coverage claim, not a quality one",
+        "item2": "The control nobody can justify and nobody will remove",
+        "coverNote": "The last page is what no process can supply"
+      }
+    },
+    {
+      "layoutId": "body-stencil-stamp",
+      "slots": {
+        "stampText": "Checked",
+        "stampSub": "against the known list",
+        "sectionLabel": "Approved",
+        "titleLine1": "Approval is not",
+        "titleAccent": "the same as quality.",
+        "body": "A sign-off records that somebody with authority looked at it, which is a fact about a process rather than about the work. Most approval gates measure whether the right person saw it in time, and <b>almost none measure whether it was any good</b>.",
+        "p1Title": "What it records",
+        "p1Body": "That the process was followed, on the date it was followed.",
+        "p2Title": "What it misses",
+        "p2Body": "Anything the approver was not equipped to notice.",
+        "p3Title": "What to add",
+        "p3Body": "One person whose job is to disagree, named in advance."
+      }
+    },
+    {
+      "layoutId": "body-stencil-stamp",
+      "slots": {
+        "stampText": "Reviewed",
+        "stampSub": "by two, for one thing",
+        "sectionLabel": "Checked",
+        "titleLine1": "A checklist finds",
+        "titleAccent": "what it lists.",
+        "body": "It is excellent at the failures somebody already met and blind to everything else. That is not a criticism — it is the point — but a team that treats a green checklist as a quality signal has <b>confused coverage with confidence</b>.",
+        "p1Title": "Add after each failure",
+        "p1Body": "One line per incident. That is how the list earns its length.",
+        "p2Title": "Delete after a year",
+        "p2Body": "An item nothing has tripped in a year is ceremony.",
+        "p3Title": "Never automate judgement",
+        "p3Body": "The list handles the known. A person handles the rest."
+      }
+    },
+    {
+      "layoutId": "body-stencil-stamp",
+      "slots": {
+        "stampText": "Signed",
+        "stampSub": "and never revisited",
+        "sectionLabel": "Reviewed",
+        "titleLine1": "Two reviewers find",
+        "titleAccent": "the same things.",
+        "body": "Adding a second pair of eyes to the same review produces agreement, not coverage. What finds different problems is <b>a different question</b> — one person reading for correctness and another for whether it should exist at all.",
+        "p1Title": "Assign the lens",
+        "p1Body": "Correctness, clarity, scope. Not 'have a look'.",
+        "p2Title": "Stagger them",
+        "p2Body": "A fresh reviewer sees more than a second simultaneous one.",
+        "p3Title": "Cap the round",
+        "p3Body": "Three reviewers is a committee and decides nothing."
+      }
+    },
+    {
+      "layoutId": "body-stencil-stamp",
+      "slots": {
+        "stampText": "Released",
+        "stampSub": "under chosen conditions",
+        "sectionLabel": "Signed",
+        "titleLine1": "The gate slows",
+        "titleAccent": "everything equally.",
+        "body": "A control added after one incident taxes every unrelated piece of work for years, and nobody ever proposes removing it because removing a safeguard is an unpopular thing to be wrong about. <b>The cost is invisible and permanent</b>.",
+        "p1Title": "Name what it prevents",
+        "p1Body": "Specifically. If nobody can, it is habit.",
+        "p2Title": "Measure the wait",
+        "p2Body": "The queue is the cost, not the review itself.",
+        "p3Title": "Sunset it deliberately",
+        "p3Body": "Set a date to reconsider, or it is forever."
+      }
+    },
+    {
+      "layoutId": "body-stencil-stamp",
+      "slots": {
+        "stampText": "Observed",
+        "stampSub": "by somebody real",
+        "sectionLabel": "Released",
+        "titleLine1": "Nothing is verified",
+        "titleAccent": "until it is used.",
+        "body": "Every gate before release tests the thing under conditions you chose. The first real information arrives when somebody who was not involved tries to do something you did not anticipate, which is <b>the only test that was never designed to pass</b>.",
+        "p1Title": "Ship to a few first",
+        "p1Body": "Real conditions, small blast radius, immediate signal.",
+        "p2Title": "Watch, do not survey",
+        "p2Body": "What they do beats what they say by a wide margin.",
+        "p3Title": "Keep a fast reverse",
+        "p3Body": "Confidence comes from being able to undo it in a minute."
+      }
+    },
+    {
+      "layoutId": "body-stencil-stamp",
+      "slots": {
+        "stampText": "Filtered",
+        "stampSub": "and slightly duller",
+        "sectionLabel": "The uncomfortable one",
+        "titleLine1": "Gates cannot make",
+        "titleAccent": "weak work good.",
+        "body": "Every control here filters. None of them creates, and a process built entirely from filters produces work that is <b>defensible, inoffensive and slightly worse each round</b>, because nothing in it rewards the thing that would have made it interesting.",
+        "p1Title": "Filters remove the worst",
+        "p1Body": "And, reliably, some of the best along with it.",
+        "p2Title": "Somebody must want it good",
+        "p2Body": "Process cannot supply that. It can only protect it.",
+        "p3Title": "Protect one champion",
+        "p3Body": "The gates should serve them, not replace them."
+      }
+    },
+    {
+      "layoutId": "cta-stencil-stamp",
+      "slots": {
+        "stampText": "Sunset",
+        "stampSub": "set a date, or it is forever",
+        "eyebrow": "On the gate nobody questions",
+        "titleLine1": "Name what it",
+        "titleAccent": "prevents.",
+        "body": "Pick the oldest control in your process and ask what specific failure it stops. If nobody can answer, you have found this quarter's easiest saving.",
+        "closingLine": "A process made only of filters produces work that is defensible and slightly worse each round.",
+        "buttonLabel": "Take all six",
+        "signoff": "The queue is the cost, not the review"
+      }
+    }
+  ]
+}

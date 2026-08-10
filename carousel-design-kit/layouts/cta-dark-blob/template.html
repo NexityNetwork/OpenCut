@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html><head><meta charset="utf-8">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+html,body{width:1080px;height:1350px;overflow:hidden;color:#121215;
+  font-family:"Inter",sans-serif;-webkit-font-smoothing:antialiased;text-rendering:geometricPrecision}
+:root{--muted:rgba(18,18,21,.7);--rule:rgba(18,18,21,.2)}
+/* Closes on the accent. The set runs dark the whole way, so the last page
+   turning the ground red is the only signal it needs. */
+.mesh{position:absolute;inset:0;z-index:0;background:#E23A24}
+.cols{position:absolute;inset:0;z-index:1;pointer-events:none;
+  background-image:repeating-linear-gradient(90deg,rgba(18,18,21,.10) 0 1px,transparent 1px 168px);
+  background-position:84px 0}
+.grain{position:absolute;inset:0;z-index:6;opacity:.14;mix-blend-mode:multiply;pointer-events:none}
+.sheet{position:absolute;inset:0;padding:92px 84px 116px;display:flex;flex-direction:column;z-index:4}
+/* Leading sized to contain descenders — see the body layout. */
+.figure{font-size:236px;font-weight:700;line-height:1.24;letter-spacing:-11px}
+.figure span{display:block;margin-top:-4px;font-size:30px;font-weight:400;letter-spacing:-.3px;color:var(--muted)}
+.scale{height:15px;border-top:1px solid rgba(18,18,21,.34);
+  background-image:repeating-linear-gradient(90deg,rgba(18,18,21,.34) 0 1px,transparent 1px 42px);
+  background-size:100% 13px;background-repeat:no-repeat}
+.scale{margin-top:30px;max-width:820px}
+h1{margin-top:74px;font-size:104px;font-weight:700;line-height:.98;letter-spacing:-4.4px;max-width:880px}
+h1 em{font-style:normal;color:#FFF3EF}
+.sub{margin-top:30px;font-size:31px;font-weight:400;line-height:1.42;color:var(--muted);max-width:760px}
+.foot{margin-top:auto;display:flex;align-items:center;gap:28px;padding-top:32px;border-top:1px solid var(--rule)}
+.btn{padding:22px 46px;background:#121215;color:#F2F1EE;border-radius:15px;
+  font-size:28px;font-weight:600;letter-spacing:-.5px}
+.ghost{font-size:24px;font-weight:500;color:var(--muted)}
+</style></head>
+<body>
+<div class="mesh"></div>
+<div class="cols"></div>
+<div class="sheet">
+  <div class="figure">{{statV}}<span>{{statL}}</span></div>
+  <div class="scale"></div>
+  <h1>{{headline}} <em>{{headlineAccent}}</em></h1>
+  <p class="sub">{{subline}}</p>
+  <div class="foot">
+    <div class="btn">{{btnPrimary}}</div>
+    <div class="ghost">{{signoff}}</div>
+  </div>
+</div>
+<svg class="grain" width="1080" height="1350" viewBox="0 0 1080 1350" preserveAspectRatio="none">
+<filter id="gr"><feTurbulence type="fractalNoise" baseFrequency="0.82" numOctaves="3" seed="43"/><feColorMatrix type="saturate" values="0"/></filter>
+<rect width="1080" height="1350" filter="url(#gr)" opacity="0.5"/></svg>
+</body></html>

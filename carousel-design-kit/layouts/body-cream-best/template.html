@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html><head><meta charset="utf-8">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+html,body{width:1080px;height:1350px;overflow:hidden;color:#0F1A14;
+  font-family:"Inter",sans-serif;-webkit-font-smoothing:antialiased;text-rendering:geometricPrecision}
+:root{--ink:#0F1A14;--muted:rgba(15,26,20,.68);--rule:rgba(15,26,20,.16);--green:#1F9D5B}
+.grain{position:absolute;inset:0;z-index:5;opacity:.26;mix-blend-mode:multiply;pointer-events:none}
+.mesh-green{background:
+  radial-gradient(120% 90% at 16% 14%, #2FBF74 0%, transparent 56%),
+  radial-gradient(100% 80% at 88% 6%,  #7BE3A8 0%, transparent 52%),
+  radial-gradient(120% 95% at 78% 92%, #0E6E3E 0%, transparent 58%),
+  radial-gradient(110% 90% at 4% 94%,  #063A20 0%, transparent 56%),
+  #0B3F25}
+.mesh-cream{background:
+  radial-gradient(120% 90% at 14% 16%, #E4F3E9 0%, transparent 56%),
+  radial-gradient(100% 80% at 88% 8%,  #FAFDF9 0%, transparent 52%),
+  radial-gradient(120% 95% at 78% 92%, #D3EADC 0%, transparent 58%),
+  radial-gradient(110% 90% at 4% 92%,  #FFFFFF 0%, transparent 54%),
+  #EEF6F0}
+/* A horizontal split rather than the stacked column the other families use.
+   The visual band leads, the argument sits under it. */
+.band{position:absolute;top:0;left:0;right:0;height:560px;z-index:1;overflow:hidden;color:#EAFBF1}
+.band .inner{position:absolute;inset:0;padding:76px 88px 84px;display:flex;align-items:flex-end;justify-content:space-between;gap:40px}
+/* The tool mark set big enough to be the image on the page. */
+.logo{width:132px;height:132px}
+.logo svg{width:100%;height:100%;display:block}
+.idcol{display:flex;flex-direction:column}
+.toolname{margin-top:30px;font-size:46px;font-weight:700;letter-spacing:-1.7px}
+.toolrole{margin-top:6px;font-size:24px;font-weight:500;color:rgba(234,251,241,.72)}
+.bigstat{text-align:right}
+.bigstat .v{font-size:104px;font-weight:700;letter-spacing:-4.2px;line-height:1}
+.bigstat .l{margin-top:14px;font-size:24px;font-weight:500;color:rgba(234,251,241,.78)}
+.lower{position:absolute;top:560px;left:0;right:0;bottom:0;z-index:2}
+.lower .inner{position:absolute;inset:0;padding:80px 88px 96px;display:flex;flex-direction:column;justify-content:space-between}
+h2{font-size:76px;font-weight:600;line-height:1.02;letter-spacing:-3px;max-width:880px}
+h2 b{font-weight:700;color:var(--green)}
+.body{font-size:31px;font-weight:400;line-height:1.44;color:var(--muted);max-width:840px}
+.note{padding-top:28px;border-top:1px solid var(--rule);display:flex;align-items:baseline;gap:20px}
+.note .k{font-size:24px;font-weight:600;color:var(--green);white-space:nowrap}
+.note p{font-size:30px;font-weight:500;line-height:1.34;letter-spacing:-.8px}
+</style></head>
+<body>
+<div class="band mesh-green"><div class="inner">
+  <div class="idcol">
+    <div class="logo">{{iconSvg1}}</div>
+    <div class="toolname">{{toolName1}}</div>
+    <div class="toolrole">{{stepTag}}</div>
+  </div>
+  <div class="bigstat"><div class="v">{{bigStatV}}</div><div class="l">{{bigStatL}}</div></div>
+</div></div>
+<div class="lower mesh-cream"><div class="inner">
+  <h2>{{titleLine1}} <b>{{titleLine2}}</b></h2>
+  <p class="body">{{body}}</p>
+  <div class="note"><div class="k">{{tileLabel}}</div><p>{{tileKey}}</p></div>
+</div></div>
+<svg class="grain" width="1080" height="1350" viewBox="0 0 1080 1350" preserveAspectRatio="none">
+<filter id="gr"><feTurbulence type="fractalNoise" baseFrequency="0.85" numOctaves="3" seed="31"/><feColorMatrix type="saturate" values="0"/></filter>
+<rect width="1080" height="1350" filter="url(#gr)" opacity="0.5"/></svg>
+</body></html>

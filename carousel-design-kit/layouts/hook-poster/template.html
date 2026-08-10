@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html><head><meta charset="utf-8">
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+html,body{width:1080px;height:1350px;overflow:hidden;background:#0b0b0c;color:#fff;
+  font-family:"Plus Jakarta Sans",sans-serif;-webkit-font-smoothing:antialiased}
+.art{position:absolute;inset:0;width:1080px;height:1350px;object-fit:cover}
+/* Scrim, not a flat overlay — the art stays visible at the top and the type
+   stays legible at the bottom. */
+.scrim{position:absolute;inset:0;background:linear-gradient(180deg,rgba(0,0,0,.42) 0%,rgba(0,0,0,0) 26%,rgba(0,0,0,0) 42%,rgba(0,0,0,.72) 88%)}
+.chrome{position:absolute;top:44px;left:52px;right:52px;display:flex;justify-content:space-between;align-items:flex-start}
+.who .n{font-size:15px;font-weight:700;letter-spacing:-.01em;color:rgba(255,255,255,.94)}
+.who .r{margin-top:2px;font-size:12px;font-weight:500;color:rgba(255,255,255,.55)}
+.rule{position:absolute;top:96px;left:52px;right:52px;height:1px;background:rgba(255,255,255,.28)}
+.arw{width:26px;height:26px;opacity:.8}
+.body{position:absolute;left:52px;right:52px;bottom:56px}
+h1{font-size:82px;font-weight:500;line-height:1.06;letter-spacing:-.035em;color:#fff;max-width:900px;
+  text-shadow:0 2px 40px rgba(0,0,0,.35)}
+.pill{margin-top:44px;display:inline-flex;align-items:center;gap:26px;padding:12px 12px 12px 42px;
+  border-radius:9999px;background:rgba(255,255,255,.92);color:#111}
+.pill span{font-size:38px;font-weight:500;letter-spacing:-.03em}
+.pill .go{width:74px;height:74px;border-radius:50%;background:#E8410A;display:flex;align-items:center;justify-content:center}
+</style></head>
+<body>
+<img class="art" src="{{artSrc}}">
+<div class="scrim"></div>
+<div class="chrome">
+  <div class="who"><div class="n">{{author}}</div><div class="r">{{role}}</div></div>
+  <svg class="arw" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,.85)" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M17 7 7 17M7 17V8M7 17h9"/></svg>
+</div>
+<div class="rule"></div>
+<div class="body">
+  <h1>{{headline}}</h1>
+  <div class="pill"><span>{{pill}}</span>
+    <div class="go"><svg width="34" height="34" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h13M12 5l7 7-7 7"/></svg></div>
+  </div>
+</div>
+</body></html>

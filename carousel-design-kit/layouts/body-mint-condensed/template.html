@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html><head><meta charset="utf-8">
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@500;600;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+html,body{width:1080px;height:1350px;overflow:hidden;color:#101A15;
+  font-family:"Inter",sans-serif;-webkit-font-smoothing:antialiased;text-rendering:geometricPrecision}
+:root{--muted:rgba(16,26,21,.58);--rule:rgba(16,26,21,.18);--mint:#A8E8C8}
+/* One statement per page, set as large as the frame allows — no other family
+   in the set is statement-led, and that is the whole architecture here. The
+   condensed face earns its place by letting a full sentence run at display
+   size without breaking into five lines. Flat grounds, no gradient. */
+.ground{position:absolute;inset:0;z-index:0;background:#F2F3F1}
+.grain{position:absolute;inset:0;z-index:6;opacity:.18;mix-blend-mode:multiply;pointer-events:none}
+.page{position:absolute;inset:0;display:flex;flex-direction:column;z-index:4;padding:104px 80px 96px}
+.cond{font-family:"Barlow Condensed",sans-serif}
+.label{font-size:26px;font-weight:500;color:var(--muted);letter-spacing:-.2px}
+.page{justify-content:space-between}
+/* The mint appears once per page, as the clause the statement turns on. */
+h2{font-size:118px;font-weight:600;line-height:.94;letter-spacing:-4px}
+h2 mark{background:var(--mint);color:#101A15;padding:0 14px;
+  -webkit-box-decoration-break:clone;box-decoration-break:clone}
+.why{font-size:32px;font-weight:400;line-height:1.44;color:var(--muted);max-width:780px}
+.foot{display:flex;gap:56px;padding-top:32px;border-top:1px solid var(--rule)}
+.foot div{flex:1 1 0;font-size:26px;font-weight:400;line-height:1.34;color:var(--muted)}
+.foot b{display:block;font-weight:600;color:#101A15;margin-bottom:8px;letter-spacing:-.4px}
+</style></head>
+<body>
+<div class="ground"></div>
+<div class="page">
+  <div class="label">{{sectionLabel}}</div>
+  <h2 class="cond">{{bodyLine1}} <mark>{{bodyLine2}}</mark></h2>
+  <p class="why">{{bodyLine3}}</p>
+  <div class="foot">
+    <div><b>{{f1Title}}</b>{{f1Body}}</div>
+    <div><b>{{f2Title}}</b>{{f2Body}}</div>
+  </div>
+</div>
+<svg class="grain" width="1080" height="1350" viewBox="0 0 1080 1350" preserveAspectRatio="none">
+<filter id="gr"><feTurbulence type="fractalNoise" baseFrequency="0.88" numOctaves="3" seed="47"/><feColorMatrix type="saturate" values="0"/></filter>
+<rect width="1080" height="1350" filter="url(#gr)" opacity="0.4"/></svg>
+</body></html>

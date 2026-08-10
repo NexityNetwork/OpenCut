@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html><head><meta charset="utf-8">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+html,body{width:1080px;height:1350px;overflow:hidden;color:#EEF7F4;
+  font-family:"Inter",sans-serif;-webkit-font-smoothing:antialiased;text-rendering:geometricPrecision}
+:root{--muted:rgba(238,247,244,.72);--rule:rgba(238,247,244,.20);--accent:#5FE3C4}
+/* Four saturated stops that ARE the ground, with grain over the top so a rich
+   gradient does not band on export. The drawn object is frosted glass with a
+   real drop shadow, rotated off-axis — a spinoff gets its own object, not a
+   recolour of somebody else's. */
+.mesh{position:absolute;inset:0;z-index:0;background:
+  radial-gradient(120% 90% at 14% 16%, #17A78F 0%, transparent 56%),
+  radial-gradient(100% 80% at 88% 6%,  #46D9BB 0%, transparent 50%),
+  radial-gradient(120% 95% at 78% 90%, #0A5B50 0%, transparent 58%),
+  radial-gradient(110% 90% at 4% 92%,  #032420 0%, transparent 56%),
+  #04211D}
+.grain{position:absolute;inset:0;z-index:1;opacity:.28;mix-blend-mode:overlay;pointer-events:none}
+.obj{position:absolute;z-index:2;pointer-events:none}
+.sheet{position:absolute;inset:0;padding:118px 84px 104px;display:flex;flex-direction:column;
+  justify-content:space-between;z-index:4}
+.tool{display:flex;align-items:center;gap:20px}
+.tool i{display:block;width:50px;height:50px;flex:0 0 auto}
+.tool i svg{width:100%;height:100%;display:block}
+.tool .n{font-size:42px;font-weight:700;letter-spacing:-1.7px}
+.tool .r{margin-top:4px;font-size:24px;font-weight:500;color:var(--muted);letter-spacing:-.3px}
+h2{font-size:80px;font-weight:700;line-height:1.01;letter-spacing:-3.3px;max-width:640px}
+h2 em{font-style:normal;color:#B9F4E5}
+.body{margin-top:28px;font-size:31px;font-weight:400;line-height:1.44;color:var(--muted);max-width:560px}
+.stats{padding-top:34px;border-top:1px solid var(--rule);display:flex;gap:70px}
+.stat .v{font-size:46px;font-weight:700;letter-spacing:-1.9px;line-height:1}
+.stat .l{margin-top:9px;font-size:23px;font-weight:500;color:var(--muted);letter-spacing:-.3px}
+.obj{right:-196px;top:392px;width:560px;height:520px;transform:rotate(7deg);opacity:.98}
+</style></head>
+<body>
+<div class="mesh"></div>
+<svg class="obj" viewBox="0 0 560 460" fill="none">
+  <defs>
+    <linearGradient id="og" x1="0" y1="0" x2=".4" y2="1">
+      <stop offset="0" stop-color="#fff" stop-opacity=".34"/><stop offset="1" stop-color="#fff" stop-opacity=".07"/>
+    </linearGradient>
+    <filter id="osh" x="-40%" y="-30%" width="190%" height="200%">
+      <feDropShadow dx="0" dy="34" stdDeviation="34" flood-color="#03211C" flood-opacity=".5"/>
+    </filter>
+  </defs>
+  <g filter="url(#osh)">
+    <rect x="120" y="286" width="380" height="118" rx="22" fill="url(#og)" stroke="rgba(255,255,255,.30)" stroke-width="2"/>
+    <rect x="88"  y="176" width="380" height="118" rx="22" fill="url(#og)" stroke="rgba(255,255,255,.38)" stroke-width="2"/>
+    <rect x="56"  y="66"  width="380" height="118" rx="22" fill="url(#og)" stroke="rgba(255,255,255,.48)" stroke-width="2.5"/>
+    <path d="M92 108h150M92 138h96" stroke="rgba(255,255,255,.5)" stroke-width="6" stroke-linecap="round"/>
+    <circle cx="392" cy="124" r="26" stroke="rgba(255,255,255,.5)" stroke-width="2.5" fill="rgba(255,255,255,.1)"/>
+  </g>
+</svg>
+<div class="sheet">
+  <div class="tool"><i>{{iconSvg1}}</i><div><div class="n">{{toolName}}</div><div class="r">{{toolRole}}</div></div></div>
+  <div>
+  <h2>{{title}} <em>{{titleAccent}}</em></h2>
+  <p class="body">{{body}}</p>
+  </div>
+  <div class="stats">
+    <div class="stat"><div class="v">{{stat1V}}</div><div class="l">{{stat1L}}</div></div>
+    <div class="stat"><div class="v">{{stat2V}}</div><div class="l">{{stat2L}}</div></div>
+    <div class="stat"><div class="v">{{stat3V}}</div><div class="l">{{stat3L}}</div></div>
+  </div>
+</div>
+<svg class="grain" width="1080" height="1350" viewBox="0 0 1080 1350" preserveAspectRatio="none">
+<filter id="gr"><feTurbulence type="fractalNoise" baseFrequency="0.8" numOctaves="3" seed="12"/><feColorMatrix type="saturate" values="0"/></filter>
+<rect width="1080" height="1350" filter="url(#gr)" opacity="0.55"/></svg>
+</body></html>

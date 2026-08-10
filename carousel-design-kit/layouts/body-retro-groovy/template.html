@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html><head><meta charset="utf-8">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+html,body{width:1080px;height:1350px;overflow:hidden;color:#231A12;
+  font-family:"Inter",sans-serif;-webkit-font-smoothing:antialiased;text-rendering:geometricPrecision}
+:root{--muted:rgba(35,26,18,.58);--rule:rgba(35,26,18,.18);--accent:#C4562B}
+/* Flat sand, no gradient. The drawing is a set of concentric arcs rising from
+   the bottom edge in bands of the accent — seventies geometry done straight,
+   as a frame the type sits above rather than as pastiche. */
+.ground{position:absolute;inset:0;z-index:0;background:#F7E9D0}
+.draw{position:absolute;inset:0;z-index:1;pointer-events:none}
+.grain{position:absolute;inset:0;z-index:6;opacity:.18;mix-blend-mode:multiply;pointer-events:none}
+.page{position:absolute;inset:0;display:flex;flex-direction:column;z-index:4;padding:100px 82px 92px;
+  justify-content:space-between}
+.label{font-size:25px;font-weight:500;color:var(--muted);letter-spacing:-.2px}
+h2{margin-top:24px;font-size:78px;font-weight:700;line-height:1.02;letter-spacing:-3.2px;max-width:860px}
+h2 em{font-style:normal;color:var(--accent)}
+.copy{margin-top:28px;font-size:31px;font-weight:400;line-height:1.46;color:rgba(35,26,18,.78);max-width:840px}
+.copy b{font-weight:600;color:#231A12}
+.pts{display:flex;flex-direction:column}
+.pt{display:flex;gap:32px;padding:42px 0;border-top:1px solid var(--rule)}
+.pt .k{flex:0 0 270px;font-size:29px;font-weight:600;letter-spacing:-.6px;color:var(--accent);line-height:1.2}
+.pt .v{font-size:27px;font-weight:400;line-height:1.38;color:var(--muted)}
+</style></head>
+<body>
+<div class="ground"></div>
+<svg class="draw" viewBox="0 0 1080 1350" fill="none">
+  <path d="M900 300 A100 100 0 0 1 1100 300" fill="none" stroke="#C4562B" stroke-opacity="0.26" stroke-width="26"/>
+  <path d="M842 300 A158 158 0 0 1 1158 300" fill="none" stroke="#C4562B" stroke-opacity="0.23" stroke-width="26"/>
+  <path d="M784 300 A216 216 0 0 1 1216 300" fill="none" stroke="#C4562B" stroke-opacity="0.20" stroke-width="26"/>
+  <path d="M726 300 A274 274 0 0 1 1274 300" fill="none" stroke="#C4562B" stroke-opacity="0.18" stroke-width="26"/>
+  <path d="M668 300 A332 332 0 0 1 1332 300" fill="none" stroke="#C4562B" stroke-opacity="0.15" stroke-width="26"/>
+</svg>
+<div class="page">
+  <div>
+    <div class="label">{{sectionLabel}}</div>
+    <h2>{{titleLine1}} <em>{{titleAccent}}</em></h2>
+    <p class="copy">{{body}}</p>
+  </div>
+  <div class="pts">
+    <div class="pt"><div class="k">{{p1Title}}</div><div class="v">{{p1Body}}</div></div>
+    <div class="pt"><div class="k">{{p2Title}}</div><div class="v">{{p2Body}}</div></div>
+    <div class="pt"><div class="k">{{p3Title}}</div><div class="v">{{p3Body}}</div></div>
+  </div>
+</div>
+<svg class="grain" width="1080" height="1350" viewBox="0 0 1080 1350" preserveAspectRatio="none">
+<filter id="gr"><feTurbulence type="fractalNoise" baseFrequency="0.88" numOctaves="3" seed="55"/><feColorMatrix type="saturate" values="0"/></filter>
+<rect width="1080" height="1350" filter="url(#gr)" opacity="0.42"/></svg>
+</body></html>

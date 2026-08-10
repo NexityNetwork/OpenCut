@@ -1,0 +1,119 @@
+{
+  "_note": "Frozen content for design review. Light-shaft family — hard-edged bands of light crossing a near-black frame, with a strict left column of type sitting under them.",
+  "family": "leak-dark",
+  "brief": "Six things that only break once real users arrive",
+  "slides": [
+    {
+      "layoutId": "cover-leak-dark",
+      "slots": {
+        "eyebrow": "Everything below passed review first",
+        "titleLine1": "It worked",
+        "titleAccent": "until people used it.",
+        "subtitle": "Six failures that no test catches, because every one of them needs a real person behaving normally.",
+        "meta1V": "6", "meta1": "failure modes",
+        "meta2V": "0", "meta2": "caught by tests",
+        "meta3V": "1 week", "meta3": "to find them all",
+        "iconColor1": "#EDF3F7", "iconColor2": "#EDF3F7", "iconColor3": "#EDF3F7",
+        "iconColor4": "#EDF3F7", "iconColor5": "#EDF3F7",
+        "iconSlug1": "postgresql", "iconSlug2": "redis", "iconSlug3": "cloudflare",
+        "iconSlug4": "sentry", "iconSlug5": "github"
+      }
+    },
+    {
+      "layoutId": "body-leak-dark",
+      "slots": {
+        "tag": "The first hour", "toolName": "Postgres", "iconSlug1": "postgresql", "iconColor1": "#EDF3F7",
+        "title": "Everyone arrives at once, or not at all",
+        "subtitle": "Traffic is never the smooth curve a load test produces. It is flat, then vertical, then flat again.",
+        "b1Title": "The pool runs out before the database does",
+        "b1Body": "Connections are the ceiling, and the ceiling is a default nobody chose.",
+        "b2Title": "Retries turn a blip into an outage",
+        "b2Body": "Every client retrying at once is a second, larger wave arriving on a weakened service.",
+        "b3Title": "The graph looks fine afterwards",
+        "b3Body": "Averaged over a minute, a thirty-second failure is a small dip nobody investigates."
+      }
+    },
+    {
+      "layoutId": "body-leak-dark",
+      "slots": {
+        "tag": "The first restart", "toolName": "Redis", "iconSlug1": "redis", "iconColor1": "#EDF3F7",
+        "title": "Nothing is load-bearing until it is missing",
+        "subtitle": "A cache that has never been empty in production is an assumption, not a component.",
+        "b1Title": "Cold start is the real capacity test",
+        "b1Body": "Whatever the database handles with an empty cache is your actual limit.",
+        "b2Title": "Deploys empty it too",
+        "b2Body": "Which means the riskiest moment is the one you schedule deliberately.",
+        "b3Title": "It fails silently by design",
+        "b3Body": "A miss is a valid outcome, so nothing anywhere raises an alarm about it."
+      }
+    },
+    {
+      "layoutId": "body-leak-dark",
+      "slots": {
+        "tag": "The first bad input", "toolName": "Cloudflare", "iconSlug1": "cloudflare", "iconColor1": "#EDF3F7",
+        "title": "Users do things nobody thought to forbid",
+        "subtitle": "Not maliciously. They paste a document, refresh twice, leave a tab open for four days.",
+        "b1Title": "The stale tab problem",
+        "b1Body": "A page open since Tuesday is running code and holding tokens from Tuesday.",
+        "b2Title": "Double submission is normal behaviour",
+        "b2Body": "If the button does not respond in a second, a reasonable person presses it again.",
+        "b3Title": "Paste is not typing",
+        "b3Body": "Every input limit assumed a keyboard. None of them survive forty pages of text."
+      }
+    },
+    {
+      "layoutId": "body-leak-dark",
+      "slots": {
+        "tag": "The first week", "toolName": "Sentry", "iconSlug1": "sentry", "iconColor1": "#EDF3F7",
+        "title": "The error you never see is the expensive one",
+        "subtitle": "Failures that are caught, logged and swallowed look identical to nothing happening at all.",
+        "b1Title": "A caught exception is still a failure",
+        "b1Body": "Somebody did not get what they came for, and the log entry is the only trace.",
+        "b2Title": "Nobody reads a log with no reader",
+        "b2Body": "If it does not page someone or appear on a screen, it is a diary, not monitoring.",
+        "b3Title": "Users do not report, they leave",
+        "b3Body": "The ratio is roughly one report per hundred people who simply gave up."
+      }
+    },
+    {
+      "layoutId": "body-leak-dark",
+      "slots": {
+        "tag": "The first month", "toolName": "GitHub", "iconSlug1": "github", "iconColor1": "#EDF3F7",
+        "title": "The data drifts while the code stands still",
+        "subtitle": "Nothing was deployed and the behaviour changed anyway, which is the hardest bug to believe in.",
+        "b1Title": "Volume changes what is correct",
+        "b1Body": "A query that was instant on a thousand rows is a timeout on a million.",
+        "b2Title": "Old records break new assumptions",
+        "b2Body": "Every field added later is empty on everything created before it existed.",
+        "b3Title": "The fix is a migration, not a patch",
+        "b3Body": "Which is why it gets deferred, and why it is worse the next time it surfaces."
+      }
+    },
+    {
+      "layoutId": "body-leak-dark",
+      "slots": {
+        "tag": "The uncomfortable one", "toolName": "Postgres", "iconSlug1": "postgresql", "iconColor1": "#EDF3F7",
+        "title": "None of these were found by being careful",
+        "subtitle": "Every one of them was found by traffic, and the only variable you control is how fast you notice.",
+        "b1Title": "Review does not catch load",
+        "b1Body": "Two people reading a diff cannot simulate a thousand people at once.",
+        "b2Title": "Staging is a different world",
+        "b2Body": "No real data, no real concurrency, and nobody behaving unpredictably in it.",
+        "b3Title": "Optimise for the time to notice",
+        "b3Body": "You cannot predict the cause. You can absolutely shorten the gap before you see it."
+      }
+    },
+    {
+      "layoutId": "cta-leak-dark",
+      "slots": {
+        "eyebrow": "One afternoon, deliberately",
+        "ctaLine1": "Break it",
+        "ctaLine2": "while you are watching.",
+        "ctaBody": "Empty the cache, pull a connection, paste forty pages into the input. On a Tuesday it is an experiment; at three in the morning it is an incident.",
+        "closingLine": "You do not get to choose the failure. You do get to choose when you meet it.",
+        "btnPrimary": "Take the whole checklist",
+        "signoff": "The recovery is the only part you control"
+      }
+    }
+  ]
+}

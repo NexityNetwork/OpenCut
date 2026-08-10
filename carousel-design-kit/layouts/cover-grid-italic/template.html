@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html><head><meta charset="utf-8">
+<link href="https://fonts.googleapis.com/css2?family=Inter:ital,wght@0,400;0,500;0,600;0,700;1,500;1,600;1,700&display=swap" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+html,body{width:1080px;height:1350px;overflow:hidden;color:#16130F;
+  font-family:"Inter",sans-serif;-webkit-font-smoothing:antialiased;text-rendering:geometricPrecision}
+:root{--muted:rgba(22,19,15,.56);--rule:rgba(22,19,15,.18);--accent:#9E2B25}
+/* Flat warm paper, no gradient. The system is a strict modular grid: cells
+   separated by hairline rules that run the full measure, with an italic serif
+   used at display size only. Cormorant is unreadable small, so every size
+   below the headline is Inter. */
+.ground{position:absolute;inset:0;z-index:0;background:#F5F3EE}
+.grain{position:absolute;inset:0;z-index:6;opacity:.18;mix-blend-mode:multiply;pointer-events:none}
+.page{position:absolute;inset:0;display:flex;flex-direction:column;z-index:4;padding:106px 78px 98px}
+.it{font-style:italic;font-weight:600}
+.cell{padding:32px 0;border-top:1px solid var(--rule)}
+.two{display:grid;grid-template-columns:1fr 1fr;column-gap:0}
+.two > *{padding-right:44px}
+.two > * + *{padding-right:0;padding-left:44px;border-left:1px solid var(--rule)}
+.eyebrow{font-size:27px;font-weight:500;color:var(--accent);letter-spacing:-.4px}
+h1{margin-top:28px;font-size:114px;font-weight:700;line-height:1;letter-spacing:-4.2px}
+h1 em{font-style:italic;font-weight:600;font-size:114px;letter-spacing:-4.6px;color:var(--accent)}
+.sub{margin-top:34px;font-size:31px;font-weight:400;line-height:1.42;color:var(--muted);max-width:720px}
+.words{margin-top:78px;display:grid;grid-template-columns:repeat(3,1fr);column-gap:40px}
+.words > div{padding:30px 0 0;border-top:1px solid var(--rule)}
+.words .w{font-style:italic;font-weight:600;font-size:62px;line-height:1;letter-spacing:-1.4px}
+.words .l{margin-top:14px;font-size:25px;font-weight:400;color:var(--muted);letter-spacing:-.3px;padding-right:26px}
+.foot{margin-top:auto;padding-top:32px;border-top:1px solid var(--rule);display:flex;align-items:center;gap:34px}
+.foot svg{width:44px;height:44px;display:block}
+</style></head>
+<body>
+<div class="ground"></div>
+<div class="page">
+  <div class="eyebrow">{{eyebrow}}</div>
+  <h1>{{headlineMain}} <em>{{headlineAccent}}</em></h1>
+  <p class="sub">{{subtitle}}</p>
+  <div class="words">
+    <div><div class="w it">{{word1}}</div><div class="l">{{word1Sub}}</div></div>
+    <div><div class="w it">{{word2}}</div><div class="l">{{word2Sub}}</div></div>
+    <div><div class="w it">{{word3}}</div><div class="l">{{word3Sub}}</div></div>
+  </div>
+  <div class="foot">{{iconSvg1}}{{iconSvg2}}{{iconSvg3}}{{iconSvg4}}{{iconSvg5}}</div>
+</div>
+<svg class="grain" width="1080" height="1350" viewBox="0 0 1080 1350" preserveAspectRatio="none">
+<filter id="gr"><feTurbulence type="fractalNoise" baseFrequency="0.86" numOctaves="3" seed="97"/><feColorMatrix type="saturate" values="0"/></filter>
+<rect width="1080" height="1350" filter="url(#gr)" opacity="0.42"/></svg>
+</body></html>

@@ -1,0 +1,103 @@
+{
+  "_note": "Frozen content for design review. Swiss family — six visible column hairlines run full bleed, everything flush to a column start, one element per page spanning the full measure. White, black and one red.",
+  "family": "swiss-grid",
+  "brief": "Writing so a busy reader cannot misunderstand you",
+  "slides": [
+    {
+      "layoutId": "cover-swiss-grid",
+      "slots": {
+        "eyebrow": "On being read once, correctly",
+        "titleLine1": "Most writing fails",
+        "titleAccent": "before the second line.",
+        "standfirst": "Six habits that hold up in front of somebody skimming, half-interested and already deciding whether to keep going.",
+        "item1": "Why the opening sentence is the only one you actually control",
+        "item2": "The edit that removes most of the ways to be misread",
+        "coverNote": "The last one is the reason clear writing is unpopular"
+      }
+    },
+    {
+      "layoutId": "body-swiss-grid",
+      "slots": {
+        "sectionLabel": "Answer first",
+        "titleLine1": "The conclusion is",
+        "titleAccent": "the opening.",
+        "body": "A reader who has the answer will read the reasoning. A reader who has the reasoning will leave before the answer. Building to a conclusion is how you were taught to write essays and <b>it is the wrong shape for anything somebody has to act on</b>.",
+        "k1": "Say it in the first line", "v1": "Not the topic. The finding. The thing you would say if you had one sentence.",
+        "k2": "Then say why", "v2": "The argument reads as support once the claim is already in the reader's head.",
+        "k3": "Cut the throat-clearing", "v3": "Every paragraph written to warm yourself up is one the reader has to skip."
+      }
+    },
+    {
+      "layoutId": "body-swiss-grid",
+      "slots": {
+        "sectionLabel": "One idea, one paragraph",
+        "titleLine1": "A paragraph holds",
+        "titleAccent": "exactly one thing.",
+        "body": "Two ideas in a paragraph means the reader has to hold both while deciding which one it was about, and half of them pick wrong. Length is not the problem — <b>a long paragraph about one thing is easier than a short one about two</b>.",
+        "k1": "Name the idea first", "v1": "If the first sentence does not carry it, the paragraph is doing two jobs.",
+        "k2": "Break on the turn", "v2": "Wherever you would say 'but' or 'meanwhile', that is a new paragraph.",
+        "k3": "Read the first lines only", "v3": "String them together. If that reads as an argument, the structure works."
+      }
+    },
+    {
+      "layoutId": "body-swiss-grid",
+      "slots": {
+        "sectionLabel": "Delete the hedges",
+        "titleLine1": "Qualifiers make",
+        "titleAccent": "you sound unsure.",
+        "body": "Somewhat, arguably, fairly, tends to, in many cases. Each one is inserted to be accurate and lands as a lack of conviction. If a claim genuinely needs a limit, <b>state the limit as a fact rather than dissolving it into the sentence</b>.",
+        "k1": "Strike them all first", "v1": "Then put back only the ones whose absence makes a sentence false.",
+        "k2": "Bound it explicitly", "v2": "'This holds under X' beats 'this may sometimes hold'.",
+        "k3": "Watch for the pile-up", "v3": "Two hedges in one sentence is a sign you do not believe the sentence."
+      }
+    },
+    {
+      "layoutId": "body-swiss-grid",
+      "slots": {
+        "sectionLabel": "Prefer the specific",
+        "titleLine1": "Detail is faster",
+        "titleAccent": "than abstraction.",
+        "body": "General statements have to be decoded before they can be checked, and most readers do not bother. A concrete example is understood in one pass and remembered afterwards, which is why <b>the specific version is shorter in practice even when it is longer on the page</b>.",
+        "k1": "Name the actual thing", "v1": "Not 'a stakeholder'. The person, the team, the situation you mean.",
+        "k2": "Give one example", "v2": "One is persuasive. Three is a list and reads as padding.",
+        "k3": "Avoid the safe noun", "v3": "Solution, resource, initiative — words chosen to avoid committing to a meaning."
+      }
+    },
+    {
+      "layoutId": "body-swiss-grid",
+      "slots": {
+        "sectionLabel": "Read it out loud",
+        "titleLine1": "Your ear catches",
+        "titleAccent": "what your eye skips.",
+        "body": "Reading silently, you supply the emphasis the sentence lacks and repair its structure without noticing. Out loud, the repair is impossible: you run out of breath, you stumble on the clause order, and <b>every place you stumble is a place the reader will</b>.",
+        "k1": "Do it once, all of it", "v1": "Not the tricky paragraph. The whole thing, start to finish.",
+        "k2": "Mark, do not fix", "v2": "Stopping to edit puts you back inside the sentence you are testing.",
+        "k3": "Trust the stumble", "v3": "A sentence you cannot say is a sentence somebody has to read twice."
+      }
+    },
+    {
+      "layoutId": "body-swiss-grid",
+      "slots": {
+        "sectionLabel": "The uncomfortable one",
+        "titleLine1": "Clarity makes you",
+        "titleAccent": "easier to disagree with.",
+        "body": "Vague writing cannot be wrong, which is most of why people write it. Every habit here converts a defensible statement into a checkable one, and <b>the cost of being understood is that somebody can now tell you that you are mistaken</b>.",
+        "k1": "That is the trade", "v1": "Being understood and being unassailable are not available together.",
+        "k2": "Most hedging is armour", "v2": "It protects the writer and costs the reader the point.",
+        "k3": "Decide which you want", "v3": "There is a real case for cover. Just do not confuse it with good writing."
+      }
+    },
+    {
+      "layoutId": "cta-swiss-grid",
+      "slots": {
+        "eyebrow": "On the thing sitting in your drafts",
+        "titleLine1": "Delete the first",
+        "titleAccent": "paragraph.",
+        "body": "The one you wrote to get going. It is almost always context the reader already has, and the second paragraph is almost always the real opening.",
+        "closingLine": "If the piece still makes sense without it, it was never doing anything but warming you up.",
+        "buttonLabel": "Take all six",
+        "signoff": "Then read what is left out loud"
+      }
+    }
+  ]
+}

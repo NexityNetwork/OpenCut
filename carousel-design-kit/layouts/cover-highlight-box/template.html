@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html><head><meta charset="utf-8">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+html,body{width:1080px;height:1350px;overflow:hidden;color:#F2F1EC;
+  font-family:"Inter",sans-serif;-webkit-font-smoothing:antialiased;text-rendering:geometricPrecision}
+:root{--muted:rgba(242,241,236,.58);--rule:rgba(242,241,236,.16);--accent:#F5E14B;--ink:#0C0C0C}
+/* Flat near-black, no gradient. The family is named for the highlight, so the
+   highlight is the system at two scales: a full-bleed band the statement sits
+   inside, and solid marks on the words that carry the argument. Sixth dark
+   family, and the only one whose structure runs horizontally across the frame. */
+.ground{position:absolute;inset:0;z-index:0;background:#0C0C0C}
+.grain{position:absolute;inset:0;z-index:6;opacity:.16;mix-blend-mode:overlay;pointer-events:none}
+.page{position:absolute;inset:0;display:flex;flex-direction:column;z-index:4}
+.pad{padding:0 82px}
+.band{background:#171717;padding:54px 82px}
+mark{background:var(--accent);color:var(--ink);padding:0 12px;border-radius:5px;
+  -webkit-box-decoration-break:clone;box-decoration-break:clone}
+.top{padding:104px 82px 60px}
+.eyebrow{font-size:28px;font-weight:500;color:var(--accent);letter-spacing:-.4px}
+h1{margin-top:30px;font-size:106px;font-weight:700;line-height:1.04;letter-spacing:-4.3px}
+.band{flex:0 0 auto}
+.band .s{font-size:44px;font-weight:600;line-height:1.28;letter-spacing:-1.6px}
+.rest{flex:1 1 auto;padding:56px 82px 100px;display:flex;flex-direction:column}
+.sub{font-size:31px;font-weight:400;line-height:1.42;color:var(--muted);max-width:760px}
+.mets{margin-top:auto;display:grid;grid-template-columns:repeat(3,1fr);column-gap:38px;
+  padding-top:38px;border-top:1px solid var(--rule)}
+.mets .v{font-size:64px;font-weight:700;line-height:1;letter-spacing:-2.6px}
+.mets .l{margin-top:12px;font-size:24px;font-weight:400;line-height:1.28;color:var(--muted);letter-spacing:-.3px}
+.dock{margin-top:44px;display:flex;align-items:center;gap:34px}
+.dock svg{width:46px;height:46px;display:block}
+</style></head>
+<body>
+<div class="ground"></div>
+<div class="page">
+  <div class="top">
+    <div class="eyebrow">{{eyebrow}}</div>
+    <h1>{{titleLine1}}</h1>
+  </div>
+  <div class="band"><div class="s">{{statementLine1}} <mark>{{statementHighlight}}</mark></div></div>
+  <div class="rest">
+    <p class="sub">{{subtitle}}</p>
+    <div class="mets">
+      <div><div class="v">{{m1Value}}</div><div class="l">{{m1Label}}</div></div>
+      <div><div class="v">{{m2Value}}</div><div class="l">{{m2Label}}</div></div>
+      <div><div class="v">{{m3Value}}</div><div class="l">{{m3Label}}</div></div>
+    </div>
+    <div class="dock">{{iconSvg1}}{{iconSvg2}}{{iconSvg3}}{{iconSvg4}}{{iconSvg5}}</div>
+  </div>
+</div>
+<svg class="grain" width="1080" height="1350" viewBox="0 0 1080 1350" preserveAspectRatio="none">
+<filter id="gr"><feTurbulence type="fractalNoise" baseFrequency="0.82" numOctaves="3" seed="23"/><feColorMatrix type="saturate" values="0"/></filter>
+<rect width="1080" height="1350" filter="url(#gr)" opacity="0.5"/></svg>
+</body></html>

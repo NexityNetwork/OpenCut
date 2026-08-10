@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html><head><meta charset="utf-8">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+html,body{width:1080px;height:1350px;overflow:hidden;color:#EFF2F6;
+  font-family:"Inter",sans-serif;-webkit-font-smoothing:antialiased;text-rendering:geometricPrecision}
+:root{--muted:rgba(239,242,246,.62);--rule:rgba(239,242,246,.2);--accent:#8FB3D9}
+/* Flat cool grey, no gradient. The stack IS the page: rounded plates offset and
+   layered with real depth, each carrying one piece of the argument, so the
+   rounding the family is named for is structural rather than applied to a card
+   somebody dropped on a background. */
+.ground{position:absolute;inset:0;z-index:0;background:#101317}
+.grain{position:absolute;inset:0;z-index:6;opacity:.16;mix-blend-mode:overlay;pointer-events:none}
+.page{position:absolute;inset:0;display:flex;flex-direction:column;z-index:4;padding:98px 78px 90px;
+  justify-content:space-between}
+.label{font-size:25px;font-weight:500;color:var(--muted);letter-spacing:-.2px}
+.stack{position:relative}
+.plate{background:#1A1F26;border-radius:30px;padding:48px 42px;
+  box-shadow:0 26px 48px -22px rgba(16,19,23,.28), 0 1px 0 rgba(255,255,255,.9) inset;
+  border:1px solid rgba(239,242,246,.1)}
+.plate + .plate{margin-top:-14px}
+.plate.a{margin-left:0;z-index:3;position:relative}
+.plate.b{margin-left:34px;z-index:2;position:relative}
+.plate.c{margin-left:68px;z-index:1;position:relative}
+.plate.on{background:var(--accent);color:#101317;border-color:var(--accent)}
+.plate .t{font-size:33px;font-weight:600;line-height:1.18;letter-spacing:-.8px}
+.plate .b{margin-top:14px;font-size:27px;font-weight:400;line-height:1.36;color:var(--muted)}
+.plate.on .b{color:rgba(16,19,23,.74)}
+h1{margin-top:28px;font-size:102px;font-weight:700;line-height:.99;letter-spacing:-4.2px;max-width:860px}
+h1 em{font-style:normal;color:var(--accent)}
+.sub{margin-top:30px;font-size:31px;font-weight:400;line-height:1.44;color:var(--muted);max-width:720px}
+.foot{margin-top:34px;display:flex;align-items:center;gap:26px;padding-top:28px;border-top:1px solid var(--rule)}
+.btn{padding:22px 46px;background:var(--accent);color:#101317;border-radius:999px;font-size:28px;font-weight:600;letter-spacing:-.5px}
+.ghost{font-size:24px;font-weight:500;color:var(--muted)}
+</style></head>
+<body>
+<div class="ground"></div>
+<div class="page">
+  <div>
+    <div class="label">{{eyebrow}}</div>
+    <h1>{{titleLine1}} <em>{{titleAccent}}</em></h1>
+    <p class="sub">{{body}}</p>
+  </div>
+  <div>
+    <div class="stack">
+      <div class="plate a on"><div class="t">{{plate1}}</div><div class="b">{{plate1Body}}</div></div>
+      <div class="plate b"><div class="t">{{plate2}}</div><div class="b">{{plate2Body}}</div></div>
+    </div>
+    <div class="foot"><div class="btn">{{buttonLabel}}</div><div class="ghost">{{signoff}}</div></div>
+  </div>
+</div>
+<svg class="grain" width="1080" height="1350" viewBox="0 0 1080 1350" preserveAspectRatio="none">
+<filter id="gr"><feTurbulence type="fractalNoise" baseFrequency="0.88" numOctaves="3" seed="63"/><feColorMatrix type="saturate" values="0"/></filter>
+<rect width="1080" height="1350" filter="url(#gr)" opacity="0.4"/></svg>
+</body></html>

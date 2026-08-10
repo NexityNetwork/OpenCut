@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html><head><meta charset="utf-8">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+html,body{width:1080px;height:1350px;overflow:hidden;color:#1B1A16;
+  font-family:"Inter",sans-serif;-webkit-font-smoothing:antialiased;text-rendering:geometricPrecision}
+:root{--muted:rgba(27,26,22,.58);--rule:rgba(27,26,22,.16);--accent:#2F5D3F}
+/* The name is the structure: a sheet folded in three. Each panel catches the
+   light differently and the creases are drawn as a hairline with a soft band
+   either side, which is what a fold actually looks like on paper. No gradient
+   ground, no tools — this family is about the document, not the software. */
+.sheet{position:absolute;inset:0;z-index:2;display:flex;flex-direction:column}
+.panel{position:relative;padding:0 82px;display:flex;flex-direction:column;justify-content:center}
+.p1{background:#F7F2E7}
+.p2{background:#F1EADC}
+.p3{background:#EDE4D3}
+.crease{position:relative;height:0;z-index:3}
+.crease::before{content:"";position:absolute;left:0;right:0;top:-1px;height:1px;background:rgba(27,26,22,.22)}
+.crease::after{content:"";position:absolute;left:0;right:0;top:-26px;height:52px;
+  background:linear-gradient(180deg,rgba(27,26,22,.055) 0%,transparent 48%,rgba(255,255,255,.5) 52%,transparent 100%)}
+.grain{position:absolute;inset:0;z-index:6;opacity:.2;mix-blend-mode:multiply;pointer-events:none}
+.label{font-size:25px;font-weight:500;color:var(--muted);letter-spacing:-.2px}
+.p1{flex:36}
+.p2{flex:38}
+.p3{flex:26}
+h2{margin-top:24px;font-size:76px;font-weight:700;line-height:1.02;letter-spacing:-3.1px;max-width:880px}
+h2 em{font-style:normal;color:var(--accent)}
+.copy{font-size:31px;font-weight:400;line-height:1.46;color:rgba(27,26,22,.78);max-width:860px}
+.copy b{font-weight:600;color:#1B1A16}
+.two{display:flex;gap:44px}
+.two > div{flex:1 1 0}
+.two .t{font-size:28px;font-weight:600;letter-spacing:-.6px}
+.two .b{margin-top:12px;font-size:25px;font-weight:400;line-height:1.38;color:var(--muted)}
+</style></head>
+<body>
+<div class="sheet">
+  <div class="panel p1">
+    <div class="label">{{sectionLabel}}</div>
+    <h2>{{titleLine1}} <em>{{titleAccent}}</em></h2>
+  </div>
+  <div class="crease"></div>
+  <div class="panel p2"><p class="copy">{{body}}</p></div>
+  <div class="crease"></div>
+  <div class="panel p3">
+    <div class="two">
+      <div><div class="t">{{p1Title}}</div><div class="b">{{p1Body}}</div></div>
+      <div><div class="t">{{p2Title}}</div><div class="b">{{p2Body}}</div></div>
+    </div>
+  </div>
+</div>
+<svg class="grain" width="1080" height="1350" viewBox="0 0 1080 1350" preserveAspectRatio="none">
+<filter id="gr"><feTurbulence type="fractalNoise" baseFrequency="0.9" numOctaves="3" seed="7"/><feColorMatrix type="saturate" values="0"/></filter>
+<rect width="1080" height="1350" filter="url(#gr)" opacity="0.4"/></svg>
+</body></html>

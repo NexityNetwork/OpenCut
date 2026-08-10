@@ -1,0 +1,129 @@
+{
+  "_note": "Frozen content for design review. Modular-grid family — filled cells are the quantity the caption reads, not decoration.",
+  "family": "pixel-block",
+  "brief": "Why estimates are wrong in the same direction every time",
+  "slides": [
+    {
+      "layoutId": "cover-pixel-block",
+      "slots": {
+        "eyebrow": "On why the date always moves",
+        "titleLine1": "Estimates are wrong in",
+        "titleAccent": "the same direction.",
+        "subtitle": "Six reasons a project takes longer than anybody said, and only one of them is about being optimistic.",
+        "readValue": "64%",
+        "readLabel": "of a typical overrun was work nobody had written down when the date was set.",
+        "coverNote": "The last page is the one nobody wants to hear"
+      }
+    },
+    {
+      "layoutId": "body-pixel-block",
+      "slots": {
+        "sectionLabel": "Where the error lives",
+        "titleLine1": "Nobody underestimates",
+        "titleAccent": "the typing.",
+        "body": "Ask how long the work takes and people answer accurately. Ask how long it takes to <b>finish</b> and the answer is wrong by a factor, because finishing includes everything that is not the work: the review, the wait, the second opinion, the thing that turned out to be missing.",
+        "readValue": "38%",
+        "readLabel": "of an estimate is the task. The rest is everything around it.",
+        "p1Title": "Estimate the elapsed",
+        "p1Body": "Not the effort. They differ by an order of magnitude.",
+        "p2Title": "Ask what it waits on",
+        "p2Body": "Every dependency is a queue you have not priced.",
+        "blockCells": "<i class=\"on\"></i><i class=\"on\"></i><i class=\"on\"></i><i class=\"on\"></i><i class=\"on\"></i><i class=\"on\"></i><i class=\"on\"></i><i class=\"on\"></i><i class=\"on\"></i><i class=\"on\"></i><i class=\"on\"></i><i class=\"on\"></i><i class=\"on\"></i><i class=\"on\"></i><i class=\"on\"></i><i class=\"on\"></i><i class=\"on\"></i><i class=\"on\"></i><i class=\"on\"></i><i class=\"on\"></i><i class=\"on\"></i><i class=\"on\"></i><i class=\"on\"></i><i class=\"on\"></i><i class=\"on\"></i><i class=\"on\"></i><i class=\"on\"></i><i class=\"on\"></i><i class=\"on\"></i><i class=\"on\"></i><i class=\"on\"></i><i class=\"on\"></i><i class=\"mid\"></i><i class=\"mid\"></i><i class=\"mid\"></i><i class=\"mid\"></i><i class=\"mid\"></i><i class=\"mid\"></i><i class=\"mid\"></i><i class=\"mid\"></i><i class=\"mid\"></i><i class=\"mid\"></i><i class=\"mid\"></i><i class=\"mid\"></i><i class=\"mid\"></i><i class=\"mid\"></i><i class=\"mid\"></i><i class=\"mid\"></i><i class=\"mid\"></i><i class=\"mid\"></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i>"
+      }
+    },
+    {
+      "layoutId": "body-pixel-block",
+      "slots": {
+        "sectionLabel": "Why it is always one way",
+        "titleLine1": "Optimism is not",
+        "titleAccent": "the problem.",
+        "body": "Pessimists estimate wrong in the same direction. The bias is structural: you can only plan for the steps you can see, and <b>the invisible ones are all additive</b>. Nothing you forgot ever makes a project shorter.",
+        "readValue": "72%",
+        "readLabel": "of overruns come from work nobody listed at the start.",
+        "p1Title": "Errors do not cancel",
+        "p1Body": "Unknowns only ever add. There is no unknown saving.",
+        "p2Title": "Padding is not planning",
+        "p2Body": "A multiplier hides the gap instead of finding it.",
+        "blockCells": "<i class=\"on\"></i><i class=\"on\"></i><i class=\"on\"></i><i class=\"on\"></i><i class=\"on\"></i><i class=\"on\"></i><i class=\"on\"></i><i class=\"on\"></i><i class=\"on\"></i><i class=\"on\"></i><i class=\"on\"></i><i class=\"on\"></i><i class=\"on\"></i><i class=\"on\"></i><i class=\"on\"></i><i class=\"on\"></i><i class=\"on\"></i><i class=\"on\"></i><i class=\"on\"></i><i class=\"on\"></i><i class=\"on\"></i><i class=\"on\"></i><i class=\"on\"></i><i class=\"on\"></i><i class=\"on\"></i><i class=\"on\"></i><i class=\"on\"></i><i class=\"on\"></i><i class=\"on\"></i><i class=\"on\"></i><i class=\"on\"></i><i class=\"on\"></i><i class=\"on\"></i><i class=\"on\"></i><i class=\"on\"></i><i class=\"on\"></i><i class=\"on\"></i><i class=\"on\"></i><i class=\"on\"></i><i class=\"on\"></i><i class=\"on\"></i><i class=\"on\"></i><i class=\"on\"></i><i class=\"on\"></i><i class=\"on\"></i><i class=\"on\"></i><i class=\"on\"></i><i class=\"on\"></i><i class=\"on\"></i><i class=\"on\"></i><i class=\"on\"></i><i class=\"on\"></i><i class=\"on\"></i><i class=\"on\"></i><i class=\"on\"></i><i class=\"on\"></i><i class=\"on\"></i><i class=\"on\"></i><i class=\"on\"></i><i class=\"on\"></i><i class=\"mid\"></i><i class=\"mid\"></i><i class=\"mid\"></i><i class=\"mid\"></i><i class=\"mid\"></i><i class=\"mid\"></i><i class=\"mid\"></i><i class=\"mid\"></i><i class=\"mid\"></i><i class=\"mid\"></i><i class=\"mid\"></i><i class=\"mid\"></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i>"
+      }
+    },
+    {
+      "layoutId": "body-pixel-block",
+      "slots": {
+        "sectionLabel": "What actually helps",
+        "titleLine1": "Your last five projects",
+        "titleAccent": "already know.",
+        "body": "The single most accurate predictor is how long similar work took you before, and it beats any decomposition of the work in front of you. It is unpopular because <b>it ignores the reasons this one is different</b>, and this one is never different enough to matter.",
+        "readValue": "19%",
+        "readLabel": "typical error when you use your own history instead of a fresh estimate.",
+        "p1Title": "Keep the record",
+        "p1Body": "Ten lines of history outperforms any estimation technique.",
+        "p2Title": "Ignore the specifics",
+        "p2Body": "The reasons this one differs are the reasons the last one differed.",
+        "blockCells": "<i class=\"on\"></i><i class=\"on\"></i><i class=\"on\"></i><i class=\"on\"></i><i class=\"on\"></i><i class=\"on\"></i><i class=\"on\"></i><i class=\"on\"></i><i class=\"on\"></i><i class=\"on\"></i><i class=\"on\"></i><i class=\"on\"></i><i class=\"on\"></i><i class=\"on\"></i><i class=\"on\"></i><i class=\"on\"></i><i class=\"mid\"></i><i class=\"mid\"></i><i class=\"mid\"></i><i class=\"mid\"></i><i class=\"mid\"></i><i class=\"mid\"></i><i class=\"mid\"></i><i class=\"mid\"></i><i class=\"mid\"></i><i class=\"mid\"></i><i class=\"mid\"></i><i class=\"mid\"></i><i class=\"mid\"></i><i class=\"mid\"></i><i class=\"mid\"></i><i class=\"mid\"></i><i class=\"mid\"></i><i class=\"mid\"></i><i class=\"mid\"></i><i class=\"mid\"></i><i class=\"mid\"></i><i class=\"mid\"></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i>"
+      }
+    },
+    {
+      "layoutId": "body-pixel-block",
+      "slots": {
+        "sectionLabel": "On breaking it down",
+        "titleLine1": "Smaller pieces are",
+        "titleAccent": "wrong more precisely.",
+        "body": "Decomposition improves confidence far more than accuracy. Twenty small estimates feel rigorous and each one carries the same missing overhead, so <b>the error compounds instead of averaging out</b>.",
+        "readValue": "55%",
+        "readLabel": "of tasks in a breakdown still miss their own dependencies.",
+        "p1Title": "Split to understand",
+        "p1Body": "Useful for finding unknowns. Not for producing a total.",
+        "p2Title": "Total from history",
+        "p2Body": "Add the pieces to learn the shape, then check it against the past.",
+        "blockCells": "<i class=\"on\"></i><i class=\"on\"></i><i class=\"on\"></i><i class=\"on\"></i><i class=\"on\"></i><i class=\"on\"></i><i class=\"on\"></i><i class=\"on\"></i><i class=\"on\"></i><i class=\"on\"></i><i class=\"on\"></i><i class=\"on\"></i><i class=\"on\"></i><i class=\"on\"></i><i class=\"on\"></i><i class=\"on\"></i><i class=\"on\"></i><i class=\"on\"></i><i class=\"on\"></i><i class=\"on\"></i><i class=\"on\"></i><i class=\"on\"></i><i class=\"on\"></i><i class=\"on\"></i><i class=\"on\"></i><i class=\"on\"></i><i class=\"on\"></i><i class=\"on\"></i><i class=\"on\"></i><i class=\"on\"></i><i class=\"on\"></i><i class=\"on\"></i><i class=\"on\"></i><i class=\"on\"></i><i class=\"on\"></i><i class=\"on\"></i><i class=\"on\"></i><i class=\"on\"></i><i class=\"on\"></i><i class=\"on\"></i><i class=\"on\"></i><i class=\"on\"></i><i class=\"on\"></i><i class=\"on\"></i><i class=\"on\"></i><i class=\"on\"></i><i class=\"mid\"></i><i class=\"mid\"></i><i class=\"mid\"></i><i class=\"mid\"></i><i class=\"mid\"></i><i class=\"mid\"></i><i class=\"mid\"></i><i class=\"mid\"></i><i class=\"mid\"></i><i class=\"mid\"></i><i class=\"mid\"></i><i class=\"mid\"></i><i class=\"mid\"></i><i class=\"mid\"></i><i class=\"mid\"></i><i class=\"mid\"></i><i class=\"mid\"></i><i class=\"mid\"></i><i class=\"mid\"></i><i class=\"mid\"></i><i class=\"mid\"></i><i class=\"mid\"></i><i class=\"mid\"></i><i class=\"mid\"></i><i class=\"mid\"></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i>"
+      }
+    },
+    {
+      "layoutId": "body-pixel-block",
+      "slots": {
+        "sectionLabel": "On the date",
+        "titleLine1": "A single date is",
+        "titleAccent": "a promise you cannot keep.",
+        "body": "Give a range and what would narrow it. It sounds less decisive and it is honest about what you know, which is <b>the only thing that survives contact with the work</b>. A range that moves is normal; a date that moves is a failure.",
+        "readValue": "88%",
+        "readLabel": "of projects land inside a range. Almost none land on a date.",
+        "p1Title": "Name the unknown",
+        "p1Body": "The range is where you put what you have not learned yet.",
+        "p2Title": "Say what narrows it",
+        "p2Body": "That turns a deadline into a shared problem, not your problem.",
+        "blockCells": "<i class=\"on\"></i><i class=\"on\"></i><i class=\"on\"></i><i class=\"on\"></i><i class=\"on\"></i><i class=\"on\"></i><i class=\"on\"></i><i class=\"on\"></i><i class=\"on\"></i><i class=\"on\"></i><i class=\"on\"></i><i class=\"on\"></i><i class=\"on\"></i><i class=\"on\"></i><i class=\"on\"></i><i class=\"on\"></i><i class=\"on\"></i><i class=\"on\"></i><i class=\"on\"></i><i class=\"on\"></i><i class=\"on\"></i><i class=\"on\"></i><i class=\"on\"></i><i class=\"on\"></i><i class=\"on\"></i><i class=\"on\"></i><i class=\"on\"></i><i class=\"on\"></i><i class=\"on\"></i><i class=\"on\"></i><i class=\"on\"></i><i class=\"on\"></i><i class=\"on\"></i><i class=\"on\"></i><i class=\"on\"></i><i class=\"on\"></i><i class=\"on\"></i><i class=\"on\"></i><i class=\"on\"></i><i class=\"on\"></i><i class=\"on\"></i><i class=\"on\"></i><i class=\"on\"></i><i class=\"on\"></i><i class=\"on\"></i><i class=\"on\"></i><i class=\"on\"></i><i class=\"on\"></i><i class=\"on\"></i><i class=\"on\"></i><i class=\"on\"></i><i class=\"on\"></i><i class=\"on\"></i><i class=\"on\"></i><i class=\"on\"></i><i class=\"on\"></i><i class=\"on\"></i><i class=\"on\"></i><i class=\"on\"></i><i class=\"on\"></i><i class=\"on\"></i><i class=\"on\"></i><i class=\"on\"></i><i class=\"on\"></i><i class=\"on\"></i><i class=\"on\"></i><i class=\"on\"></i><i class=\"on\"></i><i class=\"on\"></i><i class=\"on\"></i><i class=\"on\"></i><i class=\"on\"></i><i class=\"on\"></i><i class=\"on\"></i><i class=\"mid\"></i><i class=\"mid\"></i><i class=\"mid\"></i><i class=\"mid\"></i><i class=\"mid\"></i><i class=\"mid\"></i><i class=\"mid\"></i><i></i><i></i><i></i>"
+      }
+    },
+    {
+      "layoutId": "body-pixel-block",
+      "slots": {
+        "sectionLabel": "The uncomfortable one",
+        "titleLine1": "Better estimates do not",
+        "titleAccent": "make you faster.",
+        "body": "They make you honest, which is worth having and is not what anybody was asking for. The pressure to commit to a date exists because somebody downstream needs one, and <b>accuracy does not remove that need</b> — it just stops you paying for it in surprise.",
+        "readValue": "46%",
+        "readLabel": "of the value is knowing sooner. None of it is going faster.",
+        "p1Title": "Accuracy is not speed",
+        "p1Body": "You will be right about a schedule you still have to live with.",
+        "p2Title": "Sooner beats shorter",
+        "p2Body": "Knowing in week one what you would have learned in week six.",
+        "blockCells": "<i class=\"on\"></i><i class=\"on\"></i><i class=\"on\"></i><i class=\"on\"></i><i class=\"on\"></i><i class=\"on\"></i><i class=\"on\"></i><i class=\"on\"></i><i class=\"on\"></i><i class=\"on\"></i><i class=\"on\"></i><i class=\"on\"></i><i class=\"on\"></i><i class=\"on\"></i><i class=\"on\"></i><i class=\"on\"></i><i class=\"on\"></i><i class=\"on\"></i><i class=\"on\"></i><i class=\"on\"></i><i class=\"on\"></i><i class=\"on\"></i><i class=\"on\"></i><i class=\"on\"></i><i class=\"on\"></i><i class=\"on\"></i><i class=\"on\"></i><i class=\"on\"></i><i class=\"on\"></i><i class=\"on\"></i><i class=\"on\"></i><i class=\"on\"></i><i class=\"on\"></i><i class=\"on\"></i><i class=\"on\"></i><i class=\"on\"></i><i class=\"on\"></i><i class=\"on\"></i><i class=\"on\"></i><i class=\"mid\"></i><i class=\"mid\"></i><i class=\"mid\"></i><i class=\"mid\"></i><i class=\"mid\"></i><i class=\"mid\"></i><i class=\"mid\"></i><i class=\"mid\"></i><i class=\"mid\"></i><i class=\"mid\"></i><i class=\"mid\"></i><i class=\"mid\"></i><i class=\"mid\"></i><i class=\"mid\"></i><i class=\"mid\"></i><i class=\"mid\"></i><i class=\"mid\"></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i>"
+      }
+    },
+    {
+      "layoutId": "cta-pixel-block",
+      "slots": {
+        "eyebrow": "Before the next date you give",
+        "titleLine1": "Look up the last one.",
+        "titleAccent": "Then answer.",
+        "body": "Find the most similar thing you finished, take how long it actually ran, and start there instead of from the work in front of you.",
+        "readValue": "28%",
+        "readLabel": "typical error from history alone, with no technique at all.",
+        "closingLine": "You will not be faster. You will stop being surprised, which is the part that costs money.",
+        "buttonLabel": "Take all six",
+        "signoff": "Ten lines of history beats any method"
+      }
+    }
+  ]
+}

@@ -1,0 +1,141 @@
+{
+  "_note": "Frozen content for design review. Each page is one step of the setup, the tool that does it, and the tip that saves the rework.",
+  "family": "cream-3d",
+  "brief": "Getting a business set up in an afternoon",
+  "slides": [
+    {
+      "layoutId": "cover-cream-3d",
+      "slots": {
+        "titleLine1": "Registering a company takes",
+        "titleBold": "an afternoon.",
+        "titleLine3": "Deciding takes months.",
+        "sub": "The paperwork is the easy part and nobody tells you that. Here is the order that keeps you from redoing it.",
+        "foot": "Five steps, in the order they actually matter"
+      }
+    },
+    {
+      "layoutId": "body-cream-3d",
+      "slots": {
+        "iconSlug1": "notion",
+        "stepTag": "Before anything else",
+        "titleLine1": "Pick the",
+        "titleLine2": "structure",
+        "body": "Sole trader, partnership or company. This decides your tax, your liability and how painful your first hire will be. It is the only choice here that is expensive to reverse.",
+        "tipLabel": "Do this",
+        "tipBody": "Start with the simplest structure that covers your liability. Upgrading later is routine.",
+        "stat1V": "5 min",
+        "stat1L": "To decide",
+        "stat2V": "0",
+        "stat2L": "Cost to start",
+        "stat3V": "3",
+        "stat3L": "Real options",
+        "iconColor1": "#1B1A17"
+      }
+    },
+    {
+      "layoutId": "body-cream-3d",
+      "slots": {
+        "iconSlug1": "googledrive",
+        "stepTag": "The boring hour",
+        "titleLine1": "Gather the",
+        "titleLine2": "documents",
+        "body": "Identity, proof of address, and the details you will retype on every form for the next decade. Doing this once in one folder is the whole trick.",
+        "tipLabel": "Do this",
+        "tipBody": "Name every file so a stranger could find it. Future you is a stranger.",
+        "stat1V": "10 min",
+        "stat1L": "Once",
+        "stat2V": "4",
+        "stat2L": "Documents",
+        "stat3V": "1",
+        "stat3L": "Folder, forever",
+        "iconColor1": "#1B1A17"
+      }
+    },
+    {
+      "layoutId": "body-cream-3d",
+      "slots": {
+        "iconSlug1": "stripe",
+        "stepTag": "Money in",
+        "titleLine1": "Separate the",
+        "titleLine2": "accounts",
+        "body": "A business account on day one costs nothing and saves a full weekend at tax time. Mixed personal and business spending is the single most common regret.",
+        "tipLabel": "Do this",
+        "tipBody": "Open it before the first invoice, not after. Untangling six months of mixed spending is brutal.",
+        "stat1V": "1 day",
+        "stat1L": "To open",
+        "stat2V": "0",
+        "stat2L": "Excuses",
+        "stat3V": "1 wk",
+        "stat3L": "Saved later",
+        "iconColor1": "#1B1A17"
+      }
+    },
+    {
+      "layoutId": "body-cream-3d",
+      "slots": {
+        "iconSlug1": "quickbooks",
+        "stepTag": "The habit",
+        "titleLine1": "Record it as it",
+        "titleLine2": "happens",
+        "body": "Bookkeeping is trivial weekly and miserable annually. The work does not grow, it just gets worse at recalling what a payment was for.",
+        "tipLabel": "Do this",
+        "tipBody": "Fifteen minutes every Friday beats a lost weekend every March.",
+        "stat1V": "15 min",
+        "stat1L": "Weekly",
+        "stat2V": "12×",
+        "stat2L": "Easier than yearly",
+        "stat3V": "0",
+        "stat3L": "Lost receipts",
+        "iconColor1": "#1B1A17"
+      }
+    },
+    {
+      "layoutId": "body-cream-3d",
+      "slots": {
+        "iconSlug1": "adobeacrobatreader",
+        "stepTag": "Protection",
+        "titleLine1": "Get it in",
+        "titleLine2": "writing",
+        "body": "A one-page agreement covering scope, payment terms and what happens if either side walks. Most disputes are not dishonesty, they are two people remembering differently.",
+        "tipLabel": "Do this",
+        "tipBody": "One page you actually send beats ten pages you never do.",
+        "stat1V": "1 page",
+        "stat1L": "Is enough",
+        "stat2V": "30 min",
+        "stat2L": "To draft once",
+        "stat3V": "Every",
+        "stat3L": "Client, no exceptions",
+        "iconColor1": "#1B1A17"
+      }
+    },
+    {
+      "layoutId": "body-cream-3d",
+      "slots": {
+        "iconSlug1": "notion",
+        "stepTag": "The honest part",
+        "titleLine1": "None of this makes it a",
+        "titleLine2": "business",
+        "body": "Registration is administration. A business needs someone willing to pay you, and no amount of correct paperwork produces that first customer.",
+        "tipLabel": "Do this",
+        "tipBody": "Do the setup in one afternoon, then never think about it again. Go and sell something.",
+        "stat1V": "1",
+        "stat1L": "Afternoon",
+        "stat2V": "0",
+        "stat2L": "Customers, so far",
+        "stat3V": "That",
+        "stat3L": "Is the real work",
+        "iconColor1": "#1B1A17"
+      }
+    },
+    {
+      "layoutId": "cta-cream-3d",
+      "slots": {
+        "eyebrow": "One afternoon",
+        "ctaQuestion": "Stop researching.",
+        "ctaBold": "Start filing.",
+        "tagline": "Nobody has ever failed because they picked the wrong company structure. Plenty have failed waiting to be certain.",
+        "buttonLabel": "Take the checklist"
+      }
+    }
+  ]
+}

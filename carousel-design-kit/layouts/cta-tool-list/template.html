@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html><head><meta charset="utf-8">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+html,body{width:1080px;height:1350px;overflow:hidden;background:#F4F4F2;color:#1B1D18;
+  font-family:"Inter",sans-serif;-webkit-font-smoothing:antialiased;text-rendering:geometricPrecision}
+:root{--muted:rgba(27,29,24,.58);--rule:rgba(27,29,24,.2);--accent:#4E5A2E}
+/* Everything hangs off one line at 264px. On the last page the hairlines close
+   up and the statement is set in the accent at full measure — still no boxes,
+   no panels and no fills anywhere in the family. */
+.page{position:absolute;inset:0;z-index:2;padding:116px 92px 104px;display:flex;flex-direction:column}
+.eyebrow{margin-left:264px;font-size:25px;font-weight:500;color:var(--accent);letter-spacing:-.3px}
+h1{margin:26px 0 0 264px;font-size:100px;font-weight:700;line-height:1;letter-spacing:-4.2px}
+.stand{margin:30px 0 0 264px;font-size:32px;font-weight:400;line-height:1.42;color:var(--muted);max-width:632px}
+.close{flex:1;margin-top:52px;padding-top:34px;border-top:2px solid var(--accent);display:flex;align-items:center}
+.close p{font-size:54px;font-weight:600;line-height:1.16;letter-spacing:-2.1px;color:var(--accent);max-width:880px}
+.foot{display:flex;gap:32px;align-items:center;padding-top:26px;border-top:1px solid var(--rule)}
+.foot .h{flex:0 0 232px;font-size:26px;font-weight:600;color:var(--accent);letter-spacing:-.5px}
+.foot .g{font-size:25px;color:var(--muted)}
+</style></head>
+<body>
+<div class="page">
+  <div class="eyebrow">{{eyebrow}}</div>
+  <h1>{{titleLine1}}</h1>
+  <p class="stand">{{body}}</p>
+  <div class="close"><p>{{closingLine}}</p></div>
+  <div class="foot"><div class="h">{{buttonLabel}}</div><div class="g">{{signoff}}</div></div>
+</div>
+</body></html>

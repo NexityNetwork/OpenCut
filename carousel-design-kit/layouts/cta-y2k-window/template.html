@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html><head><meta charset="utf-8">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+html,body{width:1080px;height:1350px;overflow:hidden;background:#0C1014;color:#EAEEF2;
+  font-family:"Inter",sans-serif;-webkit-font-smoothing:antialiased;text-rendering:geometricPrecision}
+:root{--muted:rgba(234,238,242,.6)}
+/* The last page sets the plates on the dark ground. Same machined ramp, same
+   one-pixel highlight — no window chrome, no title bars, no dialog boxes. */
+.plate{position:relative;
+  background:linear-gradient(180deg,#F3F6F8 0%,#DEE4EA 26%,#C6CFD7 58%,#AEB9C3 82%,#98A5B1 100%);
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.95), inset 0 -1px 0 rgba(12,16,20,.22);color:#0C1014}
+.plate>.gr{position:absolute;inset:0;opacity:.32;mix-blend-mode:multiply;pointer-events:none}
+.plate>*:not(.gr){position:relative}
+.plate.dk{color:#EAEEF2;
+  background:linear-gradient(180deg,#39424C 0%,#262E37 30%,#161C23 66%,#0C1014 100%);
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.16), inset 0 -1px 0 rgba(0,0,0,.5)}
+.page{position:absolute;inset:0;z-index:2;padding:104px 84px 92px;display:flex;flex-direction:column;gap:20px}
+.head{padding:42px 46px 46px}
+.eyebrow{font-size:25px;font-weight:500;color:var(--muted);letter-spacing:-.3px}
+h1{margin-top:22px;font-size:96px;font-weight:700;line-height:1;letter-spacing:-4px;max-width:790px}
+.stand{margin-top:26px;font-size:31px;font-weight:400;line-height:1.42;color:var(--muted);max-width:770px}
+.close{flex:1;padding:46px 48px;display:flex;align-items:center}
+.close p{font-size:50px;font-weight:600;line-height:1.18;letter-spacing:-1.9px;max-width:820px}
+.foot{padding:30px 48px;display:flex;align-items:center;gap:26px}
+.foot .b{font-size:27px;font-weight:600;letter-spacing:-.5px}
+.foot .g{font-size:24px;color:rgba(12,16,20,.56)}
+</style></head>
+<body>
+<svg width="0" height="0" style="position:absolute">
+<filter id="gr"><feTurbulence type="fractalNoise" baseFrequency="0.85" numOctaves="3" seed="21"/><feColorMatrix type="saturate" values="0"/></filter>
+</svg>
+<div class="page">
+  <div class="plate head dk">
+    <svg class="gr" width="100%" height="100%" preserveAspectRatio="none"><rect width="100%" height="100%" filter="url(#gr)" opacity="0.4"/></svg>
+    <div class="eyebrow">{{eyebrow}}</div>
+    <h1>{{titleLine1}}</h1>
+    <p class="stand">{{body}}</p>
+  </div>
+  <div class="plate close">
+    <svg class="gr" width="100%" height="100%" preserveAspectRatio="none"><rect width="100%" height="100%" filter="url(#gr)" opacity="0.4"/></svg>
+    <p>{{closingLine}}</p>
+  </div>
+  <div class="plate foot">
+    <svg class="gr" width="100%" height="100%" preserveAspectRatio="none"><rect width="100%" height="100%" filter="url(#gr)" opacity="0.4"/></svg>
+    <div class="b">{{buttonLabel}}</div><div class="g">{{signoff}}</div>
+  </div>
+</div>
+</body></html>

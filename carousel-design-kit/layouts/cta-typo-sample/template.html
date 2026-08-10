@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html><head><meta charset="utf-8">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+html,body{width:1080px;height:1350px;overflow:hidden;background:#000000;color:#FFFFFF;
+  font-family:"Inter",sans-serif;-webkit-font-smoothing:antialiased;text-rendering:geometricPrecision}
+:root{--muted:rgba(255,255,255,.54);--rule:rgba(255,255,255,.26)}
+/* The last sheet reverses: the same specimen, printed the other way round.
+   Still two sizes, one weight pair, and hairlines — nothing else. */
+.page{position:absolute;inset:0;z-index:2;padding:104px 84px 96px;display:flex;flex-direction:column}
+.ann{display:flex;gap:28px;padding-bottom:16px;border-bottom:1px solid var(--rule)}
+.ann div{font-size:22px;font-weight:500;letter-spacing:-.2px;color:var(--muted)}
+.ann div:first-child{color:#FFF;flex:0 0 300px}
+.spec{flex:1;display:flex;align-items:center;padding:22px 0}
+.spec h1{font-size:172px;font-weight:800;line-height:.95;letter-spacing:-8.2px}
+.spec h1 span{font-weight:400;letter-spacing:-6.2px}
+.close{padding-top:24px;border-top:1px solid var(--rule);font-size:38px;font-weight:500;
+  line-height:1.28;letter-spacing:-1.2px;max-width:860px}
+.foot{margin-top:26px;padding-top:20px;border-top:1px solid var(--rule);display:flex;gap:28px;align-items:baseline}
+.foot .b{flex:0 0 300px;font-size:26px;font-weight:600;letter-spacing:-.5px}
+.foot .g{font-size:22px;color:var(--muted)}
+</style></head>
+<body>
+<div class="page">
+  <div class="ann"><div>{{eyebrow}}</div><div>{{annotation}}</div></div>
+  <div class="spec"><h1>{{titleLine1}} <span>{{titleAccent}}</span></h1></div>
+  <p class="close">{{closingLine}}</p>
+  <div class="foot"><div class="b">{{buttonLabel}}</div><div class="g">{{signoff}}</div></div>
+</div>
+</body></html>

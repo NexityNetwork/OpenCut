@@ -1,0 +1,106 @@
+{
+  "_note": "Frozen content for design review. Mosaic family — every page is a stack of solid panels that tile the frame, one of them in the accent.",
+  "family": "dark-pill-glow",
+  "brief": "Six habits that quietly cost a team its week",
+  "slides": [
+    {
+      "layoutId": "cover-dark-pill-glow",
+      "slots": {
+        "eyebrow": "On where the week actually goes",
+        "headlineMain": "Nobody is",
+        "headlineAccent": "busy on purpose.",
+        "subline": "Six habits that look like diligence, cost about a day each, and survive because everyone assumes somebody chose them.",
+        "heroTitle": "Every one of them was a reasonable decision that nobody revisited.",
+        "pillLeft": "What it costs",
+        "heroBody": "About a day a week, each",
+        "pillRight": "Where it hides",
+        "iconTheme": "dark",
+        "iconSlug1": "slack", "iconSlug2": "notion", "iconSlug3": "linear", "iconSlug4": "figma"
+      }
+    },
+    {
+      "layoutId": "body-dark-pill-glow",
+      "slots": {
+        "tag": "The standing meeting", "toolName": "Slack", "iconSlug1": "slack", "iconTheme": "dark",
+        "slideTitle": "It was booked for a problem that got solved",
+        "slideSubtitle": "Recurring meetings outlive their reason by default, because cancelling one requires somebody to decide it is no longer needed and <b>nobody is rewarded for that decision</b>.",
+        "pillLeft": "What it costs",
+        "leftValue": "Five people, one hour, every week",
+        "pillRight": "What to do",
+        "rightValue": "Cancel it once and see who notices"
+      }
+    },
+    {
+      "layoutId": "body-dark-pill-glow",
+      "slots": {
+        "tag": "The status update", "toolName": "Notion", "iconSlug1": "notion", "iconTheme": "dark",
+        "slideTitle": "Writing it takes longer than reading it",
+        "slideSubtitle": "A weekly summary is written carefully by one person and skimmed by six. The information was already in the tool; <b>the update exists to prove work happened</b>, not to transmit anything.",
+        "pillLeft": "What it costs",
+        "leftValue": "An afternoon of the clearest thinking",
+        "pillRight": "What to do",
+        "rightValue": "Link the board and write three lines"
+      }
+    },
+    {
+      "layoutId": "body-dark-pill-glow",
+      "slots": {
+        "tag": "The approval step", "toolName": "Linear", "iconSlug1": "linear", "iconTheme": "dark",
+        "slideTitle": "Added after one incident, kept forever",
+        "slideSubtitle": "Every sign-off was introduced the week something went wrong. It prevents that specific failure and <b>taxes every unrelated piece of work</b> for years afterwards without anyone auditing it.",
+        "pillLeft": "What it costs",
+        "leftValue": "Two days of waiting on one message",
+        "pillRight": "What to do",
+        "rightValue": "Name what it prevents, or drop it"
+      }
+    },
+    {
+      "layoutId": "body-dark-pill-glow",
+      "slots": {
+        "tag": "The perfect first version", "toolName": "Figma", "iconSlug1": "figma", "iconTheme": "dark",
+        "slideTitle": "Polishing before anyone has seen it",
+        "slideSubtitle": "The work feels safer the longer it stays private, which is exactly backwards: <b>the expensive mistakes are the ones a five-minute conversation would have caught</b> in week one.",
+        "pillLeft": "What it costs",
+        "leftValue": "A fortnight, spent in the wrong direction",
+        "pillRight": "What to do",
+        "rightValue": "Show it while it is still embarrassing"
+      }
+    },
+    {
+      "layoutId": "body-dark-pill-glow",
+      "slots": {
+        "tag": "The helpful interruption", "toolName": "Slack", "iconSlug1": "slack", "iconTheme": "dark",
+        "slideTitle": "A quick question is never quick",
+        "slideSubtitle": "The asking takes a minute and the answering takes twenty, because the person answering has to rebuild the context they just lost. <b>Being available is not the same as being useful</b>.",
+        "pillLeft": "What it costs",
+        "leftValue": "Twenty minutes, per interruption",
+        "pillRight": "What to do",
+        "rightValue": "Batch them. Answer twice a day"
+      }
+    },
+    {
+      "layoutId": "body-dark-pill-glow",
+      "slots": {
+        "tag": "The uncomfortable one", "toolName": "Notion", "iconSlug1": "notion", "iconTheme": "dark",
+        "slideTitle": "Removing all six would not make you fast",
+        "slideSubtitle": "These are symptoms of a team that cannot tell which work matters. Cut them from a team that still cannot tell, and you get <b>the same confusion with more hours to spend on it</b>.",
+        "pillLeft": "What it costs",
+        "leftValue": "Nothing, if the priorities are clear",
+        "pillRight": "What to do",
+        "rightValue": "Fix what you are building first"
+      }
+    },
+    {
+      "layoutId": "cta-dark-pill-glow",
+      "slots": {
+        "eyebrow": "One thing, this week",
+        "headlineMain": "Cancel the",
+        "headlineAccent": "meeting.",
+        "subline": "Pick the recurring one you would not defend if somebody asked you to justify it, and skip it once without announcing anything.",
+        "heroTitle": "If nobody notices, you have your answer. If somebody does, you have a better meeting.",
+        "buttonLabel": "Take all six",
+        "signoff": "The other five follow the same test — the only real question is whether anything breaks when it stops."
+      }
+    }
+  ]
+}

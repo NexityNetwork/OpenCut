@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html><head><meta charset="utf-8">
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+html,body{width:1080px;height:1350px;overflow:hidden;background:#FAF8F6;color:#111;
+  font-family:"Plus Jakarta Sans",sans-serif;-webkit-font-smoothing:antialiased}
+.bloom{position:absolute;left:-200px;top:-140px;width:1000px;height:1000px;object-fit:cover;opacity:.9;
+  filter:blur(3px);
+  -webkit-mask-image:radial-gradient(55% 55% at 52% 50%,#000 32%,transparent 76%);
+          mask-image:radial-gradient(55% 55% at 52% 50%,#000 32%,transparent 76%)}
+.bloom2{position:absolute;right:-240px;bottom:-260px;width:980px;height:980px;object-fit:cover;
+  filter:blur(3px);
+  -webkit-mask-image:radial-gradient(55% 55% at 50% 50%,#000 30%,transparent 74%);
+          mask-image:radial-gradient(55% 55% at 50% 50%,#000 30%,transparent 74%)}
+.chrome{position:absolute;top:44px;left:52px;right:52px;display:flex;justify-content:space-between;align-items:flex-start}
+.who .n{font-size:15px;font-weight:700;letter-spacing:-.01em;color:#161616}
+.who .r{margin-top:2px;font-size:12px;font-weight:500;color:rgba(0,0,0,.45)}
+.rule{position:absolute;top:96px;left:52px;right:52px;height:1px;background:rgba(0,0,0,.16)}
+.center{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;
+  padding:0 72px;text-align:center}
+.kicker{font-size:34px;font-weight:500;letter-spacing:-.02em;color:#1a1a1a}
+.word{margin-top:2px;font-size:172px;font-weight:800;letter-spacing:-.055em;line-height:.94;color:#0B0B0B}
+.sub{margin-top:26px;font-size:28px;font-weight:500;line-height:1.4;color:rgba(0,0,0,.62);max-width:640px}
+.save{margin-top:56px;width:44px;height:44px;border-radius:50%;border:1.5px solid rgba(0,0,0,.28);
+  display:flex;align-items:center;justify-content:center}
+</style></head>
+<body>
+<img class="bloom" src="{{artSrc}}">
+<img class="bloom2" src="{{artSrc}}">
+<div class="chrome">
+  <div class="who"><div class="n">{{author}}</div><div class="r">{{role}}</div></div>
+  <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="rgba(0,0,0,.6)" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M17 7 7 17M7 17V8M7 17h9"/></svg>
+</div>
+<div class="rule"></div>
+<div class="center">
+  <div class="kicker">{{kicker}}</div>
+  <div class="word">{{word}}</div>
+  <div class="sub">{{sub}}</div>
+  <div class="save"><svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="rgba(0,0,0,.62)" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"/></svg></div>
+</div>
+</body></html>

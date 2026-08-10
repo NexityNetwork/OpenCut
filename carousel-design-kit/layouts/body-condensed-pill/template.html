@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html><head><meta charset="utf-8">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+html,body{width:1080px;height:1350px;overflow:hidden;color:#14110D;
+  font-family:"Inter",sans-serif;-webkit-font-smoothing:antialiased;text-rendering:geometricPrecision}
+/* Warm paper and ink. The pill is the only solid mass on the page. */
+:root{--ink:#14110D;--muted:rgba(20,17,13,.68);--rule:rgba(20,17,13,.16)}
+.mesh{position:absolute;inset:0;z-index:0;background:
+  radial-gradient(120% 90% at 14% 14%, #F4E3CE 0%, transparent 56%),
+  radial-gradient(100% 80% at 88% 8%,  #FBF1E4 0%, transparent 52%),
+  radial-gradient(120% 95% at 78% 90%, #E8D2B4 0%, transparent 58%),
+  radial-gradient(110% 90% at 6% 92%,  #FDF8F1 0%, transparent 54%),
+  #F6EFE5}
+.mesh.ink{background:
+  radial-gradient(120% 90% at 16% 16%, #2E2820 0%, transparent 56%),
+  radial-gradient(100% 80% at 86% 10%, #4A4133 0%, transparent 52%),
+  radial-gradient(120% 95% at 76% 88%, #1A1712 0%, transparent 58%),
+  radial-gradient(110% 90% at 8% 90%,  #241F19 0%, transparent 54%),
+  #191510}
+.grain{position:absolute;inset:0;z-index:1;opacity:.32;mix-blend-mode:overlay;pointer-events:none}
+.obj{position:absolute;z-index:2;pointer-events:none}
+.sheet{position:absolute;inset:0;padding:124px 88px 108px;display:flex;flex-direction:column;justify-content:space-between;z-index:4}
+/* The family's signature: a solid ink slab holding one word. Kept, but set
+   in sentence case at a readable weight instead of condensed all-caps. */
+.pill{display:inline-block;align-self:flex-start;padding:20px 40px 24px;background:var(--ink);color:#F6EFE5;
+  border-radius:18px;font-size:88px;font-weight:700;letter-spacing:-3.4px;line-height:1}
+.obj-tray{right:-192px;top:436px;width:520px;height:390px;transform:rotate(5deg);opacity:.8}
+.tag{font-size:26px;font-weight:600;color:var(--muted);letter-spacing:-.3px}
+.pill{margin-top:18px}
+.body{margin-top:0;font-size:33px;font-weight:400;line-height:1.44;color:var(--muted);max-width:700px}
+.tactic{margin-top:0;padding:6px 0 6px 30px;border-left:4px solid var(--ink);max-width:720px}
+.tactic .k{font-size:24px;font-weight:600;color:var(--muted)}
+.tactic p{margin-top:12px;font-size:34px;font-weight:600;line-height:1.32;letter-spacing:-1.1px}
+.saving{padding-top:32px;border-top:1px solid var(--rule);display:flex;align-items:flex-end;justify-content:space-between;gap:24px}
+.saving .amt{display:flex;align-items:baseline;gap:18px}
+/* The tools are the substance of this family — shown named, at a size you
+   can actually read, in one ink so they read as a set. */
+.tools{display:flex;align-items:center;gap:26px;padding-bottom:6px}
+.tools .t{display:flex;align-items:center;gap:11px}
+.tools .t i{display:block;width:28px;height:28px;flex:0 0 auto}
+.tools .t i svg{width:100%;height:100%;display:block}
+.tools .t em{font-style:normal;font-size:23px;font-weight:500;color:var(--muted);letter-spacing:-.3px}
+.saving .v{font-size:64px;font-weight:700;letter-spacing:-2.6px;line-height:1}
+.saving .l{font-size:27px;font-weight:500;color:var(--muted)}
+</style></head>
+<body>
+<div class="mesh"></div>
+<svg class="grain" width="1080" height="1350" viewBox="0 0 1080 1350" preserveAspectRatio="none">
+<filter id="gr"><feTurbulence type="fractalNoise" baseFrequency="0.82" numOctaves="3" seed="5"/><feColorMatrix type="saturate" values="0"/></filter>
+<rect width="1080" height="1350" filter="url(#gr)" opacity="0.55"/></svg>
+<svg class="obj obj-tray" viewBox="0 0 560 420" fill="none">
+  <defs>
+    <linearGradient id="tg" x1="0" y1="0" x2="0.4" y2="1">
+      <stop offset="0" stop-color="#14110D" stop-opacity=".13"/>
+      <stop offset="1" stop-color="#14110D" stop-opacity=".05"/>
+    </linearGradient>
+    <filter id="tsh" x="-40%" y="-30%" width="180%" height="190%">
+      <feDropShadow dx="0" dy="26" stdDeviation="26" flood-color="#5A4630" flood-opacity=".30"/>
+    </filter>
+  </defs>
+  <g filter="url(#tsh)">
+    <rect x="40" y="34" width="470" height="120" rx="20" fill="url(#tg)" stroke="rgba(20,17,13,.26)" stroke-width="2"/>
+    <rect x="40" y="164" width="470" height="120" rx="20" fill="url(#tg)" stroke="rgba(20,17,13,.30)" stroke-width="2"/>
+    <rect x="40" y="294" width="470" height="120" rx="20" fill="url(#tg)" stroke="rgba(20,17,13,.34)" stroke-width="2"/>
+    <path d="M78 82h150M78 212h210M78 342h120" stroke="rgba(20,17,13,.32)" stroke-width="7" stroke-linecap="round"/>
+    <circle cx="452" cy="94" r="13" fill="rgba(20,17,13,.30)"/>
+    <circle cx="452" cy="224" r="13" fill="rgba(20,17,13,.30)"/>
+    <circle cx="452" cy="354" r="13" fill="rgba(20,17,13,.30)"/>
+  </g>
+</svg>
+<div class="sheet">
+  <div class="head"><div class="tag">{{numberLabel}}</div>
+  <div class="pill">{{title}}</div></div>
+  <p class="body">{{body}}</p>
+  <div class="tactic"><div class="k">Do this</div><p>{{tacticText}}</p></div>
+  <div class="saving">
+    <div class="amt"><div class="v">{{savingsValue}}</div><div class="l">{{savingsLabel}}</div></div>
+    <div class="tools">
+      <div class="t"><i>{{iconSvg1}}</i><em>{{toolName1}}</em></div>
+      <div class="t"><i>{{iconSvg2}}</i><em>{{toolName2}}</em></div>
+    </div>
+  </div>
+</div>
+</body></html>

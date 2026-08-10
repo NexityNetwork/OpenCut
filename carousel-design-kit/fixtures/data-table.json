@@ -1,0 +1,112 @@
+{
+  "_note": "Frozen content for design review. Chart-led family — each page is one comparison read against an axis, with the conclusion stated under a rule.",
+  "family": "data-table",
+  "brief": "Where a working week actually goes",
+  "slides": [
+    {
+      "layoutId": "cover-data-table",
+      "slots": {
+        "eyebrow": "Six weeks, logged in fifteen-minute blocks",
+        "titleLine1": "You did not lose",
+        "titleAccent": "the time.",
+        "subtitle": "It went somewhere specific, and it was almost never the thing anybody would have guessed.",
+        "bar1Label": "Coordinating the work", "bar1Pct": "82", "bar1Val": "14 hrs",
+        "bar2Label": "Doing the work", "bar2Pct": "51", "bar2Val": "9 hrs",
+        "bar3Label": "Deciding what the work is", "bar3Pct": "18", "bar3Val": "3 hrs",
+        "iconSlug1": "linear", "iconSlug2": "slack", "iconSlug3": "notion",
+        "iconSlug4": "figma", "iconSlug5": "github"
+      }
+    },
+    {
+      "layoutId": "body-data-table",
+      "slots": {
+        "eyebrow": "Where the hours land", "toolName": "Linear", "iconSlug1": "linear",
+        "title": "Coordination is the job now",
+        "unitNote": "Hours per person, per week",
+        "bar1Label": "Meetings and calls", "bar1Pct": "78", "bar1Val": "8.5 hrs",
+        "bar2Label": "Messages and threads", "bar2Pct": "52", "bar2Val": "5.5 hrs",
+        "bar3Label": "Focused work", "bar3Pct": "43", "bar3Val": "4.5 hrs",
+        "bar4Label": "Everything else", "bar4Pct": "22", "bar4Val": "2 hrs",
+        "body": "Two thirds of the week is spent arranging the other third. <b>That ratio is the product</b>, not an accident of a bad month."
+      }
+    },
+    {
+      "layoutId": "body-data-table",
+      "slots": {
+        "eyebrow": "What the interruptions cost", "toolName": "Slack", "iconSlug1": "slack",
+        "title": "The recovery is longer than the question",
+        "unitNote": "Minutes lost per interruption",
+        "bar1Label": "Rebuilding context", "bar1Pct": "84", "bar1Val": "21 min",
+        "bar2Label": "The actual answer", "bar2Pct": "16", "bar2Val": "4 min",
+        "bar3Label": "Re-reading where you were", "bar3Pct": "38", "bar3Val": "9 min",
+        "bar4Label": "Getting back to depth", "bar4Pct": "60", "bar4Val": "15 min",
+        "body": "The question costs four minutes. <b>Everything around it costs forty-five</b>, and only the four are ever counted."
+      }
+    },
+    {
+      "layoutId": "body-data-table",
+      "slots": {
+        "eyebrow": "How long things wait", "toolName": "GitHub", "iconSlug1": "github",
+        "title": "Work sits far longer than it runs",
+        "unitNote": "Elapsed hours, from ready to done",
+        "bar1Label": "Waiting for review", "bar1Pct": "88", "bar1Val": "31 hrs",
+        "bar2Label": "Waiting for a decision", "bar2Pct": "62", "bar2Val": "22 hrs",
+        "bar3Label": "Waiting to deploy", "bar3Pct": "26", "bar3Val": "9 hrs",
+        "bar4Label": "Being worked on", "bar4Pct": "11", "bar4Val": "4 hrs",
+        "body": "Cutting the doing in half saves two hours. <b>Cutting the waiting in half saves a working week</b>, and nobody optimises it."
+      }
+    },
+    {
+      "layoutId": "body-data-table",
+      "slots": {
+        "eyebrow": "Where estimates break", "toolName": "Notion", "iconSlug1": "notion",
+        "title": "Nobody estimates the parts around the work",
+        "unitNote": "Share of the overrun",
+        "bar1Label": "Unclear requirements", "bar1Pct": "74", "bar1Val": "38%",
+        "bar2Label": "Waiting on other people", "bar2Pct": "58", "bar2Val": "30%",
+        "bar3Label": "Rework after feedback", "bar3Pct": "40", "bar3Val": "21%",
+        "bar4Label": "The task being harder", "bar4Pct": "21", "bar4Val": "11%",
+        "body": "Only a ninth of the overrun is the thing being hard. <b>The rest is the brief and the queue</b>, which are both fixable."
+      }
+    },
+    {
+      "layoutId": "body-data-table",
+      "slots": {
+        "eyebrow": "What changed after one rule", "toolName": "Linear", "iconSlug1": "linear",
+        "title": "One owner per decision, measured over a quarter",
+        "unitNote": "Median days to a decision",
+        "bar1Label": "Before, by committee", "bar1Pct": "86", "bar1Val": "9 days",
+        "bar2Label": "After, one owner", "bar2Pct": "24", "bar2Val": "2 days",
+        "bar3Label": "Escalated anyway", "bar3Pct": "12", "bar3Val": "1 in 8",
+        "bar4Label": "Reversed later", "bar4Pct": "6", "bar4Val": "1 in 20",
+        "body": "One in twenty had to be reversed. <b>That is the price, and it was worth seven days each time</b>."
+      }
+    },
+    {
+      "layoutId": "body-data-table",
+      "slots": {
+        "eyebrow": "The uncomfortable one", "toolName": "Figma", "iconSlug1": "figma",
+        "title": "Measuring the week changes the week",
+        "unitNote": "Effect of logging, before any other change",
+        "bar1Label": "Time in meetings", "bar1Pct": "44", "bar1Val": "−18%",
+        "bar2Label": "Time in messages", "bar2Pct": "31", "bar2Val": "−12%",
+        "bar3Label": "Reported accuracy", "bar3Pct": "70", "bar3Val": "falls",
+        "bar4Label": "Weeks people keep it up", "bar4Pct": "14", "bar4Val": "3",
+        "body": "People log honestly for about three weeks. <b>Anything you conclude after that is fiction</b>, so take the reading early and stop."
+      }
+    },
+    {
+      "layoutId": "cta-data-table",
+      "slots": {
+        "eyebrow": "Two weeks, fifteen-minute blocks",
+        "headline": "Log it before",
+        "headlineAccent": "you fix it.",
+        "body": "Every intervention here came from a number somebody was surprised by. Guessing which one applies to your week is how the last six reorganisations happened.",
+        "bar1Label": "What you would guess", "bar1Pct": "30", "bar1Val": "usually wrong",
+        "bar2Label": "What two weeks shows", "bar2Pct": "88", "bar2Val": "usually obvious",
+        "buttonLabel": "Take the whole method",
+        "signoff": "Then stop logging, because the reading decays"
+      }
+    }
+  ]
+}

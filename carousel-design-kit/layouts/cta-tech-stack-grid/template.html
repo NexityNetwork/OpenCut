@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html><head><meta charset="utf-8">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+html,body{width:1080px;height:1350px;overflow:hidden;background:#0E1116;color:#EEF1F4;
+  font-family:"Inter",sans-serif;-webkit-font-smoothing:antialiased;text-rendering:geometricPrecision}
+:root{--muted:rgba(238,241,244,.56);--rule:rgba(238,241,244,.14);--accent:#D9C27E}
+/* A taxonomy laid out as a table of cells. The rules between cells are the only
+   structure on the page — no panels, no shadows, no icons. On the last page the
+   raised cell grows to hold the closing statement. */
+.page{position:absolute;inset:0;z-index:2;padding:110px 88px 100px;display:flex;flex-direction:column}
+.eyebrow{font-size:25px;font-weight:500;color:var(--accent);letter-spacing:-.3px}
+h1{margin-top:26px;font-size:96px;font-weight:700;line-height:1;letter-spacing:-4px;max-width:800px}
+h1 em{font-style:normal;color:var(--accent)}
+.stand{margin-top:28px;font-size:31px;font-weight:400;line-height:1.42;color:var(--muted);max-width:790px}
+.tab{flex:1;margin-top:44px;display:grid;grid-template-columns:1fr 1fr;grid-template-rows:auto 1fr;
+  border-top:1px solid var(--rule);border-left:1px solid var(--rule)}
+.cl{border-right:1px solid var(--rule);border-bottom:1px solid var(--rule);
+  padding:28px 32px;display:flex;flex-direction:column;justify-content:center}
+.cl .t{font-size:29px;font-weight:600;letter-spacing:-.6px;line-height:1.2}
+.cl .g{margin-top:12px;font-size:24px;font-weight:400;line-height:1.38;color:var(--muted)}
+.cl.wide{grid-column:1 / -1;background:var(--accent);color:#0E1116;padding:36px}
+.cl.wide .t{font-size:46px;font-weight:600;line-height:1.18;letter-spacing:-1.7px}
+.foot{margin-top:32px;display:flex;align-items:center;gap:24px}
+.btn{padding:18px 38px;background:var(--accent);color:#0E1116;font-size:26px;font-weight:600;letter-spacing:-.4px}
+.ghost{font-size:24px;color:var(--muted)}
+</style></head>
+<body>
+<div class="page">
+  <div class="eyebrow">{{eyebrow}}</div>
+  <h1>{{titleLine1}} <em>{{titleAccent}}</em></h1>
+  <p class="stand">{{body}}</p>
+  <div class="tab">
+    <div class="cl"><div class="t">{{c1}}</div><div class="g">{{g1}}</div></div>
+    <div class="cl"><div class="t">{{c2}}</div><div class="g">{{g2}}</div></div>
+    <div class="cl wide"><div class="t">{{closingLine}}</div></div>
+  </div>
+  <div class="foot"><div class="btn">{{buttonLabel}}</div><div class="ghost">{{signoff}}</div></div>
+</div>
+</body></html>

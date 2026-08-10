@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html><head><meta charset="utf-8">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+html,body{width:1080px;height:1350px;overflow:hidden;color:#17170F;
+  font-family:"Inter",sans-serif;-webkit-font-smoothing:antialiased;text-rendering:geometricPrecision}
+:root{--muted:rgba(23,23,15,.56);--rule:rgba(23,23,15,.14);--accent:#E0A93B;--ink:#17170F}
+/* Warm paper, flat, no gradient. This family teaches, so the diagrams ARE the
+   design — a chart, a flow and a table, each drawn properly instead of four
+   competing colours doing the work a structure should do. Two colours: ink and
+   one lime, with the lime always carrying ink type on top of it. */
+.ground{position:absolute;inset:0;z-index:0;background:#FBF9F3}
+.grain{position:absolute;inset:0;z-index:6;opacity:.18;mix-blend-mode:multiply;pointer-events:none}
+.page{position:absolute;inset:0;display:flex;flex-direction:column;z-index:4;padding:108px 80px 100px}
+.head{display:flex;align-items:center;justify-content:space-between;gap:30px}
+.head .lbl{font-size:27px;font-weight:600;letter-spacing:-.4px}
+.head .tools{display:flex;align-items:center;gap:22px}
+.head .tools svg{width:36px;height:36px;display:block}
+h2{margin-top:26px;font-size:70px;font-weight:700;line-height:1.03;letter-spacing:-2.9px}
+h2 em{font-style:normal;padding:0 2px;
+  background:linear-gradient(to top,var(--accent) 0 16px,transparent 16px)}
+.sub{margin-top:22px;font-size:29px;font-weight:400;line-height:1.4;color:var(--muted);max-width:880px}
+/* One takeaway per page, on a lime bar. It is the only filled element, which is
+   what makes it read as the conclusion rather than as decoration. */
+.take{margin-top:auto;background:var(--accent);border-radius:14px;padding:30px 34px}
+.take .k{font-size:23px;font-weight:600;letter-spacing:-.3px;opacity:.72}
+.take .t{margin-top:10px;font-size:33px;font-weight:600;line-height:1.28;letter-spacing:-1.1px}
+.tbl{flex:1 1 auto;margin:44px 0 40px;display:grid;
+  grid-template-columns:1.5fr 1fr 1fr 1fr;align-content:stretch}
+.tbl .th{padding:0 20px 18px 0;font-size:23px;font-weight:600;color:var(--muted);
+  letter-spacing:-.3px;border-bottom:2px solid var(--ink);display:flex;align-items:flex-end}
+.tbl .td{padding:26px 20px 26px 0;border-bottom:1px solid var(--rule);
+  font-size:28px;font-weight:400;color:rgba(23,23,15,.78);display:flex;align-items:center;line-height:1.26}
+.tbl .td.name{font-weight:600;color:var(--ink);font-size:30px;letter-spacing:-.7px}
+/* One row carries the lime, which is how a table says "this is the answer"
+   without a trophy glyph or a fourth colour. */
+.tbl .hi{background:var(--accent)}
+.tbl .hi.td{color:var(--ink)}
+.tbl .hi:first-of-type{border-radius:10px 0 0 10px;padding-left:20px}
+</style></head>
+<body>
+<div class="ground"></div>
+<div class="page">
+  <div class="head">
+    <div class="lbl">{{sectionLabel}}</div>
+    <div class="tools">{{iconSvg1}}{{iconSvg2}}{{iconSvg3}}{{iconSvg4}}</div>
+  </div>
+  <h2>{{title}} <em>{{titleAccent}}</em></h2>
+  <p class="sub">{{subtitle}}</p>
+  <div class="tbl">
+    <div class="th">{{colHead0}}</div><div class="th">{{colHead1}}</div><div class="th">{{colHead2}}</div><div class="th">{{colHead3}}</div>
+    <div class="td name">{{row1Name}}</div><div class="td">{{row1C1}}</div><div class="td">{{row1C2}}</div><div class="td">{{row1C3}}</div>
+    <div class="td name">{{row2Name}}</div><div class="td">{{row2C1}}</div><div class="td">{{row2C2}}</div><div class="td">{{row2C3}}</div>
+    <div class="td name hi">{{row3Name}}</div><div class="td hi">{{row3C1}}</div><div class="td hi">{{row3C2}}</div><div class="td hi">{{row3C3}}</div>
+    <div class="td name">{{row4Name}}</div><div class="td">{{row4C1}}</div><div class="td">{{row4C2}}</div><div class="td">{{row4C3}}</div>
+  </div>
+  <div class="take"><div class="k">{{insightLabel}}</div><div class="t">{{insightText}}</div></div>
+</div>
+<svg class="grain" width="1080" height="1350" viewBox="0 0 1080 1350" preserveAspectRatio="none">
+<filter id="gr"><feTurbulence type="fractalNoise" baseFrequency="0.86" numOctaves="3" seed="37"/><feColorMatrix type="saturate" values="0"/></filter>
+<rect width="1080" height="1350" filter="url(#gr)" opacity="0.42"/></svg>
+</body></html>

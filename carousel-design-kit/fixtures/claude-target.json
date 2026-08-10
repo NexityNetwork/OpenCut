@@ -1,0 +1,111 @@
+{
+  "_note": "Frozen content for design review. Narrative: hook, the honest problem, three capability slides, the limit, the close.",
+  "family": "claude-target",
+  "brief": "How an AI assistant replaced most of a sales team",
+  "slides": [
+    {
+      "layoutId": "cover-claude-target",
+      "slots": {
+        "topLine1": "I stopped hiring for",
+        "topLine2": "sales",
+        "topLine3": "and nothing broke",
+        "subLine": "Not because the work went away. Because most of what a junior seller does all day is not selling.",
+        "note": "Here is what actually got handed over"
+      }
+    },
+    {
+      "layoutId": "body-claude-target",
+      "slots": {
+        "titleMain": "The job was never",
+        "titleAccent": "talking to people",
+        "titleTail": "",
+        "step1Title": "Four hours of preparation",
+        "step1Sub": "Reading the company, finding the angle, writing the note. Every day, before a single conversation happened.",
+        "step2Title": "Two hours of admin",
+        "step2Sub": "Logging calls, updating stages, chasing the follow-up nobody wrote down.",
+        "step3Title": "One hour of selling",
+        "step3Sub": "The only part anyone was actually hired for, and the only part that was never the bottleneck."
+      }
+    },
+    {
+      "layoutId": "body-claude-target",
+      "slots": {
+        "titleMain": "It builds the",
+        "titleAccent": "list",
+        "titleTail": "before you wake up",
+        "step1Title": "Pulls live sources",
+        "step1Sub": "Scans target accounts overnight and compiles fresh contacts against the profile you defined once.",
+        "step2Title": "Scores by fit and intent",
+        "step2Sub": "Ranks on company shape, stack and recent signals, so the top of the list is worth the first hour.",
+        "step3Title": "Drafts the opener",
+        "step3Sub": "Writes a first message per prospect from what the company actually shipped, not a merge field."
+      }
+    },
+    {
+      "layoutId": "body-claude-target",
+      "slots": {
+        "titleMain": "It does the",
+        "titleAccent": "reading",
+        "titleTail": "before every call",
+        "step1Title": "Summarises the account",
+        "step1Sub": "Turns the site, the notes and the last three threads into a brief you can hold in your head.",
+        "step2Title": "Finds the trigger",
+        "step2Sub": "Surfaces the funding round, the new hire, the launch — the reason this week is different from last week.",
+        "step3Title": "Prepares the objections",
+        "step3Sub": "Suggests the angles and the two questions most likely to come back at you."
+      }
+    },
+    {
+      "layoutId": "body-claude-target",
+      "slots": {
+        "titleMain": "What it is",
+        "titleAccent": "still bad at",
+        "titleTail": "",
+        "step1Title": "Reading a room",
+        "step1Sub": "It cannot hear hesitation in a voice or tell when the real decision-maker went quiet on the call.",
+        "step2Title": "Holding a relationship",
+        "step2Sub": "Trust accrues to a person over months. Nobody renews because the follow-up was well written.",
+        "step3Title": "Knowing when to stop",
+        "step3Sub": "It will happily send the seventh message. A person knows the sixth already cost you the account."
+      }
+    },
+    {
+      "layoutId": "body-claude-target",
+      "slots": {
+        "titleMain": "So the role",
+        "titleAccent": "changed shape",
+        "titleTail": "",
+        "step1Title": "Fewer people, more range",
+        "step1Sub": "One person now covers what took three, because the preparation stopped being a person's job.",
+        "step2Title": "Hired for judgement",
+        "step2Sub": "The screen is no longer about output. It is about knowing which deals are real.",
+        "step3Title": "Paid for the hard hour",
+        "step3Sub": "The conversation is the whole job now, and it is the part worth paying properly for."
+      }
+    },
+    {
+      "layoutId": "body-claude-target",
+      "slots": {
+        "titleMain": "What I would",
+        "titleAccent": "do differently",
+        "titleTail": "",
+        "step1Title": "Start with one workflow",
+        "step1Sub": "Automating everything at once means you cannot tell which part is working and which is noise.",
+        "step2Title": "Keep a human on replies",
+        "step2Sub": "Outbound can be machine-written. The response to a real reply should not be.",
+        "step3Title": "Measure over a quarter",
+        "step3Sub": "Week-to-week numbers on a pipeline this small are mostly luck wearing a suit."
+      }
+    },
+    {
+      "layoutId": "cta-claude-target",
+      "slots": {
+        "eyebrow": "The honest version",
+        "headlineMain": "It did not replace",
+        "headlineAccent": "the seller",
+        "body": "It replaced the six hours around the selling. That turned out to be most of the cost, and none of the value.",
+        "buttonLine": "Take the whole workflow"
+      }
+    }
+  ]
+}

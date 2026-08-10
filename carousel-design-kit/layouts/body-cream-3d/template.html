@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html><head><meta charset="utf-8">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+html,body{width:1080px;height:1350px;overflow:hidden;color:#1B1A17;
+  font-family:"Inter",sans-serif;-webkit-font-smoothing:antialiased;text-rendering:geometricPrecision}
+/* Cool stone ground, terracotta as the single accent. */
+:root{--ink:#1B1A17;--muted:rgba(27,26,23,.68);--rule:rgba(27,26,23,.16);--terra:#C2673A}
+.mesh{position:absolute;inset:0;z-index:0;background:
+  radial-gradient(120% 90% at 14% 14%, #E9E5DF 0%, transparent 56%),
+  radial-gradient(100% 80% at 88% 8%,  #F6F3EE 0%, transparent 52%),
+  radial-gradient(120% 95% at 78% 92%, #DED8CF 0%, transparent 58%),
+  radial-gradient(110% 90% at 4% 92%,  #FBF9F6 0%, transparent 54%),
+  #EFEBE5}
+.mesh.warm{background:
+  radial-gradient(120% 90% at 16% 16%, #D97A48 0%, transparent 56%),
+  radial-gradient(100% 80% at 86% 8%,  #E9A377 0%, transparent 52%),
+  radial-gradient(120% 95% at 76% 90%, #8F401D 0%, transparent 58%),
+  radial-gradient(110% 90% at 6% 92%,  #5A2410 0%, transparent 56%),
+  #2A130A}
+.grain{position:absolute;inset:0;z-index:1;opacity:.28;mix-blend-mode:multiply;pointer-events:none}
+.obj{position:absolute;z-index:2;pointer-events:none}
+.sheet{position:absolute;inset:0;padding:124px 88px 108px;display:flex;flex-direction:column;justify-content:space-between;z-index:4}
+.obj-form{right:-176px;top:520px;width:520px;height:420px;transform:rotate(5deg);opacity:.85}
+.tool{display:flex;align-items:center;gap:18px}
+.tool i{display:block;width:46px;height:46px;flex:0 0 auto}
+.tool i svg{width:100%;height:100%;display:block}
+.tool .n{font-size:38px;font-weight:700;letter-spacing:-1.4px}
+.tool .r{margin-top:3px;font-size:23px;font-weight:500;color:var(--muted);letter-spacing:-.3px}
+h2{margin-top:26px;font-size:80px;font-weight:600;line-height:1.0;letter-spacing:-3.2px;max-width:660px}
+h2 b{font-weight:700;color:var(--terra)}
+.body{font-size:31px;font-weight:400;line-height:1.44;color:var(--muted);max-width:560px}
+.tip{padding:6px 0 6px 30px;border-left:4px solid var(--terra);max-width:640px}
+.tip .k{font-size:23px;font-weight:600;color:var(--terra)}
+.tip p{margin-top:10px;font-size:31px;font-weight:600;line-height:1.34;letter-spacing:-1px}
+.stats{padding-top:30px;border-top:1px solid var(--rule);display:flex;gap:60px}
+.stat .v{font-size:42px;font-weight:700;letter-spacing:-1.7px;line-height:1}
+.stat .l{margin-top:8px;font-size:22px;font-weight:500;color:var(--muted);letter-spacing:-.3px}
+</style></head>
+<body>
+<div class="mesh"></div>
+<svg class="grain" width="1080" height="1350" viewBox="0 0 1080 1350" preserveAspectRatio="none">
+<filter id="gr"><feTurbulence type="fractalNoise" baseFrequency="0.85" numOctaves="3" seed="21"/><feColorMatrix type="saturate" values="0"/></filter>
+<rect width="1080" height="1350" filter="url(#gr)" opacity="0.5"/></svg>
+<svg class="obj obj-form" viewBox="0 0 520 420" fill="none">
+  <defs>
+    <linearGradient id="fmg" x1="0" y1="0" x2="0.4" y2="1">
+      <stop offset="0" stop-color="#1B1A17" stop-opacity=".10"/>
+      <stop offset="1" stop-color="#1B1A17" stop-opacity=".04"/>
+    </linearGradient>
+    <filter id="fmsh" x="-40%" y="-30%" width="180%" height="190%">
+      <feDropShadow dx="0" dy="28" stdDeviation="28" flood-color="#6B5844" flood-opacity=".32"/>
+    </filter>
+  </defs>
+  <g filter="url(#fmsh)">
+    <rect x="30" y="22" width="460" height="376" rx="26" fill="url(#fmg)" stroke="rgba(27,26,23,.28)" stroke-width="2"/>
+    <rect x="72" y="82" width="240" height="26" rx="13" fill="rgba(27,26,23,.24)"/>
+    <rect x="72" y="146" width="376" height="52" rx="14" stroke="rgba(27,26,23,.28)" stroke-width="2"/>
+    <rect x="72" y="222" width="376" height="52" rx="14" stroke="rgba(27,26,23,.28)" stroke-width="2"/>
+    <rect x="72" y="298" width="180" height="52" rx="14" fill="rgba(27,26,23,.22)"/>
+    <path d="M96 172h150M96 248h210" stroke="rgba(27,26,23,.26)" stroke-width="6" stroke-linecap="round"/>
+  </g>
+</svg>
+<div class="sheet">
+  <div class="head">
+    <div class="tool"><i>{{iconSvg1}}</i><div><div class="n">{{toolName1}}</div><div class="r">{{stepTag}}</div></div></div>
+    <h2>{{titleLine1}} <b>{{titleLine2}}</b></h2>
+  </div>
+  <p class="body">{{body}}</p>
+  <div class="tip"><div class="k">{{tipLabel}}</div><p>{{tipBody}}</p></div>
+  <div class="stats">
+    <div class="stat"><div class="v">{{stat1V}}</div><div class="l">{{stat1L}}</div></div>
+    <div class="stat"><div class="v">{{stat2V}}</div><div class="l">{{stat2L}}</div></div>
+    <div class="stat"><div class="v">{{stat3V}}</div><div class="l">{{stat3L}}</div></div>
+  </div>
+</div>
+</body></html>

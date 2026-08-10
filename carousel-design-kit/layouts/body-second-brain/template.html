@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html><head><meta charset="utf-8">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+html,body{width:1080px;height:1350px;overflow:hidden;color:#1D1B14;
+  font-family:"Inter",sans-serif;-webkit-font-smoothing:antialiased;text-rendering:geometricPrecision}
+:root{--muted:rgba(29,27,20,.56);--rule:rgba(29,27,20,.14);--accent:#6B7A3A}
+/* The page is a filing card: a protruding tab carrying the section label, a
+   hairline border, and ruled lines behind the content. Stationery drawn
+   precisely — the rules are the card's, not a texture laid over it. */
+.ground{position:absolute;inset:0;z-index:0;background:#EFEAE0}
+.grain{position:absolute;inset:0;z-index:6;opacity:.18;mix-blend-mode:multiply;pointer-events:none}
+.card{position:absolute;left:56px;right:56px;top:112px;bottom:64px;background:#F9F6EF;
+  border:1px solid rgba(29,27,20,.2);z-index:2;
+  box-shadow:0 30px 60px -32px rgba(29,27,20,.3)}
+.ruled{position:absolute;inset:0;z-index:1;pointer-events:none;
+  background-image:repeating-linear-gradient(180deg,transparent 0 57px,rgba(29,27,20,.075) 57px 58px);
+  background-position:0 128px}
+.tab{position:absolute;left:56px;top:56px;height:58px;padding:0 34px;background:#F9F6EF;
+  border:1px solid rgba(29,27,20,.2);border-bottom:0;display:flex;align-items:center;
+  font-size:25px;font-weight:600;letter-spacing:-.3px;z-index:3}
+.tab.on{background:var(--accent);border-color:var(--accent);color:#F4F6EC}
+.page{position:absolute;left:56px;right:56px;top:112px;bottom:64px;z-index:4;
+  padding:56px 52px 48px;display:flex;flex-direction:column;justify-content:space-between}
+.label{font-size:25px;font-weight:500;color:var(--muted);letter-spacing:-.2px}
+h2{margin-top:20px;font-size:70px;font-weight:700;line-height:1.03;letter-spacing:-2.8px}
+h2 em{font-style:normal;color:var(--accent)}
+.copy{margin-top:24px;font-size:29px;font-weight:400;line-height:1.5;color:rgba(29,27,20,.78)}
+.copy b{font-weight:600;color:#1D1B14}
+.pts{display:flex;flex-direction:column}
+.pt{display:flex;gap:28px;padding:26px 0;border-top:1px solid var(--rule)}
+.pt .k{flex:0 0 240px;font-size:27px;font-weight:600;letter-spacing:-.5px;color:var(--accent);line-height:1.22}
+.pt .v{font-size:25px;font-weight:400;line-height:1.4;color:var(--muted)}
+</style></head>
+<body>
+<div class="ground"></div>
+<div class="card"><div class="ruled"></div></div>
+<div class="tab">{{tabLabel}}</div>
+<div class="page">
+  <div>
+    <div class="label">{{sectionLabel}}</div>
+    <h2>{{titleLine1}} <em>{{titleAccent}}</em></h2>
+    <p class="copy">{{body}}</p>
+  </div>
+  <div class="pts">
+    <div class="pt"><div class="k">{{p1Title}}</div><div class="v">{{p1Body}}</div></div>
+    <div class="pt"><div class="k">{{p2Title}}</div><div class="v">{{p2Body}}</div></div>
+    <div class="pt"><div class="k">{{p3Title}}</div><div class="v">{{p3Body}}</div></div>
+  </div>
+</div>
+<svg class="grain" width="1080" height="1350" viewBox="0 0 1080 1350" preserveAspectRatio="none">
+<filter id="gr"><feTurbulence type="fractalNoise" baseFrequency="0.9" numOctaves="3" seed="77"/><feColorMatrix type="saturate" values="0"/></filter>
+<rect width="1080" height="1350" filter="url(#gr)" opacity="0.4"/></svg>
+</body></html>

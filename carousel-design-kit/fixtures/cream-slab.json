@@ -1,0 +1,84 @@
+{
+  "_note": "Frozen content for design review. Tablet family — dark bezel around the screen, the claim and its explanation set beneath rather than above. Opens dark, closes cream.",
+  "family": "cream-slab",
+  "brief": "Where an AI assistant actually lands in a working week",
+  "slides": [
+    {
+      "layoutId": "cover-cream-slab",
+      "slots": {
+        "eyebrow": "Six jobs, one assistant",
+        "titleLine1": "It did not replace",
+        "titleAccent": "the thinking.",
+        "subtitle": "It replaced the starting, the sorting and the reading. Here is what each of those looks like on screen.",
+        "iconSlug1": "anthropic", "iconSlug2": "notion", "iconSlug3": "perplexity",
+        "iconSlug4": "linear", "iconSlug5": "slack"
+      }
+    },
+    {
+      "layoutId": "body-cream-slab",
+      "slots": {
+        "iconSlug1": "anthropic", "toolName": "Drafting",
+        "captionLine": "The <b>first pass</b>, in thirty seconds",
+        "toolTagline": "Reacting to a draft is a different task from originating one, and a far cheaper one.",
+        "shot": "shot-claude.png"
+      }
+    },
+    {
+      "layoutId": "body-cream-slab",
+      "slots": {
+        "iconSlug1": "perplexity", "toolName": "Research",
+        "captionLine": "Twenty tabs, <b>one answer</b>",
+        "toolTagline": "A read on a market in twenty minutes, with the source attached to every claim in it.",
+        "shot": "shot-perplexity.png"
+      }
+    },
+    {
+      "layoutId": "body-cream-slab",
+      "slots": {
+        "iconSlug1": "notion", "toolName": "Structure",
+        "captionLine": "Notes that become <b>a decision</b>",
+        "toolTagline": "The record is not bureaucracy. It is what stops the same argument recurring every quarter.",
+        "shot": "shot-notion.png"
+      }
+    },
+    {
+      "layoutId": "body-cream-slab",
+      "slots": {
+        "iconSlug1": "linear", "toolName": "Scope",
+        "captionLine": "Smaller, and <b>shipped this week</b>",
+        "toolTagline": "Large scope is not ambition. It is deferred learning, and it compounds against you.",
+        "shot": "shot-linear.png"
+      }
+    },
+    {
+      "layoutId": "body-cream-slab",
+      "slots": {
+        "iconSlug1": "slack", "toolName": "Triage",
+        "captionLine": "Urgent split from <b>merely loud</b>",
+        "toolTagline": "Deadline pressure and social pressure look identical in an inbox. They are not the same thing.",
+        "shot": "shot-slack.png"
+      }
+    },
+    {
+      "layoutId": "body-cream-slab",
+      "slots": {
+        "iconSlug1": "figma", "toolName": "The limit",
+        "captionLine": "Fluent is <b>not the same as right</b>",
+        "toolTagline": "Anything load-bearing still needs a person to check it, and it will never tell you which parts those are.",
+        "shot": "shot-figma.png"
+      }
+    },
+    {
+      "layoutId": "cta-cream-slab",
+      "slots": {
+        "titleLine1": "Faster is easy.",
+        "titleAccent": "Right is not.",
+        "body": "Every one of these gains has a matching failure, and the failure is always confident, well written and plausible.",
+        "iconSlug1": "anthropic", "iconSlug2": "notion", "iconSlug3": "perplexity",
+        "iconSlug4": "linear", "iconSlug5": "slack",
+        "btnPrimary": "Take the whole setup",
+        "signoff": "Verify the load-bearing parts yourself"
+      }
+    }
+  ]
+}

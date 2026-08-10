@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html><head><meta charset="utf-8">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+<style>
+  *{margin:0;padding:0;box-sizing:border-box;}
+  html,body{width:1080px;height:1350px;overflow:hidden;background:#000;font-family:"Inter",sans-serif;color:#fff;-webkit-font-smoothing:antialiased;}
+      .title{position:absolute;top:140px;left:0;right:0;text-align:center;font-size:108px;font-weight:800;letter-spacing:-2px;line-height:1;}
+  .pills{position:absolute;top:300px;bottom:120px;left:0;right:0;display:flex;flex-direction:column;align-items:center;justify-content:space-between;}
+  .pill{color:#0A0A0A;padding:26px 48px;border-radius:20px;font-size:44px;font-weight:700;color:#0A0A0A;letter-spacing:-1.4px;position:relative;white-space:nowrap;}
+  .dash-line{width:3px;height:54px;border-left:3px dashed;margin:0 auto;}
+  .pill-1{background:#3ED856;transform:rotate(-5deg) translateX(-46px);box-shadow:0 0 60px rgba(62,216,86,0.28);}
+  .pill-2{color:#EAFBEE;background:#1E7A34;transform:rotate(4deg) translateX(58px);box-shadow:0 0 60px rgba(62,216,86,0.20);}
+  .pill-3{background:#3ED856;transform:rotate(-3deg) translateX(-30px);box-shadow:0 0 60px rgba(62,216,86,0.26);}
+  .pill-4{color:#EAFBEE;background:#1E7A34;transform:rotate(5deg) translateX(52px);box-shadow:0 0 60px rgba(62,216,86,0.28);}
+  .pill-5{background:#3ED856;transform:rotate(-4deg) translateX(-40px);box-shadow:0 0 60px rgba(62,216,86,0.20);}
+  .dash-g{border-color:#3ed856;}.dash-g{border-color:#3ED856;}.dash-g{border-color:#3ED856;}
+</style></head>
+<body>  <div class="title">{{title}}</div>
+  <div class="pills">
+    <div class="dash-line dash-g"></div>
+    <div class="pill pill-1">{{pill1}}</div>
+    <div class="dash-line dash-g"></div>
+    <div class="pill pill-2">{{pill2}}</div>
+    <div class="dash-line dash-g"></div>
+    <div class="pill pill-3">{{pill3}}</div>
+    <div class="dash-line dash-g"></div>
+    <div class="pill pill-4">{{pill4}}</div>
+    <div class="dash-line dash-g"></div>
+    <div class="pill pill-5">{{pill5}}</div>
+  </div>
+</body></html>

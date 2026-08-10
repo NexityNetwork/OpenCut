@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html><head><meta charset="utf-8">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+html,body{width:1080px;height:1350px;overflow:hidden;color:#EAF0F6;
+  font-family:"Inter",sans-serif;-webkit-font-smoothing:antialiased;text-rendering:geometricPrecision}
+:root{--muted:rgba(234,240,246,.58);--rule:rgba(234,240,246,.18);--accent:#A9BDD1}
+/* Flat dark, no gradient. The drawing is an exploded axonometric: flat
+   parallelograms stacked in isometric projection with a gap between each, drawn
+   at precise angles and labelled to the side. A diagram, not an ornament. */
+.ground{position:absolute;inset:0;z-index:0;background:#101418}
+.draw{position:absolute;inset:0;z-index:1;pointer-events:none}
+.grain{position:absolute;inset:0;z-index:6;opacity:.14;mix-blend-mode:overlay;pointer-events:none}
+.page{position:absolute;inset:0;display:flex;flex-direction:column;z-index:4;padding:100px 80px 92px;
+  justify-content:space-between}
+.label{font-size:25px;font-weight:500;color:var(--muted);letter-spacing:-.2px}
+.keys{display:flex;flex-direction:column}
+.key{display:flex;gap:26px;padding:24px 0;border-top:1px solid var(--rule);align-items:baseline}
+.key .n{flex:0 0 250px;font-size:27px;font-weight:600;letter-spacing:-.5px}
+.key .n.on{color:var(--accent)}
+.key .v{font-size:25px;font-weight:400;line-height:1.38;color:var(--muted)}
+h2{margin-top:22px;font-size:72px;font-weight:700;line-height:1.03;letter-spacing:-2.9px;max-width:560px}
+h2 em{font-style:normal;color:var(--accent)}
+.copy{margin-top:24px;font-size:29px;font-weight:400;line-height:1.46;color:rgba(234,240,246,.78);max-width:520px}
+.copy b{font-weight:600;color:#EAF0F6}
+</style></head>
+<body>
+<div class="ground"></div>
+<svg class="draw" viewBox="0 0 1080 1350" fill="none">
+  <g opacity="0.5"><path d="M300 748 l240 -13.0 l240 13.0 l-240 13.0 Z" fill="#2A3540" stroke="#7C93A8" stroke-width="1.6"/><path d="M300 748 l240 13.0 l0 26 l-240 -13.0 Z" fill="#2A3540" fill-opacity=".55" stroke="#7C93A8" stroke-width="1.6"/><path d="M540 761.0 l240 -13.0 l0 26 l-240 13.0 Z" fill="#2A3540" fill-opacity=".3" stroke="#7C93A8" stroke-width="1.6"/></g>
+  <g opacity="1.0"><path d="M300 848 l240 -13.0 l240 13.0 l-240 13.0 Z" fill="#A9BDD1" stroke="#7C93A8" stroke-width="1.6"/><path d="M300 848 l240 13.0 l0 26 l-240 -13.0 Z" fill="#A9BDD1" fill-opacity=".55" stroke="#7C93A8" stroke-width="1.6"/><path d="M540 861.0 l240 -13.0 l0 26 l-240 13.0 Z" fill="#A9BDD1" fill-opacity=".3" stroke="#7C93A8" stroke-width="1.6"/></g>
+  <g opacity="0.5"><path d="M300 948 l240 -13.0 l240 13.0 l-240 13.0 Z" fill="#2A3540" stroke="#7C93A8" stroke-width="1.6"/><path d="M300 948 l240 13.0 l0 26 l-240 -13.0 Z" fill="#2A3540" fill-opacity=".55" stroke="#7C93A8" stroke-width="1.6"/><path d="M540 961.0 l240 -13.0 l0 26 l-240 13.0 Z" fill="#2A3540" fill-opacity=".3" stroke="#7C93A8" stroke-width="1.6"/></g>
+</svg>
+<div class="page">
+  <div>
+    <div class="label">{{sectionLabel}}</div>
+    <h2>{{titleLine1}} <em>{{titleAccent}}</em></h2>
+    <p class="copy">{{body}}</p>
+  </div>
+  <div class="keys">
+    <div class="key"><div class="n">{{k1}}</div><div class="v">{{v1}}</div></div>
+    <div class="key"><div class="n on">{{k2}}</div><div class="v">{{v2}}</div></div>
+    <div class="key"><div class="n">{{k3}}</div><div class="v">{{v3}}</div></div>
+  </div>
+</div>
+<svg class="grain" width="1080" height="1350" viewBox="0 0 1080 1350" preserveAspectRatio="none">
+<filter id="gr"><feTurbulence type="fractalNoise" baseFrequency="0.84" numOctaves="3" seed="45"/><feColorMatrix type="saturate" values="0"/></filter>
+<rect width="1080" height="1350" filter="url(#gr)" opacity="0.5"/></svg>
+</body></html>

@@ -1,0 +1,154 @@
+{
+  "_note": "Frozen content for design review. Teaching family — the diagrams are the design. Three body kinds rotate: a column chart, a process flow and a comparison table, each closing on one lime takeaway.",
+  "family": "edu-bright",
+  "brief": "How a retrieval system actually gets built, and where it goes wrong",
+  "slides": [
+    {
+      "layoutId": "cover-edu-bright",
+      "slots": {
+        "eyebrow": "A working system, not a diagram of one",
+        "titleLine1": "Most retrieval fails",
+        "titleAccent": "before the model runs.",
+        "lede": "Six stages, in the order they break. The interesting failures are all in the first three, which is where nobody looks.",
+        "k1": "A", "barLbl1": "What the data has to look like first",
+        "k2": "B", "barLbl2": "How chunking decides what can be found",
+        "k3": "C", "barLbl3": "Why the retrieval step is the whole system",
+        "k4": "D", "barLbl4": "Choosing a model by fit, not by size",
+        "k5": "E", "barLbl5": "What breaks once real users arrive",
+        "iconSlug1": "openai", "iconSlug2": "anthropic", "iconSlug3": "python",
+        "iconSlug4": "postgresql", "iconSlug5": "github"
+      }
+    },
+    {
+      "layoutId": "body-edu-bright-chart",
+      "slots": {
+        "sectionLabel": "Stage one — the source data",
+        "title": "Answer quality tracks",
+        "titleAccent": "input quality",
+        "subtitle": "The same pipeline, the same model, five different states of the underlying documents.",
+        "chartYAxis": "Answers judged correct",
+        "chartPeriod": "Same questions, same model",
+        "bar1L": "Raw exports", "bar1V": "41%", "bar1H": "41",
+        "bar2L": "Deduplicated", "bar2V": "56%", "bar2H": "56",
+        "bar3L": "Structured", "bar3V": "72%", "bar3H": "72",
+        "bar4L": "Structured and dated", "bar4V": "91%", "bar4H": "91",
+        "bar5L": "Plus a bigger model", "bar5V": "93%", "bar5H": "93",
+        "insightLabel": "The takeaway",
+        "insightText": "Fixing the documents moved it fifty points. Upgrading the model moved it two.",
+        "iconSlug1": "python", "iconSlug2": "postgresql", "iconSlug3": "openai", "iconSlug4": "github"
+      }
+    },
+    {
+      "layoutId": "body-edu-bright-flow",
+      "slots": {
+        "sectionLabel": "Stage two — the pipeline",
+        "title": "Four steps, and only one of them",
+        "titleAccent": "is the model",
+        "subtitle": "Everything that determines whether an answer is any good happens before generation.",
+        "flowTitle": "Query to answer",
+        "flowMeta": "Typical latency: 380 ms",
+        "node1Glyph": "1", "node1Name": "The question is rewritten",
+        "node1Sub": "Users ask badly. Expanding the query is cheaper than any model upgrade.",
+        "node2Glyph": "2", "node2Name": "Candidates are retrieved",
+        "node2Sub": "Cast wide here. Recall is recoverable later; a missed document never is.",
+        "node3Glyph": "3", "node3Name": "Candidates are reranked",
+        "node3Sub": "The step teams skip. It is where precision actually comes from.",
+        "node4Glyph": "4", "node4Name": "The answer is generated",
+        "node4Sub": "By this point the model is mostly formatting what it was handed.",
+        "insightLabel": "The takeaway",
+        "insightText": "If the right document was not retrieved, no model can recover it.",
+        "iconSlug1": "python", "iconSlug2": "openai", "iconSlug3": "anthropic", "iconSlug4": "postgresql"
+      }
+    },
+    {
+      "layoutId": "body-edu-bright-table",
+      "slots": {
+        "sectionLabel": "Stage three — chunking",
+        "title": "How you cut the documents decides",
+        "titleAccent": "what can be found",
+        "subtitle": "Same corpus, same retriever, four splitting strategies measured on the same question set.",
+        "colHead0": "Strategy", "colHead1": "Recall", "colHead2": "Precision", "colHead3": "Cost",
+        "row1Name": "Fixed size", "row1C1": "62%", "row1C2": "48%", "row1C3": "Lowest",
+        "row2Name": "Sentence windows", "row2C1": "74%", "row2C2": "61%", "row2C3": "Low",
+        "row3Name": "By section heading", "row3C1": "88%", "row3C2": "79%", "row3C3": "Medium",
+        "row4Name": "Whole documents", "row4C1": "94%", "row4C2": "31%", "row4C3": "Highest",
+        "insightLabel": "The takeaway",
+        "insightText": "Whole documents find everything and answer nothing. Structure beats size.",
+        "iconSlug1": "python", "iconSlug2": "postgresql", "iconSlug3": "openai", "iconSlug4": "github"
+      }
+    },
+    {
+      "layoutId": "body-edu-bright-chart",
+      "slots": {
+        "sectionLabel": "Stage four — choosing a model",
+        "title": "Bigger stops paying",
+        "titleAccent": "surprisingly early",
+        "subtitle": "Accuracy on the same grounded task, plotted against cost per thousand answers.",
+        "chartYAxis": "Correct answers",
+        "chartPeriod": "Grounded question set",
+        "bar1L": "Smallest", "bar1V": "68%", "bar1H": "68",
+        "bar2L": "Small", "bar2V": "84%", "bar2H": "84",
+        "bar3L": "Mid", "bar3V": "89%", "bar3H": "89",
+        "bar4L": "Mid, reranked", "bar4V": "94%", "bar4H": "94",
+        "bar5L": "Largest", "bar5V": "95%", "bar5H": "95",
+        "insightLabel": "The takeaway",
+        "insightText": "A mid model with reranking matched the largest one at a fraction of the cost.",
+        "iconSlug1": "openai", "iconSlug2": "anthropic", "iconSlug3": "python", "iconSlug4": "github"
+      }
+    },
+    {
+      "layoutId": "body-edu-bright-flow",
+      "slots": {
+        "sectionLabel": "Stage five — going live",
+        "title": "Every failure in production",
+        "titleAccent": "is a retrieval failure",
+        "subtitle": "Four things that only appear once people who did not build it start asking questions.",
+        "flowTitle": "Where real traffic breaks it",
+        "flowMeta": "Observed across the first month",
+        "node1Glyph": "1", "node1Name": "Questions arrive out of scope",
+        "node1Sub": "The system answers confidently from the nearest document it has.",
+        "node2Glyph": "2", "node2Name": "The corpus goes stale",
+        "node2Sub": "Nothing fails loudly. Answers just quietly describe last quarter.",
+        "node3Glyph": "3", "node3Name": "Two documents disagree",
+        "node3Sub": "Whichever ranks higher wins, which is not the same as being right.",
+        "node4Glyph": "4", "node4Name": "Nobody can tell you why",
+        "node4Sub": "Without the retrieved passages logged, every complaint is unfalsifiable.",
+        "insightLabel": "The takeaway",
+        "insightText": "Log what was retrieved, not just what was said. It is the only debuggable part.",
+        "iconSlug1": "postgresql", "iconSlug2": "python", "iconSlug3": "openai", "iconSlug4": "github"
+      }
+    },
+    {
+      "layoutId": "body-edu-bright-table",
+      "slots": {
+        "sectionLabel": "The uncomfortable one",
+        "title": "Most of this is unnecessary",
+        "titleAccent": "below a certain size",
+        "subtitle": "What the same question set costs to answer well, by how much material there actually is.",
+        "colHead0": "Corpus size", "colHead1": "Best approach", "colHead2": "Accuracy", "colHead3": "Build time",
+        "row1Name": "Under 50 pages", "row1C1": "Paste it all in", "row1C2": "96%", "row1C3": "An hour",
+        "row2Name": "Up to 500 pages", "row2C1": "Search, then paste", "row2C2": "92%", "row2C3": "A day",
+        "row3Name": "Thousands", "row3C1": "Retrieval, reranked", "row3C2": "94%", "row3C3": "Weeks",
+        "row4Name": "Millions", "row4C1": "All of the above", "row4C2": "89%", "row4C3": "Months",
+        "insightLabel": "The takeaway",
+        "insightText": "Under fifty pages, the whole pipeline loses to pasting the documents in.",
+        "iconSlug1": "anthropic", "iconSlug2": "openai", "iconSlug3": "python", "iconSlug4": "postgresql"
+      }
+    },
+    {
+      "layoutId": "cta-edu-bright",
+      "slots": {
+        "eyebrow": "Before you build any of it",
+        "ctaLine1": "Measure retrieval",
+        "ctaAccent": "on its own.",
+        "ctaBody": "Take thirty real questions, check whether the right passage comes back at all, and only then argue about models.",
+        "k1": "A", "recap1": "Fix the documents before the pipeline",
+        "k2": "B", "recap2": "Cut by structure, never by character count",
+        "k3": "C", "recap3": "Rerank — it is the cheapest accuracy there is",
+        "k4": "D", "recap4": "Log the passages or you cannot debug it",
+        "btnPrimary": "Take the whole method",
+        "signoff": "Thirty questions is an afternoon"
+      }
+    }
+  ]
+}

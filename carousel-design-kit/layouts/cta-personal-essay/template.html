@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html><head><meta charset="utf-8">
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,600;0,700;1,600&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+html,body{width:1080px;height:1350px;overflow:hidden;color:#1B1B22;
+  font-family:"Inter",sans-serif;-webkit-font-smoothing:antialiased;text-rendering:geometricPrecision}
+:root{--muted:rgba(27,27,34,.58);--rule:rgba(27,27,34,.16);--accent:#2B3A67}
+/* A soft gradient built from near neighbours rather than opposing hues: four
+   stops within a narrow warm range, so it reads as paper catching light instead
+   of as a wash. Grain over the top stops it banding on export. The drawing is
+   contour work — offset curves in a single stroke weight, which is a drawn
+   field rather than a shape dropped on the page. */
+.mesh{position:absolute;inset:0;z-index:0;background:
+  radial-gradient(120% 90% at 12% 8%,  #FDF8F1 0%, transparent 55%),
+  radial-gradient(100% 80% at 88% 4%,  #F6EFE8 0%, transparent 50%),
+  radial-gradient(130% 100% at 82% 92%,#EDE4DC 0%, transparent 58%),
+  radial-gradient(110% 95% at 4% 96%,  #F7F1E9 0%, transparent 56%),
+  #F4EDE4}
+.draw{position:absolute;inset:0;z-index:1;pointer-events:none}
+.grain{position:absolute;inset:0;z-index:6;opacity:.2;mix-blend-mode:multiply;pointer-events:none}
+.page{position:absolute;inset:0;display:flex;flex-direction:column;z-index:4;padding:104px 84px 96px}
+.label{font-size:25px;font-weight:500;color:var(--muted);letter-spacing:-.2px}
+.serif{font-family:"Playfair Display",serif}
+.mesh{background:
+  radial-gradient(120% 90% at 12% 8%,  #33436F 0%, transparent 55%),
+  radial-gradient(100% 80% at 88% 4%,  #2B3A67 0%, transparent 50%),
+  radial-gradient(130% 100% at 82% 92%,#161C33 0%, transparent 58%),
+  radial-gradient(110% 95% at 4% 96%,  #1D2646 0%, transparent 56%),
+  #1A2340}
+html,body{color:#F3EFE8}
+:root{--muted:rgba(243,239,232,.62);--rule:rgba(243,239,232,.22);--accent:#E9C79B}
+.grain{mix-blend-mode:overlay;opacity:.14}
+.page{justify-content:space-between}
+h1{margin-top:30px;font-size:106px;font-weight:600;line-height:1.02;letter-spacing:-3.2px;max-width:880px}
+h1 em{font-style:italic;color:var(--accent)}
+.stand{margin-top:34px;font-size:31px;font-weight:400;line-height:1.5;color:var(--muted);max-width:720px}
+.close{font-size:44px;font-weight:600;line-height:1.24;letter-spacing:-1.6px;max-width:820px}
+.foot{margin-top:44px;display:flex;align-items:center;gap:26px;padding-top:30px;border-top:1px solid var(--rule)}
+.btn{padding:22px 46px;background:var(--accent);color:#1A2340;border-radius:14px;font-size:28px;font-weight:600;letter-spacing:-.5px}
+.ghost{font-size:24px;font-weight:500;color:var(--muted)}
+</style></head>
+<body>
+<div class="mesh"></div>
+<svg class="draw" viewBox="0 0 1080 1350" fill="none">
+  <path d="M-60 650 C 180 812.0 340 870.2 600 826.0 S 940 859.6 1140 830.2" stroke="rgba(233,199,155,.24)" stroke-width="1.6" fill="none"/>
+  <path d="M-60 680 C 180 838.64 340 901.224 600 854.32 S 940 891.952 1140 859.024" stroke="rgba(233,199,155,.24)" stroke-width="1.6" fill="none"/>
+  <path d="M-60 710 C 180 865.28 340 932.248 600 882.64 S 940 924.304 1140 887.848" stroke="rgba(233,199,155,.24)" stroke-width="1.6" fill="none"/>
+  <path d="M-60 740 C 180 891.92 340 972.272 600 910.96 S 940 956.656 1140 916.672" stroke="rgba(233,199,155,.24)" stroke-width="1.6" fill="none"/>
+  <path d="M-60 770 C 180 918.56 340 1003.296 600 939.28 S 940 989.008 1140 945.496" stroke="rgba(233,199,155,.24)" stroke-width="1.6" fill="none"/>
+  <path d="M-60 800 C 180 945.2 340 1034.32 600 967.6 S 940 1021.36 1140 974.32" stroke="rgba(233,199,155,.24)" stroke-width="1.6" fill="none"/>
+  <path d="M-60 830 C 180 971.84 340 1065.344 600 995.92 S 940 1053.712 1140 1003.144" stroke="rgba(233,199,155,.24)" stroke-width="1.6" fill="none"/>
+  <path d="M-60 860 C 180 998.48 340 1096.368 600 1024.24 S 940 1086.064 1140 1031.968" stroke="rgba(233,199,155,.24)" stroke-width="1.6" fill="none"/>
+  <path d="M-60 890 C 180 1025.12 340 1136.392 600 1052.56 S 940 1118.416 1140 1060.792" stroke="rgba(233,199,155,.24)" stroke-width="1.6" fill="none"/>
+</svg>
+<div class="page">
+  <div>
+    <div class="label" style="color:var(--muted)">{{eyebrow}}</div>
+    <h1 class="serif">{{titleLine1}} <em>{{titleAccent}}</em></h1>
+    <p class="stand">{{standfirst}}</p>
+  </div>
+  <div>
+    <div class="close">{{closingLine}}</div>
+    <div class="foot"><div class="btn">{{buttonLabel}}</div><div class="ghost">{{signoff}}</div></div>
+  </div>
+</div>
+<svg class="grain" width="1080" height="1350" viewBox="0 0 1080 1350" preserveAspectRatio="none">
+<filter id="gr"><feTurbulence type="fractalNoise" baseFrequency="0.9" numOctaves="3" seed="3"/><feColorMatrix type="saturate" values="0"/></filter>
+<rect width="1080" height="1350" filter="url(#gr)" opacity="0.4"/></svg>
+</body></html>

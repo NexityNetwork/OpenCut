@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html><head><meta charset="utf-8">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+html,body{width:1080px;height:1350px;overflow:hidden;color:#0F1A14;
+  font-family:"Inter",sans-serif;-webkit-font-smoothing:antialiased;text-rendering:geometricPrecision}
+:root{--ink:#0F1A14;--muted:rgba(15,26,20,.68);--rule:rgba(15,26,20,.16);--green:#1F9D5B}
+.grain{position:absolute;inset:0;z-index:5;opacity:.26;mix-blend-mode:multiply;pointer-events:none}
+.mesh-green{background:
+  radial-gradient(120% 90% at 16% 14%, #2FBF74 0%, transparent 56%),
+  radial-gradient(100% 80% at 88% 6%,  #7BE3A8 0%, transparent 52%),
+  radial-gradient(120% 95% at 78% 92%, #0E6E3E 0%, transparent 58%),
+  radial-gradient(110% 90% at 4% 94%,  #063A20 0%, transparent 56%),
+  #0B3F25}
+.mesh-cream{background:
+  radial-gradient(120% 90% at 14% 16%, #E4F3E9 0%, transparent 56%),
+  radial-gradient(100% 80% at 88% 8%,  #FAFDF9 0%, transparent 52%),
+  radial-gradient(120% 95% at 78% 92%, #D3EADC 0%, transparent 58%),
+  radial-gradient(110% 90% at 4% 92%,  #FFFFFF 0%, transparent 54%),
+  #EEF6F0}
+html,body{color:#EAFBF1}
+.bg{position:absolute;inset:0;z-index:0}
+.sheet{position:absolute;inset:0;padding:130px 88px 112px;display:flex;flex-direction:column;justify-content:space-between;z-index:4}
+h1{font-size:124px;font-weight:600;line-height:.98;letter-spacing:-5px;max-width:840px}
+h1 b{font-weight:700;color:#9CF5C4}
+.sub{font-size:33px;font-weight:400;line-height:1.42;color:rgba(234,251,241,.76);max-width:640px}
+.logos{padding-top:32px;border-top:1px solid rgba(234,251,241,.24);display:flex;align-items:center;gap:44px}
+.logos i{display:block;width:56px;height:56px}
+.logos i svg{width:100%;height:100%;display:block}
+</style></head>
+<body>
+<div class="bg mesh-green"></div>
+<div class="sheet">
+  <h1>{{titleLine1}} <b>{{titleLine2}}</b></h1>
+  <p class="sub">{{sub}}</p>
+  <div class="logos">
+    <i>{{iconSvg1}}</i><i>{{iconSvg2}}</i><i>{{iconSvg3}}</i><i>{{iconSvg4}}</i><i>{{iconSvg5}}</i>
+  </div>
+</div>
+<svg class="grain" width="1080" height="1350" viewBox="0 0 1080 1350" preserveAspectRatio="none">
+<filter id="gr"><feTurbulence type="fractalNoise" baseFrequency="0.85" numOctaves="3" seed="31"/><feColorMatrix type="saturate" values="0"/></filter>
+<rect width="1080" height="1350" filter="url(#gr)" opacity="0.5"/></svg>
+</body></html>

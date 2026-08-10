@@ -1,0 +1,77 @@
+{
+  "_note": "Frozen content for design review. Centred family — name, one line, and the screen tilted off the bottom edge. Wants tall captures (~1120x970).",
+  "family": "cream-tilt",
+  "brief": "One tool, one job, and what it looks like open",
+  "slides": [
+    {
+      "layoutId": "cover-cream-tilt",
+      "slots": {
+        "titleLine1": "Six tools.",
+        "titleAccent": "One job each.",
+        "subtitle": "Nothing overlaps, nothing duplicates, and every one of them earns the tab it occupies.",
+        "iconSlug1": "linear", "iconSlug2": "notion", "iconSlug3": "anthropic",
+        "iconSlug4": "figma", "iconSlug5": "stripe"
+      }
+    },
+    {
+      "layoutId": "body-cream-tilt",
+      "slots": {
+        "iconSlug1": "linear", "toolName": "Linear",
+        "toolTagline": "If it is not on the board it is not happening, and nothing sits there longer than a week.",
+        "shot": "shot-linear-tall.png"
+      }
+    },
+    {
+      "layoutId": "body-cream-tilt",
+      "slots": {
+        "iconSlug1": "notion", "toolName": "Notion",
+        "toolTagline": "One database with three views, because four private lists is how work quietly goes missing.",
+        "shot": "shot-notion-tall.png"
+      }
+    },
+    {
+      "layoutId": "body-cream-tilt",
+      "slots": {
+        "iconSlug1": "anthropic", "toolName": "Claude",
+        "toolTagline": "The blank page is the expensive part. A rough version changes what you are willing to start.",
+        "shot": "shot-claude-tall.png"
+      }
+    },
+    {
+      "layoutId": "body-cream-tilt",
+      "slots": {
+        "iconSlug1": "figma", "toolName": "Figma",
+        "toolTagline": "Two people on the same frame settle in ten minutes what a thread would not settle in three days.",
+        "shot": "shot-figma-tall.png"
+      }
+    },
+    {
+      "layoutId": "body-cream-tilt",
+      "slots": {
+        "iconSlug1": "stripe", "toolName": "Stripe",
+        "toolTagline": "Checked once a day. Everything else moves too slowly to be worth watching more often.",
+        "shot": "shot-stripe-tall.png"
+      }
+    },
+    {
+      "layoutId": "body-cream-tilt",
+      "slots": {
+        "iconSlug1": "slack", "toolName": "Slack",
+        "toolTagline": "The one that earns its place least. Kept because clients are there, not because it helps.",
+        "shot": "shot-slack-tall.png"
+      }
+    },
+    {
+      "layoutId": "cta-cream-tilt",
+      "slots": {
+        "titleLine1": "Own the stack.",
+        "titleAccent": "Not the list.",
+        "body": "A tool you opened twice this month is a subscription, not a system. Sort by what you actually touched.",
+        "iconSlug1": "linear", "iconSlug2": "notion", "iconSlug3": "anthropic",
+        "iconSlug4": "figma", "iconSlug5": "stripe",
+        "btnPrimary": "Take the whole setup",
+        "signoff": "The audit takes an afternoon"
+      }
+    }
+  ]
+}

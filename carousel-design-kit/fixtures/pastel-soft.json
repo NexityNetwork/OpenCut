@@ -1,0 +1,115 @@
+{
+  "_note": "Frozen content for design review. Cut-paper family — flat pastel shapes with hard edges, overlapping to make a third tone by multiply. Content sits in the negative space, no cards. No tools.",
+  "family": "pastel-soft",
+  "brief": "How to keep going once the work stops being exciting",
+  "slides": [
+    {
+      "layoutId": "cover-pastel-soft",
+      "slots": {
+        "eyebrow": "On the middle of things",
+        "titleLine1": "Every project is",
+        "titleAccent": "boring by week three.",
+        "subtitle": "Six ways to keep working through the part where nothing feels like progress, none of which involve motivation.",
+        "item1": "Why the middle is where most work is abandoned",
+        "item2": "The smallest unit that still counts as done",
+        "coverNote": "Discipline is a system, not a personality"
+      }
+    },
+    {
+      "layoutId": "body-pastel-soft",
+      "slots": {
+        "sectionLabel": "On starting again",
+        "titleLine1": "Make the first step",
+        "titleAccent": "embarrassingly small.",
+        "body": "Not because small tasks matter, but because <b>beginning is the expensive part</b> and a step you cannot talk yourself out of removes the negotiation entirely.",
+        "p1Title": "Ten minutes counts",
+        "p1Body": "Set the bar low enough that a bad day still clears it.",
+        "p2Title": "Same time, same place",
+        "p2Body": "A decision you make once beats one you make every morning.",
+        "pullLine": "The bar is not what you can do on a good day. It is what you will still clear on a bad one."
+      }
+    },
+    {
+      "layoutId": "body-pastel-soft",
+      "slots": {
+        "sectionLabel": "On stopping",
+        "titleLine1": "Leave it",
+        "titleAccent": "unfinished.",
+        "body": "Stopping at a natural end means tomorrow begins with a blank page. Stopping mid-sentence means it begins with <b>an obvious next move</b>, which is a much cheaper start.",
+        "p1Title": "Stop while it flows",
+        "p1Body": "The urge to finish the section is what costs you the next session.",
+        "p2Title": "Write the next line",
+        "p2Body": "One sentence about what comes next, for the version of you who forgot.",
+        "pullLine": "Tomorrow you will not remember what you meant. Leave the sentence unfinished and it will not matter."
+      }
+    },
+    {
+      "layoutId": "body-pastel-soft",
+      "slots": {
+        "sectionLabel": "On measuring",
+        "titleLine1": "Count the days,",
+        "titleAccent": "not the output.",
+        "body": "Output varies for reasons you do not control. Showing up does not, which makes it <b>the only honest thing to track</b> and the only one that survives a bad week.",
+        "p1Title": "A mark per day",
+        "p1Body": "Nothing more elaborate. Elaborate systems are avoidance.",
+        "p2Title": "Never two in a row",
+        "p2Body": "One missed day is noise. Two is the beginning of a different habit.",
+        "pullLine": "Output is weather. Showing up is climate."
+      }
+    },
+    {
+      "layoutId": "body-pastel-soft",
+      "slots": {
+        "sectionLabel": "On energy",
+        "titleLine1": "Protect the hours",
+        "titleAccent": "you actually think in.",
+        "body": "Most people give their sharpest two hours to correspondence and attempt the difficult work on what is left. <b>The order is the whole problem</b>, and it is free to change.",
+        "p1Title": "Hard thing first",
+        "p1Body": "Before the inbox, before anybody else has made a claim on the day.",
+        "p2Title": "Everything else waits",
+        "p2Body": "A reply at four in the afternoon is indistinguishable from one at nine.",
+        "pullLine": "Nobody protects the morning, and then wonders where the year went."
+      }
+    },
+    {
+      "layoutId": "body-pastel-soft",
+      "slots": {
+        "sectionLabel": "On the slump",
+        "titleLine1": "Boredom is not",
+        "titleAccent": "a signal to stop.",
+        "body": "It arrives at roughly the same point in everything, which is a fact about the shape of projects rather than about this one. <b>It is information about the middle</b>, not about the work.",
+        "p1Title": "Expect it by week three",
+        "p1Body": "Naming it in advance removes most of its authority.",
+        "p2Title": "Change the task, not the project",
+        "p2Body": "Move to a different part of the same thing before abandoning it.",
+        "pullLine": "The middle of a project feels identical to the end of your interest in it. It is not the same thing."
+      }
+    },
+    {
+      "layoutId": "body-pastel-soft",
+      "slots": {
+        "sectionLabel": "The uncomfortable one",
+        "titleLine1": "Sometimes the answer",
+        "titleAccent": "is to stop.",
+        "body": "Persistence applied to the wrong thing is just an expensive way to be wrong for longer. The test is not whether it is hard — <b>it is whether it still matters to you when it is</b>.",
+        "p1Title": "Ask once, calmly",
+        "p1Body": "On a good day, not on the worst one, when the answer is unreliable.",
+        "p2Title": "Finish or close it",
+        "p2Body": "An abandoned project left open costs attention every week forever.",
+        "pullLine": "Quitting badly costs a year. Quitting deliberately costs an afternoon."
+      }
+    },
+    {
+      "layoutId": "cta-pastel-soft",
+      "slots": {
+        "eyebrow": "Tomorrow, before anything else",
+        "titleLine1": "Ten minutes.",
+        "titleAccent": "Then stop.",
+        "body": "Not an hour, not a plan, not a new system. Ten minutes on the thing you have been avoiding, at the same time, tomorrow.",
+        "closingLine": "Consistency is not a feeling you wait for. It is a decision you only have to make once.",
+        "buttonLabel": "Take all six",
+        "signoff": "The middle is where everything gets abandoned"
+      }
+    }
+  ]
+}

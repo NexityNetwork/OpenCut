@@ -1,0 +1,65 @@
+{
+  "_note": "Frozen content for design review. Editorial-essay family — long-form body copy, one idea per page.",
+  "family": "beige-paper",
+  "brief": "What six years of writing online actually taught me",
+  "slides": [
+    {
+      "layoutId": "cover-beige-serif",
+      "slots": {
+        "headline": "Six years of writing online, and almost none of it worked the way I <em>expected</em>",
+        "cue": "Six lessons, one page each"
+      }
+    },
+    {
+      "layoutId": "body-beige-bubble",
+      "slots": {
+        "title": "Nobody owes you the <em>second sentence</em>",
+        "body": "The first line is not a warm-up, it is the whole negotiation. If it does not earn attention outright, everything underneath it is unread work. I spent two years writing careful openings that politely introduced the topic. They were <b>skipped every time</b>."
+      }
+    },
+    {
+      "layoutId": "body-beige-bubble",
+      "slots": {
+        "title": "Publishing beats <em>polishing</em>",
+        "body": "The pieces I agonised over for a week performed the same as the ones I wrote in an hour. What moved the needle was frequency, not finish. Consistency compounds because the audience learns when to expect you, and <b>an audience that expects you is an audience that returns</b>."
+      }
+    },
+    {
+      "layoutId": "body-beige-bubble",
+      "slots": {
+        "title": "Specific beats <em>clever</em>",
+        "body": "Every post that travelled had a number, a name, or a date in it. The abstract ones stayed home. Nobody shares a principle, but they will forward a receipt — <b>the invoice, the screenshot, the exact hour it broke</b>."
+      }
+    },
+    {
+      "layoutId": "body-beige-bubble",
+      "slots": {
+        "title": "Write for one <em>person</em>",
+        "body": "Addressing everyone produces prose that lands on no one. The posts that worked were written to a single reader I could picture — usually someone I had actually spoken to that week. <b>The narrower the address, the wider the reach</b>, which still feels backwards and is still true."
+      }
+    },
+    {
+      "layoutId": "body-beige-bubble",
+      "slots": {
+        "title": "The boring middle is <em>the job</em>",
+        "body": "Months eleven through thirty produced nothing worth showing anybody. No growth, no signal, no reason to continue except the decision to continue. Almost everyone quits there, which is precisely why <b>outlasting the boring middle is most of the advantage</b>."
+      }
+    },
+    {
+      "layoutId": "body-beige-bubble",
+      "slots": {
+        "title": "Say the thing you <em>actually think</em>",
+        "body": "Hedged writing reads as safe and performs as noise. The posts that changed anything were the ones I hesitated to press send on. If a sentence costs you nothing to publish, <b>it probably gives the reader nothing either</b>."
+      }
+    },
+    {
+      "layoutId": "cta-beige-serif",
+      "slots": {
+        "eyebrow": "One more thing",
+        "headline": "Six years compressed into <em>six pages</em>",
+        "body": "If any of this landed, the long version is a letter I send on Sundays. No cadence, no funnel, just the working notes.",
+        "buttonLabel": "Read the long version"
+      }
+    }
+  ]
+}

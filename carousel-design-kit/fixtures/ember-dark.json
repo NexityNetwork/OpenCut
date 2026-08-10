@@ -1,0 +1,153 @@
+{
+  "_note": "Frozen content for design review. Centred family — concentric rings struck from the middle of the page, the tool sitting at that centre, figures and one takeaway underneath.",
+  "family": "ember-dark",
+  "brief": "Six tools that only earn their place under load",
+  "slides": [
+    {
+      "layoutId": "cover-display-cta",
+      "slots": {
+        "eyebrow": "Everything works fine on a good day",
+        "headlineLine1": "The stack you have",
+        "headlineLine2": "is not the one you tested.",
+        "subline": "Six tools, and the specific way each one behaves when the day goes wrong.",
+        "coverNote": "Every failure below happened to somebody in a normal week",
+        "iconTheme": "dark",
+        "iconSlug1": "postgresql",
+        "iconSlug2": "redis",
+        "iconSlug3": "cloudflare",
+        "iconSlug4": "docker",
+        "iconSlug5": "github"
+      }
+    },
+    {
+      "layoutId": "body-icon-centered",
+      "slots": {
+        "stepTag": "The database",
+        "toolName1": "Postgres",
+        "iconSlug1": "postgresql",
+        "iconTheme": "dark",
+        "title": "It will not warn you before it stops",
+        "body": "Connection limits are reached silently and then all at once. The database is fine; <b>the pool in front of it is what fails</b>, and it fails at exactly the moment traffic proves you were right about something.",
+        "stat1V": "100",
+        "stat1L": "default connections",
+        "stat2V": "0",
+        "stat2L": "warning before the wall",
+        "stat3V": "1 line",
+        "stat3L": "of config to fix",
+        "insightLabel": "What to do",
+        "insightText": "Set the pool size before you need it, not during."
+      }
+    },
+    {
+      "layoutId": "body-icon-centered",
+      "slots": {
+        "stepTag": "The cache",
+        "toolName1": "Redis",
+        "iconSlug1": "redis",
+        "iconTheme": "dark",
+        "title": "A cache that never misses is a liability",
+        "body": "It works until an eviction, a restart or a deploy empties it, and then every request arrives at the database at once. <b>The cache was load-bearing and nobody wrote that down</b>.",
+        "stat1V": "40×",
+        "stat1L": "load on a cold start",
+        "stat2V": "≈8 s",
+        "stat2L": "to fill again",
+        "stat3V": "1",
+        "stat3L": "restart to find out",
+        "insightLabel": "What to do",
+        "insightText": "Test with the cache empty, on purpose, before it happens."
+      }
+    },
+    {
+      "layoutId": "body-icon-centered",
+      "slots": {
+        "stepTag": "The edge",
+        "toolName1": "Cloudflare",
+        "iconSlug1": "cloudflare",
+        "iconTheme": "dark",
+        "title": "The fastest response is the one you never send",
+        "body": "Most traffic is the same handful of requests. Serving them at the edge removes the origin from the equation entirely, which is <b>the only optimisation that gets cheaper as you grow</b>.",
+        "stat1V": "82%",
+        "stat1L": "of requests are repeats",
+        "stat2V": "12 ms",
+        "stat2L": "instead of 240",
+        "stat3V": "−70%",
+        "stat3L": "origin traffic",
+        "insightLabel": "What to do",
+        "insightText": "Cache the boring paths first. They are most of the bill."
+      }
+    },
+    {
+      "layoutId": "body-icon-centered",
+      "slots": {
+        "stepTag": "The runtime",
+        "toolName1": "Docker",
+        "iconSlug1": "docker",
+        "iconTheme": "dark",
+        "title": "It runs here is not a claim about anywhere else",
+        "body": "The image pins the code and almost nothing else. Clock, locale, memory limit and file descriptors all come from the host, and <b>every one of them has taken down a production service</b>.",
+        "stat1V": "1",
+        "stat1L": "image, many hosts",
+        "stat2V": "4",
+        "stat2L": "things it does not pin",
+        "stat3V": "3 a.m.",
+        "stat3L": "when you find out",
+        "insightLabel": "What to do",
+        "insightText": "Set the memory limit explicitly. The default is the host's."
+      }
+    },
+    {
+      "layoutId": "body-icon-centered",
+      "slots": {
+        "stepTag": "The pipeline",
+        "toolName1": "GitHub",
+        "iconSlug1": "github",
+        "iconTheme": "dark",
+        "title": "A green build is a claim, not a proof",
+        "body": "Tests run against a database nobody uses, with data nobody has, on a machine with no other traffic. <b>Green means it did not fail in that specific fiction</b>, which is worth something but not what people take it for.",
+        "stat1V": "≈9 min",
+        "stat1L": "to feel certain",
+        "stat2V": "0",
+        "stat2L": "real traffic involved",
+        "stat3V": "1",
+        "stat3L": "smoke test worth having",
+        "insightLabel": "What to do",
+        "insightText": "Run one check against production after every deploy."
+      }
+    },
+    {
+      "layoutId": "body-icon-centered",
+      "slots": {
+        "stepTag": "The uncomfortable one",
+        "toolName1": "All of them",
+        "iconSlug1": "postgresql",
+        "iconTheme": "dark",
+        "title": "None of these failed on their own",
+        "body": "Every outage here needed two things to go wrong at once, which is why each component looked fine in isolation and why <b>the post-mortem always finds a cause nobody could have prioritised</b> beforehand.",
+        "stat1V": "2",
+        "stat1L": "faults per outage",
+        "stat2V": "0",
+        "stat2L": "found by review",
+        "stat3V": "1",
+        "stat3L": "found by traffic",
+        "insightLabel": "What to do",
+        "insightText": "Practise the recovery. You cannot predict the cause."
+      }
+    },
+    {
+      "layoutId": "cta-display-cta",
+      "slots": {
+        "eyebrow": "Pick the one you have never tested",
+        "headline": "Break it",
+        "headlineAccent": "on a Tuesday.",
+        "subline": "Empty the cache, kill a container, pull a connection. On a quiet afternoon it is an experiment; at 3 a.m. it is an incident.",
+        "iconSlug1": "postgresql",
+        "iconSlug2": "redis",
+        "iconSlug3": "cloudflare",
+        "iconSlug4": "docker",
+        "iconSlug5": "github",
+        "buttonLabel": "Take the whole checklist",
+        "signoff": "The recovery is the only part you control"
+      }
+    }
+  ]
+}

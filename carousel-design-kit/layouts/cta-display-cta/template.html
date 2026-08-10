@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html><head><meta charset="utf-8">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+html,body{width:1080px;height:1350px;overflow:hidden;color:#F0EBE4;
+  font-family:"Inter",sans-serif;-webkit-font-smoothing:antialiased;text-rendering:geometricPrecision}
+:root{--muted:rgba(240,235,228,.58);--rule:rgba(240,235,228,.15);--accent:#E7DDCE}
+/* Flat near-black, no glow. The fifth dark family needs its own drawn system:
+   concentric rings struck from the centre of the page. The bodies put the tool
+   in that centre, so the rings are the composition rather than decoration —
+   which is what the original was reaching for with a blurred ember. */
+.ground{position:absolute;inset:0;z-index:0;background:#0B0908}
+.rings{position:absolute;left:50%;top:var(--ringY,50%);transform:translate(-50%,-50%);
+  width:1900px;height:1900px;z-index:1;pointer-events:none;
+  background:repeating-radial-gradient(circle,rgba(240,235,228,.085) 0 1px,transparent 1px 118px)}
+.grain{position:absolute;inset:0;z-index:6;opacity:.16;mix-blend-mode:overlay;pointer-events:none}
+.page{position:absolute;inset:0;display:flex;flex-direction:column;z-index:4;padding:110px 84px 104px}
+.ground{background:var(--accent)}
+html,body{color:#100C09}
+:root{--muted:rgba(16,12,9,.62);--rule:rgba(16,12,9,.2);--accent:#E7DDCE}
+.rings{background:repeating-radial-gradient(circle,rgba(16,12,9,.09) 0 1px,transparent 1px 118px)}
+.grain{mix-blend-mode:multiply;opacity:.12}
+.page{align-items:center;text-align:center;justify-content:center}
+.eyebrow{font-size:28px;font-weight:500;letter-spacing:-.4px;opacity:.7}
+h1{margin-top:32px;font-size:122px;font-weight:700;line-height:.94;letter-spacing:-5.4px;max-width:900px}
+h1 em{font-style:normal;color:rgba(16,12,9,.42)}
+.sub{margin-top:34px;font-size:32px;font-weight:400;line-height:1.4;color:var(--muted);max-width:720px}
+.orbit{margin-top:80px;display:flex;align-items:center}
+.orbit .n{width:112px;height:112px;border-radius:50%;border:1px solid rgba(16,12,9,.16);
+  background:#F7F1E7;display:flex;align-items:center;justify-content:center;margin-left:-18px}
+.orbit .n:first-child{margin-left:0}
+.orbit .n svg{width:50px;height:50px;display:block}
+.btn{margin-top:78px;padding:24px 50px;background:#100C09;color:#F2ECE3;border-radius:15px;
+  font-size:29px;font-weight:600;letter-spacing:-.5px}
+.ghost{margin-top:24px;font-size:25px;font-weight:500;color:var(--muted)}
+</style></head>
+<body>
+<div class="ground"></div>
+<div class="rings" style="--ringY:46%"></div>
+<div class="page">
+  <div class="eyebrow">{{eyebrow}}</div>
+  <h1>{{headline}} <em>{{headlineAccent}}</em></h1>
+  <p class="sub">{{subline}}</p>
+  <div class="orbit">
+    <div class="n">{{iconSvg1}}</div><div class="n">{{iconSvg2}}</div>
+    <div class="n">{{iconSvg3}}</div><div class="n">{{iconSvg4}}</div>
+    <div class="n">{{iconSvg5}}</div>
+  </div>
+  <div class="btn">{{buttonLabel}}</div>
+  <div class="ghost">{{signoff}}</div>
+</div>
+<svg class="grain" width="1080" height="1350" viewBox="0 0 1080 1350" preserveAspectRatio="none">
+<filter id="gr"><feTurbulence type="fractalNoise" baseFrequency="0.82" numOctaves="3" seed="83"/><feColorMatrix type="saturate" values="0"/></filter>
+<rect width="1080" height="1350" filter="url(#gr)" opacity="0.5"/></svg>
+</body></html>

@@ -1,0 +1,131 @@
+{
+  "_note": "Frozen content for design review. One automation per page, each with the tactic and the time it actually returns.",
+  "family": "condensed-pill",
+  "brief": "Five automations that give back ten hours a week",
+  "slides": [
+    {
+      "layoutId": "cover-condensed-pill",
+      "slots": {
+        "preLine": "The week I stopped",
+        "pillText": "Doing admin",
+        "postLine": "and got ten hours back",
+        "note": "Five automations, each one built in an afternoon. None of them touch the actual work.",
+        "iconSlug1": "gmail",
+        "iconColor1": "#14110D",
+        "iconSlug2": "calendly",
+        "iconColor2": "#14110D",
+        "iconSlug3": "notion",
+        "iconColor3": "#14110D",
+        "iconSlug4": "stripe",
+        "iconColor4": "#14110D",
+        "iconSlug5": "zapier",
+        "iconColor5": "#14110D"
+      }
+    },
+    {
+      "layoutId": "body-condensed-pill",
+      "slots": {
+        "numberLabel": "The inbox",
+        "title": "Sorting",
+        "body": "Reading every message as it lands is not diligence, it is interruption. Most email is not for now, it is for later, and almost none of it needs a decision on arrival.",
+        "tacticText": "Route by sender and keyword, then read the low-priority pile once a day.",
+        "savingsValue": "90 min",
+        "savingsLabel": "back every week",
+        "iconSlug1": "gmail",
+        "iconColor1": "#14110D",
+        "iconSlug2": "raycast",
+        "iconColor2": "#14110D"
+      }
+    },
+    {
+      "layoutId": "body-condensed-pill",
+      "slots": {
+        "numberLabel": "The calendar",
+        "title": "Booking",
+        "body": "Five messages to agree one half-hour call is the most expensive thing on any calendar, and it happens every single week without anyone noticing the cost.",
+        "tacticText": "Send one link with your real availability instead of proposing times.",
+        "savingsValue": "2 hrs",
+        "savingsLabel": "back every week",
+        "iconSlug1": "calendly",
+        "iconColor1": "#14110D",
+        "iconSlug2": "googlecalendar",
+        "iconColor2": "#14110D"
+      }
+    },
+    {
+      "layoutId": "body-condensed-pill",
+      "slots": {
+        "numberLabel": "The notes",
+        "title": "Capture",
+        "body": "Every task and decision rebuilt from memory is a small tax you pay twice. Once when you forget it, and again when you reconstruct it badly.",
+        "tacticText": "Template the projects you repeat so setup stops being a decision.",
+        "savingsValue": "3 hrs",
+        "savingsLabel": "back every week",
+        "iconSlug1": "notion",
+        "iconColor1": "#14110D",
+        "iconSlug2": "airtable",
+        "iconColor2": "#14110D"
+      }
+    },
+    {
+      "layoutId": "body-condensed-pill",
+      "slots": {
+        "numberLabel": "The invoices",
+        "title": "Billing",
+        "body": "Chasing money is the least enjoyable hour of the month and the one most likely to be postponed, which is exactly why it should not require a person.",
+        "tacticText": "Put deposits, reminders and receipts on a schedule and never mention them.",
+        "savingsValue": "2 hrs",
+        "savingsLabel": "back every week",
+        "iconSlug1": "stripe",
+        "iconColor1": "#14110D",
+        "iconSlug2": "quickbooks",
+        "iconColor2": "#14110D"
+      }
+    },
+    {
+      "layoutId": "body-condensed-pill",
+      "slots": {
+        "numberLabel": "The reporting",
+        "title": "Recaps",
+        "body": "Writing the same weekly summary from scratch is a habit inherited from a job nobody has any more. The data already exists somewhere and it does not need retyping.",
+        "tacticText": "Pull one page automatically and spend the time reading it instead.",
+        "savingsValue": "90 min",
+        "savingsLabel": "back every week",
+        "iconSlug1": "googlesheets",
+        "iconColor1": "#14110D",
+        "iconSlug2": "slack",
+        "iconColor2": "#14110D"
+      }
+    },
+    {
+      "layoutId": "body-condensed-pill",
+      "slots": {
+        "numberLabel": "The catch",
+        "title": "Upkeep",
+        "body": "Automations rot quietly. A rule that silently stops firing costs more than the manual work it replaced, because you have stopped checking.",
+        "tacticText": "Review every rule once a quarter and delete the ones you cannot explain.",
+        "savingsValue": "30 min",
+        "savingsLabel": "spent every quarter",
+        "iconSlug1": "zapier",
+        "iconColor1": "#14110D",
+        "iconSlug2": "make",
+        "iconColor2": "#14110D"
+      }
+    },
+    {
+      "layoutId": "cta-condensed-pill",
+      "slots": {
+        "eyebrow": "What it is really for",
+        "headline": "Ten hours",
+        "body": "The point was never efficiency. It was getting back the part of the week where the actual work happens, and none of this touches that part.",
+        "buttonLabel": "Take the five",
+        "iconSlug1": "gmail",
+        "iconColor1": "#F6EFE5",
+        "iconSlug2": "calendly",
+        "iconColor2": "#F6EFE5",
+        "iconSlug3": "zapier",
+        "iconColor3": "#F6EFE5"
+      }
+    }
+  ]
+}

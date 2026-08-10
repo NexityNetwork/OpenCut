@@ -1,0 +1,95 @@
+{
+  "_note": "Frozen content for design review. Cut-paper family — perfect circles punched out of a flooded terracotta field in a darker tone, asymmetric and bleeding off the edges. Flat, hard-edged, no shadows. The closer inverts to cream.",
+  "family": "terracotta",
+  "brief": "Making by hand versus making at scale",
+  "slides": [
+    {
+      "layoutId": "cover-terracotta",
+      "slots": {
+        "eyebrow": "On what volume costs you",
+        "titleLine1": "Scale is a decision about what to lose.",
+        "standfirst": "Six things that only survive at small numbers, and what it actually takes to keep one of them anyway.",
+        "item1": "Why the second hundred is never like the first",
+        "item2": "The one part worth refusing to automate",
+        "coverNote": "The last page is the trade nobody puts in the plan"
+      }
+    },
+    {
+      "layoutId": "body-terracotta",
+      "slots": {
+        "sectionLabel": "Variation",
+        "titleLine1": "Consistency is the first thing you buy.",
+        "body": "Every unit being the same is the whole promise of making at volume, and it is bought by removing the decisions that produced the differences. Those differences were <b>most of what people liked and none of what they could name</b>.",
+        "k1": "Name what varies", "v1": "Before you standardise it, so the loss is a choice rather than a side effect.",
+        "k2": "Keep one thing loose", "v2": "One deliberate variable is enough to stop the output reading as stamped.",
+        "k3": "Do not vary the base", "v3": "Inconsistency in the foundation reads as a fault, not as character."
+      }
+    },
+    {
+      "layoutId": "body-terracotta",
+      "slots": {
+        "sectionLabel": "Attention",
+        "titleLine1": "Care does not divide.",
+        "body": "The attention that goes into one piece cannot be spread across a thousand and stay the same substance. Systems distribute standards, not care, and <b>a standard is what care looks like after somebody wrote it down for other people</b>.",
+        "k1": "Decide where it goes", "v1": "Pick the two places attention is visible and give them all of it.",
+        "k2": "Write the rest down", "v2": "Anything you can specify was never the part that needed you.",
+        "k3": "Expect it to feel wrong", "v3": "Handing off the specifiable part always feels like handing off the work."
+      }
+    },
+    {
+      "layoutId": "body-terracotta",
+      "slots": {
+        "sectionLabel": "The person",
+        "titleLine1": "Somebody made this stops being true.",
+        "body": "At small numbers the maker is part of the object and buyers respond to that whether or not they would say so. Growth replaces the person with a process, and the honest version is that <b>the thing people bought was partly the person</b>.",
+        "k1": "Keep one hand visible", "v1": "One step that is unmistakably done by a specific person, and say which.",
+        "k2": "Do not fake it", "v2": "Handmade language over an industrial process is the one unrecoverable mistake.",
+        "k3": "Let it be smaller", "v3": "A line that stays small is a strategy, not a failure to grow."
+      }
+    },
+    {
+      "layoutId": "body-terracotta",
+      "slots": {
+        "sectionLabel": "Correction",
+        "titleLine1": "Small lets you change your mind.",
+        "body": "Making ten of something means the eleventh can be different, and that loop is where nearly all the improvement comes from. Tooling up for a thousand freezes the design at the moment you understood it least, which is <b>always before the first hundred shipped</b>.",
+        "k1": "Delay the commitment", "v1": "Every week before you tool up is a week of free corrections.",
+        "k2": "Batch small on purpose", "v2": "Deliberately short runs keep the loop open at a real cost you can measure.",
+        "k3": "Record the changes", "v3": "Otherwise version nine is a rumour and nobody knows why it is better."
+      }
+    },
+    {
+      "layoutId": "body-terracotta",
+      "slots": {
+        "sectionLabel": "Price",
+        "titleLine1": "Volume competes on the one axis you lose.",
+        "body": "Anything made at scale is cheaper per unit and there is no version of handmade that wins that comparison. Competing on price is the one strategy fully unavailable to you, which is <b>clarifying rather than tragic once you stop trying</b>.",
+        "k1": "Refuse the comparison", "v1": "Do not price against the industrial version. You are not selling the same object.",
+        "k2": "Charge for the difference", "v2": "If the difference is real it is worth money. If not, the price is the smaller problem.",
+        "k3": "Sell to fewer people", "v3": "The audience for the expensive version is small and it exists."
+      }
+    },
+    {
+      "layoutId": "body-terracotta",
+      "slots": {
+        "sectionLabel": "The uncomfortable one",
+        "titleLine1": "Most of it should be automated.",
+        "body": "The romance of doing everything by hand hides that most steps carry no signature at all and are simply slow. Protecting all of them equally means <b>running out of time before you reach the parts that were actually worth your hands</b>.",
+        "k1": "Audit honestly", "v1": "Most steps are labour. Two or three are the work. They are not the same.",
+        "k2": "Automate the labour", "v2": "Nobody has ever noticed which parts of anything were done by machine.",
+        "k3": "Defend the two", "v3": "And be able to say exactly why, out loud, without using the word craft."
+      }
+    },
+    {
+      "layoutId": "cta-terracotta",
+      "slots": {
+        "eyebrow": "On the step you keep doing yourself",
+        "titleLine1": "Name the part you would refuse.",
+        "body": "One step you would not hand over even if it doubled output. Write down why in a sentence that does not use the word craft.",
+        "closingLine": "If the sentence is hard to write, the step is habit, and habit is what scale is for.",
+        "buttonLabel": "Take all six",
+        "signoff": "Everything else can be a process"
+      }
+    }
+  ]
+}

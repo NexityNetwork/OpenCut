@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html><head><meta charset="utf-8">
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,600;0,700;1,600&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+html,body{width:1080px;height:1350px;overflow:hidden;color:#1B1B22;
+  font-family:"Inter",sans-serif;-webkit-font-smoothing:antialiased;text-rendering:geometricPrecision}
+:root{--muted:rgba(27,27,34,.58);--rule:rgba(27,27,34,.16);--accent:#2B3A67}
+/* A soft gradient built from near neighbours rather than opposing hues: four
+   stops within a narrow warm range, so it reads as paper catching light instead
+   of as a wash. Grain over the top stops it banding on export. The drawing is
+   contour work — offset curves in a single stroke weight, which is a drawn
+   field rather than a shape dropped on the page. */
+.mesh{position:absolute;inset:0;z-index:0;background:
+  radial-gradient(120% 90% at 12% 8%,  #FDF8F1 0%, transparent 55%),
+  radial-gradient(100% 80% at 88% 4%,  #F6EFE8 0%, transparent 50%),
+  radial-gradient(130% 100% at 82% 92%,#EDE4DC 0%, transparent 58%),
+  radial-gradient(110% 95% at 4% 96%,  #F7F1E9 0%, transparent 56%),
+  #F4EDE4}
+.draw{position:absolute;inset:0;z-index:1;pointer-events:none}
+.grain{position:absolute;inset:0;z-index:6;opacity:.2;mix-blend-mode:multiply;pointer-events:none}
+.page{position:absolute;inset:0;display:flex;flex-direction:column;z-index:4;padding:104px 84px 96px}
+.label{font-size:25px;font-weight:500;color:var(--muted);letter-spacing:-.2px}
+.serif{font-family:"Playfair Display",serif}
+.page{justify-content:space-between}
+h1{margin-top:30px;font-size:112px;font-weight:600;line-height:1.02;letter-spacing:-3.4px;max-width:900px}
+h1 em{font-style:italic;color:var(--accent)}
+.stand{margin-top:36px;font-size:32px;font-weight:400;line-height:1.5;color:var(--muted);max-width:700px}
+.lines{display:flex;flex-direction:column}
+.lines div{padding:20px 0;border-top:1px solid var(--rule);font-size:27px;font-weight:500;letter-spacing:-.5px}
+.foot{margin-top:30px;padding-top:24px;border-top:1px solid var(--rule);font-size:24px;color:var(--muted)}
+</style></head>
+<body>
+<div class="mesh"></div>
+<svg class="draw" viewBox="0 0 1080 1350" fill="none">
+  <path d="M-60 760 C 180 734.0 340 783.4 600 747.0 S 940 778.2 1140 750.9" stroke="rgba(43,58,103,.22)" stroke-width="1.6" fill="none"/>
+  <path d="M-60 790 C 180 760.88 340 823.208 600 775.44 S 940 810.384 1140 779.808" stroke="rgba(43,58,103,.22)" stroke-width="1.6" fill="none"/>
+  <path d="M-60 820 C 180 787.76 340 854.016 600 803.88 S 940 842.568 1140 808.716" stroke="rgba(43,58,103,.22)" stroke-width="1.6" fill="none"/>
+  <path d="M-60 850 C 180 814.64 340 884.824 600 832.32 S 940 874.752 1140 837.624" stroke="rgba(43,58,103,.22)" stroke-width="1.6" fill="none"/>
+  <path d="M-60 880 C 180 841.52 340 915.632 600 860.76 S 940 906.936 1140 866.532" stroke="rgba(43,58,103,.22)" stroke-width="1.6" fill="none"/>
+  <path d="M-60 910 C 180 868.4 340 955.44 600 889.2 S 940 939.12 1140 895.44" stroke="rgba(43,58,103,.22)" stroke-width="1.6" fill="none"/>
+  <path d="M-60 940 C 180 895.28 340 986.248 600 917.64 S 940 971.304 1140 924.348" stroke="rgba(43,58,103,.22)" stroke-width="1.6" fill="none"/>
+  <path d="M-60 970 C 180 922.16 340 1017.056 600 946.08 S 940 1003.4879999999999 1140 953.256" stroke="rgba(43,58,103,.22)" stroke-width="1.6" fill="none"/>
+  <path d="M-60 1000 C 180 949.04 340 1047.864 600 974.52 S 940 1035.672 1140 982.164" stroke="rgba(43,58,103,.22)" stroke-width="1.6" fill="none"/>
+</svg>
+<div class="page">
+  <div>
+    <div class="label">{{eyebrow}}</div>
+    <h1 class="serif">{{titleLine1}} <em>{{titleAccent}}</em></h1>
+    <p class="stand">{{standfirst}}</p>
+  </div>
+  <div>
+    <div class="lines"><div>{{item1}}</div><div>{{item2}}</div></div>
+    <div class="foot">{{coverNote}}</div>
+  </div>
+</div>
+<svg class="grain" width="1080" height="1350" viewBox="0 0 1080 1350" preserveAspectRatio="none">
+<filter id="gr"><feTurbulence type="fractalNoise" baseFrequency="0.9" numOctaves="3" seed="3"/><feColorMatrix type="saturate" values="0"/></filter>
+<rect width="1080" height="1350" filter="url(#gr)" opacity="0.4"/></svg>
+</body></html>

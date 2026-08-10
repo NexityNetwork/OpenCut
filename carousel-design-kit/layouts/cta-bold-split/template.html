@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html><head><meta charset="utf-8">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+html,body{width:1080px;height:1350px;overflow:hidden;background:#F7F5EF;color:#1F1F1F;
+  font-family:"Inter",sans-serif;-webkit-font-smoothing:antialiased;text-rendering:geometricPrecision}
+/* Ink on cream, and one slate. That is the whole palette. */
+:root{--ink:#1F1F1F;--slate:#3C3C3C;--muted:#5C5C58;--line:#1F1F1F}
+/* The angled slate panel is this family's signature — kept, cut deeper so it
+   reads as a deliberate split rather than a stripe. */
+.split{position:absolute;top:0;right:0;width:430px;height:100%;background:var(--slate);
+  clip-path:polygon(24% 0,100% 0,100% 100%,46% 100%)}
+/* Drawn mark: a dotted field, the same texture the family already used, now
+   sized as a composition element instead of a badge behind a numeral. */
+.dots{position:absolute;background-image:radial-gradient(circle,rgba(247,245,239,.75) 2.4px,transparent 2.8px);
+  background-size:24px 24px;z-index:2;pointer-events:none}
+.sheet{position:absolute;inset:0;padding:96px 80px 92px;display:flex;flex-direction:column;justify-content:center;z-index:3}
+.dots{bottom:88px;right:60px;width:250px;height:250px}
+.eyebrow{font-size:26px;font-weight:600;color:var(--muted);letter-spacing:-.2px}
+.display{margin-top:20px;font-size:98px;font-weight:700;line-height:.98;letter-spacing:-3.8px;max-width:640px}
+.body{margin-top:36px;font-size:31px;font-weight:400;line-height:1.44;color:var(--muted);max-width:600px}
+.btn{margin-top:52px;align-self:flex-start;padding:20px 38px;background:var(--ink);color:#F7F5EF;
+  border-radius:12px;font-size:28px;font-weight:600;letter-spacing:-.5px}
+</style></head>
+<body>
+<div class="split"></div>
+<div class="dots"></div>
+<div class="sheet">
+  <div class="eyebrow">{{eyebrow}}</div>
+  <div class="display">{{headline}}</div>
+  <p class="body">{{body}}</p>
+  <div class="btn">{{buttonLabel}}</div>
+</div>
+</body></html>

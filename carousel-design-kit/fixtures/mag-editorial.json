@@ -1,0 +1,156 @@
+{
+  "_note": "Magazine spread. Warm-white ground, one red accent. A thick two-colour head rule whose red length is exactly the sidebar measure, so the rule diagrams the column split beneath it; a red drop cap opening the main column; a ruled right-hand sidebar of marginal notes.",
+  "family": "mag-editorial",
+  "brief": "How taste is actually formed, and why it cannot be shortcut",
+  "slides": [
+    {
+      "layoutId": "cover-mag-editorial",
+      "slots": {
+        "kicker": "An argument about judgement",
+        "headLine1": "Taste is not",
+        "headLine2": "downloaded. It is",
+        "headAccent": "accumulated.",
+        "standfirst": "Everyone asks for the reference list. Nobody asks for the fifteen years of looking that made the reference list mean anything, which is the only part that was ever difficult.",
+        "dropCap": "T",
+        "lead": "here is always somebody at the end of a good talk asking what to read. The question is sincere and the answer is useless, because a reading list is a residue. What produced it was years of looking closely, forming an opinion, being wrong out loud, and slowly learning to tell the merely competent from the good. None of that fits in a list.",
+        "note1Label": "What this is not",
+        "note1Body": "Not a defence of gatekeeping. Taste is not scarce because somebody is guarding it. It is scarce because it is slow, and slow things lose to fast ones in every market that has ever existed.",
+        "note2Label": "A working definition",
+        "note2Body": "The ability to tell, quickly and without a rationale to hand, which of two nearly identical options is better — and to be right often enough that it stops looking like luck."
+      }
+    },
+    {
+      "layoutId": "body-mag-editorial",
+      "slots": {
+        "sectionLabel": "The first condition",
+        "titleLine1": "You cannot prefer",
+        "titleLine2": "what you have never",
+        "titleAccent": "seen.",
+        "dropCap": "T",
+        "para1": "aste behaves like memory rather than like sensibility. Before you can judge anything you need a library: hundreds of examples held closely enough that a new thing arrives already surrounded by comparisons. A small library always finds the loudest option most impressive.",
+        "quote": "Every strong opinion is a comparison you have already run a hundred times.",
+        "para2": "Exposure is not optional and it cannot be compressed. Watching a lecture about film does not build the library. Watching four hundred films does. <b>The boredom is the mechanism</b>: attention repeated until invisible distinctions turn obvious.",
+        "note1Label": "The volume problem",
+        "note1Body": "Ten examples give you fashion. A thousand give you a sense of what keeps recurring, which is the closest thing to a quality signal anybody has found.",
+        "note2Label": "Why lists fail",
+        "note2Body": "A list transmits the conclusions of somebody else's looking. The looking is the part that changed them, and none of it transfers across.",
+        "note3Label": "A quick test",
+        "note3Body": "If you cannot say why the second-best option is second, you are holding a preference rather than a judgement."
+      }
+    },
+    {
+      "layoutId": "body-mag-editorial",
+      "slots": {
+        "sectionLabel": "The second condition",
+        "titleLine1": "You need to spend",
+        "titleLine2": "time with the",
+        "titleAccent": "bad work.",
+        "dropCap": "A",
+        "para1": " well-curated feed is the most efficient way ever devised to never develop taste. If everything reaching you has already been filtered by somebody else, you learn what good looks like without learning why, and the first unfamiliar case leaves you nothing to reason from.",
+        "quote": "You calibrate against failure. Remove the failures and you have removed the ruler.",
+        "para2": "Time with mediocre work is not wasted. It is where the categories come from: the recognition that this one is derivative, that one overworked, this one trying too hard to be liked. <b>Nobody develops a nose smelling only good wine</b>.",
+        "note1Label": "The feed problem",
+        "note1Body": "Recommenders optimise for what you already respond to. They are, structurally, machines for arresting the development of anybody's taste.",
+        "note2Label": "Deliberate exposure",
+        "note2Body": "Read the books you expect to dislike, and stay with them long enough to say precisely where they fail rather than merely that they do.",
+        "note3Label": "Sharper claim",
+        "note3Body": "Most people who say they have no taste have simply never been made to defend a preference out loud, to somebody who could tell."
+      }
+    },
+    {
+      "layoutId": "body-mag-editorial",
+      "slots": {
+        "sectionLabel": "The third condition",
+        "titleLine1": "Making is what turns",
+        "titleLine2": "looking into",
+        "titleAccent": "judgement.",
+        "dropCap": "Y",
+        "para1": "ou can see a great deal more than you can do, and the gap between those two is where taste is manufactured. Anyone who has made something knows the humiliation of watching their own work fall short of a standard they perceive perfectly well and cannot reach.",
+        "quote": "The gap is not evidence that you lack talent. It is the only instrument you have.",
+        "para2": "This is why critics who have never made anything are unreliable in one particular way: they can describe an effect but not its cost. <b>Knowing what a decision costs is most of what taste is</b>, and it is not available from outside.",
+        "note1Label": "On the gap",
+        "note1Body": "It closes slowly and never entirely. People who stop noticing it have usually stopped improving rather than arrived anywhere in particular.",
+        "note2Label": "A consequence",
+        "note2Body": "Practise in the medium you want taste in. Taste is local: it does not travel from photography to prose, or from prose to type design.",
+        "note3Label": "On cost",
+        "note3Body": "An amateur asks whether something works. A practitioner asks what was given up to make it work, and whether the trade was worth taking."
+      }
+    },
+    {
+      "layoutId": "body-mag-editorial",
+      "slots": {
+        "sectionLabel": "The fourth condition",
+        "titleLine1": "Copying is the",
+        "titleLine2": "actual",
+        "titleAccent": "mechanism.",
+        "dropCap": "I",
+        "para1": "mitation carries a bad reputation it has not earned. Copying a piece of work closely — not glancing at it, reproducing it — is the fastest known way to find the decisions inside it. You meet choices you would never have made, from the inside, where they are legible.",
+        "quote": "You do not learn a structure by admiring it. You learn it by rebuilding it.",
+        "para2": "The people most anxious about originality hold the thinnest libraries. <b>Everyone who is any good spent years sounding like somebody else</b>, and stopped only once enough influences had accumulated that none was visible.",
+        "note1Label": "Not plagiarism",
+        "note1Body": "The point is the private reconstruction and not the public output. You keep the method, and the copy itself is thrown away unseen by anybody.",
+        "note2Label": "Why it works",
+        "note2Body": "Reproduction converts a passive impression into a sequence of decisions you had to take yourself, in order, at full size, with nothing skipped.",
+        "note3Label": "The tell",
+        "note3Body": "Anxiety about influence is usually a symptom of having far too few of them, and of having looked at none of them closely."
+      }
+    },
+    {
+      "layoutId": "body-mag-editorial",
+      "slots": {
+        "sectionLabel": "The fifth condition",
+        "titleLine1": "A judgement is only",
+        "titleLine2": "real once it is",
+        "titleAccent": "risked.",
+        "dropCap": "T",
+        "para1": "here is a version of taste that stays entirely private and is therefore worthless: the things you like, never stated, never defended, never contradicted. Moodboards work at this level. They ask you to gather, which is easy, and never to commit, which costs.",
+        "quote": "A preference becomes a judgement only in a room able to disagree with it.",
+        "para2": "Being wrong in public is unpleasant and irreplaceable. It is the only feedback that reliably updates anybody, because <b>nothing corrects a belief faster than stating it to somebody who plainly knows the field better</b>.",
+        "note1Label": "Gathering, not judging",
+        "note1Body": "A board of forty images you admire says almost nothing at all. Choosing three of them and then defending the cut in public says everything.",
+        "note2Label": "On being wrong",
+        "note2Body": "The cost is small and the correction is large. Most people hold that ratio the wrong way round for years on end, and quietly pay for it.",
+        "note3Label": "Practically",
+        "note3Body": "Publish the reasoning and not only the choice. The reasoning is the part that anybody else is able to argue with."
+      }
+    },
+    {
+      "layoutId": "body-mag-editorial",
+      "slots": {
+        "sectionLabel": "The complication",
+        "titleLine1": "Taste ages, and it",
+        "titleLine2": "makes you",
+        "titleAccent": "predictable.",
+        "dropCap": "E",
+        "para1": "verything above describes a process that works, and the person it produces is fluent, consistent and slightly stuck. Taste compresses one scene at one moment, and the accumulation that makes a judgement reliable hardens it into a rule that rejects the unfamiliar.",
+        "quote": "The strongest taste in the room is often the one that stopped updating first.",
+        "para2": "The people who move a field are often those whose taste is bad in one direction: they hold a blind spot long enough to build what the well-calibrated would have talked themselves out of. <b>Taste is not the same thing as being interesting</b>.",
+        "note1Label": "Perishability",
+        "note1Body": "A judgement formed in one decade becomes a house style in the next, and a period detail in the one after that, without ever changing.",
+        "note2Label": "The blind spot",
+        "note2Body": "Sustained by conviction rather than by ignorance, which is exactly why it is not an argument for skipping any of the work above.",
+        "note3Label": "What survives",
+        "note3Body": "The habit of looking closely outlasts every conclusion it ever produced. Keep the habit and hold the conclusions loosely."
+      }
+    },
+    {
+      "layoutId": "cta-mag-editorial",
+      "slots": {
+        "kicker": "Where that leaves it",
+        "headLine1": "There is no version",
+        "headLine2": "of this that is",
+        "headAccent": "quick.",
+        "dropCap": "T",
+        "closing": "he honest summary is that taste is a by-product. It shows up in people who looked at an unreasonable quantity of work, made a great deal of their own, copied openly and without embarrassment, committed to opinions early enough to be corrected by somebody, and then carried on long after any of it still felt novel.",
+        "closing2": "None of that sequence can be bought, and <b>the parts of it that feel like waste are load-bearing</b>. The years of looking are not the price you pay for the judgement. They are the judgement itself, and there has never been anything else underneath it.",
+        "note1Label": "The only shortcut",
+        "note1Body": "Choose the narrowest field you can stand and stay in it well past the point where it stops being interesting to you.",
+        "note2Label": "A last warning",
+        "note2Body": "Do not mistake fluency for arrival. When your judgements stop surprising you, read something you dislike.",
+        "note3Label": "What to expect",
+        "note3Body": "Years of it appearing that nothing is happening, then a week in which you notice you can see something new.",
+        "finalLine": "Everything else on offer is a reading list."
+      }
+    }
+  ]
+}

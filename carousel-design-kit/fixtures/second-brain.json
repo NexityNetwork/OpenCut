@@ -1,0 +1,129 @@
+{
+  "_note": "Frozen content for design review. Index-card family — a filing card with a protruding tab, ruled lines behind the content, drawn as stationery.",
+  "family": "second-brain",
+  "brief": "Why most note systems collapse, and what survives",
+  "slides": [
+    {
+      "layoutId": "cover-second-brain",
+      "slots": {
+        "tabLabel": "Notes",
+        "eyebrow": "On why note systems collapse",
+        "titleLine1": "Most of them fail",
+        "titleAccent": "in the second month.",
+        "subtitle": "Six things that decide whether a note system is thinking or filing, and the point at which most become filing.",
+        "item1": "Why capture is not the hard part",
+        "item2": "The weekly pass that makes the rest work",
+        "coverNote": "The last page is the one the apps do not mention"
+      }
+    },
+    {
+      "layoutId": "body-second-brain",
+      "slots": {
+        "tabLabel": "Capture",
+        "sectionLabel": "On capture",
+        "titleLine1": "Write it where you",
+        "titleAccent": "are standing.",
+        "body": "A note you had to open an app to make is a note you did not make. The capture step has to be faster than the thought is fleeting, which in practice means <b>one place, always open, no decisions about where it goes</b>.",
+        "p1Title": "One inbox, no folders",
+        "p1Body": "Sorting at capture time is what stops people capturing.",
+        "p2Title": "Plain text wins",
+        "p2Body": "Anything that loads slowly stops being used within a fortnight.",
+        "p3Title": "Date it, nothing else",
+        "p3Body": "Any other metadata is a tax paid at the wrong moment."
+      }
+    },
+    {
+      "layoutId": "body-second-brain",
+      "slots": {
+        "tabLabel": "Process",
+        "sectionLabel": "On process",
+        "titleLine1": "A note you never",
+        "titleAccent": "reread is a diary.",
+        "body": "Capture without review produces an archive, not a system. The weekly pass is the entire mechanism — twenty minutes deciding what to keep, what to connect and what to delete, and <b>the deleting is the part that makes the rest usable</b>.",
+        "p1Title": "Twenty minutes, weekly",
+        "p1Body": "Enough to keep it honest, short enough to actually happen.",
+        "p2Title": "Delete more than you keep",
+        "p2Body": "An archive of everything is searchable by nobody.",
+        "p3Title": "Rewrite in your words",
+        "p3Body": "If you cannot restate it, you did not understand it."
+      }
+    },
+    {
+      "layoutId": "body-second-brain",
+      "slots": {
+        "tabLabel": "Connect",
+        "sectionLabel": "On connect",
+        "titleLine1": "Links beat",
+        "titleAccent": "categories.",
+        "body": "Folders force one answer to a question with several. A note that links to three others belongs to all of them, which is closer to how you will actually look for it, and it <b>removes the decision that makes filing systems collapse</b>.",
+        "p1Title": "Link when you write",
+        "p1Body": "Not later. Later never comes, in any system.",
+        "p2Title": "Name links plainly",
+        "p2Body": "A link with no reason attached is a dead end in a month.",
+        "p3Title": "Let structure emerge",
+        "p3Body": "The clusters that form are the real categories."
+      }
+    },
+    {
+      "layoutId": "body-second-brain",
+      "slots": {
+        "tabLabel": "Retrieve",
+        "sectionLabel": "On retrieve",
+        "titleLine1": "You will search for",
+        "titleAccent": "what you called it.",
+        "body": "Not what it was about. Notes are found by the phrase you happened to use at the time, which is why titles matter far more than tags and why <b>a note titled with a full sentence is worth ten tagged perfectly</b>.",
+        "p1Title": "Title with a claim",
+        "p1Body": "'Constraints beat mood boards' is findable. 'Design notes' is not.",
+        "p2Title": "Search before you file",
+        "p2Body": "If you cannot find it in ten seconds it does not exist.",
+        "p3Title": "Keep one index",
+        "p3Body": "One page listing what matters, maintained by hand."
+      }
+    },
+    {
+      "layoutId": "body-second-brain",
+      "slots": {
+        "tabLabel": "Use",
+        "sectionLabel": "On use",
+        "titleLine1": "The system is only",
+        "titleAccent": "worth its output.",
+        "body": "Notes that never become anything are a hobby with the appearance of work. The measure is not how much is captured or how neatly it is arranged — it is <b>how much of it has left the system and become something somebody else saw</b>.",
+        "p1Title": "Write from notes weekly",
+        "p1Body": "Even badly. The output is what validates the input.",
+        "p2Title": "Notice what you never use",
+        "p2Body": "Whole categories can be abandoned without cost.",
+        "p3Title": "Prune by usage",
+        "p3Body": "Anything untouched for a year was collection, not thinking."
+      }
+    },
+    {
+      "layoutId": "body-second-brain",
+      "slots": {
+        "tabLabel": "The uncomfortable one",
+        "sectionLabel": "On the uncomfortable one",
+        "titleLine1": "Most of this",
+        "titleAccent": "is procrastination.",
+        "body": "Building the system feels like intellectual work and produces nothing. The people who get the most out of notes are usually running something crude and unmaintained, because <b>the returns come from thinking, not from the apparatus around it</b>.",
+        "p1Title": "Simple and used beats elegant",
+        "p1Body": "A text file that is open beats any structure that is not.",
+        "p2Title": "Stop tuning it",
+        "p2Body": "Every hour on the system is an hour not spent thinking.",
+        "p3Title": "Judge by what you made",
+        "p3Body": "Nothing else about a note system is measurable."
+      }
+    },
+    {
+      "layoutId": "cta-second-brain",
+      "slots": {
+        "tabLabel": "Start",
+        "eyebrow": "This Friday, twenty minutes",
+        "titleLine1": "Reread last week.",
+        "titleAccent": "Delete most of it.",
+        "body": "Not a new system, not a migration, not an evening of research. One pass over what you captured, keeping only what you would want to find again.",
+        "closingLine": "A crude system you review beats an elegant one you maintain.",
+        "buttonLabel": "Take all six",
+        "signoff": "The deleting is what makes the rest usable"
+      }
+    }
+  ]
+}

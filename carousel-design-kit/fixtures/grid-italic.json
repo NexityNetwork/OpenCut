@@ -1,0 +1,124 @@
+{
+  "_note": "Frozen content for design review. Modular-grid family — hairline rules dividing the page, italic serif at display size only, everything smaller set in Inter.",
+  "family": "grid-italic",
+  "brief": "What a decade of client work teaches about being paid properly",
+  "slides": [
+    {
+      "layoutId": "cover-grid-italic",
+      "slots": {
+        "eyebrow": "Ten years, roughly two hundred projects",
+        "headlineMain": "The work was never",
+        "headlineAccent": "the hard part.",
+        "subtitle": "Six lessons about getting paid for it, each one learned the expensive way and none of them about craft.",
+        "word1": "Scope", "word1Sub": "Every argument starts as an assumption nobody wrote down",
+        "word2": "Nerve", "word2Sub": "The number is usually fine; the silence after it is not",
+        "word3": "Terms", "word3Sub": "What you agree in advance you never have to negotiate",
+        "iconSlug1": "figma", "iconSlug2": "notion", "iconSlug3": "stripe",
+        "iconSlug4": "slack", "iconSlug5": "gmail"
+      }
+    },
+    {
+      "layoutId": "body-grid-italic",
+      "slots": {
+        "stepTag": "On the proposal", "toolName1": "Notion", "iconSlug1": "notion",
+        "titleMain": "Write down what you are",
+        "titleAccent": "not doing",
+        "body": "Every unbilled hour started life as a shared assumption that neither side said out loud. The exclusions protect the relationship far more than the inclusions do, because <b>they are the only part anyone reads twice</b>.",
+        "bullet1": "Two rounds, named and dated",
+        "bullet2": "A rate agreed for out-of-scope work",
+        "bullet3": "An expiry on the quote itself",
+        "metric1": "−80%", "metric1L": "of scope disputes",
+        "metric2": "1 page", "metric2L": "is enough",
+        "metric3": "0", "metric3L": "awkward conversations"
+      }
+    },
+    {
+      "layoutId": "body-grid-italic",
+      "slots": {
+        "stepTag": "On the number", "toolName1": "Slack", "iconSlug1": "slack",
+        "titleMain": "Say it, then",
+        "titleAccent": "stop talking",
+        "body": "The pause after a price feels far longer to the person who said it. Filling that silence is how a rate gets discounted <b>before anyone has objected to it</b>, and it is entirely self-inflicted.",
+        "bullet1": "No hedging language before it",
+        "bullet2": "No justification after it",
+        "bullet3": "Let them answer first",
+        "metric1": "≈4 s", "metric1L": "of silence, felt as thirty",
+        "metric2": "0", "metric2L": "discounts offered",
+        "metric3": "1", "metric3L": "sentence, then nothing"
+      }
+    },
+    {
+      "layoutId": "body-grid-italic",
+      "slots": {
+        "stepTag": "On the terms", "toolName1": "Stripe", "iconSlug1": "stripe",
+        "titleMain": "A deposit is not",
+        "titleAccent": "distrust",
+        "body": "Asking for money before starting is standard everywhere except in the head of somebody who has never asked. It also removes, before any work happens, <b>the clients who were never going to pay</b>.",
+        "bullet1": "Half before anything begins",
+        "bullet2": "Milestones, never on completion",
+        "bullet3": "Late terms stated once, never enforced",
+        "metric1": "12 days", "metric1L": "faster to be paid",
+        "metric2": "0", "metric2L": "clients lost to it",
+        "metric3": "50%", "metric3L": "up front, always"
+      }
+    },
+    {
+      "layoutId": "body-grid-italic",
+      "slots": {
+        "stepTag": "On the relationship", "toolName1": "Gmail", "iconSlug1": "gmail",
+        "titleMain": "Bad news travels",
+        "titleAccent": "cheaply, early",
+        "body": "Almost every relationship that survived a serious mistake survived because somebody said it first. The cost of a problem roughly doubles for <b>every day it goes unmentioned</b>, and the client always finds out.",
+        "bullet1": "Same day, in one sentence",
+        "bullet2": "Bring the fix, not the apology",
+        "bullet3": "Change the process exactly once",
+        "metric1": "2×", "metric1L": "cost per day of silence",
+        "metric2": "1", "metric2L": "sentence is enough",
+        "metric3": "≈9 in 10", "metric3L": "relationships survive it"
+      }
+    },
+    {
+      "layoutId": "body-grid-italic",
+      "slots": {
+        "stepTag": "On the pipeline", "toolName1": "Figma", "iconSlug1": "figma",
+        "titleMain": "Referrals price you,",
+        "titleAccent": "not your website",
+        "body": "Your real rate is whatever your last satisfied client tells somebody you are worth. Nothing on a portfolio moves that number, which is why <b>the last project sets the price of the next one</b>.",
+        "bullet1": "Finish well, visibly",
+        "bullet2": "Recommend others when you are wrong for it",
+        "bullet3": "Stay in touch after the invoice clears",
+        "metric1": "≈70%", "metric1L": "of work came by referral",
+        "metric2": "0", "metric2L": "from cold outreach",
+        "metric3": "1", "metric3L": "happy client compounds"
+      }
+    },
+    {
+      "layoutId": "body-grid-italic",
+      "slots": {
+        "stepTag": "The uncomfortable one", "toolName1": "Notion", "iconSlug1": "notion",
+        "titleMain": "None of this fixes",
+        "titleAccent": "weak work",
+        "body": "Positioning raises what people will pay for a given standard. It does not raise the standard, and a client who feels overcharged <b>does not come back and does not refer you</b>, which removes the only channel that mattered.",
+        "bullet1": "The rate has to be earned first",
+        "bullet2": "The market corrects within two projects",
+        "bullet3": "Raise it until you feel resistance",
+        "metric1": "2", "metric1L": "projects to be found out",
+        "metric2": "0", "metric2L": "referrals from resentment",
+        "metric3": "1", "metric3L": "standard, always rising"
+      }
+    },
+    {
+      "layoutId": "cta-grid-italic",
+      "slots": {
+        "eyebrow": "On the next proposal, not the current one",
+        "headlineMain": "Raise it quietly, and",
+        "headlineAccent": "say nothing",
+        "body": "Not on the clients you have, and not by an amount you would need to justify. On the next one, and only after the exclusions are written down.",
+        "preLabel": "The whole method",
+        "preLine": "Write down what you will not do, name the number once, and let the silence belong to them.",
+        "buttonLabel": "Take all six",
+        "signoff": "The resistance is the actual price"
+      }
+    }
+  ]
+}

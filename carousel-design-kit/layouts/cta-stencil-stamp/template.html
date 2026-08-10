@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html><head><meta charset="utf-8">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+html,body{width:1080px;height:1350px;overflow:hidden;color:#EFEAE0;
+  font-family:"Inter",sans-serif;-webkit-font-smoothing:antialiased;text-rendering:geometricPrecision}
+:root{--muted:rgba(239,234,224,.6);--rule:rgba(239,234,224,.2);--accent:#E4685E}
+/* Print-production furniture used as the design: crop marks at the trim, a
+   hairline registration grid, and a rotated stamp block. Nothing here is
+   decorative — it is the apparatus a printed page is actually set up with. */
+.ground{position:absolute;inset:0;z-index:0;background:#1A1814}
+.marks{position:absolute;inset:0;z-index:1;pointer-events:none}
+.grain{position:absolute;inset:0;z-index:6;opacity:.18;mix-blend-mode:overlay;pointer-events:none}
+.stamp{position:absolute;right:64px;top:150px;z-index:2;transform:rotate(-7deg);
+  border:4px solid var(--accent);color:var(--accent);padding:16px 26px;
+  font-size:27px;font-weight:700;letter-spacing:-.3px;line-height:1.1;text-align:center;max-width:270px}
+.stamp span{display:block;font-size:20px;font-weight:500;margin-top:6px;opacity:.85}
+.page{position:absolute;inset:0;display:flex;flex-direction:column;z-index:4;padding:132px 96px 116px}
+.label{font-size:25px;font-weight:500;color:var(--muted);letter-spacing:-.2px}
+/* Measure stops short of 720 so the title clears the stamp. */
+h1{margin-top:24px;font-size:112px;font-weight:700;line-height:1.02;letter-spacing:-4.6px;max-width:620px}
+h1 em{font-style:normal;color:var(--accent)}
+.sub{margin-top:32px;font-size:36px;font-weight:400;line-height:1.4;color:var(--muted);max-width:700px}
+/* The last statement is inked solid, as one band is on every other page —
+   it takes whatever the copy leaves rather than hanging off the bottom. */
+.close{flex:1;margin-top:44px;display:flex;align-items:center;background:var(--accent);color:#1A1814;
+  padding:0 44px;font-size:53px;font-weight:600;line-height:1.2;letter-spacing:-2px}
+.foot{margin-top:30px;display:flex;align-items:center;gap:24px;padding-top:24px;border-top:1px solid var(--rule)}
+.btn{padding:20px 42px;background:var(--accent);color:#1A1814;font-size:27px;font-weight:700;letter-spacing:-.4px}
+.ghost{font-size:23px;font-weight:500;color:var(--muted)}
+</style></head>
+<body>
+<div class="ground"></div>
+<svg class="marks" viewBox="0 0 1080 1350" fill="none">
+  <g stroke="rgba(239,234,224,.36)" stroke-width="1.5">
+    <path d="M56 96 h44 M96 56 v44"/><path d="M1024 96 h-44 M984 56 v44"/>
+    <path d="M56 1254 h44 M96 1294 v-44"/><path d="M1024 1254 h-44 M984 1294 v-44"/>
+    <path d="M540 56 v34 M540 1294 v-34 M56 675 h34 M1024 675 h-34"/>
+  </g>
+  <g stroke="rgba(239,234,224,.36)" stroke-width="1" stroke-opacity=".5">
+    <path d="M96 96 H984 M96 1254 H984 M96 96 V1254 M984 96 V1254"/>
+  </g>
+</svg>
+<div class="page">
+  <div class="stamp">{{stampText}}<span>{{stampSub}}</span></div>
+  <div>
+    <div class="label">{{eyebrow}}</div>
+    <h1>{{titleLine1}} <em>{{titleAccent}}</em></h1>
+    <p class="sub">{{body}}</p>
+  </div>
+  <div class="close">{{closingLine}}</div>
+  <div class="foot"><div class="btn">{{buttonLabel}}</div><div class="ghost">{{signoff}}</div></div>
+</div>
+<svg class="grain" width="1080" height="1350" viewBox="0 0 1080 1350" preserveAspectRatio="none">
+<filter id="gr"><feTurbulence type="fractalNoise" baseFrequency="0.9" numOctaves="3" seed="33"/><feColorMatrix type="saturate" values="0"/></filter>
+<rect width="1080" height="1350" filter="url(#gr)" opacity="0.42"/></svg>
+</body></html>

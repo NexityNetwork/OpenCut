@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html><head><meta charset="utf-8">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+html,body{width:1080px;height:1350px;overflow:hidden;color:#EAEDF5;
+  font-family:"Inter",sans-serif;-webkit-font-smoothing:antialiased;text-rendering:geometricPrecision}
+:root{--muted:rgba(234,237,245,.6);--rule:rgba(234,237,245,.14);--accent:#6EA8FF}
+/* The glow is gone — it was a blur standing in for a shape. What survives from
+   the family is the container: content lives in solid panels. The page is a
+   mosaic of them, which is also why it can never open a gap; the panels tile
+   the frame and the gutters between them are the only space by design. */
+.ground{position:absolute;inset:0;z-index:0;background:#0A0C12}
+.grain{position:absolute;inset:0;z-index:6;opacity:.14;mix-blend-mode:overlay;pointer-events:none}
+.mosaic{position:absolute;inset:44px;z-index:4;display:flex;flex-direction:column;gap:14px}
+.p{background:#141824;border-radius:22px;padding:52px 54px;display:flex;flex-direction:column;justify-content:center}
+.p.accent{background:var(--accent);color:#08101F}
+.p.pale{background:#1C2233}
+.row{display:flex;gap:14px}
+.a{flex:28}
+.a .head{display:flex;align-items:center;justify-content:space-between;gap:30px}
+.a .tag{font-size:27px;font-weight:500;color:var(--accent);letter-spacing:-.4px}
+.a .tool{display:flex;align-items:center;gap:14px;font-size:25px;font-weight:500}
+.a .tool svg{width:36px;height:36px;display:block}
+.a h2{margin-top:26px;font-size:76px;font-weight:700;line-height:1.02;letter-spacing:-3.1px}
+.b{flex:36}
+.b .t{font-size:34px;font-weight:400;line-height:1.44;color:rgba(234,237,245,.8)}
+.b .t b{font-weight:600;color:#EAEDF5}
+.c{flex:36;gap:14px}
+.c .half{flex:1 1 0}
+.c .k{font-size:24px;font-weight:500;letter-spacing:-.3px;opacity:.72}
+.c .v{margin-top:16px;font-size:40px;font-weight:600;line-height:1.2;letter-spacing:-1.5px}
+</style></head>
+<body>
+<div class="ground"></div>
+<div class="mosaic">
+  <div class="p a">
+    <div class="head">
+      <div class="tag">{{tag}}</div>
+      <div class="tool">{{iconSvg1}}<span>{{toolName}}</span></div>
+    </div>
+    <h2>{{slideTitle}}</h2>
+  </div>
+  <div class="p pale b"><div class="t">{{slideSubtitle}}</div></div>
+  <div class="row c">
+    <div class="p half">
+      <div class="k">{{pillLeft}}</div>
+      <div class="v">{{leftValue}}</div>
+    </div>
+    <div class="p accent half">
+      <div class="k">{{pillRight}}</div>
+      <div class="v">{{rightValue}}</div>
+    </div>
+  </div>
+</div>
+<svg class="grain" width="1080" height="1350" viewBox="0 0 1080 1350" preserveAspectRatio="none">
+<filter id="gr"><feTurbulence type="fractalNoise" baseFrequency="0.8" numOctaves="3" seed="17"/><feColorMatrix type="saturate" values="0"/></filter>
+<rect width="1080" height="1350" filter="url(#gr)" opacity="0.5"/></svg>
+</body></html>

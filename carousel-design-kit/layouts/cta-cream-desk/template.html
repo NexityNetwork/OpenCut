@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html><head><meta charset="utf-8">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+html,body{width:1080px;height:1350px;overflow:hidden;color:#F7EEE1;
+  font-family:"Inter",sans-serif;-webkit-font-smoothing:antialiased;text-rendering:geometricPrecision}
+:root{--muted:rgba(247,238,225,.72);--rule:rgba(247,238,225,.2)}
+.mesh{position:absolute;inset:0;z-index:0;background:
+  radial-gradient(96% 74% at 80% 8%,   #4A3D31 0%, transparent 46%),
+  radial-gradient(120% 92% at 16% 24%, #2A231C 0%, transparent 52%),
+  radial-gradient(130% 100% at 70% 96%,#171310 0%, transparent 58%),
+  radial-gradient(110% 95% at 4% 98%,  #0D0A08 0%, transparent 56%),
+  #1B1712}
+.grain{position:absolute;inset:0;z-index:5;opacity:.26;mix-blend-mode:overlay;pointer-events:none}
+.tile{border-radius:26%;background:#FFFCF7;display:flex;align-items:center;justify-content:center;
+  box-shadow:0 24px 40px -18px rgba(0,0,0,.68), inset 0 1px 0 rgba(255,255,255,.9);
+  border:1px solid rgba(0,0,0,.12)}
+.tile svg{width:56%;height:56%;display:block}
+/* Same rail as the cover, moved to the left so the pair bookends the set. */
+.sheet{position:absolute;inset:0;padding:126px 84px 118px;display:flex;align-items:center;gap:56px;z-index:4}
+.rail{flex:0 0 auto;padding:26px 22px;border-radius:44px;
+  background:rgba(247,238,225,.07);border:1px solid rgba(247,238,225,.16);
+  display:flex;flex-direction:column;gap:22px}
+.rail .tile{width:126px;height:126px}
+.col{flex:1 1 auto}
+h1{font-size:112px;font-weight:700;line-height:.95;letter-spacing:-4.7px}
+h1 em{font-style:normal;color:#E8A26C}
+.sub{margin-top:32px;font-size:31px;font-weight:400;line-height:1.4;color:var(--muted)}
+.foot{margin-top:56px;padding-top:34px;border-top:1px solid var(--rule)}
+.btn{display:inline-block;padding:22px 44px;background:#F7EEE1;color:#16130E;border-radius:15px;
+  font-size:28px;font-weight:600;letter-spacing:-.5px}
+.ghost{margin-top:22px;font-size:24px;font-weight:500;color:var(--muted)}
+</style></head>
+<body>
+<div class="mesh"></div>
+<div class="sheet">
+  <div class="rail">
+    <div class="tile">{{iconSvg1}}</div><div class="tile">{{iconSvg2}}</div>
+    <div class="tile">{{iconSvg3}}</div><div class="tile">{{iconSvg4}}</div>
+    <div class="tile">{{iconSvg5}}</div>
+  </div>
+  <div class="col">
+    <h1>{{titleLine1}} <em>{{titleAccent}}</em></h1>
+    <p class="sub">{{body}}</p>
+    <div class="foot">
+      <div class="btn">{{btnPrimary}}</div>
+      <div class="ghost">{{signoff}}</div>
+    </div>
+  </div>
+</div>
+<svg class="grain" width="1080" height="1350" viewBox="0 0 1080 1350" preserveAspectRatio="none">
+<filter id="gr"><feTurbulence type="fractalNoise" baseFrequency="0.85" numOctaves="3" seed="71"/><feColorMatrix type="saturate" values="0"/></filter>
+<rect width="1080" height="1350" filter="url(#gr)" opacity="0.5"/></svg>
+</body></html>

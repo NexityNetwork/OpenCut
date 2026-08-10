@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html><head><meta charset="utf-8">
+<link href="https://fonts.googleapis.com/css2?family=Inter:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500;1,600&display=swap" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+html,body{width:1080px;height:1350px;overflow:hidden;background:#F1F1EE;color:#2B3973;
+  font-family:"Inter",sans-serif;-webkit-font-smoothing:antialiased;text-rendering:geometricPrecision}
+:root{--ink:#2B3973;--lav:#A4B1DA;--muted:rgba(43,57,115,.72);--line:rgba(43,57,115,.16)}
+.half-circle{position:absolute;top:-240px;left:-240px;width:520px;height:520px;background:var(--lav);border-radius:50%}
+.mark{position:absolute;right:-130px;bottom:-140px;width:480px;height:480px;pointer-events:none}
+.sheet{position:absolute;inset:0;padding:118px 80px 104px;display:flex;flex-direction:column;justify-content:center}
+.accent{font-style:italic;font-weight:600;font-size:112px;line-height:.98;letter-spacing:-4px}
+.sub{margin-top:18px;font-size:66px;font-weight:600;line-height:1.06;letter-spacing:-2px;max-width:900px}
+.strip{margin-top:40px;align-self:flex-start;padding:12px 26px;background:var(--lav);border-radius:8px;
+  font-size:26px;font-weight:600;letter-spacing:-.2px}
+</style></head>
+<body>
+<div class="half-circle"></div>
+<svg class="mark" viewBox="0 0 480 480" fill="none">
+  <circle cx="240" cy="240" r="234" stroke="#2B3973" stroke-width="1.4" opacity=".20"/>
+  <circle cx="240" cy="240" r="178" stroke="#2B3973" stroke-width="1.4" opacity=".28"/>
+  <path d="M240 6 A234 234 0 0 1 474 240" stroke="#2B3973" stroke-width="3.4" opacity=".55"/>
+  <path d="M62 240 A178 178 0 0 0 240 418" stroke="#A4B1DA" stroke-width="4" opacity=".9"/>
+  <circle cx="240" cy="240" r="9" fill="#2B3973" opacity=".65"/>
+</svg>
+<div class="sheet">
+  <div class="accent">{{accentLine}}</div>
+  <div class="sub">{{sub1}}<br>{{sub2}}</div>
+  <div class="strip">{{strip}}</div>
+</div>
+</body></html>

@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html><head><meta charset="utf-8">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+html,body{width:1080px;height:1350px;overflow:hidden;background:#F6EFE4;color:#3C1509;
+  font-family:"Inter",sans-serif;-webkit-font-smoothing:antialiased;text-rendering:geometricPrecision}
+:root{--muted:rgba(60,21,9,.62);--ink:#3C1509}
+/* The last page inverts the flood: cream ground, terracotta punched through it,
+   and the closing statement set inside the largest hole. Still flat and
+   hard-edged — the whole family is cut paper, never lit. */
+.o{position:absolute;border-radius:50%;pointer-events:none}
+.page{position:absolute;inset:0;z-index:3;display:flex;flex-direction:column}
+.top{position:relative;padding:118px 92px 56px}
+.eyebrow{position:relative;font-size:25px;font-weight:500;color:var(--muted);letter-spacing:-.3px}
+h1{position:relative;margin-top:26px;font-size:108px;font-weight:700;line-height:.99;letter-spacing:-4.6px;max-width:690px}
+.stand{position:relative;margin-top:30px;font-size:32px;font-weight:400;line-height:1.42;color:var(--muted);max-width:660px}
+.field{position:relative;flex:1;background:#C2542A;color:#F6EFE4;overflow:hidden}
+.inner{position:relative;height:100%;padding:56px 92px 104px;display:flex;flex-direction:column}
+/* The statement takes the field rather than sitting at its top edge — the
+   foot is short and space-between would open a hole under it. */
+.close{flex:1;display:flex;align-items:center;font-size:54px;font-weight:600;line-height:1.18;letter-spacing:-2.1px;max-width:740px}
+.foot{display:flex;align-items:center;gap:24px}
+.btn{padding:18px 38px;background:#F6EFE4;color:var(--ink);font-size:26px;font-weight:600;letter-spacing:-.4px}
+.ghost{font-size:24px;color:rgba(246,239,228,.68)}
+</style></head>
+<body>
+<div class="page">
+  <div class="top">
+    <div class="o" style="width:432px;height:432px;right:-132px;top:-52px;background:#E8DCC9"></div>
+    <div class="eyebrow">{{eyebrow}}</div>
+    <h1>{{titleLine1}}</h1>
+    <p class="stand">{{body}}</p>
+  </div>
+  <div class="field">
+    <div class="o" style="width:408px;height:408px;right:-142px;bottom:-146px;background:#9E3F1C"></div>
+    <div class="o" style="width:132px;height:132px;left:-58px;top:44px;background:#9E3F1C"></div>
+    <div class="inner">
+      <div class="close">{{closingLine}}</div>
+      <div class="foot"><div class="btn">{{buttonLabel}}</div><div class="ghost">{{signoff}}</div></div>
+    </div>
+  </div>
+</div>
+</body></html>

@@ -1,0 +1,109 @@
+{
+  "_note": "Frozen content for design review. Specimen family — one enormous phrase per sheet against small technical annotations on hairlines. Black on white, one weight pair, no third colour. The closer reverses.",
+  "family": "typo-sample",
+  "brief": "Headlines: what makes one work",
+  "slides": [
+    {
+      "layoutId": "cover-typo-sample",
+      "slots": {
+        "eyebrow": "Six specimens",
+        "annotation": "On the line that decides whether the rest gets read",
+        "titleLine1": "Nobody reads",
+        "titleAccent": "the second line first.",
+        "c1": "What this is", "item1": "Six headlines pulled apart, and the rule each one is obeying.",
+        "c2": "What it is not", "item2": "A formula. Every one of these fails somewhere obvious.",
+        "coverNote": "The last specimen is the one that breaks the other five"
+      }
+    },
+    {
+      "layoutId": "body-typo-sample",
+      "slots": {
+        "sectionLabel": "Specimen one",
+        "annotation": "Specificity — the concrete claim",
+        "titleLine1": "Say the thing,",
+        "titleAccent": "not the category.",
+        "body": "A headline about improving your workflow contains no information. A headline about the four minutes you lose every time you switch tabs contains all of it. The specific version is <b>harder to write and immediately easier to believe</b>.",
+        "k1": "Name the object", "v1": "The actual thing, not the class of things it belongs to.",
+        "k2": "Use a real detail", "v2": "One concrete particular does more than three adjectives.",
+        "k3": "Cut the abstraction", "v3": "Workflow, process, strategy — words that hold the space where meaning goes."
+      }
+    },
+    {
+      "layoutId": "body-typo-sample",
+      "slots": {
+        "sectionLabel": "Specimen two",
+        "annotation": "Tension — the unresolved claim",
+        "titleLine1": "A headline is",
+        "titleAccent": "a question you owe.",
+        "body": "The line has to leave something open, because a complete statement gives the reader everything and no reason to continue. The tension has to be genuine, though — <b>an opening that promises more than the piece contains is the fastest way to lose somebody permanently</b>.",
+        "k1": "Leave one gap", "v1": "Exactly one. Two unresolved things read as vagueness, not intrigue.",
+        "k2": "Deliver in the body", "v2": "The gap you open must close, on that page, without a detour.",
+        "k3": "Never overclaim", "v3": "A line the piece cannot honour costs you the next five as well."
+      }
+    },
+    {
+      "layoutId": "body-typo-sample",
+      "slots": {
+        "sectionLabel": "Specimen three",
+        "annotation": "Length — the cost per word",
+        "titleLine1": "Short is not",
+        "titleAccent": "the same as clear.",
+        "body": "Cutting a headline to four words often removes the detail that made it worth reading. The correct length is however long the specific claim takes, and <b>a nine-word line that says something beats a four-word line that gestures</b>.",
+        "k1": "Count information", "v1": "Not words. A short line carrying nothing is not economical.",
+        "k2": "Cut the connectives", "v2": "Articles and prepositions go first, and nothing is lost.",
+        "k3": "Read the first four", "v3": "If they carry no meaning alone, the line starts in the wrong place."
+      }
+    },
+    {
+      "layoutId": "body-typo-sample",
+      "slots": {
+        "sectionLabel": "Specimen four",
+        "annotation": "Position — where the weight falls",
+        "titleLine1": "The last word",
+        "titleAccent": "is the one that lands.",
+        "body": "Emphasis sits at the end of a line, which is where a reader's attention stops rather than where it starts. Rearranging a sentence so the surprising word finishes it is <b>the single cheapest edit available to any headline</b>.",
+        "k1": "End on the noun", "v1": "The concrete one. Never end on a qualifier or an adverb.",
+        "k2": "Move, do not add", "v2": "Most weak lines contain the right word in the wrong position.",
+        "k3": "Read it aloud", "v3": "Whatever you stress out loud should be the last thing on the line."
+      }
+    },
+    {
+      "layoutId": "body-typo-sample",
+      "slots": {
+        "sectionLabel": "Specimen five",
+        "annotation": "Register — the voice it is written in",
+        "titleLine1": "Write it the way",
+        "titleAccent": "you would say it.",
+        "body": "Headlines drift into an announcement voice nobody uses in conversation, and the drift is invisible to the person doing it. The test is whether you could say the line out loud to a colleague — <b>if it would be strange to say, it is strange to read</b>.",
+        "k1": "Say it to somebody", "v1": "Out loud, in the room. The embarrassing ones are obvious immediately.",
+        "k2": "Cut announcement words", "v2": "Introducing, unveiling, excited to share. Nobody speaks like this.",
+        "k3": "Keep your syntax", "v3": "The way you order a sentence in speech is usually the clearer order."
+      }
+    },
+    {
+      "layoutId": "body-typo-sample",
+      "slots": {
+        "sectionLabel": "Specimen six",
+        "annotation": "The uncomfortable one",
+        "titleLine1": "A good line",
+        "titleAccent": "cannot save the piece.",
+        "body": "Everything above makes the opening better at getting somebody to read the next paragraph, and none of it makes the next paragraph worth reading. Time spent on the headline is <b>the most visible work available and rarely the most useful</b>.",
+        "k1": "Write it last", "v1": "You cannot name what the piece is until the piece exists.",
+        "k2": "Give it ten minutes", "v2": "Past that you are avoiding the part that actually needs work.",
+        "k3": "Check the second line", "v3": "It is doing more of the work and gets none of the attention."
+      }
+    },
+    {
+      "layoutId": "cta-typo-sample",
+      "slots": {
+        "eyebrow": "Last specimen",
+        "annotation": "On whatever you are about to publish",
+        "titleLine1": "Move the best word",
+        "titleAccent": "to the end.",
+        "closingLine": "One edit, thirty seconds, no new writing. It is the only thing on this list that works every time.",
+        "buttonLabel": "Take all six",
+        "signoff": "Then go and fix the second line"
+      }
+    }
+  ]
+}
