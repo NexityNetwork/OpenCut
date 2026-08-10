@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""The named-agent deck - 1080x1920 reel frames, centred on paper.
+"""The named-agent deck - 1080x1350 carousel frames, centred on paper.
 
 A second family, not a variant of slide-body.py. That one hangs everything off
 one left edge at x=88 and carries a dark n8n canvas; this one centres every
@@ -52,18 +52,17 @@ SB = importlib.util.module_from_spec(_spec)
 _spec.loader.exec_module(SB)
 F, adv, wrap, draw_tracked, grain, source = SB.F, SB.adv, SB.wrap, SB.draw_tracked, SB.grain, SB.source
 
-W, H = 1080, 1920
-# These ship as a CAROUSEL, not a reel - kind is `carousel` in the library and
-# that is how they get posted. The README's reel numbers (250 top, 480 bottom,
-# a 130px right rail) were applied here and cost 460px of height and 130px of
-# width to chrome that is never drawn over a carousel.
-SAFE_TOP, SAFE_BOT = 210, 1700
+# 1080x1350, NOT 1080x1920 - Instagram accepts 4:5 at most in a feed carousel and
+# centre crops anything taller, losing 285px top and bottom without telling you.
+# Render at the target size; no margin survives a crop. See danger-zones.py.
+W, H = 1080, 1350
+SAFE_TOP, SAFE_BOT = 84, 1266
 # TWO measures, not one. The canvas gets the full safe width because it is a
 # picture and wants every pixel; the blurb does NOT, because a centred paragraph
 # set to the full width becomes a slab. Setting both to 890 is what made the copy
 # read as cramped: three long lines packed edge to edge directly under the title,
 # with no shape and nowhere for the eye to rest.
-M_TITLE, M_BLURB = 950, 780
+M_TITLE, M_BLURB = 952, 780
 
 GROUND = (250, 248, 245)
 INK = (22, 19, 14)
@@ -72,18 +71,18 @@ CIRCLE = (238, 234, 228)
 PILL_EDGE = (222, 218, 211)
 PILL_INK = (72, 68, 63)
 
-TITLE_MAX, TITLE_MIN, TITLE_TRACK = 108, 64, -0.040
-BLURB_MAX, BLURB_MIN = 46, 38
+TITLE_MAX, TITLE_MIN, TITLE_TRACK = 92, 58, -0.040
+BLURB_MAX, BLURB_MIN = 40, 34
 # The gap under the title hangs off its DESCENDER and still has to clear a 99px
 # cap height. 34 put the blurb's ascenders into the title's tail.
-TITLE_GAP, BLURB_GAP = 72, 78
+TITLE_GAP, BLURB_GAP = 52, 56
 BLURB_LEAD = 1.52                        # centred prose needs more than the 1.4
                                          # a left-aligned column gets away with
-ROW_GAP, PILL_GAP, PILL_H = 76, 56, 92
-PLATE_W, PLATE_R = 968, 24               # 56..1024, the full measure
+ROW_GAP, PILL_GAP, PILL_H = 54, 40, 78
+PLATE_W, PLATE_R = 952, 24               # 64..1016, the full measure
 BCX = W // 2
-LOGO_SZ, LOGO_GAP = 88, 26
-CTA_SZ = 40
+LOGO_SZ, LOGO_GAP = 70, 22
+CTA_SZ = 34
 
 WF = os.environ.get("WORKFLOWS", "../differnt types of workflows")
 LOGOS = os.environ.get("TOOL_LOGOS", "../apps/web/public/tools")

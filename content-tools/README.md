@@ -9,6 +9,9 @@ they run in is ephemeral and has already been wiped mid-session once.
 | `extract-inset.py` | Pulls the workflow screenshot out of a reference at native resolution, from its sharpest frame |
 | `state-overlay.py` | The big-type format: one continuous B-roll, a sequence of overlay states, no cuts |
 | `stack-note.py` | The format that actually gets traction. Two app tiles, a plus, and four typed lines on bare footage |
+| `danger-zones.py` | Overlays what each surface eats (feed crop, grid crop, reel UI) on a finished frame, so "will this get clipped" is answered by looking rather than by arguing |
+| `slide-agent.py` | The named-agent carousel: centred, light canvas, blurb, tool row, comment pill |
+| `slide-pair.py` | The wrong-vs-right carousel: numbered, dark canvas, the cost then the answer |
 | `slide-body.py` | The n8n reel: five body frames plus a closer, title, three bolded clauses, the workflow on a plate, the tools that are actually in it |
 | `which-tool-card.py` | Renders the OLD vs NEW comparison card in both themes: `light` on a paper surface, `dark` as a transparent overlay for video |
 | `push-vault.py` | Uploads finished assets to `ultron-reels/imports/` and inserts the `vault_items` row, with the caption rules enforced before anything is written |
@@ -198,6 +201,29 @@ Three things that cost a render each:
 
 `Group 2147203619.png` and `Group 2147203619-1.png` are two exports of the same
 F5 install pipeline, so that folder holds **five** distinct workflows, not six.
+
+## Danger zones, and the one that actually bites
+
+```sh
+python3 danger-zones.py brand/pairs/01.png       # -> 01_zones.png
+```
+
+The surfaces disagree, and only one of them destroys anything:
+
+| | what it does on a 1080-wide frame |
+|---|---|
+| **feed carousel** | Instagram takes **4:5 at most** and CENTRE CROPS anything taller. A 1080x1920 upload silently loses **285px off the top and 285px off the bottom**. |
+| profile grid | 1:1 centre crop for the thumbnail, so only y 135..1215 of a 1350-tall frame survives there |
+| reel | no crop, but the UI is drawn on top: ~250 top, 480 bottom, 130 right rail |
+
+A reel only **covers** your artwork. A crop **deletes** it, and it is invisible
+until you post. The wrong-vs-right deck was built at 1080x1920 and the entire
+check half of every pair - the answer, on a format whose whole point is the
+answer - fell outside the crop.
+
+**Render at the target size.** No margin survives a crop, so both carousel decks
+are 1080x1350 natively. That is also why the design kit's 186 templates are all
+1080x1350 and not something taller.
 
 ## Setup, from nothing
 

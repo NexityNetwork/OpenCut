@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""The wrong-vs-right deck - 1080x1920 reel frames.
+"""The wrong-vs-right deck - 1080x1350 carousel frames.
 
 The third family. What makes it its own thing is the PAIR at the bottom: the
 cost of not having the agent, a rule, then what you get instead. Everything else
@@ -46,15 +46,19 @@ SB = importlib.util.module_from_spec(_spec)
 _spec.loader.exec_module(SB)
 F, adv, wrap, draw_tracked, grain, source = SB.F, SB.adv, SB.wrap, SB.draw_tracked, SB.grain, SB.source
 
-W, H = 1080, 1920
-# These ship as a CAROUSEL, not a reel - kind is `carousel` in the library and
-# that is how they get posted. The reel numbers in the README (250 top, 480
-# bottom, a 130px right rail) are for a reel, and applying them here was costing
-# 460px of height and 130px of width for chrome that is never drawn. A carousel's
-# UI is a caption strip and dots, nothing over the artwork.
-SAFE_TOP, SAFE_BOT = 210, 1700
-LEFT, RIGHT = 56, 1024                   # 56px margins, no rail to dodge
-M_TITLE, M_BLURB, M_PAIR = 950, 800, 900
+# 1080x1350, NOT 1080x1920. Instagram accepts 4:5 at most in a feed carousel and
+# CENTRE CROPS anything taller, so a 1920-tall frame silently loses 285px off the
+# top and 285px off the bottom. Run danger-zones.py over the old render and the
+# whole check half of the pair is outside the crop - the answer, on a format
+# whose entire point is the answer. Rendering at the target size is the only fix;
+# there is no margin that survives a crop.
+#
+# What remains after this is the 1:1 PROFILE GRID thumbnail, which keeps
+# y 135..1215. Nothing load-bearing goes outside that band.
+W, H = 1080, 1350
+SAFE_TOP, SAFE_BOT = 84, 1266
+LEFT, RIGHT = 64, 1016                   # 64px margins
+M_TITLE, M_BLURB, M_PAIR = 952, 800, 900
 
 GROUND = (252, 251, 249)
 INK = (18, 17, 16)
@@ -64,15 +68,15 @@ PAIR_INK = (34, 32, 30)
 RULE = (226, 223, 218)
 RING = (188, 184, 178)
 
-TITLE_MAX, TITLE_MIN, TITLE_TRACK = 86, 56, -0.032
-BLURB_MAX, BLURB_MIN, BLURB_LEAD = 44, 36, 1.46
-PAIR_SZ, PAIR_LEAD = 46, 1.36
+TITLE_MAX, TITLE_MIN, TITLE_TRACK = 80, 52, -0.032
+BLURB_MAX, BLURB_MIN, BLURB_LEAD = 40, 34, 1.44
+PAIR_SZ, PAIR_LEAD = 42, 1.34
 # The gap under the title hangs off its DESCENDER and still has to clear a 60px
 # cap height. 34 put the blurb's ascenders in the title's tail and is the single
 # thing that made this read as cramped.
-TITLE_GAP, BLURB_GAP = 72, 76
-MARK_R, MARK_GAP, PAIR_GAP, RULE_GAP = 29, 26, 58, 50
-PLATE_W, PLATE_R = 968, 24               # 56..1024, the full measure
+TITLE_GAP, BLURB_GAP = 56, 58
+MARK_R, MARK_GAP, PAIR_GAP, RULE_GAP = 26, 22, 46, 38
+PLATE_W, PLATE_R = 952, 24               # 64..1016, the full measure
 BX = (LEFT + RIGHT) // 2
 
 WF = os.environ.get("WORKFLOWS", "../another no name workflow")
