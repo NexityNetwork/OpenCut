@@ -58,8 +58,13 @@ F, adv, wrap, draw_tracked, source = SB.F, SB.adv, SB.wrap, SB.draw_tracked, SB.
 
 W, H = 1080, 1920
 SAFE_TOP, SAFE_BOT = 250, 1440
-LEFT, RIGHT = 60, 950
-MEASURE = 890
+# EQUAL MARGINS. The rail covers x > 950, so the right margin is forced to 130.
+# Using 60 on the left gave a block at 60..950 - 60 one side, 130 the other - and
+# it reads as shoved left, because it is. The margin the rail forces sets BOTH:
+# 130..950 is 820 wide, centred on the frame at 540, right edge exactly on the
+# rail. 70px narrower than before and worth every one of them.
+LEFT, RIGHT = 130, 950
+MEASURE = 820
 
 BG = (10, 10, 11)
 PLATE_BG = (22, 22, 24)
@@ -79,6 +84,8 @@ PAD, TITLE_GAP, CARD_GAP = 44, 48, 46
 STRIP_W, STRIP_H = 268, 96
 STAT_H = 118
 PLATE_R = 24
+
+CLOSER_INK, CLOSER_DIM = LIGHT, DIM
 
 WF = os.environ.get("WORKFLOWS", "../another no name workflow")
 LOGOS = os.environ.get("TOOL_LOGOS", "../apps/web/public/tools")
@@ -187,12 +194,22 @@ def solve(slides):
             break
 
     card_h = PAD + clines * round(csz * CLAIM_LEAD) + 30 + STAT_H + PAD - 20
-    top = SAFE_TOP + int(tsz * .727) + int(tsz * .24) + TITLE_GAP
-    art_top = top + card_h + CARD_GAP
+    title_h = int(tsz * .727) + int(tsz * .24)
     tall = max(source(f"{WF}/{s['workflow']}").height for s in slides if s.get("workflow"))
-    k = min(MEASURE / 818, (SAFE_BOT - art_top) / tall)
-    return dict(tsz=tsz, csz=csz, clines=clines, card_h=card_h, top=top,
-                art_top=art_top, band=SAFE_BOT - art_top, k=k)
+    k = MEASURE / 818
+    block = title_h + TITLE_GAP + card_h + CARD_GAP + round(tall * k)
+    if block > SAFE_BOT - SAFE_TOP:
+        k = (SAFE_BOT - SAFE_TOP - (block - round(tall * k))) / tall
+        block = title_h + TITLE_GAP + card_h + CARD_GAP + round(tall * k)
+    # ONE BLOCK, centred in the safe box, with a FIXED gap between the card and
+    # the canvas. Floating the canvas in the leftover band instead put 190px of
+    # nothing between them and another 143 underneath - two holes rather than
+    # one margin. Centred as a unit the slack goes outside the content, top and
+    # bottom, where it reads as air.
+    y0 = SAFE_TOP + (SAFE_BOT - SAFE_TOP - block) // 2
+    return dict(tsz=tsz, csz=csz, clines=clines, card_h=card_h, block=block,
+                y0=y0, top=y0 + title_h + TITLE_GAP,
+                art_top=y0 + title_h + TITLE_GAP + card_h + CARD_GAP, k=k)
 
 
 def build(s, L):
@@ -200,7 +217,7 @@ def build(s, L):
     d = ImageDraw.Draw(im)
     tsz = L["tsz"]
 
-    y = SAFE_TOP + int(tsz * .727)
+    y = L["y0"] + int(tsz * .727)
     x = LEFT
     if s.get("n"):
         x = draw_tracked(d, (x, y), f"{s['n']}.", F(tsz, "Bold"), NUM, TITLE_TRACK * tsz)
@@ -212,23 +229,15 @@ def build(s, L):
     else:
         tools_card(im, d, LEFT, L["top"], MEASURE, s["tools"])
 
-    src = source(f"{WF}/{s['workflow']}")
-    h = round(src.height * L["k"])
-    bottom = plate(im, src, L["k"], L["art_top"] + (L["band"] - h) // 2)
+    bottom = plate(im, source(f"{WF}/{s['workflow']}"), L["k"], L["art_top"])
     return im, dict(bottom=bottom)
 
 
 def build_closer(c):
-    im = ground()
-    d = ImageDraw.Draw(im)
-    rows, pitches = c["stack"], c["pitch"]
-    block = sum(pitches) + int(rows[-1][1] * .727)
-    y = (SAFE_TOP + SAFE_BOT - block) // 2 + int(rows[0][1] * .727)
-    cx = (LEFT + RIGHT) // 2
-    for i, (t, sz, w) in enumerate(rows):
-        d.text((cx, y), t, font=F(sz, w), fill=LIGHT if w != "Regular" else DIM, anchor="ms")
-        if i < len(pitches):
-            y += pitches[i]
+    im = ground() if "ground" in globals() else grain(
+        Image.new("RGBA", (W, H), (*GROUND, 255)), 2.0)
+    y = SB.draw_closer(ImageDraw.Draw(im), c, RIGHT - LEFT, SAFE_TOP, SAFE_BOT,
+                       CLOSER_INK, CLOSER_DIM)
     return im, dict(bottom=y)
 
 
@@ -258,13 +267,19 @@ SLIDES = [
                 ("make", "Make", "For the pipes that are quicker assembled than coded")]),
 ]
 
-# THE CTA IS ALWAYS COMMENT.
-CLOSER = dict(stack=[("comment", 68, "Regular"),
-                     ("“AI”", 86, "Bold"),
-                     ("and I will send you", 60, "Regular"),
-                     ("ALL SIX", 86, "ExtraBold"),
-                     ("100% FREE", 46, "SemiBold")],
-              pitch=[100, 98, 106, 92])
+# THE CTA IS ALWAYS COMMENT. Five short rows, every one of them able to be set
+# large - the previous copy carried "and I will send you", nineteen characters
+# that capped the whole stack's size and said nothing. The number is a NUMERAL:
+# at 0.6s a figure is read and a word is parsed.
+#
+# Sizes are RELATIVE. fit_closer scales them until the widest line hits the
+# measure or the stack fills the safe box, whichever binds first, so the copy can
+# change without anyone re-picking numbers.
+CLOSER = [("comment", "Medium", 0.42),
+          ("“AI”", "ExtraBold", 1.00),
+          ("and get", "Medium", 0.40),
+          ("all 6 builds", "ExtraBold", 0.62),
+          ("100% FREE", "ExtraBold", 0.46)]
 
 
 if __name__ == "__main__":
@@ -277,11 +292,11 @@ if __name__ == "__main__":
           f"canvas at {L['k']:.3f}x\n")
     made = []
     for i, s in enumerate(SLIDES + [CLOSER], 1):
-        im, m = build_closer(s) if "stack" in s else build(s, L)
+        im, m = build_closer(s) if isinstance(s, list) else build(s, L)
         p = f"{out}/{i:02d}.png"
         im.convert("RGB").save(p)
         made.append(p)
-        print(f"  {i:02d}  {s.get('title', 'closer'):22} ends {m['bottom']:4d}"
+        print(f"  {i:02d}  {(s.get('title','closer') if isinstance(s, dict) else 'closer'):22} ends {m['bottom']:4d}"
               f"{'   PAST THE SAFE LINE' if m['bottom'] > SAFE_BOT else ''}")
 
     TWd = 268

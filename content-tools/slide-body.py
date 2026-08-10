@@ -65,8 +65,13 @@ from PIL import Image, ImageDraw, ImageFilter, ImageFont
 
 W, H = 1080, 1920
 SAFE_TOP, SAFE_BOT = 250, 1440          # reel chrome: 250 top, 480 bottom, 130 right rail
-LEFT, MEASURE = 88, 820                 # text: 88..908
-PLATE_W = 860                           # artwork: 88..948, clears the rail at 950
+# EQUAL MARGINS. The rail covers x > 950, so the right margin is forced to 130.
+# Using 60 on the left gave a block at 60..950 - 60 one side, 130 the other - and
+# it reads as shoved left, because it is. The margin the rail forces sets BOTH:
+# 130..950 is 820 wide, centred on the frame at 540, right edge exactly on the
+# rail. 70px narrower than before and worth every one of them.
+LEFT, RIGHT = 130, 950
+MEASURE = PLATE_W = 820
 
 # The kit's ink, #16130E rather than #111. Its ground is a warm cream and this is
 # not: side by side against the reference the cream read as grey, and the whole
@@ -87,6 +92,8 @@ PLATE_R = 20
 LOGO_SZ, LOGO_GAP, LOGO_PAD = 62, 20, 46
 
 FD = os.environ.get("FONT_DIR", "brand/fonts/extras/ttf")
+CLOSER_INK, CLOSER_DIM = INK, BODY
+
 WF = os.environ.get("WORKFLOWS", "../6 boring use cases example")
 LOGOS = os.environ.get("TOOL_LOGOS", "../apps/web/public/tools")
 _f = {}
@@ -188,6 +195,42 @@ def draw_rich(d, x, y, s, size, maxw, pitch, ink, dim):
     for ln in rich_lines(s, size, maxw):
         draw_line(d, x, y, ln, size, ink, dim)
         y += pitch
+    return y
+
+
+def fit_closer(rows, measure, top, bot, base_max=260, gap_ratio=0.46):
+    """Size a closing stack to FILL its frame, rather than picking numbers.
+
+    A closer has the whole frame and nothing competing, so it should use it. The
+    hand-set version used about a quarter of the safe box and read as timid at
+    the exact moment the post is asking for something.
+
+    Two constraints, and the tighter one wins: no line may exceed the measure,
+    and the whole stack must fit the safe box. Solved by scaling one base size
+    until both hold, so the copy can change without anyone re-picking numbers -
+    which is how it drifted small in the first place.
+
+    Returns (size_per_row, pitches, first_baseline)."""
+    for base in range(base_max, 39, -2):
+        sz = [max(18, round(base * r)) for _, _, r in rows]
+        if any(adv(t, F(z, w), -0.02 * z) > measure for (t, w, _), z in zip(rows, sz)):
+            continue
+        gap = round(base * gap_ratio)
+        pitch = [int(sz[i + 1] * .727) + gap for i in range(len(rows) - 1)]
+        block = int(sz[0] * .727) + sum(pitch)
+        if block <= bot - top:
+            return sz, pitch, top + (bot - top - block) // 2 + int(sz[0] * .727)
+    return [40] * len(rows), [60] * (len(rows) - 1), top + 60
+
+
+def draw_closer(d, rows, measure, top, bot, ink, dim, cx=W // 2):
+    sz, pitch, y = fit_closer(rows, measure, top, bot)
+    for i, ((t, w, _), z) in enumerate(zip(rows, sz)):
+        tr = -0.02 * z
+        d.text((cx - adv(t, F(z, w), tr) / 2 + tr / 2, y), t, font=F(z, w),
+               fill=dim if w in ("Regular", "Medium") else ink, anchor="ls")
+        if i < len(pitch):
+            y += pitch[i]
     return y
 
 
@@ -368,31 +411,17 @@ def build(slide, L):
 
 
 def build_cta(c):
-    """The closer, on the SAME PAPER as the bodies.
+    """The closer, on the SAME PAPER as the bodies. A carousel closer can invert
+    to a dark ground because you arrive at it by swiping; in a reel a dark frame
+    is a CUT, and a cut at the end reads as a different video rather than as the
+    end of this one.
 
-    An earlier pass built the kit's inverted `cta-cream-notes` page - dark mesh,
-    amber accent, a filled pill - and it was wrong for a reel. A carousel closer
-    can invert because you arrive at it by swiping and the change of ground
-    reads as "this is the end". In a reel a dark frame is a CUT, and a cut at
-    the end reads as a different video rather than as the end of this one.
-
-    The pass after that was the right page with the wrong type. Measured off the
-    reference, its stack runs on a NEARLY CONSTANT 106px leading with only about
-    1.35x between its lightest and heaviest line. The rebuild had 22px gaps and
-    a 1.8x range, which turned five lines into five separate objects instead of
-    one block. Weight carries the emphasis, size barely moves - same rule as
-    stack-note.py, and for the same reason."""
+    Sized by fit_closer so it FILLS the frame. It has the whole thing and nothing
+    competing, and a quarter-full closer reads as timid at the exact moment the
+    post is asking for something."""
     im = grain(Image.new("RGBA", (W, H), (*GROUND, 255)), 2.0)
-    d = ImageDraw.Draw(im)
-    rows, pitches = c["stack"], c["pitch"]
-    block = sum(pitches) + int(rows[-1][1] * 0.727)
-    y = (SAFE_TOP + SAFE_BOT - block) // 2 + int(rows[0][1] * 0.727)
-
-    for i, (t, sz, w) in enumerate(rows):
-        d.text((W // 2, y), t, font=F(sz, w),
-               fill=SOFT if w == "Regular" else INK, anchor="ms")
-        if i < len(pitches):
-            y += pitches[i]
+    y = draw_closer(ImageDraw.Draw(im), c, RIGHT - LEFT, SAFE_TOP, SAFE_BOT,
+                    CLOSER_INK, CLOSER_DIM)
     return im, dict(copy_end=0, bottom=y)
 
 
@@ -452,22 +481,19 @@ SLIDES = [
 # also the only place the accent appears, and the only place the frame asks for
 # anything. It asks for a read, not a comment - the caption carries the keyword,
 # same standing rule as every other format here.
-# THE CTA IS ALWAYS COMMENT. Not "read caption" - that rule came off the
-# state-overlay format and does not belong here. This is the reference's own
-# close, word for word, and it is the close for this format from now on.
+# THE CTA IS ALWAYS COMMENT. Five short rows, every one of them able to be set
+# large - the previous copy carried "and I will send you", nineteen characters
+# that capped the whole stack's size and said nothing. The number is a NUMERAL:
+# at 0.6s a figure is read and a word is parsed.
 #
-# Curly quotes because they are the reference's. push-vault.py refuses a quote
-# in a CAPTION, which is a different thing: that ban is about what gets typed
-# into Instagram, not about what is drawn on a frame.
-#
-# Sizes and leading are measured off the reference rather than chosen:
-# 74/90/74/100/62 on a 106px rhythm that only opens up before the last line.
-CTA = dict(stack=[("comment", 74, "Regular"),
-                  ("“AI”", 90, "Bold"),
-                  ("for my full", 74, "Regular"),
-                  ("BLUEPRINT", 100, "ExtraBold"),
-                  ("100% FREE", 62, "Bold")],
-           pitch=[106, 106, 108, 126])
+# Sizes are RELATIVE. fit_closer scales them until the widest line hits the
+# measure or the stack fills the safe box, whichever binds first, so the copy can
+# change without anyone re-picking numbers.
+CLOSER = [("comment", "Medium", 0.42),
+          ("“AI”", "ExtraBold", 1.00),
+          ("and get", "Medium", 0.40),
+          ("all 5 blueprints", "ExtraBold", 0.62),
+          ("100% FREE", "ExtraBold", 0.46)]
 
 
 if __name__ == "__main__":
@@ -481,17 +507,17 @@ if __name__ == "__main__":
           f"plate band {L['band'][0]}..{L['band'][1]} at {L['k']:.3f}x\n")
 
     made = []
-    for i, (s, fn) in enumerate([(s, build) for s in SLIDES] + [(CTA, build_cta)], 1):
+    for i, (s, fn) in enumerate([(s, build) for s in SLIDES] + [(CLOSER, build_cta)], 1):
         im, m = fn(s, L) if fn is build else fn(s)
         p = f"{out}/{i:02d}.png"
         im.convert("RGB").save(p)
         made.append(p)
         bad = []
-        if m["copy_end"] > L["band"][0] - 24:
+        if isinstance(s, dict) and m["copy_end"] > L["band"][0] - 24:
             bad.append("COPY INTO PLATE")
         if m["bottom"] > SAFE_BOT:
             bad.append("PAST THE SAFE LINE")
-        name = s.get("title", "closer")
+        name = s.get("title", "closer") if isinstance(s, dict) else "closer"
         print(f"  {i:02d}  {name:30} ends {m['bottom']:4d}  {'  '.join(bad)}")
 
     TWd = 268

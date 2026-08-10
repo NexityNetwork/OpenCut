@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""The wrong-vs-right deck - 1080x1350 carousel frames.
+"""The wrong-vs-right deck - 1080x1920 reel frames.
 
 The third family. What makes it its own thing is the PAIR at the bottom: the
 cost of not having the agent, a rule, then what you get instead. Everything else
@@ -46,20 +46,20 @@ SB = importlib.util.module_from_spec(_spec)
 _spec.loader.exec_module(SB)
 F, adv, wrap, draw_tracked, grain, source = SB.F, SB.adv, SB.wrap, SB.draw_tracked, SB.grain, SB.source
 
-# 1080x1350, NOT 1080x1920. Instagram accepts 4:5 at most in a feed carousel and
-# CENTRE CROPS anything taller, so a 1920-tall frame silently loses 285px off the
-# top and 285px off the bottom. Run danger-zones.py over the old render and the
-# whole check half of the pair is outside the crop - the answer, on a format
-# whose entire point is the answer. Rendering at the target size is the only fix;
-# there is no margin that survives a crop.
-#
-# What remains after this is the 1:1 PROFILE GRID thumbnail, which keeps
-# y 135..1215. Nothing load-bearing goes outside that band.
-W, H = 1080, 1350
-SAFE_TOP, SAFE_BOT = 84, 1266
-LEFT, RIGHT = 60, 950                    # the reel's button rail
+# 1080x1920 REEL FRAME. An earlier pass took the word "carousel" and rendered
+# these at 1080x1350 to dodge a feed crop, which cost 570px of frame to solve a
+# problem a reel does not have - a reel is never cropped, its UI is drawn ON TOP.
+# The only thing that bites is the RIGHT RAIL at x > 950.
+W, H = 1080, 1920
+SAFE_TOP, SAFE_BOT = 250, 1440
+# EQUAL MARGINS. The rail covers x > 950, so the right margin is forced to 130.
+# Using 60 on the left gave a block at 60..950 - 60 one side, 130 the other - and
+# it reads as shoved left, because it is. The margin the rail forces sets BOTH:
+# 130..950 is 820 wide, centred on the frame at 540, right edge exactly on the
+# rail. 70px narrower than before and worth every one of them.
+LEFT, RIGHT = 130, 950
                                          # covers x > 950. Nothing crosses it.
-M_TITLE, M_BLURB, M_PAIR = 890, 800, 880
+M_TITLE, M_BLURB, M_PAIR = 820, 740, 820
 
 GROUND = (252, 251, 249)
 INK = (18, 17, 16)
@@ -69,16 +69,18 @@ PAIR_INK = (34, 32, 30)
 RULE = (226, 223, 218)
 RING = (188, 184, 178)
 
-TITLE_MAX, TITLE_MIN, TITLE_TRACK = 80, 52, -0.032
+TITLE_MAX, TITLE_MIN, TITLE_TRACK = 88, 56, -0.032
 BLURB_MAX, BLURB_MIN, BLURB_LEAD = 40, 34, 1.44
-PAIR_SZ, PAIR_LEAD = 42, 1.34
+PAIR_SZ, PAIR_LEAD = 44, 1.34
 # The gap under the title hangs off its DESCENDER and still has to clear a 60px
 # cap height. 34 put the blurb's ascenders in the title's tail and is the single
 # thing that made this read as cramped.
-TITLE_GAP, BLURB_GAP = 56, 58
-MARK_R, MARK_GAP, PAIR_GAP, RULE_GAP = 26, 22, 46, 38
-PLATE_W, PLATE_R = 890, 24               # 60..950, stops AT the rail
-BX = (LEFT + RIGHT) // 2
+TITLE_GAP, BLURB_GAP = 58, 58
+MARK_R, MARK_GAP, PAIR_GAP, RULE_GAP = 28, 22, 48, 40
+PLATE_W, PLATE_R = 820, 24               # 60..950, stops AT the rail
+BX = W // 2
+
+CLOSER_INK, CLOSER_DIM = INK, BLURB
 
 WF = os.environ.get("WORKFLOWS", "../another no name workflow")
 
@@ -209,17 +211,10 @@ def build(s, L):
 
 
 def build_closer(c):
-    """Same paper. In a reel a dark frame is a CUT, and a cut at the end reads
-    as a different video rather than as the end of this one."""
-    im = grain(Image.new("RGBA", (W, H), (*GROUND, 255)), 2.0)
-    d = ImageDraw.Draw(im)
-    rows, pitches = c["stack"], c["pitch"]
-    block = sum(pitches) + int(rows[-1][1] * .727)
-    y = (SAFE_TOP + SAFE_BOT - block) // 2 + int(rows[0][1] * .727)
-    for i, (t, sz, w) in enumerate(rows):
-        d.text((BX, y), t, font=F(sz, w), fill=INK if w != "Regular" else BLURB, anchor="ms")
-        if i < len(pitches):
-            y += pitches[i]
+    im = ground() if "ground" in globals() else grain(
+        Image.new("RGBA", (W, H), (*GROUND, 255)), 2.0)
+    y = SB.draw_closer(ImageDraw.Draw(im), c, RIGHT - LEFT, SAFE_TOP, SAFE_BOT,
+                       CLOSER_INK, CLOSER_DIM)
     return im, dict(bottom=y)
 
 
@@ -277,12 +272,19 @@ SLIDES = [
          right="Users reach the first win faster"),
 ]
 
-# THE CTA IS ALWAYS COMMENT.
-CLOSER = dict(stack=[("Comment", 74, "Regular"),
-                     ("“AI”", 90, "Bold"),
-                     ("and I will send you", 62, "Regular"),
-                     ("all seven", 90, "Bold")],
-              pitch=[106, 104, 112])
+# THE CTA IS ALWAYS COMMENT. Five short rows, every one of them able to be set
+# large - the previous copy carried "and I will send you", nineteen characters
+# that capped the whole stack's size and said nothing. The number is a NUMERAL:
+# at 0.6s a figure is read and a word is parsed.
+#
+# Sizes are RELATIVE. fit_closer scales them until the widest line hits the
+# measure or the stack fills the safe box, whichever binds first, so the copy can
+# change without anyone re-picking numbers.
+CLOSER = [("comment", "Medium", 0.42),
+          ("“AI”", "ExtraBold", 1.00),
+          ("and get", "Medium", 0.40),
+          ("all 7 builds", "ExtraBold", 0.62),
+          ("100% FREE", "ExtraBold", 0.46)]
 
 
 if __name__ == "__main__":
@@ -300,11 +302,11 @@ if __name__ == "__main__":
 
     made = []
     for i, s in enumerate(SLIDES + [CLOSER], 1):
-        im, m = build_closer(s) if "stack" in s else build(s, L)
+        im, m = build_closer(s) if isinstance(s, list) else build(s, L)
         p = f"{out}/{i:02d}.png"
         im.convert("RGB").save(p)
         made.append(p)
-        print(f"  {i:02d}  {s.get('title', 'closer'):20} ends {m['bottom']:4d}"
+        print(f"  {i:02d}  {(s.get('title','closer') if isinstance(s, dict) else 'closer'):20} ends {m['bottom']:4d}"
               f"{'   PAST THE SAFE LINE' if m['bottom'] > SAFE_BOT else ''}")
 
     TWd = 268

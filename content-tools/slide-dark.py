@@ -43,8 +43,13 @@ F, adv, wrap, draw_tracked, source = SB.F, SB.adv, SB.wrap, SB.draw_tracked, SB.
 
 W, H = 1080, 1920
 SAFE_TOP, SAFE_BOT = 250, 1440
-LEFT, RIGHT = 60, 950                    # the rail covers x > 950
-M_TITLE, M_BLURB = 890, 700
+# EQUAL MARGINS. The rail covers x > 950, so the right margin is forced to 130.
+# Using 60 on the left gave a block at 60..950 - 60 one side, 130 the other - and
+# it reads as shoved left, because it is. The margin the rail forces sets BOTH:
+# 130..950 is 820 wide, centred on the frame at 540, right edge exactly on the
+# rail. 70px narrower than before and worth every one of them.
+LEFT, RIGHT = 130, 950
+M_TITLE, M_BLURB = 820, 680
 
 TOP_GREY = (74, 74, 76)                  # behind the headline
 BOT_BLACK = (8, 8, 9)
@@ -56,9 +61,11 @@ TITLE_MAX, TITLE_MIN, TITLE_TRACK = 74, 48, -0.030
 BLURB_MAX, BLURB_MIN, BLURB_LEAD = 38, 32, 1.46
 TITLE_GAP, BLURB_GAP = 44, 62
 ROW_GAP, PILL_GAP, PILL_H = 58, 46, 76
-PLATE_W, PLATE_R = 890, 22               # 60..950, stops AT the rail
+PLATE_W, PLATE_R = 820, 22               # 60..950, stops AT the rail
 LOGO_SZ, LOGO_GAP = 62, 18
 CTA_SZ = 28
+
+CLOSER_INK, CLOSER_DIM = INK, BLURB
 
 WF = os.environ.get("WORKFLOWS", "../another no name workflow")
 LOGOS = os.environ.get("TOOL_LOGOS", "../apps/web/public/tools")
@@ -183,16 +190,10 @@ def build(s, L):
 
 
 def build_closer(c):
-    im = ground()
-    d = ImageDraw.Draw(im)
-    rows, pitches = c["stack"], c["pitch"]
-    block = sum(pitches) + int(rows[-1][1] * .727)
-    y = (SAFE_TOP + SAFE_BOT - block) // 2 + int(rows[0][1] * .727)
-    cx = (LEFT + RIGHT) // 2
-    for i, (t, sz, w) in enumerate(rows):
-        d.text((cx, y), t, font=F(sz, w), fill=INK if w != "Regular" else BLURB, anchor="ms")
-        if i < len(pitches):
-            y += pitches[i]
+    im = ground() if "ground" in globals() else grain(
+        Image.new("RGBA", (W, H), (*GROUND, 255)), 2.0)
+    y = SB.draw_closer(ImageDraw.Draw(im), c, RIGHT - LEFT, SAFE_TOP, SAFE_BOT,
+                       CLOSER_INK, CLOSER_DIM)
     return im, dict(bottom=y)
 
 
@@ -237,13 +238,19 @@ SLIDES = [
          logos=["n8n", "stripe", "google-sheets", "airtable"]),
 ]
 
-# THE CTA IS ALWAYS COMMENT.
-CLOSER = dict(stack=[("comment", 66, "Regular"),
-                     ("“W”", 84, "Bold"),
-                     ("to get ALL", 60, "Regular"),
-                     ("MY AI FREEBIES", 76, "ExtraBold"),
-                     ("100% FREE", 46, "SemiBold")],
-              pitch=[100, 96, 104, 92])
+# THE CTA IS ALWAYS COMMENT. Five short rows, every one of them able to be set
+# large - the previous copy carried "and I will send you", nineteen characters
+# that capped the whole stack's size and said nothing. The number is a NUMERAL:
+# at 0.6s a figure is read and a word is parsed.
+#
+# Sizes are RELATIVE. fit_closer scales them until the widest line hits the
+# measure or the stack fills the safe box, whichever binds first, so the copy can
+# change without anyone re-picking numbers.
+CLOSER = [("comment", "Medium", 0.42),
+          ("“AI”", "ExtraBold", 1.00),
+          ("and get", "Medium", 0.40),
+          ("all 6 systems", "ExtraBold", 0.62),
+          ("100% FREE", "ExtraBold", 0.46)]
 
 
 if __name__ == "__main__":
@@ -260,11 +267,11 @@ if __name__ == "__main__":
 
     made = []
     for i, s in enumerate(SLIDES + [CLOSER], 1):
-        im, m = build_closer(s) if "stack" in s else build(s, L)
+        im, m = build_closer(s) if isinstance(s, list) else build(s, L)
         p = f"{out}/{i:02d}.png"
         im.convert("RGB").save(p)
         made.append(p)
-        print(f"  {i:02d}  {s.get('title', 'closer'):22} ends {m['bottom']:4d}"
+        print(f"  {i:02d}  {(s.get('title','closer') if isinstance(s, dict) else 'closer'):22} ends {m['bottom']:4d}"
               f"{'   PAST THE SAFE LINE' if m['bottom'] > SAFE_BOT else ''}")
 
     TWd = 268

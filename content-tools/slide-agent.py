@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""The named-agent deck - 1080x1350 carousel frames, centred on paper.
+"""The named-agent deck - 1080x1920 reel frames, centred on paper.
 
 A second family, not a variant of slide-body.py. That one hangs everything off
 one left edge at x=88 and carries a dark n8n canvas; this one centres every
@@ -52,17 +52,13 @@ SB = importlib.util.module_from_spec(_spec)
 _spec.loader.exec_module(SB)
 F, adv, wrap, draw_tracked, grain, source = SB.F, SB.adv, SB.wrap, SB.draw_tracked, SB.grain, SB.source
 
-# 1080x1350, NOT 1080x1920 - Instagram accepts 4:5 at most in a feed carousel and
-# centre crops anything taller, losing 285px top and bottom without telling you.
-# Render at the target size; no margin survives a crop. See danger-zones.py.
-W, H = 1080, 1350
-SAFE_TOP, SAFE_BOT = 84, 1266
-# TWO measures, not one. The canvas gets the full safe width because it is a
-# picture and wants every pixel; the blurb does NOT, because a centred paragraph
-# set to the full width becomes a slab. Setting both to 890 is what made the copy
-# read as cramped: three long lines packed edge to edge directly under the title,
-# with no shape and nowhere for the eye to rest.
-M_TITLE, M_BLURB = 890, 760
+# 1080x1920 REEL FRAME. An earlier pass took the word "carousel" and rendered
+# these at 1080x1350 to dodge a feed crop, which cost 570px of frame to solve a
+# problem a reel does not have - a reel is never cropped, its UI is drawn ON TOP.
+# The only thing that bites is the RIGHT RAIL at x > 950.
+W, H = 1080, 1920
+SAFE_TOP, SAFE_BOT = 250, 1440
+M_TITLE, M_BLURB = 820, 700
 
 GROUND = (250, 248, 245)
 INK = (22, 19, 14)
@@ -71,21 +67,28 @@ CIRCLE = (238, 234, 228)
 PILL_EDGE = (222, 218, 211)
 PILL_INK = (72, 68, 63)
 
-TITLE_MAX, TITLE_MIN, TITLE_TRACK = 92, 58, -0.040
-BLURB_MAX, BLURB_MIN = 40, 34
+TITLE_MAX, TITLE_MIN, TITLE_TRACK = 104, 62, -0.040
+BLURB_MAX, BLURB_MIN = 44, 36
 # The gap under the title hangs off its DESCENDER and still has to clear a 99px
 # cap height. 34 put the blurb's ascenders into the title's tail.
-TITLE_GAP, BLURB_GAP = 52, 56
+TITLE_GAP, BLURB_GAP = 62, 66
 BLURB_LEAD = 1.52                        # centred prose needs more than the 1.4
                                          # a left-aligned column gets away with
-ROW_GAP, PILL_GAP, PILL_H = 54, 40, 78
-PLATE_W, PLATE_R = 890, 24               # 60..950, stops AT the rail
-LEFT, RIGHT = 60, 950                    # the reel's button rail
+ROW_GAP, PILL_GAP, PILL_H = 64, 48, 86
+PLATE_W, PLATE_R = 820, 24               # 60..950, stops AT the rail
+# EQUAL MARGINS. The rail covers x > 950, so the right margin is forced to 130.
+# Using 60 on the left gave a block at 60..950 - 60 one side, 130 the other - and
+# it reads as shoved left, because it is. The margin the rail forces sets BOTH:
+# 130..950 is 820 wide, centred on the frame at 540, right edge exactly on the
+# rail. 70px narrower than before and worth every one of them.
+LEFT, RIGHT = 130, 950
                                          # covers x > 950. Nothing crosses it.
-BCX = (LEFT + RIGHT) // 2                # safe-box centre x=505, so a
+BCX = W // 2                # safe-box centre x=505, so a
                                          # centred 890 block still clears it
-LOGO_SZ, LOGO_GAP = 70, 22
-CTA_SZ = 34
+LOGO_SZ, LOGO_GAP = 80, 24
+CTA_SZ = 38
+
+CLOSER_INK, CLOSER_DIM = INK, BLURB
 
 WF = os.environ.get("WORKFLOWS", "../differnt types of workflows")
 LOGOS = os.environ.get("TOOL_LOGOS", "../apps/web/public/tools")
@@ -239,19 +242,10 @@ def build(s, L):
 
 
 def build_closer(c):
-    """Same paper, same circles, no canvas. The kit's closer inverts to a dark
-    ground; in a reel a dark frame is a CUT, and a cut at the end reads as a
-    different video rather than as the end of this one."""
-    im = ground()
-    d = ImageDraw.Draw(im)
-    rows, pitches = c["stack"], c["pitch"]
-    block = sum(pitches) + int(rows[-1][1] * 0.727)
-    y = (SAFE_TOP + SAFE_BOT - block) // 2 + int(rows[0][1] * 0.727)
-    for i, (t, sz, w) in enumerate(rows):
-        d.text((BCX, y), t, font=F(sz, w), fill=INK if w != "Regular" else BLURB,
-               anchor="ms")
-        if i < len(pitches):
-            y += pitches[i]
+    im = ground() if "ground" in globals() else grain(
+        Image.new("RGBA", (W, H), (*GROUND, 255)), 2.0)
+    y = SB.draw_closer(ImageDraw.Draw(im), c, RIGHT - LEFT, SAFE_TOP, SAFE_BOT,
+                       CLOSER_INK, CLOSER_DIM)
     return im, dict(bottom=y)
 
 
@@ -299,11 +293,19 @@ SLIDES = [
 ]
 
 # The close is the reference's, word for word. THE CTA IS ALWAYS COMMENT.
-CLOSER = dict(stack=[("Comment", 74, "Regular"),
-                     ("“AI”", 90, "Bold"),
-                     ("and I will send you", 62, "Regular"),
-                     ("a FREE guide", 90, "Bold")],
-              pitch=[106, 104, 112])
+# THE CTA IS ALWAYS COMMENT. Five short rows, every one of them able to be set
+# large - the previous copy carried "and I will send you", nineteen characters
+# that capped the whole stack's size and said nothing. The number is a NUMERAL:
+# at 0.6s a figure is read and a word is parsed.
+#
+# Sizes are RELATIVE. fit_closer scales them until the widest line hits the
+# measure or the stack fills the safe box, whichever binds first, so the copy can
+# change without anyone re-picking numbers.
+CLOSER = [("comment", "Medium", 0.42),
+          ("“AI”", "ExtraBold", 1.00),
+          ("and get", "Medium", 0.40),
+          ("all 6 blueprints", "ExtraBold", 0.62),
+          ("100% FREE", "ExtraBold", 0.46)]
 
 
 if __name__ == "__main__":
@@ -321,11 +323,11 @@ if __name__ == "__main__":
 
     made = []
     for i, s in enumerate(SLIDES + [CLOSER], 1):
-        im, m = build_closer(s) if "stack" in s else build(s, L)
+        im, m = build_closer(s) if isinstance(s, list) else build(s, L)
         p = f"{out}/{i:02d}.png"
         im.convert("RGB").save(p)
         made.append(p)
-        print(f"  {i:02d}  {s.get('title', 'closer'):22} canvas ends {m['bottom']:4d}"
+        print(f"  {i:02d}  {(s.get('title','closer') if isinstance(s, dict) else 'closer'):22} canvas ends {m['bottom']:4d}"
               f"{'   PAST THE SAFE LINE' if m['bottom'] > SAFE_BOT else ''}")
 
     TWd = 268
