@@ -9,7 +9,7 @@ they run in is ephemeral and has already been wiped mid-session once.
 | `extract-inset.py` | Pulls the workflow screenshot out of a reference at native resolution, from its sharpest frame |
 | `state-overlay.py` | The big-type format: one continuous B-roll, a sequence of overlay states, no cuts |
 | `stack-note.py` | The format that actually gets traction. Two app tiles, a plus, and four typed lines on bare footage |
-| `slide-body.py` | Body slides for the n8n reels: title, three bolded lines, one workflow screenshot on a plate |
+| `slide-body.py` | The n8n reel: five body frames plus a closer, title, three bolded clauses, the workflow on a plate, the tools that are actually in it |
 | `which-tool-card.py` | Renders the OLD vs NEW comparison card in both themes: `light` on a paper surface, `dark` as a transparent overlay for video |
 | `push-vault.py` | Uploads finished assets to `ultron-reels/imports/` and inserts the `vault_items` row, with the caption rules enforced before anything is written |
 | `wordmark_paths.json` | The traced ultron wordmark outlines (`w`, `asc`, `paths[].d`), also the source for `apps/web/src/brand/ultron-wordmark.ts` |
@@ -137,61 +137,61 @@ plate (`PLATE`). This is the format where ultron uses the orb, not the wordmark.
 ## The n8n body slides
 
 ```sh
-FONT_DIR=brand/fonts/extras/ttf WORKFLOWS="../6 boring use cases example" \
-  python3 slide-body.py brand/slides
+FONT_DIR=brand/fonts/extras/ttf TOOL_LOGOS=../apps/web/public/tools \
+  WORKFLOWS="../6 boring use cases example" python3 slide-body.py brand/slides
 ```
 
-Built against [`../carousel-design-kit/DESIGN-RULES.md`](../carousel-design-kit/DESIGN-RULES.md).
-That kit renders 1080x1350 and this renders 1080x1920, but the frames are the
-**same width** and the usable heights are within 60px of each other - their page
-is 1124px between paddings, our reel-safe band is 1190px between the chrome. So
-its type sizes transfer 1:1 rather than being rescaled. Type follows frame width
-and viewing distance; neither changed.
+Five bodies plus a closer, at 1080x1920. Built against
+[`../carousel-design-kit/DESIGN-RULES.md`](../carousel-design-kit/DESIGN-RULES.md),
+whose numbers transfer almost 1:1 - it renders 1080x1350, we render 1080x1920,
+but the frames are the **same width** and the usable heights are within 60px.
 
-What the kit cost the first draft:
+**Every frame is on screen for 0.5 to 0.8 seconds.** That decides more than the
+kit does, and where the two disagree it wins:
 
-- **Logos are a hard ban** unless the subject genuinely is named tools. The first
-  draft had four to six per slide, guessed by category. That is the exact failure
-  the rules name: "logos placed for texture are the most reliable way to make a
-  page look cheap."
-- **No uppercase**, anywhere, including headlines. Titles came off the reference
-  in caps.
-- **One bolded clause per line**, heavier AND darker - 600 at full ink against
-  400 at 80 percent. Without it all three lines scan identically.
-- **The lead line is the darkest thing in the prose block**, not the lightest.
-  The draft had it grey, which is backwards: it is the sentence that has to land
-  if nothing else does.
+- **Clauses, not sentences.** A draft followed section 6 (write outcomes, not
+  tasks) into two-line sentences. Correct for a carousel, wrong here - nobody
+  reads prose in 0.6s. One clause with the point in bold is the whole budget.
+- **Logos stay, and section 1 bans them.** It bans them for a page you dwell on,
+  where a row of marks is texture. At 0.6s a row of marks is the fastest element
+  on the frame, read in one glance and in parallel while a sentence is still
+  being parsed. They earn it by being **true**: every mark is a tool that
+  appears in that slide's canvas, read off its node labels. Six marks that did
+  not exist were baked into `apps/web/public/tools/` rather than fetched, so the
+  renderer still needs nothing but Pillow.
+- **The closer is the same paper as the bodies.** The kit's closer inverts to a
+  dark ground, which works when you arrive by swiping. In a reel a dark frame is
+  a *cut*, and a cut at the end reads as a different video.
+- **The title is solved for ONE LINE.** A headline that wraps has already lost -
+  the second line arrives after the eye has moved on - and it hands 90px back to
+  the artwork.
 
-Two rules this format has to solve for itself, because they are what a reel adds:
+Everything that can move between frames is solved **across the set**: one title
+size, one body size, one plate scale, one plate band, one logo baseline. Sized
+per slide the body landed on 32, 33 and 34 within the same six, and type that
+changes size between frames half a second apart reads as a rendering fault. The
+sizes are the largest at which the whole set holds one shape - not "at which
+nothing overflows", because a slide whose copy runs a line longer is a slide
+whose plate jumps. If no size works the renderer says so and names nothing,
+which means the copy needs rewriting.
 
-- **Solve the body size across the SET, not per slide.** Per slide it lands on
-  32, 33 and 34 in the same six, and body type that changes size between slides
-  shown half a second apart reads as a rendering fault. One size, chosen as the
-  largest at which every line of every slide still sets on one line.
-- **A wrapped line is a copy problem, not a sizing problem.** The plate top is
-  fixed so the six read as a set; one widow pushes the copy into it. Below 30px
-  the renderer stops shrinking and names the line to rewrite.
-
-Two deliberate deviations from the kit, both because it assumes a static carousel:
-
-- **No CTA on a body slide.** The kit's structure is cover + 6 body + cta and the
-  CTA is its own page. The reference stamped `comment "AI"` on all six, which at
-  half a second a slide is the same pill flashing six times.
-- **Grain on the ground only, never over the plate.** Every family in the kit
-  paints grain over the whole page; their screenshots are marketing pages set at
-  40px and ours are n8n canvases whose node labels are 8px.
-
-Two things that cost a render each:
+Three things that cost a render each:
 
 - **Trim the alpha before fitting a Figma export.** Figma exports the frame, not
-  the drawing. `Group 2147203619.png` is 818x752 on canvas with 340px of nothing
-  under it, so fitting the canvas scaled the one workflow that needed no scaling
-  to 0.81x while the other five sat native, and six slides read as six unrelated
-  pictures. Matching the scale of the node labels is what makes them a set.
+  the drawing. One export is 818x752 on canvas with 340px of nothing under it,
+  so fitting the canvas scaled the one workflow that needed no scaling to 0.81x
+  while the others sat native.
+- **Centre the plate in its band, do not hang it from the top.** Hung from the
+  top, a short canvas left 340px of white above the logo row while a tall one
+  left none - section 4's dead band exactly. Centred, the slack halves and it is
+  symmetrical, so it reads as margin.
 - **`ImageDraw` on an RGBA image writes alpha, it does not blend it.** A 35
   percent hairline drawn straight onto the page is a hole with the raw colour
-  behind it; on flatten the plate came out ringed in solid white. Hairlines go on
-  their own layer and get `alpha_composite`d.
+  behind it; on flatten the plate came out ringed in solid white. Hairlines go
+  on their own layer and get `alpha_composite`d.
+
+`Group 2147203619.png` and `Group 2147203619-1.png` are two exports of the same
+F5 install pipeline, so that folder holds **five** distinct workflows, not six.
 
 ## Setup, from nothing
 
