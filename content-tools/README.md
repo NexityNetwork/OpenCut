@@ -9,6 +9,7 @@ they run in is ephemeral and has already been wiped mid-session once.
 | `extract-inset.py` | Pulls the workflow screenshot out of a reference at native resolution, from its sharpest frame |
 | `state-overlay.py` | The big-type format: one continuous B-roll, a sequence of overlay states, no cuts |
 | `stack-note.py` | The format that actually gets traction. Two app tiles, a plus, and four typed lines on bare footage |
+| `slide-body.py` | Body slides for the n8n reels: title, three bolded lines, one workflow screenshot on a plate |
 | `which-tool-card.py` | Renders the OLD vs NEW comparison card in both themes: `light` on a paper surface, `dark` as a transparent overlay for video |
 | `push-vault.py` | Uploads finished assets to `ultron-reels/imports/` and inserts the `vault_items` row, with the caption rules enforced before anything is written |
 | `wordmark_paths.json` | The traced ultron wordmark outlines (`w`, `asc`, `paths[].d`), also the source for `apps/web/src/brand/ultron-wordmark.ts` |
@@ -132,6 +133,65 @@ overflowing line is a copy problem, not a sizing problem.
 
 ultron's mark is a round orb on transparency, so in the tile pair it gets a drawn
 plate (`PLATE`). This is the format where ultron uses the orb, not the wordmark.
+
+## The n8n body slides
+
+```sh
+FONT_DIR=brand/fonts/extras/ttf WORKFLOWS="../6 boring use cases example" \
+  python3 slide-body.py brand/slides
+```
+
+Built against [`../carousel-design-kit/DESIGN-RULES.md`](../carousel-design-kit/DESIGN-RULES.md).
+That kit renders 1080x1350 and this renders 1080x1920, but the frames are the
+**same width** and the usable heights are within 60px of each other - their page
+is 1124px between paddings, our reel-safe band is 1190px between the chrome. So
+its type sizes transfer 1:1 rather than being rescaled. Type follows frame width
+and viewing distance; neither changed.
+
+What the kit cost the first draft:
+
+- **Logos are a hard ban** unless the subject genuinely is named tools. The first
+  draft had four to six per slide, guessed by category. That is the exact failure
+  the rules name: "logos placed for texture are the most reliable way to make a
+  page look cheap."
+- **No uppercase**, anywhere, including headlines. Titles came off the reference
+  in caps.
+- **One bolded clause per line**, heavier AND darker - 600 at full ink against
+  400 at 80 percent. Without it all three lines scan identically.
+- **The lead line is the darkest thing in the prose block**, not the lightest.
+  The draft had it grey, which is backwards: it is the sentence that has to land
+  if nothing else does.
+
+Two rules this format has to solve for itself, because they are what a reel adds:
+
+- **Solve the body size across the SET, not per slide.** Per slide it lands on
+  32, 33 and 34 in the same six, and body type that changes size between slides
+  shown half a second apart reads as a rendering fault. One size, chosen as the
+  largest at which every line of every slide still sets on one line.
+- **A wrapped line is a copy problem, not a sizing problem.** The plate top is
+  fixed so the six read as a set; one widow pushes the copy into it. Below 30px
+  the renderer stops shrinking and names the line to rewrite.
+
+Two deliberate deviations from the kit, both because it assumes a static carousel:
+
+- **No CTA on a body slide.** The kit's structure is cover + 6 body + cta and the
+  CTA is its own page. The reference stamped `comment "AI"` on all six, which at
+  half a second a slide is the same pill flashing six times.
+- **Grain on the ground only, never over the plate.** Every family in the kit
+  paints grain over the whole page; their screenshots are marketing pages set at
+  40px and ours are n8n canvases whose node labels are 8px.
+
+Two things that cost a render each:
+
+- **Trim the alpha before fitting a Figma export.** Figma exports the frame, not
+  the drawing. `Group 2147203619.png` is 818x752 on canvas with 340px of nothing
+  under it, so fitting the canvas scaled the one workflow that needed no scaling
+  to 0.81x while the other five sat native, and six slides read as six unrelated
+  pictures. Matching the scale of the node labels is what makes them a set.
+- **`ImageDraw` on an RGBA image writes alpha, it does not blend it.** A 35
+  percent hairline drawn straight onto the page is a hole with the raw colour
+  behind it; on flatten the plate came out ringed in solid white. Hairlines go on
+  their own layer and get `alpha_composite`d.
 
 ## Setup, from nothing
 
