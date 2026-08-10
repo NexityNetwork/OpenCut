@@ -11,3 +11,8 @@ dist/
 
 # TypeScript incremental build info
 *.tsbuildinfo
+
+# Cloudflare credentials never enter this repo - it is a public fork and the
+# global API key is full account access. They live in the scratchpad.
+.cfenv
+*.cfenv
