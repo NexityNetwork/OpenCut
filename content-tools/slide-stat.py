@@ -1,30 +1,46 @@
 #!/usr/bin/env python3
 """The stat-and-claim deck - 1080x1920 reel frames, dark.
 
-Sixth family. A numbered title, then a ROW of two cards - a small dark tile
-carrying one number, and a light card carrying the claim in heavy type - and the
-workflow underneath, dimmed so it reads as evidence rather than as the subject.
+Sixth family. A numbered title, ONE full-width light card carrying the claim and
+the number it moves, and the workflow underneath as the receipt.
 
-That inversion is the idea. On every other deck the canvas is the point and the
-words caption it. Here the claim is the point and the canvas is the receipt, so
-the canvas is knocked back and the type is the brightest thing on the frame.
+That inversion is the idea. On every other deck the canvas is the subject and the
+words caption it. Here the claim is the subject and the canvas is evidence for
+it - so the claim gets the only light surface on the frame and the canvas sits
+below it in the dark.
 
 WE CALL THESE CAROUSELS. THEY RENDER AT 1080x1920 ON THE REEL SAFE BOX, because
 they get assembled into reels - 0.5 to 0.8 seconds a frame. A reel is never
 cropped; the UI is drawn ON TOP, and the RIGHT RAIL covers x > 950, so the
 horizontal safe box is 60..950 and nothing crosses it.
 
+Rebuilt after a first version that was three separate faults:
+
+  A SEPARATE STAT TILE next to the claim card. 224px wide, 306 tall, carrying an
+  icon and one number, which left it two thirds empty - and it stole 246px of
+  width from the claim, which is the thing anyone actually reads. The number
+  belongs INSIDE the card, under a rule, next to the strip. One card, one
+  surface, one hierarchy.
+
+  THE CANVAS BLENDED TO 42 PERCENT. The intent was "evidence, not subject" and
+  the result was grey mush that reads as a failed render rather than as a
+  screenshot. Evidence has to be legible or it is not evidence. It sits at full
+  strength on a dark plate now; being below the card is what makes it secondary,
+  not being faint.
+
+  A HOLE AT THE BOTTOM. The card and the canvas together used about two thirds
+  of the safe box and the rest was black. The card absorbs it now - it is sized
+  from the claim rather than fixed, so the type grows into the space instead of
+  the space staying empty.
+
 Two departures from the reference, which said structure was loose:
 
-  THE SWIPE ARROW IS GONE. The reference ends every frame with a circular arrow.
-  Section 1 of the design kit bans arrows suggesting a swipe outright, and in a
+  THE SWIPE ARROW IS GONE. Section 1 bans arrows suggesting a swipe, and in a
   reel it is worse than banned, it is wrong - there is nothing to swipe, the
-  frames advance on their own. It was the only element on the frame that was
-  instructing rather than saying something.
+  frames advance on their own.
 
-  The last two frames drop the stat tile. Their subject is named tools, so the
-  claim card becomes two tool cards - which is also the one case where the kit
-  allows a logo at all: when the subject genuinely IS the tool.
+  Its Title Case On Every Word goes to sentence case. The kit bans uppercase
+  labels and title case on a running sentence is the same fault at half strength.
 """
 import glob
 import importlib.util
@@ -32,7 +48,7 @@ import os
 import sys
 
 import numpy as np
-from PIL import Image, ImageDraw, ImageFilter
+from PIL import Image, ImageDraw
 
 _spec = importlib.util.spec_from_file_location(
     "slide_body", os.path.join(os.path.dirname(os.path.abspath(__file__)), "slide-body.py"))
@@ -45,22 +61,24 @@ SAFE_TOP, SAFE_BOT = 250, 1440
 LEFT, RIGHT = 60, 950
 MEASURE = 890
 
-BG = (11, 11, 12)
-TILE = (23, 23, 25)
-TILE_EDGE = (44, 44, 47)
+BG = (10, 10, 11)
+PLATE_BG = (22, 22, 24)
+PLATE_EDGE = (46, 46, 50)
 LIGHT = (255, 255, 255)
-INK = (17, 17, 18)
-NUM = (128, 128, 132)
-DIM = (150, 150, 154)
-BAR = (238, 224, 224)
-BAR_HOT = (246, 176, 176)
+INK = (16, 16, 18)
+SUB = (118, 116, 114)
+NUM = (122, 122, 126)
+DIM = (152, 152, 156)
+RULE = (232, 230, 228)
+BAR = (226, 230, 238)
+BAR_HOT = (52, 116, 240)
 
-TITLE_MAX, TITLE_MIN, TITLE_TRACK = 66, 44, -0.028
-CLAIM_MAX, CLAIM_MIN = 38, 28
-TITLE_GAP, ROW_GAP = 46, 40
-ROW_H, TILE_W, CARD_GAP = 306, 224, 22
-STRIP_W, STRIP_H = 250, 104        # the week strip's own footprint
-PLATE_R = 22
+TITLE_MAX, TITLE_MIN, TITLE_TRACK = 68, 44, -0.028
+CLAIM_MAX, CLAIM_MIN, CLAIM_LEAD = 58, 40, 1.14
+PAD, TITLE_GAP, CARD_GAP = 44, 48, 46
+STRIP_W, STRIP_H = 268, 96
+STAT_H = 118
+PLATE_R = 24
 
 WF = os.environ.get("WORKFLOWS", "../another no name workflow")
 LOGOS = os.environ.get("TOOL_LOGOS", "../apps/web/public/tools")
@@ -72,93 +90,109 @@ def ground():
     return Image.fromarray(np.clip(a, 0, 255).astype(np.uint8)).convert("RGBA")
 
 
-def stat_tile(d, x, y, s):
-    """Dark tile, one number. The label is above and small, the number is the
-    only thing on it with any weight - a tile carrying two equal-weight facts
-    carries neither."""
-    d.rounded_rectangle([x, y, x + TILE_W, y + ROW_H], radius=22, fill=TILE,
-                        outline=TILE_EDGE, width=1)
-    d.rounded_rectangle([x + 26, y + 26, x + 26 + 76, y + 26 + 76], radius=20, fill=LIGHT)
-    d.ellipse([x + 48, y + 48, x + 84, y + 84], outline=(52, 116, 240), width=6)
-    d.ellipse([x + 58, y + 58, x + 74, y + 74], fill=(52, 116, 240))
-    d.text((x + 26, y + ROW_H - 62), s["stat_label"], font=F(20, "Medium"),
-           fill=DIM, anchor="ls")
-    d.text((x + 26, y + ROW_H - 24), s["stat"], font=F(40, "Bold"), fill=LIGHT, anchor="ls")
-
-
-def week_strip(d, x, y, w, hot=4):
-    """Five faint columns with the last one lit. Not a chart - it is a texture
-    that says `every weekday`, and labelling it as data it does not have would
-    be the chart equivalent of inventing a number."""
-    cw, gap = (w - 4 * 10) // 5, 10
-    for i in range(5):
+def week_strip(d, x, y, w, hot=5):
+    """Seven faint columns with one lit. Not a chart - a texture that says
+    `every day`. Labelling it as data it does not have would be the chart
+    equivalent of inventing a number."""
+    cw, gap = (w - 6 * 9) // 7, 9
+    for i in range(7):
         cx = x + i * (cw + gap)
-        d.rounded_rectangle([cx, y, cx + cw, y + 68], radius=8,
-                            fill=BAR_HOT if i == hot else BAR)
-        d.text((cx + cw // 2, y + 92), ["Mon", "Tue", "Wed", "Thu", "Fri"][i],
-               font=F(15, "Medium"), fill=(150, 146, 142), anchor="ms")
+        h = int(STRIP_H * [.42, .58, .5, .78, .66, 1.0, .6][i]) - 26
+        d.rounded_rectangle([cx, y + STRIP_H - 26 - h, cx + cw, y + STRIP_H - 26],
+                            radius=5, fill=BAR_HOT if i == hot else BAR)
+        d.text((cx + cw // 2, y + STRIP_H - 4), "MTWTFSS"[i], font=F(15, "Medium"),
+               fill=(172, 170, 168), anchor="ms")
 
 
-def claim_card(d, x, y, w, text, sz):
-    """Text in the upper band, week strip pinned to the bottom right, and the
-    two never share vertical space. The first version drew the strip at a fixed
-    offset from the card bottom and let the text run as long as it liked, so a
-    four-line claim printed straight through it."""
-    d.rounded_rectangle([x, y, x + w, y + ROW_H], radius=22, fill=LIGHT)
-    yy = y + 40 + int(sz * .727)
-    for line in wrap(text, F(sz, "Bold"), w - 56):
-        d.text((x + 28, yy), line, font=F(sz, "Bold"), fill=INK, anchor="ls")
-        yy += round(sz * 1.18)
-    week_strip(d, x + w - 28 - STRIP_W, y + ROW_H - STRIP_H - 22, STRIP_W)
+def claim_card(im, d, x, y, w, s, csz):
+    """Claim, rule, then the number and the strip on one row. The number lives
+    inside the card rather than on a tile beside it - a tile carrying one figure
+    is two thirds empty and it costs the claim a quarter of its width."""
+    lines = wrap(s["claim"], F(csz, "Bold"), w - PAD * 2)
+    h = PAD + len(lines) * round(csz * CLAIM_LEAD) + 30 + STAT_H + PAD - 20
+    d.rounded_rectangle([x, y, x + w, y + h], radius=28, fill=LIGHT)
+
+    yy = y + PAD + int(csz * .727)
+    for ln in lines:
+        d.text((x + PAD, yy), ln, font=F(csz, "Bold"), fill=INK, anchor="ls")
+        yy += round(csz * CLAIM_LEAD)
+
+    ry = yy - int(csz * .727) + 22
+    d.line([(x + PAD, ry), (x + w - PAD, ry)], fill=RULE, width=2)
+    d.text((x + PAD, ry + 76), s["stat"], font=F(52, "Bold"), fill=INK, anchor="ls")
+    d.text((x + PAD, ry + 100), s["stat_label"], font=F(20, "Medium"), fill=SUB, anchor="ls")
+    week_strip(d, x + w - PAD - STRIP_W, ry + 20, STRIP_W)
+    return y + h
 
 
-def tool_card(im, d, x, y, w, h, logo, name, line):
-    d.rounded_rectangle([x, y, x + w, y + h], radius=22, fill=LIGHT)
-    p = f"{LOGOS}/{logo}.png"
-    if os.path.exists(p):
-        im.alpha_composite(Image.open(p).convert("RGBA").resize((72, 72), Image.LANCZOS),
-                           (x + 28, y + (h - 72) // 2))
-    d.text((x + 124, y + h // 2 - 8), name, font=F(30, "Bold"), fill=INK, anchor="ls")
-    for i, ln in enumerate(wrap(line, F(21, "Regular"), w - 160)[:2]):
-        d.text((x + 124, y + h // 2 + 26 + i * 28), ln, font=F(21, "Regular"),
-               fill=(122, 120, 118), anchor="ls")
+def tools_card(im, d, x, y, w, tools):
+    """Same surface, same height budget as a claim card - the last two frames
+    are about named tools, which is the one case the kit allows a logo at all."""
+    h = PAD + len(tools) * 132 + PAD - 24
+    d.rounded_rectangle([x, y, x + w, y + h], radius=28, fill=LIGHT)
+    for i, (logo, name, line) in enumerate(tools):
+        ty = y + PAD + i * 132
+        p = f"{LOGOS}/{logo}.png"
+        if os.path.exists(p):
+            im.alpha_composite(Image.open(p).convert("RGBA").resize((84, 84), Image.LANCZOS),
+                               (x + PAD, ty))
+        d.text((x + PAD + 116, ty + 36), name, font=F(38, "Bold"), fill=INK, anchor="ls")
+        for j, ln in enumerate(wrap(line, F(23, "Regular"), w - PAD * 2 - 116)[:2]):
+            d.text((x + PAD + 116, ty + 72 + j * 30), ln, font=F(23, "Regular"),
+                   fill=SUB, anchor="ls")
+        if i + 1 < len(tools):
+            d.line([(x + PAD, ty + 108), (x + w - PAD, ty + 108)], fill=RULE, width=2)
+    return y + h
 
 
 def plate(im, src, k, top):
-    """Knocked back to about a third. The canvas is the receipt on this deck,
-    not the subject, and at full strength it out-shouts the claim card above it."""
+    """Full strength on a dark plate. Being BELOW the card is what makes the
+    canvas secondary here; a first version blended it to 42 percent and it read
+    as a failed render rather than as evidence."""
     src = src.crop((2, 2, src.width - 2, src.height - 2))
     w, h = round(src.width * k), round(src.height * k)
     src = src.resize((w, h), Image.LANCZOS)
-    faded = Image.blend(Image.new("RGBA", (w, h), (*TILE, 255)), src, 0.42)
     box = [LEFT, top, LEFT + w, top + h]
     mask = Image.new("L", (w, h), 0)
     ImageDraw.Draw(mask).rounded_rectangle([0, 0, w - 1, h - 1], radius=PLATE_R, fill=255)
-    im.paste(faded, (box[0], box[1]), mask)
+    im.paste(src, (box[0], box[1]), mask)
     ov = Image.new("RGBA", (W, H), (0, 0, 0, 0))
     ImageDraw.Draw(ov).rounded_rectangle(box, radius=PLATE_R,
-                                         outline=(*TILE_EDGE, 255), width=1)
+                                         outline=(*PLATE_EDGE, 255), width=1)
     im.alpha_composite(ov)
     return box[3]
 
 
+def head(s):
+    return f"{s['n']}. {s['title']}" if s.get("n") else s["title"]
+
+
 def solve(slides):
-    """One title size, one claim size, one canvas scale, across the SET."""
-    def head(s):
-        return f"{s['n']}. {s['title']}" if s.get("n") else s["title"]
+    """One title size, one claim size, one canvas scale, one card top - across
+    the SET. At 0.6s a frame anything that moves reads as a rendering fault.
+
+    The claim size is the largest at which every claim sets to the SAME number
+    of lines, so the card is the same height on every frame. Sizing for `fits`
+    rather than `same shape` gives cards of three different heights and a canvas
+    that jumps with them."""
     tsz = next((t for t in range(TITLE_MAX, TITLE_MIN - 1, -1)
                 if all(len(wrap(head(s), F(t, "Bold"), MEASURE, TITLE_TRACK * t)) == 1
                        for s in slides)), TITLE_MIN)
-    cards = [s for s in slides if "claim" in s]
-    csz = next((c for c in range(CLAIM_MAX, CLAIM_MIN - 1, -1)
-                if len({len(wrap(s["claim"], F(c, "Bold"), MEASURE - TILE_W - CARD_GAP - 56))
-                        for s in cards}) == 1), CLAIM_MIN)
-    fixed = int(tsz * .727) + int(tsz * .24) + TITLE_GAP + ROW_H + ROW_GAP
-    band = SAFE_BOT - SAFE_TOP - fixed
+    claims = [s for s in slides if "claim" in s]
+    csz, clines = CLAIM_MIN, 0
+    for c in range(CLAIM_MAX, CLAIM_MIN - 1, -1):
+        n = {len(wrap(s["claim"], F(c, "Bold"), MEASURE - PAD * 2)) for s in claims}
+        if len(n) == 1:
+            csz, clines = c, n.pop()
+            break
+
+    card_h = PAD + clines * round(csz * CLAIM_LEAD) + 30 + STAT_H + PAD - 20
+    top = SAFE_TOP + int(tsz * .727) + int(tsz * .24) + TITLE_GAP
+    art_top = top + card_h + CARD_GAP
     tall = max(source(f"{WF}/{s['workflow']}").height for s in slides if s.get("workflow"))
-    k = min(MEASURE / 818, band / tall)
-    return dict(tsz=tsz, csz=csz, k=k, fixed=fixed, band=band,
-                art_top=SAFE_TOP + fixed)
+    k = min(MEASURE / 818, (SAFE_BOT - art_top) / tall)
+    return dict(tsz=tsz, csz=csz, clines=clines, card_h=card_h, top=top,
+                art_top=art_top, band=SAFE_BOT - art_top, k=k)
 
 
 def build(s, L):
@@ -172,23 +206,15 @@ def build(s, L):
         x = draw_tracked(d, (x, y), f"{s['n']}.", F(tsz, "Bold"), NUM, TITLE_TRACK * tsz)
         x += F(tsz, "Bold").getlength(" ")
     draw_tracked(d, (x, y), s["title"], F(tsz, "Bold"), LIGHT, TITLE_TRACK * tsz)
-    y += int(tsz * .24) + TITLE_GAP
 
     if "claim" in s:
-        stat_tile(d, LEFT, y, s)
-        claim_card(d, LEFT + TILE_W + CARD_GAP, y,
-                   MEASURE - TILE_W - CARD_GAP, s["claim"], L["csz"])
+        claim_card(im, d, LEFT, L["top"], MEASURE, s, L["csz"])
     else:
-        h = (ROW_H - 18) // 2
-        for i, (logo, name, line) in enumerate(s["tools"]):
-            tool_card(im, d, LEFT, y + i * (h + 18), MEASURE, h, logo, name, line)
-    y += ROW_H + ROW_GAP
+        tools_card(im, d, LEFT, L["top"], MEASURE, s["tools"])
 
-    bottom = y
-    if s.get("workflow"):
-        src = source(f"{WF}/{s['workflow']}")
-        h = round(src.height * L["k"])
-        bottom = plate(im, src, L["k"], y + (L["band"] - h) // 2)
+    src = source(f"{WF}/{s['workflow']}")
+    h = round(src.height * L["k"])
+    bottom = plate(im, src, L["k"], L["art_top"] + (L["band"] - h) // 2)
     return im, dict(bottom=bottom)
 
 
@@ -206,24 +232,21 @@ def build_closer(c):
     return im, dict(bottom=y)
 
 
-# The reference's copy, sentence case rather than its Title Case On Every Word -
-# the kit bans uppercase labels and title case on a running sentence is the same
-# fault at half strength, and at 0.6s it slows the read for nothing.
 SLIDES = [
     dict(n="1", title="Sales Agent", workflow="2-1.png",
-         stat_label="Automated", stat="100%",
+         stat="100%", stat_label="of leads answered",
          claim="Replies to every lead instantly with the sales data attached"),
 
     dict(n="2", title="Lead Generation AI", workflow="3.png",
-         stat_label="Manual work", stat="0h",
+         stat="0h", stat_label="of manual research",
          claim="Drops your product data straight into the conversation"),
 
     dict(n="3", title="Calendar and Ads Spy", workflow="5.png",
-         stat_label="Bookings", stat="24/7",
+         stat="24/7", stat_label="booking window",
          claim="Books and reschedules without anyone lifting a finger"),
 
     dict(n="4", title="CRM Agent", workflow="6.png",
-         stat_label="Leads synced", stat="100%",
+         stat="100%", stat_label="of records in sync",
          claim="Creates and updates every lead inside the CRM you use"),
 
     dict(title="Tools", workflow="7.png",
@@ -231,8 +254,8 @@ SLIDES = [
                 ("airtable", "Airtable", "The table each agent reads from and writes back to")]),
 
     dict(title="Integrations", workflow="573712346.png",
-         tools=[("openai", "OpenAI", "The model behind the agent nodes"),
-                ("make", "Make", "Where a pipe is easier built than coded")]),
+         tools=[("openai", "OpenAI", "The model behind every agent node"),
+                ("make", "Make", "For the pipes that are quicker assembled than coded")]),
 ]
 
 # THE CTA IS ALWAYS COMMENT.
@@ -250,7 +273,8 @@ if __name__ == "__main__":
     for p in glob.glob(f"{out}/*.png"):
         os.remove(p)
     L = solve(SLIDES)
-    print(f"  title {L['tsz']}  claim {L['csz']}  canvas at {L['k']:.3f}x\n")
+    print(f"  title {L['tsz']}  claim {L['csz']} x{L['clines']}  card {L['card_h']}  "
+          f"canvas at {L['k']:.3f}x\n")
     made = []
     for i, s in enumerate(SLIDES + [CLOSER], 1):
         im, m = build_closer(s) if "stack" in s else build(s, L)
