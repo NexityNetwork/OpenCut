@@ -53,13 +53,17 @@ _spec.loader.exec_module(SB)
 F, adv, wrap, draw_tracked, grain, source = SB.F, SB.adv, SB.wrap, SB.draw_tracked, SB.grain, SB.source
 
 W, H = 1080, 1920
-SAFE_TOP, SAFE_BOT = 250, 1440
+# These ship as a CAROUSEL, not a reel - kind is `carousel` in the library and
+# that is how they get posted. The README's reel numbers (250 top, 480 bottom,
+# a 130px right rail) were applied here and cost 460px of height and 130px of
+# width to chrome that is never drawn over a carousel.
+SAFE_TOP, SAFE_BOT = 210, 1700
 # TWO measures, not one. The canvas gets the full safe width because it is a
 # picture and wants every pixel; the blurb does NOT, because a centred paragraph
 # set to the full width becomes a slab. Setting both to 890 is what made the copy
 # read as cramped: three long lines packed edge to edge directly under the title,
 # with no shape and nowhere for the eye to rest.
-M_TITLE, M_BLURB = 890, 700
+M_TITLE, M_BLURB = 950, 780
 
 GROUND = (250, 248, 245)
 INK = (22, 19, 14)
@@ -68,22 +72,18 @@ CIRCLE = (238, 234, 228)
 PILL_EDGE = (222, 218, 211)
 PILL_INK = (72, 68, 63)
 
-TITLE_MAX, TITLE_MIN, TITLE_TRACK = 100, 60, -0.040
-BLURB_MAX, BLURB_MIN = 42, 34
+TITLE_MAX, TITLE_MIN, TITLE_TRACK = 108, 64, -0.040
+BLURB_MAX, BLURB_MIN = 46, 38
 # The gap under the title hangs off its DESCENDER and still has to clear a 99px
 # cap height. 34 put the blurb's ascenders into the title's tail.
-TITLE_GAP, BLURB_GAP = 58, 64
+TITLE_GAP, BLURB_GAP = 72, 78
 BLURB_LEAD = 1.52                        # centred prose needs more than the 1.4
                                          # a left-aligned column gets away with
-ROW_GAP, PILL_GAP, PILL_H = 62, 48, 80
-# The safe box is 60..950 wide, so 890 is the widest anything can be. Centring on
-# the FRAME would cap it at 820 (half-width 410 from x=540), so the block centres
-# on the SAFE BOX instead - x=505. 35px off frame centre, which reads as centred
-# and buys 70px of canvas. Everything on the frame uses BCX, never W // 2.
-PLATE_W, PLATE_R = 890, 20
-BCX = (60 + 950) // 2
-LOGO_SZ, LOGO_GAP = 76, 22
-CTA_SZ = 34
+ROW_GAP, PILL_GAP, PILL_H = 76, 56, 92
+PLATE_W, PLATE_R = 968, 24               # 56..1024, the full measure
+BCX = W // 2
+LOGO_SZ, LOGO_GAP = 88, 26
+CTA_SZ = 40
 
 WF = os.environ.get("WORKFLOWS", "../differnt types of workflows")
 LOGOS = os.environ.get("TOOL_LOGOS", "../apps/web/public/tools")
