@@ -39,7 +39,7 @@ def _load(name):
 
 
 SB = _load("slide-body")
-PN = _load("panels")
+SH = _load("shapes")
 F, adv, wrap, draw_tracked, grain, source = (
     SB.F, SB.adv, SB.wrap, SB.draw_tracked, SB.grain, SB.source)
 
@@ -67,12 +67,23 @@ CLOSER_INK, CLOSER_DIM = INK, BLURB
 WF = os.environ.get("WORKFLOWS", "../differnt types of workflows")
 
 
+THEME = os.environ.get("SHAPE_THEME", "light")
+
+
 def art(name):
-    """`panel:config` draws one; anything else is a file in the workflow folder.
-    Both come back at 818 wide so a drawn panel and a real export land at the
-    same scale on the plate and read as siblings."""
-    if name.startswith("panel:"):
-        return PN.PANELS[name.split(":", 1)[1]]()
+    """`shape:grid` draws an abstraction; anything else is a real export.
+
+    Both come back 818 wide, so a drawn shape and a recycled canvas land at the
+    same scale on the plate and read as siblings rather than as a photograph
+    next to a diagram.
+
+    This deck used to pull three REPLICA panels here - a parameter pane with real
+    field names, a code step with an invented actor slug. A replica claims to be
+    a screenshot, so it has to be perfect and never is. An abstraction claims to
+    be a diagram, invents nothing, and at 0.6s a frame it carries exactly as much
+    as the replica did."""
+    if name.startswith("shape:"):
+        return SH.SHAPES[name.split(":", 1)[1]](theme=THEME)
     return source(f"{WF}/{name}")
 
 
@@ -174,33 +185,39 @@ def build_closer(c):
     return im, dict(bottom=y)
 
 
-# The reference's copy, word for word. `art` recycles canvases out of the twenty
-# and pulls the three non-workflow steps from panels.py.
+# One real canvas, then abstractions of everything it hands off to. The point of
+# the deck is the HANDOFF, and the handoff targets were the parts that had to be
+# faked - so they are drawn as shapes instead of replicated as panels.
 SLIDES = [
     dict(title="The AI Agent",
-         blurb="The AI Agent will pre-fill the Google Maps Apify Scraper with "
-               "your search query.",
+         blurb="One prompt fills the scraper for you. No parameters to look up, "
+               "no JSON to hand write.",
          art=["Client Scraper.png"]),
 
-    dict(title="Data Entry",
-         blurb="Enter your search query to find your leads based on your "
-               "preferred location and parameters.",
-         art=["panel:config"]),
+    dict(title="The Sheet",
+         blurb="Every result lands in one table, deduped and filtered, ready to "
+               "read before anything is sent.",
+         art=["shape:grid"]),
 
-    dict(title="Processing",
-         blurb="Data is processed and added to a Google Sheet for you to review "
-               "and deploy.",
-         art=["panel:code"]),
+    dict(title="The Pipeline",
+         blurb="Each row moves through the same five steps in the same order, "
+               "every single time.",
+         art=["shape:pipeline"]),
 
-    dict(title="Lead Scoring",
-         blurb="Agent sends HTTPS requests based on the generated queries to "
-               "extract emails, social links and websites.",
-         art=["Email Closer.png"]),
+    dict(title="The Reach",
+         blurb="One brief goes out to every channel at once, formatted the way "
+               "each one wants it.",
+         art=["shape:fan"]),
 
-    dict(title="SDR",
-         blurb="Agent does research and tells if the lead is an ideal customer "
-               "then generates a personalized message.",
-         art=["SM Research Bot.png", "panel:dashboard"]),
+    dict(title="The Board",
+         blurb="Work moves lane to lane on its own. Nothing waits on somebody "
+               "remembering to drag a card.",
+         art=["shape:board"]),
+
+    dict(title="The Result",
+         blurb="What ran, how much it produced, and which day it spiked. Visible "
+               "before you think to ask.",
+         art=["shape:panel"]),
 ]
 
 # THE CTA IS ALWAYS COMMENT. Five short rows, every one of them able to be set
@@ -214,7 +231,7 @@ SLIDES = [
 CLOSER = [("comment", "Medium", 0.42),
           ("“AI”", "ExtraBold", 1.00),
           ("and get", "Medium", 0.40),
-          ("all 5 steps", "ExtraBold", 0.62),
+          ("all 6 builds", "ExtraBold", 0.62),
           ("100% FREE", "ExtraBold", 0.46)]
 
 
