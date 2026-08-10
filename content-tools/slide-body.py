@@ -68,12 +68,14 @@ SAFE_TOP, SAFE_BOT = 250, 1440          # reel chrome: 250 top, 480 bottom, 130 
 LEFT, MEASURE = 88, 820                 # text: 88..908
 PLATE_W = 860                           # artwork: 88..948, clears the rail at 950
 
-# The kit's palette, not ours. Ink #16130E rather than #111, and a ground with
-# a little warmth in it: a pure #FFF ground next to Instagram's own white chrome
-# reads as a screenshot of a browser, a warm one reads as paper.
-GROUND = (250, 248, 244)
+# The kit's ink, #16130E rather than #111. Its ground is a warm cream and this is
+# not: side by side against the reference the cream read as grey, and the whole
+# format depends on the paper looking like the reference's paper. A hair of
+# warmth is left so the grain has something to sit on.
+GROUND = (253, 252, 250)
 INK = (22, 19, 14)
-BODY = (68, 65, 60)                     # ink at 80% over the ground, the kit's .lines p
+BODY = (70, 67, 62)                     # ink at 80% over the ground, the kit's .lines p
+SOFT = (44, 41, 37)                     # the closer's light lines - near ink, not grey
 
 TICK_RING = (198, 201, 207)
 TICK_MARK = (60, 63, 70)
@@ -372,26 +374,26 @@ def build_cta(c):
     amber accent, a filled pill - and it was wrong for a reel. A carousel closer
     can invert because you arrive at it by swiping and the change of ground
     reads as "this is the end". In a reel a dark frame is a CUT, and a cut at
-    the end reads as a different video rather than as the end of this one. Same
-    ground, same left margin, same everything - only the shape of the type
-    changes, and it changes to centred because that is the one move the bodies
-    never make.
+    the end reads as a different video rather than as the end of this one.
 
-    Set in one centred stack of alternating weight, which is the reference's own
-    closer and the reason it works at 0.6s: the light lines are the sentence and
-    the heavy lines are the two words you actually take away."""
-    im = grain(Image.new("RGBA", (W, H), (*GROUND, 255)), 3.0)
+    The pass after that was the right page with the wrong type. Measured off the
+    reference, its stack runs on a NEARLY CONSTANT 106px leading with only about
+    1.35x between its lightest and heaviest line. The rebuild had 22px gaps and
+    a 1.8x range, which turned five lines into five separate objects instead of
+    one block. Weight carries the emphasis, size barely moves - same rule as
+    stack-note.py, and for the same reason."""
+    im = grain(Image.new("RGBA", (W, H), (*GROUND, 255)), 2.0)
     d = ImageDraw.Draw(im)
-    rows = [(t, F(sz, w), sz, fill) for t, sz, w, fill in c["stack"]]
-    gap = 22
-    block = sum(int(sz * 1.06) for _, _, sz, _ in rows) + gap * (len(rows) - 1)
-    y = (SAFE_TOP + SAFE_BOT - block) // 2
+    rows, pitches = c["stack"], c["pitch"]
+    block = sum(pitches) + int(rows[-1][1] * 0.727)
+    y = (SAFE_TOP + SAFE_BOT - block) // 2 + int(rows[0][1] * 0.727)
 
-    for t, f, sz, fill in rows:
-        y += int(sz * 0.727)
-        d.text((W // 2, y), t, font=f, fill=fill, anchor="ms")
-        y += int(sz * 1.06) - int(sz * 0.727) + gap
-    return im, dict(copy_end=0, bottom=y - gap)
+    for i, (t, sz, w) in enumerate(rows):
+        d.text((W // 2, y), t, font=F(sz, w),
+               fill=SOFT if w == "Regular" else INK, anchor="ms")
+        if i < len(pitches):
+            y += pitches[i]
+    return im, dict(copy_end=0, bottom=y)
 
 
 # The reference's own copy, back to clauses. An earlier pass rewrote all
@@ -450,16 +452,22 @@ SLIDES = [
 # also the only place the accent appears, and the only place the frame asks for
 # anything. It asks for a read, not a comment - the caption carries the keyword,
 # same standing rule as every other format here.
-# The reference closes on `comment "AI" to get my BLUEPRINT / 100% FREE`. Same
-# stack, same rhythm, our instruction: the frame points at the caption and the
-# caption carries the keyword, which is the standing rule for every format here.
-# Caps on the payoff words only - the kit bans uppercase and it is right for a
-# page you dwell on, but these two words are the entire job of the frame.
-CTA = dict(stack=[("read the", 62, "Regular", BODY),
-                  ("CAPTION", 96, "Bold", INK),
-                  ("to get every", 62, "Regular", BODY),
-                  ("BLUEPRINT", 112, "ExtraBold", INK),
-                  ("100% free", 52, "SemiBold", INK)])
+# THE CTA IS ALWAYS COMMENT. Not "read caption" - that rule came off the
+# state-overlay format and does not belong here. This is the reference's own
+# close, word for word, and it is the close for this format from now on.
+#
+# Curly quotes because they are the reference's. push-vault.py refuses a quote
+# in a CAPTION, which is a different thing: that ban is about what gets typed
+# into Instagram, not about what is drawn on a frame.
+#
+# Sizes and leading are measured off the reference rather than chosen:
+# 74/90/74/100/62 on a 106px rhythm that only opens up before the last line.
+CTA = dict(stack=[("comment", 74, "Regular"),
+                  ("“AI”", 90, "Bold"),
+                  ("for my full", 74, "Regular"),
+                  ("BLUEPRINT", 100, "ExtraBold"),
+                  ("100% FREE", 62, "Bold")],
+           pitch=[106, 106, 108, 126])
 
 
 if __name__ == "__main__":

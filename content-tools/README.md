@@ -162,6 +162,12 @@ kit does, and where the two disagree it wins:
 - **The closer is the same paper as the bodies.** The kit's closer inverts to a
   dark ground, which works when you arrive by swiping. In a reel a dark frame is
   a *cut*, and a cut at the end reads as a different video.
+- **The CTA is always `comment`.** `read caption` is the state-overlay format's
+  rule and it does not carry over here. This close is the reference's, word for
+  word, and its type is measured rather than chosen: 74/90/74/100/62 on a nearly
+  constant 106px leading, only about 1.35x between the lightest line and the
+  heaviest. A version with 22px gaps and a 1.8x range read as five separate
+  objects instead of one block. Weight carries the emphasis, size barely moves.
 - **The title is solved for ONE LINE.** A headline that wraps has already lost -
   the second line arrives after the eye has moved on - and it hands 90px back to
   the artwork.
