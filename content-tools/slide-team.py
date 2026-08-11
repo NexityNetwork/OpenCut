@@ -65,7 +65,7 @@ TITLE_CAP, TITLE_TRACK = 96, -0.030
 BAR_PAD, BAR_LEAD, TITLE_GAP = 26, 1.26, 16
 TABLE_TOP_GAP, TABLE_BOT = 52, 1420
 RULE, COL1 = 3, 330
-CELL_PAD, TILE, TILE_GAP = 22, 72, 20
+CELL_PAD, TILE, TILE_GAP, NAME_GAP = 22, 72, 20, 12
 JOB_CAP, NAME_CAP, DESC_CAP, DESC_LEAD = 52, 38, 25, 1.30
 
 LOGOS = os.environ.get("TOOL_LOGOS", "../apps/web/public/tools")
@@ -186,6 +186,22 @@ def build():
     dsz = solve_wrapped([r[3] for r in ROWS], DESC_CAP, "Regular", tm, 2)
     pitch = round(dsz * DESC_LEAD)
 
+    # THE BLOCK IS THE INK, NOT THE LEADING. Measuring it as one pitch per line
+    # counts a whole line of leading BELOW the last baseline that nothing is
+    # ever printed in, so the stack came out 9px taller than it looks and every
+    # row sat 4 to 7px high against its own tile - 13px of air over the name and
+    # 23px under the description. The last line ends at its descender, and only
+    # HALF of that is reserved: four of the seven descriptions end on a line
+    # with no descender in it, so reserving the full depth centres the two that
+    # do and leaves the rest sitting high.
+    #
+    # The line count is the SET's, not the row's, so all seven names share one
+    # baseline. A row that wrapped to one line would otherwise centre itself and
+    # sit half a line off every other row in the column.
+    nlines = max(len(SB.wrap(r[3], F(dsz, "Regular"), tm)) for r in ROWS)
+    block = (int(nsz * .727) + NAME_GAP + int(dsz * .727)
+             + (nlines - 1) * pitch + int(dsz * .12))
+
     for i, (job, key, name, desc) in enumerate(ROWS):
         cy = top + i * rh + rh // 2
         d.text((LEFT + CELL_PAD, cy), job, font=F(jsz, "Bold"), fill=INK,
@@ -195,12 +211,10 @@ def build():
         im.alpha_composite(ic, (split + CELL_PAD, cy - TILE // 2))
 
         tx = split + CELL_PAD + TILE + TILE_GAP
-        lines = SB.wrap(desc, F(dsz, "Regular"), tm)
-        block = int(nsz * .727) + 12 + pitch * len(lines)
         ty = cy - block // 2 + int(nsz * .727)
         d.text((tx, ty), name, font=F(nsz, "Bold"), fill=INK, anchor="ls")
-        ty += 12 + int(dsz * .727)
-        for ln in lines:
+        ty += NAME_GAP + int(dsz * .727)
+        for ln in SB.wrap(desc, F(dsz, "Regular"), tm):
             d.text((tx, ty), ln, font=F(dsz, "Regular"), fill=DIM, anchor="ls")
             ty += pitch
     return im, bot, dict(title=tsz, job=jsz, name=nsz, desc=dsz, rh=rh)

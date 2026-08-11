@@ -169,11 +169,20 @@ def build():
     lsz = solve_label(cell - 6)
     pitch = round(lsz * LBL_LEAD)
     # A row is a tile plus TWO label lines whether the name needs them or not,
-    # so all sixteen sit on the same pair of baselines. Two of those rows are
-    # shorter than two square cells, and the difference went under the bottom
-    # row as dead panel - so the pair is centred in the panel instead.
+    # so all sixteen sit on the same pair of baselines. The pair is then centred
+    # in the panel, and what is centred is the INK - measuring the block as two
+    # of those rows counts a whole line of leading below the last label that
+    # nothing is ever printed in, and the four panels came out 17px high, 32px
+    # of air over the top tiles and 66 under the bottom labels.
+    #
+    # The block is measured to the DEEPEST the set goes, which is Github
+    # Copilot wrapping to two lines. Centring each panel on its own depth
+    # instead would drop the panels that never wrap by 15px and the tile rows
+    # would stop lining up across the pair, which is the one thing worth more
+    # than the last few pixels of balance.
     row = TILE + LBL_GAP + 2 * pitch
-    ytop = (PANEL - 2 * row) // 2
+    block = row + TILE + LBL_GAP + int(lsz * .727) + pitch + int(lsz * .12)
+    ytop = (PANEL - block) // 2
     for qi, tiles in enumerate(QUADS):
         px = LEFT if qi % 2 == 0 else LEFT + PANEL + GUTTER
         py = bt if qi < 2 else bt + PANEL + GUTTER
