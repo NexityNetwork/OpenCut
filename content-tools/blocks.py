@@ -952,3 +952,118 @@ def stat_row(d, x, y, w, h, T, items):
 
 
 BLOCKS["tool_cards"] = tool_cards
+
+
+# ---------------------------------------------------- artifacts, not brand cards
+
+def list_panel(im, d, x, y, w, h, T, title, note, rows, logos=None, rz=31):
+    """A white panel with a header and rows of REAL records. The generic shape
+    behind `emails being checked`, `calls booked today`, `leads that came in` -
+    every claim of the form `the system handled these`, shown as the handled
+    things instead of as a logo for the tool that did it.
+
+    A row is (icon, left, right, tone): tone `green`/`amber` draws the right as
+    a status chip, `strike` draws the row as the one that FAILED the check -
+    struck through and dimmed, because a list where everything passes is
+    decoration, and the whole reason to show the check is the reject."""
+    C = dict(green=(22, 158, 92), amber=(226, 148, 22), chip=(238, 240, 244))
+    d.rounded_rectangle([x, y, x + w, y + h], radius=30, fill=(255, 255, 255),
+                        outline=T["rule"], width=1)
+    pad = 40
+    d.text((x + pad, y + pad + 24), title, font=F(32, "Bold"), fill=T["ink"], anchor="ls")
+    d.text((x + w - pad, y + pad + 24), note, font=F(28, "Regular"), fill=T["meta"],
+           anchor="rs")
+    top = y + pad + 52
+    rh = (h - (top - y) - pad + 10) // len(rows)
+    for i, (icon, left, right, tone) in enumerate(rows):
+        ry = top + i * rh
+        by = ry + rh // 2 + 11
+        tx = x + pad
+        if icon:
+            p = f"{logos or LOGOS}/{icon}.png"
+            if os.path.exists(p):
+                n = 52
+                im.alpha_composite(Image.open(p).convert("RGBA").resize((n, n),
+                                   Image.LANCZOS), (tx, ry + (rh - n) // 2))
+            tx += 52 + 28
+        struck = tone == "strike"
+        lf = F(rz, "SemiBold")
+        d.text((tx, by), left, font=lf, fill=T["meta"] if struck else T["ink"],
+               anchor="ls")
+        if struck:
+            lw_ = lf.getlength(left)
+            d.line([(tx - 4, by - 11), (tx + lw_ + 4, by - 11)], fill=T["meta"], width=3)
+            d.text((x + w - pad, by), right, font=F(rz - 4, "Regular"),
+                   fill=T["meta"], anchor="rs")
+        elif tone:
+            cf = F(rz - 6, "SemiBold")
+            cw = cf.getlength(right)
+            cx = x + w - pad - cw - 26
+            d.rounded_rectangle([cx, by - rz - 5, cx + cw + 26, by + 10],
+                                radius=20, fill=C["chip"])
+            d.text((cx + 13, by - 3), right, font=cf, fill=C[tone], anchor="ls")
+        else:
+            d.text((x + w - pad, by), right, font=F(28, "Regular"), fill=T["meta"],
+                   anchor="rs")
+        if i + 1 < len(rows):
+            d.line([(x + pad, top + (i + 1) * rh), (x + w - pad, top + (i + 1) * rh)],
+                   fill=(238, 237, 233), width=1)
+    return y + h
+
+
+def chat(d, x, y, w, T, msgs, sz=34, measure_only=False):
+    """A thread, not a paragraph in a card. Sent bubbles in ink on the right,
+    the reply in white on the left - the reply is the entire argument, because a
+    personalized message is proven by what comes back, not by how it was
+    worded."""
+    pad, gap = 26, 22
+    maxw = int(w * 0.78)
+    lead = round(sz * 1.32)
+    for side, text in msgs:
+        lines = wrap(text, F(sz, "Regular"), maxw - pad * 2)
+        tw = max(F(sz, "Regular").getlength(l) for l in lines)
+        bw = int(tw) + pad * 2
+        bh = len(lines) * lead + pad * 2 - round(sz * .30)
+        bx = x + w - bw if side == "me" else x
+        if not measure_only:
+            if side == "me":
+                d.rounded_rectangle([bx, y, bx + bw, y + bh], radius=28, fill=T["ink"])
+                col = (250, 250, 250)
+            else:
+                d.rounded_rectangle([bx, y, bx + bw, y + bh], radius=28,
+                                    fill=(255, 255, 255), outline=T["rule"], width=1)
+                col = T["ink"]
+            ty = y + pad + round(sz * .72)
+            for l in lines:
+                d.text((bx + pad, ty), l, font=F(sz, "Regular"), fill=col, anchor="ls")
+                ty += lead
+        y += bh + gap
+    return y - gap
+
+
+def seq(im, d, x, y, w, h, T, stops, logos=None, tile=104):
+    """A schedule on a spine. Day by day down the frame, each stop a tool tile
+    and one line - the outreach system AS the week it runs, not as the logos of
+    the two products it runs on."""
+    n = len(stops)
+    gapv = min(120, (h - n * tile) // max(1, n - 1))
+    total = n * tile + (n - 1) * gapv
+    y += max(0, (h - total) // 2)
+    cx = x + tile // 2
+    d.line([(cx, y + tile), (cx, y + total - tile)],
+           fill=T.get("spine", T["rule"]), width=3)
+    for i, (icon, day, label, hot) in enumerate(stops):
+        ty = y + i * (tile + gapv)
+        d.rounded_rectangle([x, ty, x + tile, ty + tile], radius=26,
+                            fill=(255, 255, 255), outline=T["rule"], width=1)
+        p = f"{logos or LOGOS}/{icon}.png"
+        if os.path.exists(p):
+            nn = int(tile * 0.62)
+            im.alpha_composite(Image.open(p).convert("RGBA").resize((nn, nn),
+                               Image.LANCZOS), (x + (tile - nn) // 2, ty + (tile - nn) // 2))
+        by = ty + tile // 2 + 15
+        df = F(42, "Bold")
+        d.text((x + tile + 44, by), day, font=df, fill=T["ink"], anchor="ls")
+        d.text((x + tile + 44 + df.getlength(day) + 22, by), label,
+               font=F(42, "Bold" if hot else "Regular"), fill=T["ink"], anchor="ls")
+    return y + total
