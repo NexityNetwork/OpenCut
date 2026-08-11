@@ -355,9 +355,12 @@ SLIDES = [
                  ("Contract", "$90K")],
          won="$129,000 won"),
 
-    dict(title="DISTRIBUTION", kind="fan",
+    dict(title="DISTRIBUTION", kind="shot",
          sub="Post **3-5 reels daily.** Cold outreach. LinkedIn. Instagram. "
-             "Email. **Everything.**"),
+             "Email. **Everything.**",
+         shot="win-brand-visibility.png", crop=(0, 0, 1512, 900),
+         stats=[("Reels", "3-5 a day"), ("Engines tracked", "4"),
+                ("Responses", "24 this week")]),
 ]
 
 # THE CTA IS ALWAYS COMMENT. The reference's own keyword.
