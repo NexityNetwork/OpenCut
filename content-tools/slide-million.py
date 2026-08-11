@@ -61,6 +61,8 @@ GAP = 64
 TICK_BAND3 = 216
 
 LOGOS = os.environ.get("TOOL_LOGOS", "../apps/web/public/tools")
+SHOTS = os.environ.get("ULTRON_SHOTS", "ultron-shots")
+PLATE_R = 22
 
 
 def ground():
@@ -75,6 +77,32 @@ def shadow(im, box, r=18, blur=26, alpha=46, drop=14):
         [box[0] + 10, box[1] + drop, box[2] - 10, box[3] + drop],
         radius=r, fill=(0, 0, 0, alpha))
     im.alpha_composite(sh.filter(ImageFilter.GaussianBlur(blur)))
+
+
+def plate(im, src_path, x, top, w, crop=None):
+    """A REAL screenshot on a plate. The drawn ultron surface is gone - a drawn
+    UI under the product's name reads as the product, and faking the product is
+    the one thing this deck must not do."""
+    src = Image.open(src_path).convert("RGB")
+    if crop:
+        src = src.crop(crop)
+    k = w / src.width
+    sw, sh_ = round(src.width * k), round(src.height * k)
+    src = src.resize((sw, sh_), Image.LANCZOS)
+    box = [x, top, x + sw, top + sh_]
+    shadow(im, box)
+    mask = Image.new("L", (sw, sh_), 0)
+    ImageDraw.Draw(mask).rounded_rectangle([0, 0, sw - 1, sh_ - 1], radius=PLATE_R, fill=255)
+    im.paste(src, (box[0], box[1]), mask)
+    return box[3]
+
+
+def strip(d, y, left, right):
+    """The use-metric line under a screenshot - the cream families' move."""
+    d.line([(LEFT, y), (RIGHT, y)], fill=T["rule"], width=1)
+    d.text((LEFT, y + 64), left, font=F(38, "Bold"), fill=T["ink"], anchor="ls")
+    d.text((RIGHT, y + 64), right, font=F(32, "Regular"), fill=T["ink"], anchor="rs")
+    return y + 88
 
 
 def logo_row(im, names, y, sz=84, gp=34):
@@ -117,32 +145,41 @@ def build(s):
     band = SAFE_BOT - top
 
     kind = s["kind"]
-    if kind == "brief":
-        yy = top + max(0, (band - s["brief_h"]) // 2)
-        yy = BL.brief_card(im, d, LEFT, yy, MEASURE, T, *s["brief"],
-                           logos=LOGOS, rh=s.get("brief_rh", 66),
-                           icon=s.get("brief_icon", "telegram"))
-    elif kind == "surface":
-        sh_ = s["surf_h"]
-        surf = BL.app_surface(MEASURE, sh_, theme=T, spec=BL.ULTRON_OS)
-        yy = top + max(0, (band - sh_) // 2)
-        shadow(im, [LEFT, yy, LEFT + MEASURE, yy + sh_])
-        im.alpha_composite(surf, (LEFT, yy))
-        yy += sh_
-    elif kind == "panel":
-        ph = s["panel_h"]
-        yy = top + max(0, (band - ph) // 2)
-        yy = BL.list_panel(im, d, LEFT, yy, MEASURE, ph, T, *s["panel"],
-                           logos=LOGOS, rz=s.get("panel_rz", 33),
-                           foot=s.get("panel_foot"))
+    if kind == "goal":
+        # Bare hairline rows, NOT a card. A white card with rows reads as an
+        # app, and this frame has no app to show.
+        yy = BL.register(d, LEFT, top, MEASURE, band, T, s["rows"],
+                         lsz=52, rsz=38, split=0.17, cap=(64, 42),
+                         hot=None, rule_top=False)
+    elif kind == "shot":
+        src = f"{SHOTS}/{s['shot']}"
+        w0, h0 = Image.open(src).size
+        if s.get("crop"):
+            w0 = s["crop"][2] - s["crop"][0]; h0 = s["crop"][3] - s["crop"][1]
+        ph = round(h0 * MEASURE / w0)
+        st = 88 + 24 if s.get("strip") else 0
+        yy = top + max(0, (band - ph - st) // 2)
+        yy = plate(im, src, LEFT, yy, MEASURE, crop=s.get("crop"))
+        if s.get("strip"):
+            yy = strip(d, yy + 24, *s["strip"])
+    elif kind == "split":
+        # Copy column beside a tall workspace panel - the one two-column frame.
+        pw = s.get("pw", 380)
+        src = f"{SHOTS}/{s['shot']}"
+        w0, h0 = Image.open(src).size
+        ph = round(h0 * pw / w0)
+        ph = min(ph, band)
+        cw = MEASURE - pw - 56
+        BL.checks(d, LEFT, top + 24, cw, min(560, band - 48), T, s["ticks2"],
+                  cap=40, lead=1.30, col=T["ink"])
+        yy = plate(im, src, RIGHT - pw, top, pw,
+                   crop=(0, 0, w0, round(band * w0 / pw)) if h0 > band * w0 / pw else None)
     elif kind == "notify":
         nh = 250
         yy = top + max(0, (band - nh) // 2)
         yy = BL.notify(im, d, LEFT, yy, MEASURE, T, *s["notify"], h=nh, logos=LOGOS)
     elif kind == "stack":
         yy = BL.stack(im, d, LEFT, top, MEASURE, band, T, s["rows"], logos=LOGOS)
-    else:
-        yy = logo_row(im, s["logos"], top + max(0, (band - 84) // 2))
     return im, dict(bottom=yy)
 
 
@@ -157,38 +194,27 @@ def build_closer(c):
 # The reference's skeleton; the product lines are 51ultron.com's own.
 
 SLIDES = [
-    dict(title="START WITH A CLEAR GOAL", kind="brief",
+    dict(title="START WITH A CLEAR GOAL", kind="goal",
          sub="Most founders **waste months** building products **nobody wants.**",
          ticks=["Go to 51ultron.com",
                 "Hand the busywork to an AI workforce",
                 "Launch the same day, not 6 months later"],
-         brief_h=376, brief_rh=58, brief_icon=None,
-         brief=("The goal", "6 months", [
-             ("1", "offer, productized"),
-             ("1", "niche you can actually reach"),
-             ("10", "clients on retainer"),
-             ("$10K", "MRR")])),
+         rows=[("1", "offer, productized"),
+               ("1", "niche you can actually reach"),
+               ("10", "clients on retainer"),
+               ("$10K", "MRR in 6 months")]),
 
-    dict(title="PUT THE WORKFORCE ON IT", kind="surface",
+    dict(title="PUT THE WORKFORCE ON IT", kind="shot",
          sub="Ultron is an **AI workforce** that runs sales, marketing and "
              "engineering for founders.",
-         ticks=["Outreach, content and support run themselves",
-                "You review, it executes",
-                "Focus on FINDING CUSTOMERS, not coding"],
-         surf_h=560),
+         shot="home.png", strip=("412 runs this week", "you and the fleet")),
 
-    dict(title="VALIDATE FIRST", kind="panel",
-         sub="Test the market first and let your customers tell you "
-             "**what they want.**",
-         ticks=["Pitch the offer before you build it",
-                "10 conversations in week one",
-                "Kill what nobody answers"],
-         panel_h=400,
-         panel=("Offer test", "week one", [
-             (None, "Missed-call booking bot", "6 replies", "green"),
-             (None, "Invoice chasing service", "4 replies", "green"),
-             (None, "Generic SEO audits", "killed", "strike")]),
-         panel_foot=("2 offers worth building", "1 dropped")),
+    dict(title="VALIDATE FIRST", kind="split",
+         sub="Outreach scores every lead **before you build anything** for them.",
+         ticks2=["Pitch the offer before you build it",
+                 "10 conversations in week one",
+                 "Kill what nobody answers"],
+         shot="sub-outreach.png"),
 
     dict(title="CHOOSE A WINNING MODEL", kind="notify",
          sub="Start with a **subscription model** and move to service once "
@@ -208,23 +234,16 @@ SLIDES = [
                ("Payments", ["stripe"]),
                ("Sales", ["hubspot", "apollo"])]),
 
-    dict(title="REPLACE", kind="logos",
-         sub="You remove **boring work** from real businesses.",
-         ticks=["Lead capture", "Booking", "Sales handoff",
-                "Support replies", "Invoicing", "Admin ops"],
-         logos=["n8n", "hubspot", "calendly", "notion", "stripe"]),
+    dict(title="TRACK THE PIPELINE", kind="shot",
+         sub="Every deal has an owner and a stage. **Nothing goes quiet.**",
+         shot="win-pipeline.png", crop=(0, 0, 1512, 1100),
+         strip=("$369,000 open", "2 won this month")),
 
-    dict(title="DISTRIBUTION", kind="panel",
+    dict(title="DISTRIBUTION", kind="shot",
          sub="Post **3-5 reels daily.** Cold outreach. LinkedIn. Instagram. "
              "Email. **Everything.**",
-         panel_h=520,
-         panel=("Going out today", "made in ultron", [
-             ("tiktok", "Reel - desk setup teardown", "posted", "green"),
-             ("instagram", "Reel - one idea, ten posts", "posted", "green"),
-             ("youtube", "Reel - the boring agent", "18:00", None),
-             ("gmail", "Cold batch - 120 sends", "06:00", None),
-             ("linkedin", "Build in public post", "queued", "amber")]),
-         panel_foot=("31 pieces this week", "every channel")),
+         shot="win-brand-visibility.png", crop=(0, 0, 1512, 1100),
+         strip=("3-5 reels DAILY", "every channel, tracked")),
 ]
 
 # THE CTA IS ALWAYS COMMENT. The reference's own keyword.
