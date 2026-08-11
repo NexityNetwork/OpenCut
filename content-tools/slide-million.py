@@ -125,6 +125,117 @@ def head(d, title):
     return ry + GAP
 
 
+def ramp(d, x, y, w, h, T):
+    """Six months as a drawn trajectory, not two stacked lists. Three
+    milestones on a rising line, ending at the number the frame is about."""
+    ax = y + h - 70
+    d.line([(x, ax), (x + w, ax)], fill=T["rule"], width=2)
+    for i in range(7):
+        mx = x + int(w * i / 6)
+        d.line([(mx, ax - 6), (mx, ax + 6)], fill=T["rule"], width=2)
+        if i:
+            d.text((mx, ax + 44), f"M{i}", font=F(26, "Regular"), fill=T["ink"],
+                   anchor="ms")
+    pts = [(0.02, 0.02), (0.18, 0.14), (0.40, 0.34), (0.66, 0.62), (0.97, 0.94)]
+    P = [(x + int(w * a), ax - 24 - int((h - 170) * b)) for a, b in pts]
+    d.line(P, fill=T["ink"], width=6, joint="curve")
+    # Labels sit clear of the path: the first above its dot, the rest below,
+    # where the rising line leaves open paper.
+    marks = [(0, "Launch", "day one", -1), (2, "First client", "week 3", 1),
+             (3, "10 on retainer", "month 4", 1)]
+    for i, lab, sub, side in marks:
+        px, py = P[i]
+        d.ellipse([px - 11, py - 11, px + 11, py + 11], fill=T["ink"])
+        if side < 0:
+            d.text((px - 2, py - 76), lab, font=F(31, "Bold"), fill=T["ink"], anchor="ls")
+            d.text((px - 2, py - 42), sub, font=F(26, "Regular"), fill=T["ink"], anchor="ls")
+        else:
+            d.text((px + 6, py + 56), lab, font=F(31, "Bold"), fill=T["ink"], anchor="ls")
+            d.text((px + 6, py + 90), sub, font=F(26, "Regular"), fill=T["ink"], anchor="ls")
+    px, py = P[-1]
+    d.ellipse([px - 14, py - 14, px + 14, py + 14], fill=T["accent"])
+    d.text((px, py - 84), "$10K", font=F(54, "Bold"), fill=T["accent"], anchor="rs")
+    d.text((px, py - 40), "MRR, month 6", font=F(28, "Regular"), fill=T["ink"],
+           anchor="rs")
+    return ax + 60
+
+
+def scale(d, x, y, w, h, T):
+    """The three models on ONE money scale - the point of the frame is that
+    they live at different altitudes, and a list cannot say that."""
+    import math
+    lo, hi = 19, 3000
+    pos = lambda v: x + int(w * math.log(v / lo) / math.log(hi / lo))
+    ax = y + h - 64
+    d.line([(x, ax), (x + w, ax)], fill=T["rule"], width=2)
+    for v, t in ((19, "$19"), (97, "$97"), (197, "$197"), (500, "$500"), (3000, "$3K")):
+        d.line([(pos(v), ax - 6), (pos(v), ax + 6)], fill=T["rule"], width=2)
+        d.text((pos(v), ax + 42), t, font=F(26, "Regular"), fill=T["ink"], anchor="ms")
+    bars = [("One-time", 19, 197, "no churn"),
+            ("Monthly SaaS", 19, 97, "recurring"),
+            ("Service + product", 500, 3000, "high LTV")]
+    for i, (lab, a, b, note) in enumerate(bars):
+        by = y + 46 + i * 92
+        d.rounded_rectangle([pos(a), by, pos(b), by + 20], radius=10, fill=T["ink"])
+        lx = pos(a) if i < 2 else pos(a)
+        anchor = "ls"
+        d.text((lx, by - 14), lab, font=F(30, "Bold"), fill=T["ink"], anchor=anchor)
+        d.text((lx + F(30, "Bold").getlength(lab) + 16, by - 14), note,
+               font=F(27, "Regular"), fill=T["ink"], anchor="ls")
+    mx = pos(97)
+    d.ellipse([mx - 10, y + 46 + 92 + 10 - 10, mx + 10, y + 46 + 92 + 10 + 10],
+              fill=T["accent"])
+    d.text((mx + 22, y + 46 + 92 + 20), "start here", font=F(27, "SemiBold"),
+           fill=T["accent"], anchor="ls")
+    return ax + 56
+
+
+def chevrons(d, x, y, w, T, stages, won):
+    """The pipeline as the strip it is - stages that hand into each other,
+    with the won number where the strip empties out."""
+    n = len(stages)
+    gap = 10
+    seg = (w - gap * (n - 1)) // n
+    hh = 96
+    for i, (name, val) in enumerate(stages):
+        x0 = x + i * (seg + gap)
+        notch = 20
+        p = [(x0, y), (x0 + seg - notch, y), (x0 + seg, y + hh // 2),
+             (x0 + seg - notch, y + hh), (x0, y + hh)]
+        if i:
+            p.append((x0 + notch, y + hh // 2))
+        d.polygon(p, fill=T["ink"])
+        cx = x0 + seg // 2 + (6 if i else 0)
+        d.text((cx, y + 38), name, font=F(22, "SemiBold"), fill=(245, 244, 240),
+               anchor="ms")
+        d.text((cx, y + 74), val, font=F(26, "Bold"), fill=(245, 244, 240),
+               anchor="ms")
+    yy = y + hh + 52
+    d.text((x + w, yy), won, font=F(34, "Bold"), fill=T["accent"], anchor="rs")
+    return yy
+
+
+def fan_out(im, d, x, y, w, h, T):
+    """One thing made, every channel fed - distribution drawn as the fan it
+    is. The source is ultron; the targets are where the day's pieces land."""
+    sx, sy, st = x + w // 2, y + 30, 128
+    BL.logo_tile(im, d, sx - st // 2, sy, st, "ultron", T, LOGOS)
+    d.text((sx, sy + st + 46), "made in ultron", font=F(29, "SemiBold"),
+           fill=T["ink"], anchor="ms")
+    targets = [("tiktok", "07:00"), ("instagram", "10:00"), ("youtube", "13:00"),
+               ("linkedin", "16:00"), ("gmail", "06:00")]
+    tt = 96
+    ty = y + h - tt - 76
+    span = w - tt
+    for i, (k, when) in enumerate(targets):
+        tx = x + int(i * span / (len(targets) - 1))
+        d.line([(sx, sy + st + 66), (tx + tt // 2, ty - 14)], fill=T["rule"], width=3)
+        BL.logo_tile(im, d, tx, ty, tt, k, T, LOGOS)
+        d.text((tx + tt // 2, ty + tt + 44), when, font=F(27, "Regular"),
+               fill=T["ink"], anchor="ms")
+    return ty + tt + 60
+
+
 def build(s):
     im = ground()
     d = ImageDraw.Draw(im)
@@ -146,24 +257,28 @@ def build(s):
 
     kind = s["kind"]
     if kind == "goal":
-        # Bare hairline rows, NOT a card - and NOT justified to the band.
-        # Spreading four short rows over 700px blew the numbers up to poster
-        # size with a gap canyon after them; the block keeps a working height
-        # and centres.
-        gh = min(band, 440)
-        yy = BL.register(d, LEFT, top + max(0, (band - gh) // 2), MEASURE, gh, T,
-                         s["rows"], lsz=46, rsz=38, split=0.15, cap=(48, 40),
-                         hot=None, rule_top=False)
+        yy = ramp(d, LEFT, top + max(0, (band - 600) // 2), MEASURE, 600, T)
+    elif kind == "scale":
+        gh = 340 + 64 + 280
+        yy = top + max(0, (band - gh) // 2)
+        yy = scale(d, LEFT, yy, MEASURE, 340, T)
+        yy = BL.notify(im, d, LEFT, yy + 64, MEASURE, T, *s["notify"], h=280,
+                       logos=LOGOS)
+    elif kind == "fan":
+        yy = fan_out(im, d, LEFT, top + max(0, (band - 640) // 2), MEASURE, 640, T)
     elif kind == "shot":
         src = f"{SHOTS}/{s['shot']}"
         w0, h0 = Image.open(src).size
         if s.get("crop"):
             w0 = s["crop"][2] - s["crop"][0]; h0 = s["crop"][3] - s["crop"][1]
         ph = round(h0 * MEASURE / w0)
-        st = (230 + 48) if s.get("stats") else 0
+        st = (96 + 52 + 34 + 48) if s.get("stages") else \
+            ((230 + 48) if s.get("stats") else 0)
         yy = top + max(0, (band - ph - st) // 2)
         yy = plate(im, src, LEFT, yy, MEASURE, crop=s.get("crop"))
-        if s.get("stats"):
+        if s.get("stages"):
+            yy = chevrons(d, LEFT, yy + 48, MEASURE, T, s["stages"], s["won"])
+        elif s.get("stats"):
             yy = BL.stat_row(d, LEFT, yy + 48, MEASURE, 230, T, s["stats"])
     elif kind == "split":
         # Copy column beside a tall workspace panel - the one two-column frame.
@@ -201,11 +316,7 @@ SLIDES = [
          sub="Most founders **waste months** building products **nobody wants.**",
          ticks=["Go to 51ultron.com",
                 "Hand the busywork to an AI workforce",
-                "Launch the same day, not 6 months later"],
-         rows=[("1", "offer, productized"),
-               ("1", "niche you can actually reach"),
-               ("10", "clients on retainer"),
-               ("$10K", "MRR in 6 months")]),
+                "Launch the same day, not 6 months later"]),
 
     dict(title="PUT THE WORKFORCE ON IT", kind="shot",
          sub="Ultron is an **AI workforce** that runs sales, marketing and "
@@ -221,12 +332,9 @@ SLIDES = [
                  "Kill what nobody answers"],
          shot="sub-outreach.png"),
 
-    dict(title="CHOOSE A WINNING MODEL", kind="notify",
+    dict(title="CHOOSE A WINNING MODEL", kind="scale",
          sub="Start with a **subscription model** and move to service once "
              "you know the market.",
-         ticks=["One-time: $19-$197 (no churn)",
-                "Monthly SaaS: $19-$97 (recurring)",
-                "Service + Product: $500-$3K/month"],
          notify=("Stripe", "new subscription", "$97.00")),
 
     dict(title="PICK YOUR TOOL STACK", kind="stack",
@@ -242,15 +350,14 @@ SLIDES = [
     dict(title="TRACK THE PIPELINE", kind="shot",
          sub="Every deal has an owner and a stage. **Nothing goes quiet.**",
          shot="win-pipeline.png", crop=(0, 0, 1512, 900),
-         stats=[("Open pipeline", "$369,000"), ("Won this month", "$129,000"),
-                ("Avg deal", "$45,273")]),
+         stages=[("Discovery", "$63K"), ("Proposal", "$78K"),
+                 ("Negotiation", "$78K"), ("Verbal", "$60K"),
+                 ("Contract", "$90K")],
+         won="$129,000 won"),
 
-    dict(title="DISTRIBUTION", kind="shot",
+    dict(title="DISTRIBUTION", kind="fan",
          sub="Post **3-5 reels daily.** Cold outreach. LinkedIn. Instagram. "
-             "Email. **Everything.**",
-         shot="win-brand-visibility.png", crop=(0, 0, 1512, 900),
-         stats=[("Reels", "3-5 a day"), ("Engines tracked", "4"),
-                ("Responses", "24 this week")]),
+             "Email. **Everything.**"),
 ]
 
 # THE CTA IS ALWAYS COMMENT. The reference's own keyword.
