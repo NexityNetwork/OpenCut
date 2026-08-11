@@ -1,0 +1,545 @@
+#!/usr/bin/env python3
+"""One block, five configurations. The deck's theme, not the reference's.
+
+The copy in these decks is the reference's and it is proven, so it is
+transcribed word for word. THE DESIGN IS NOT. A previous pass copied both, and
+what came back was six frames with six different treatments - white cards on
+one, dot bullets on the next, nested monospace boxes on two more. That is the
+reference's own inconsistency reproduced faithfully, which is not a theme, it is
+a xerox.
+
+THE THEME IS A RULED REGISTER. Every frame is the same object: a title, a rule,
+then rows divided by hairlines, each row a left column and a right column. A
+step, a bullet, a tool and its role, a price tier - all of them are that row.
+What changes between blocks is only what goes in each column and whether the
+right column is set in mono.
+
+Three things carry it and nothing else is allowed to:
+
+  THE HAIRLINE. It is the only division on any frame. No cards, no fills, no
+  boxes - a card says `this item is a separate object` and every one of these
+  lists is one object with parts.
+
+  ONE ACCENT, ONCE A FRAME. The step number, the current tier, the row that
+  matters. Two accents on a frame and neither is the answer.
+
+  MONO ONLY FOR DATA. A tool name, a price, a count. Prose is never mono, and
+  a monospace label on a sentence is costume.
+
+Every block justifies to the height it is given - the rows spread from the rule
+to the bottom of the safe box rather than stacking in the middle third. Fixed
+gaps put a compact block in the middle of the frame with air above and below,
+which reads as a slide that ran out of things to say.
+"""
+import math
+import os
+
+from PIL import Image, ImageDraw, ImageFont
+
+FD = os.environ.get("FONT_DIR", "brand/fonts/extras/ttf")
+LOGOS = os.environ.get("TOOL_LOGOS", "../apps/web/public/tools")
+MONO = "/usr/share/fonts/truetype/dejavu/DejaVuSansMono.ttf"
+_f = {}
+
+
+def F(sz, w="Regular"):
+    k = (sz, w)
+    if k not in _f:
+        _f[k] = (ImageFont.truetype(MONO, int(sz)) if w == "mono"
+                 else ImageFont.truetype(f"{FD}/Inter-{w}.ttf", int(sz)))
+    return _f[k]
+
+
+def wrap(s, f, maxw):
+    out, line = [], ""
+    for word in s.split():
+        cand = f"{line} {word}".strip()
+        if line and f.getlength(cand) > maxw:
+            out.append(line)
+            line = word
+        else:
+            line = cand
+    if line:
+        out.append(line)
+    return out
+
+
+SPLIT = 0.40          # where the left column ends, on every frame
+
+
+def register(d, x, y, w, h, T, rows, lsz=34, rsz=32, lead=1.34, pad=30,
+             mono_right=False, mono_left=False, hot=None, rule_top=True,
+             split=SPLIT, stacked=False, cap=(48, 42), marks=None):
+    """THE block. Everything else on this deck is a call to it.
+
+    rows are (left, right) - right may be a string or a list of strings, and a
+    list sets one under the other in the right column.
+
+    The row height is SOLVED from the space, never chosen, so five rows fill the
+    frame and eight rows still fit it."""
+    # The split is per block, not global. One value for all of them put a
+    # two-word number beside a canyon on the steps frame and ran a
+    # twenty-two-character label straight into its own description on the pairs
+    # frame. Long labels go STACKED instead: label on its own line, description
+    # under it, which is what the reference does and what cannot collide.
+    lw = w if stacked else int(w * split) - 24
+    rw = w if stacked else w - int(w * split)
+
+    n = len(rows)
+
+    def measure(a, b):
+        lfa = F(a, "mono" if mono_left else "Bold")
+        rfa = F(b, "mono" if mono_right else "Regular")
+        out = []
+        for left, right in rows:
+            parts = right if isinstance(right, (list, tuple)) else [right]
+            out.append((left, [l for pt in parts for l in wrap(pt, rfa, w if stacked
+                                                              else w - int(w * split) - 20)]))
+        return out, lfa, rfa, sum((round(a * 1.3) if stacked and lf else 0)
+                                  + max(1, len(ls)) * round(b * lead) for lf, ls in out)
+
+    # SOLVE THE TYPE SIZE, not just the gap. Six rows of 26px spread down 1000px
+    # of frame is a sparse table floating in the dark - the space got filled with
+    # AIR because air was the only variable. Scaling the type until the rows plus
+    # a decent gap use the height fills it with content instead, which is the
+    # only kind of filling that reads as a slide rather than as a leftover.
+    # CAPPED. Filling by scale alone drove a two-column table to 62px and its
+    # values wrapped three deep, which is a different kind of broken from the
+    # sparse table it replaced. Each block states the largest its type may get;
+    # past that the leftover goes back to being gap, which is correct once the
+    # type is already big enough to read.
+    hi = min(cap[0] / lsz, cap[1] / rsz)
+    lo = 1.0
+    for _ in range(18):
+        mid = (lo + hi) / 2
+        _, _, _, ik = measure(round(lsz * mid), round(rsz * mid))
+        if ik + n * pad * 1.6 <= h:
+            lo = mid
+        else:
+            hi = mid
+    lsz, rsz = round(lsz * lo), round(rsz * lo)
+    body, lf, rf, ink = measure(lsz, rsz)
+    # The column stop is DERIVED from the widest label at the size that was just
+    # solved, not fixed. A fixed 34 percent was fine at 26px and ran GPT-4.1-mini
+    # straight through Transcript once the type scaled up - the split has to move
+    # with the thing it is splitting.
+    if not stacked:
+        need = max((lf.getlength(l) for l, _ in rows if l), default=0) + 44
+        split = min(0.62, max(split, need / w))
+        body, lf, rf, ink = measure(lsz, rsz)
+    gap = max(pad, (h - ink - (n if rule_top else n - 1) * 2) // max(1, n))
+
+    mw = round(lsz * 1.9) if marks else 0          # the glyph tile, if there is one
+    if rule_top:
+        d.line([(x, y), (x + w, y)], fill=T["rule"], width=2)
+        y += gap
+    # EACH ROW IS CENTRED IN ITS OWN BAND, and the left column is centred against
+    # the right column's block.
+    #
+    # Before this the baseline was placed first and the gap split around it, so
+    # every row sat hard against the rule above it and floated off the one below
+    # - the space looked thrown in rather than measured. And a one-line price sat
+    # at the TOP of a two-line description instead of against its middle, which
+    # is the same fault on the other axis.
+    rp = round(rsz * lead)
+    for i, (left, ls) in enumerate(body):
+        ink_h = (round(lsz * 1.3) if stacked and left else 0) + max(1, len(ls)) * rp
+        top = y + gap // 2
+        mid = top + ink_h / 2
+        ry = top + rsz * 0.727
+
+        if marks:
+            glyph(d, x, mid - mw / 2, mw, T, marks[i])
+        if left:
+            col = T["accent"] if hot is not None and i == hot else T["ink"]
+            ly = ry if stacked else mid + lsz * 0.36
+            d.text((x + (mw + 28 if marks else 0), ly), left, font=lf, fill=col, anchor="ls")
+            if stacked:
+                ry += round(lsz * 1.3)
+        rx = x if stacked else x + int(w * split)
+        for ln in ls:
+            d.text((rx, ry), ln, font=rf, fill=T["ink"], anchor="ls")
+            ry += rp
+
+        y = top + ink_h + gap // 2
+        if i + 1 < n:
+            d.line([(x, y), (x + w, y)], fill=T["rule"], width=1)
+    return y
+
+
+def pairs(d, x, y, w, h, T, items):
+    """A label and what it means. Stacked, because these labels are sentences'
+    worth of words and no column split survives them."""
+    return register(d, x, y, w, h, T, items, lsz=36, rsz=32, stacked=True,
+                    cap=(46, 38))
+
+
+def steps(d, x, y, w, h, T, items, hot=None):
+    """A sequence. The number is the left column and it is the accent - which is
+    the whole reason the white step cards went: a card per step says five
+    objects, a ruled row says one list with five entries."""
+    return register(d, x, y, w, h, T, items, lsz=38, rsz=36,
+                    hot=hot, split=0.13, cap=(54, 52))
+
+
+def bullets(d, x, y, w, h, T, items, hot=None):
+    """A plain list. No dots - the hairline already divides the rows, and a dot
+    on top of a rule is two dividers doing one job."""
+    return register(d, x, y, w, h, T, [("", t) for t in items],
+                    rsz=38, hot=hot, cap=(48, 48))
+
+
+def spec(d, x, y, w, h, T, rows, hot=None):
+    """Tool and role.
+
+    Set in the deck's own face, not mono. Mono was chosen because the content is
+    `data`, which is a reason that exists in my head and nowhere on the frame -
+    what a reader sees is one slide in a different typeface for no stated cause.
+    A deck gets one face; if a column needs to read as a name rather than as
+    prose, weight does that."""
+    return register(d, x, y, w, h, T, rows, lsz=30, rsz=28, hot=hot, split=0.34,
+                    cap=(40, 36))
+
+
+def pricing(d, x, y, w, h, T, rows, hot=None):
+    """A tier, its price, what it includes. Mono left because a price is data."""
+    return register(d, x, y, w, h, T, rows, lsz=30, rsz=28,
+                    mono_left=True, hot=hot, cap=(38, 34))
+
+
+# -------------------------------------------------------------------- graphic
+
+def fan(W=820, H=430, theme=None, logos=("instagram", "tiktok", "x", "linkedin",
+                                         "facebook", "youtube", "gmail", "telegram",
+                                         "notion", "airtable")):
+    """One thing out to many. The only drawn graphic that survived, because it
+    is the only one that shows a RELATIONSHIP rather than mimicking a screen -
+    and the reference uses exactly it.
+
+    An arc, not a row. A row of marks says `these exist`; an arc says `all of
+    them, from here`. The vertical is squashed to 0.78 because a true circle
+    piles everything overhead and the fan stops reading as a fan."""
+    T = theme
+    im = Image.new("RGBA", (W, H), (0, 0, 0, 0))
+    d = ImageDraw.Draw(im)
+    cx, cy, rad, sz = W // 2, H - 46, 300, 62
+    n = len(logos)
+    for i in range(n):
+        a = math.pi * (0.04 + 0.92 * i / (n - 1))
+        px, py = cx - rad * math.cos(a), cy - rad * math.sin(a) * 0.78
+        d.line([(cx, cy - 16), (px, py)], fill=T["spine"], width=2)
+    d.rounded_rectangle([cx - 48, cy - 44, cx + 48, cy + 24], radius=18, fill=T["accent"])
+    d.rounded_rectangle([cx - 26, cy - 26, cx + 26, cy - 17], radius=4, fill=(255, 255, 255))
+    d.rounded_rectangle([cx - 26, cy - 10, cx + 8, cy - 1], radius=4, fill=(255, 255, 255))
+    for i, name in enumerate(logos):
+        a = math.pi * (0.04 + 0.92 * i / (n - 1))
+        px, py = cx - rad * math.cos(a), cy - rad * math.sin(a) * 0.78
+        box = (int(px - sz / 2), int(py - sz / 2))
+        p = f"{LOGOS}/{name}.png"
+        if os.path.exists(p):
+            im.alpha_composite(Image.open(p).convert("RGBA").resize((sz, sz), Image.LANCZOS),
+                               box)
+    return im
+
+
+BLOCKS = {"pairs": pairs, "steps": steps, "bullets": bullets,
+          "spec": spec, "pricing": pricing}
+
+
+def app_surface(W=820, H=660, theme=None):
+    """The application, as a surface. What goes where the reference puts two
+    product screenshots.
+
+    A workflow canvas was pasted here once and it was the wrong object entirely -
+    the slide is called Application OS and a canvas is the automation, not the
+    application.
+
+    Not a replica and not a skeleton. Every word on it is real - the tables this
+    system actually has, the platforms it actually covers - so nothing is
+    invented, and it is dense and coloured because a product surface IS dense and
+    coloured. Its internal type is small on purpose: at 820px on a frame this
+    reads as an application the way a photograph of a city reads as a city, not
+    as something you are meant to read word by word. The frame's own type carries
+    the message; this carries the fact that a product exists.
+    """
+    T = theme
+    C = dict(bg=(255, 255, 255), rail=(247, 247, 249), edge=(228, 229, 233),
+             ink=(24, 25, 28), dim=(126, 129, 136), faint=(196, 199, 205),
+             chip=(238, 240, 244), blue=(52, 116, 240), green=(22, 158, 92),
+             amber=(226, 148, 22), pink=(226, 66, 122))
+    im = Image.new("RGBA", (W, H), (0, 0, 0, 0))
+    d = ImageDraw.Draw(im)
+    d.rounded_rectangle([0, 0, W - 1, H - 1], radius=16, fill=C["bg"])
+
+    rw = 208
+    d.rounded_rectangle([0, 0, rw, H - 1], radius=16, fill=C["rail"])
+    d.rectangle([rw - 16, 0, rw, H], fill=C["rail"])
+    d.line([(rw, 0), (rw, H)], fill=C["edge"], width=1)
+    d.text((22, 40), "Content OS", font=F(21, "Bold"), fill=C["ink"], anchor="ls")
+    nav = [("Home", 0), ("Inputs", 1), ("Competitors", 0), ("Comments", 0),
+           ("Briefs", 0), ("Playbooks", 0), ("Reports", 0)]
+    for i, (t, on) in enumerate(nav):
+        y = 82 + i * 40
+        if on:
+            d.rounded_rectangle([10, y, rw - 14, y + 32], radius=8, fill=(232, 236, 246))
+        d.rounded_rectangle([22, y + 11, 32, y + 21], radius=3,
+                            fill=C["blue"] if on else C["faint"])
+        d.text((44, y + 23), t, font=F(17, "SemiBold" if on else "Regular"),
+               fill=C["ink"] if on else C["dim"], anchor="ls")
+    d.text((22, H - 118), "PLATFORMS", font=F(12, "SemiBold"), fill=C["faint"], anchor="ls")
+    for i, (t, c) in enumerate([("TikTok", C["ink"]), ("Instagram", C["pink"]),
+                                ("YouTube", (220, 40, 40))]):
+        d.ellipse([22, H - 100 + i * 26, 32, H - 90 + i * 26], fill=c)
+        d.text((42, H - 90 + i * 26), t, font=F(15, "Regular"), fill=C["dim"], anchor="ls")
+
+    x, w = rw + 26, W - rw - 52
+    cw = (w - 3 * 12) // 4
+    for i, (n, lab) in enumerate([("6", "platforms"), ("20", "inputs"),
+                                  ("129", "briefs"), ("42", "playbooks")]):
+        cx = x + i * (cw + 12)
+        d.rounded_rectangle([cx, 30, cx + cw, 132], radius=10, fill=C["bg"],
+                            outline=C["edge"], width=1)
+        d.text((cx + 16, 78), n, font=F(38, "Bold"), fill=C["ink"], anchor="ls")
+        d.text((cx + 16, 106), lab, font=F(15, "Medium"), fill=C["dim"], anchor="ls")
+
+    d.text((x, 176), "Content briefs", font=F(19, "Bold"), fill=C["ink"], anchor="ls")
+    d.text((x + w, 176), "filtered by platform", font=F(15, "Regular"),
+           fill=C["dim"], anchor="rs")
+    cols = [("platform", 0.0), ("hook", 0.26), ("status", 0.74)]
+    y = 206
+    for name, f in cols:
+        d.text((x + int(w * f), y), name, font=F(14, "SemiBold"), fill=C["faint"], anchor="ls")
+    y += 12
+    d.line([(x, y), (x + w, y)], fill=C["edge"], width=1)
+    rows = [("TikTok", "Desk setup teardown", "done", C["green"]),
+            ("Instagram", "One idea, ten posts", "done", C["green"]),
+            ("YouTube", "The boring agent", "review", C["amber"]),
+            ("LinkedIn", "What nobody posts", "review", C["amber"]),
+            ("X", "Cost per booked call", "queued", C["dim"]),
+            ("Facebook", "Follow ups that fire", "queued", C["dim"])]
+    rh = (H - 40 - y) // len(rows)
+    for i, (plat, hook, st, col) in enumerate(rows):
+        ry = y + i * rh
+        if i % 2 == 0:
+            d.rounded_rectangle([x - 8, ry + 4, x + w + 8, ry + rh - 2], radius=6,
+                                fill=(250, 250, 252))
+        by = ry + rh // 2 + 7
+        d.text((x, by), plat, font=F(17, "SemiBold"), fill=C["ink"], anchor="ls")
+        d.text((x + int(w * 0.26), by), hook, font=F(17, "Regular"), fill=C["dim"], anchor="ls")
+        cx = x + int(w * 0.74)
+        tw = d.textbbox((0, 0), st, font=F(14, "SemiBold"))[2]
+        d.rounded_rectangle([cx, by - 20, cx + tw + 22, by + 6], radius=13, fill=C["chip"])
+        d.text((cx + 11, by - 7), st, font=F(14, "SemiBold"), fill=col, anchor="lm")
+    return im
+
+
+# ------------------------------------------------------------ drawn marks
+
+def _tile(d, x, y, s, T, r=18):
+    d.rounded_rectangle([x, y, x + s, y + s], radius=r, outline=T["rule"], width=2)
+
+
+def glyph(d, x, y, s, T, kind):
+    """A drawn mark in a tile. Five shapes, stroked not filled, all from the same
+    3px pen - five filled illustrations would be five objects competing, five
+    strokes of one weight is one set.
+
+    EVERY SHAPE IS BUILT AROUND THE TILE'S OWN CENTRE. The first version placed
+    each one from fractions of the top-left corner, so none of them agreed on
+    where the middle was and the grid mark in particular sat low and right of
+    it. cx, cy is the centre; r is the half-size every shape works within."""
+    _tile(d, x, y, s, T)
+    cx, cy, r, w = x + s / 2, y + s / 2, s * 0.24, 3
+    if kind == "grid":                                  # an agency: many accounts
+        u, g = r * 0.82, r * 0.30
+        for i in (0, 1):
+            for j in (0, 1):
+                d.rounded_rectangle([cx - u - g / 2 + i * (u + g), cy - u - g / 2 + j * (u + g),
+                                     cx - g / 2 + i * (u + g), cy - g / 2 + j * (u + g)],
+                                    radius=3, outline=T["ink"], width=w)
+    elif kind == "bag":                                 # e-commerce
+        d.rounded_rectangle([cx - r * .86, cy - r * .18, cx + r * .86, cy + r * .96],
+                            radius=6, outline=T["ink"], width=w)
+        d.arc([cx - r * .46, cy - r * .84, cx + r * .46, cy + r * .10], 180, 360,
+              fill=T["ink"], width=w)
+    elif kind == "play":                                # media
+        d.ellipse([cx - r, cy - r, cx + r, cy + r], outline=T["ink"], width=w)
+        d.polygon([(cx - r * .28, cy - r * .44), (cx - r * .28, cy + r * .44),
+                   (cx + r * .48, cy)], fill=T["ink"])
+    elif kind == "lens":                                # creator
+        d.ellipse([cx - r, cy - r, cx + r, cy + r], outline=T["ink"], width=w)
+        d.ellipse([cx - r * .34, cy - r * .34, cx + r * .34, cy + r * .34],
+                  outline=T["ink"], width=w)
+    elif kind == "doc":                                 # publisher
+        d.rounded_rectangle([cx - r * .72, cy - r, cx + r * .72, cy + r],
+                            radius=5, outline=T["ink"], width=w)
+        for i in (-1, 0, 1):
+            d.line([(cx - r * .36, cy + i * r * .40), (cx + r * .36, cy + i * r * .40)],
+                   fill=T["ink"], width=2)
+
+
+def iconrow(d, x, y, w, h, T, items):
+    """A mark and a line - THE SAME REGISTER as every other frame, with a glyph
+    in the left column where the step number or the tool name would go.
+
+    Its own layout before this had no hairlines and pushed its labels 118px right
+    of the left edge the rest of the deck hangs off, so it was the one frame that
+    did not line up with the others."""
+    return register(d, x, y, w, h, T, [(t, "") for _, t in items],
+                    lsz=40, rsz=36, cap=(50, 44), marks=[k for k, _ in items])
+
+
+def tiers(d, x, y, w, h, T, rows, foot=None, hot=1):
+    """Prices, as the register. Price on the left, what it buys on the right.
+
+    Two wrong versions came first: three columns, which is a website's pricing
+    section dropped into a 9:16 frame, then three full-width cards, which was
+    the only frame in the deck built out of boxes. A price list is a list. It
+    gets the same rows and the same hairlines as the tool list, and the tier
+    worth buying is the one in the accent."""
+    y = register(d, x, y, w, h - (86 if foot else 0), T, rows,
+                 lsz=46, rsz=32, split=0.26, cap=(58, 38), hot=hot)
+    if foot:
+        y += 56
+        for ln in wrap(foot, F(30, "SemiBold"), w):
+            d.text((x, y), ln, font=F(30, "SemiBold"), fill=T["ink"], anchor="ls")
+            y += 40
+    return y
+
+
+def _old_tiers(d, x, y, w, h, T, plans, foot=None, extra=None):
+    """Price tiers as FULL WIDTH ROWS, stacked.
+
+    The first version was three columns and it was a website's pricing section
+    dropped into a 9:16 frame: 260px columns, 25px features, all of it in the top
+    third with the rest of the phone empty. A vertical frame wants vertical
+    stacking - one row per tier, each row as wide as the slide, the price big
+    enough to read from a scroll.
+
+    One row is reversed out. A price list set flat is a table; with one row solid
+    it is an OFFER, and that row is doing the only job a pricing slide has."""
+    n = len(plans)
+    foot_h = 100 if foot else 0
+    extra_h = 190 if extra else 0
+    gap = 18
+    rh = min(190, (h - foot_h - extra_h - gap * (n - 1)) // n)
+    for i, (name, price, feats) in enumerate(plans):
+        ry = y + i * (rh + gap)
+        hot = i == 1
+        d.rounded_rectangle([x, ry, x + w, ry + rh], radius=20,
+                            fill=T["ink"] if hot else None,
+                            outline=None if hot else T["rule"], width=2)
+        ink = (18, 18, 20) if hot else T["ink"]
+        d.text((x + 34, ry + rh // 2 - 8), name, font=F(34, "SemiBold"),
+               fill=ink, anchor="ls")
+        d.text((x + 34, ry + rh // 2 + 54), price, font=F(60, "Bold"),
+               fill=ink, anchor="ls")
+        fx = x + 300
+        for j, ft in enumerate(feats):
+            d.text((fx, ry + rh // 2 - 22 + j * 40), ft, font=F(28, "Regular"),
+                   fill=ink, anchor="ls")
+    y += n * rh + (n - 1) * gap
+    if foot:
+        y += 62
+        for ln in wrap(foot, F(30, "SemiBold"), w):
+            d.text((x, y), ln, font=F(30, "SemiBold"), fill=T["ink"], anchor="ls")
+            y += 40
+    if extra:
+        y += 44
+        d.rounded_rectangle([x, y, x + w, y + 176], radius=20, outline=T["rule"], width=2)
+        d.text((x + 34, y + 58), extra[0], font=F(32, "SemiBold"), fill=T["ink"], anchor="ls")
+        ey = y + 108
+        for ln in extra[1]:
+            d.text((x + 34, ey), ln, font=F(27, "Regular"), fill=T["ink"], anchor="ls")
+            ey += 40
+        y += 176
+    return y
+
+
+BLOCKS["iconrow"] = iconrow
+BLOCKS["tiers"] = tiers
+
+
+# ------------------------------------------------------------------- diagram
+
+def _stage_art(d, x, y, w, h, T, kind):
+    """What a stage PRODUCES, drawn small. Same 3px pen as the glyphs.
+
+    This is the part a list cannot do. `Scraping fires automatically` as a row
+    of text tells you a thing happened; the same row with rows-of-data appearing
+    beside it tells you what came out, and the next stage's artifact tells you
+    what that turned into. The sequence is the content."""
+    if kind == "fields":                                    # inputs configured
+        for i in range(3):
+            fy = y + i * (h / 3)
+            d.rounded_rectangle([x, fy, x + w * .82, fy + h / 3 - 12], radius=7,
+                                outline=T["rule"], width=2)
+            d.rounded_rectangle([x + 14, fy + h / 6 - 5, x + 14 + w * (.2 + .12 * i),
+                                 fy + h / 6 + 5], radius=5, fill=T["ink"])
+    elif kind == "rows":                                    # scraped records
+        for i in range(5):
+            fy = y + i * (h / 5)
+            d.rounded_rectangle([x, fy, x + w * (.94 - .07 * (i % 3)), fy + h / 5 - 9],
+                                radius=5, fill=T["rule"] if i else T["ink"])
+    elif kind == "bars":                                    # sentiment
+        n, bw = 7, w / 11
+        for i, f in enumerate([.34, .62, .48, 1.0, .72, .55, .40]):
+            bx = x + i * (bw * 1.45)
+            d.rounded_rectangle([bx, y + h - h * f, bx + bw, y + h], radius=4,
+                                fill=T["accent"] if i == 3 else T["rule"])
+    elif kind == "tiles":                                   # dashboard
+        for i in range(4):
+            tx = x + (i % 2) * (w / 2)
+            ty = y + (i // 2) * (h / 2)
+            d.rounded_rectangle([tx, ty, tx + w / 2 - 14, ty + h / 2 - 14], radius=8,
+                                outline=T["rule"], width=2)
+            d.rounded_rectangle([tx + 12, ty + 14, tx + 12 + w * .12, ty + 22], radius=4,
+                                fill=T["rule"])
+            d.rounded_rectangle([tx + 12, ty + h / 2 - 40, tx + 12 + w * .18,
+                                 ty + h / 2 - 26], radius=4, fill=T["ink"])
+    elif kind == "page":                                    # the playbook
+        d.rounded_rectangle([x, y, x + w * .62, y + h], radius=8,
+                            outline=T["ink"], width=3)
+        for i in range(5):
+            d.rounded_rectangle([x + 18, y + 20 + i * (h - 40) / 5,
+                                 x + 18 + w * (.42 - .06 * (i % 3)),
+                                 y + 27 + i * (h - 40) / 5], radius=4, fill=T["rule"])
+
+
+def flow(d, x, y, w, h, T, stages, sz=40):
+    """A SEQUENCE, drawn as one. Not five rows that happen to be numbered.
+
+    A numbered list says `these five things exist and here is their order`. A
+    flow says `this one comes OUT of that one`, which is the only claim the
+    slide is actually making, and it takes a spine and a marker per stage to
+    make it. Each stage also shows what it produced, so the five artifacts read
+    left to right as a transformation rather than as five decorations.
+
+    The spine runs BEHIND the markers, from the first to the last, and stops at
+    both - a line that overshoots reads as a scrollbar."""
+    n = len(stages)
+    band = h // n
+    sx = x + 26
+    aw, ah = w * .32, band * .50
+    # The label's measure STOPS where the artifact starts. Without that cap the
+    # longest step printed straight through its own picture - three of five did.
+    lx = sx + 40
+    lw = (x + w - aw) - lx - 40
+    while sz > 24 and max(F(sz, "SemiBold").getlength(l) for l, _ in stages) > lw:
+        sz -= 1
+
+    first, last = y + band // 2, y + (n - 1) * band + band // 2
+    d.line([(sx, first), (sx, last)], fill=T["rule"], width=3)
+    for i, (label, kind) in enumerate(stages):
+        cy = y + i * band + band // 2
+        d.ellipse([sx - 13, cy - 13, sx + 13, cy + 13], fill=T.get("bg", (12, 12, 13)),
+                  outline=T["ink"], width=3)
+        if i == n - 1:
+            d.ellipse([sx - 6, cy - 6, sx + 6, cy + 6], fill=T["ink"])
+        d.text((lx, cy + sz * .36), label, font=F(sz, "SemiBold"), fill=T["ink"],
+               anchor="ls")
+        _stage_art(d, x + w - aw, cy - ah / 2, aw, ah, T, kind)
+    return y + h
+
+
+BLOCKS["flow"] = flow
