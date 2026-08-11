@@ -191,7 +191,7 @@ SLIDES = [
     dict(title="Finding Clients", kind="art",
          sub="Scrape potential leads using this automation.",
          art="my-first-n8n-workflow-v0-562n19bdcfpf1 2.png",
-         panel_h=264,
+         panel_h=274,
          panel=("Scraped this week", "500+ leads", [
              ("google-maps", "Northlake Kitchens", "hello@northlake.com", None),
              ("instagram", "Ardent Fitness", "team@ardentfit.co", None),

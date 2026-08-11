@@ -26,6 +26,11 @@ Three things carry it and nothing else is allowed to:
   MONO ONLY FOR DATA. A tool name, a price, a count. Prose is never mono, and
   a monospace label on a sentence is costume.
 
+THE DIRECTION, SET BY THE USER ON THE SALES DECK: frames like seq() - a
+mechanism DRAWN down the frame, tool tiles on a spine, real records in rows,
+a reject struck out, a reply bubble - and filled a bit further than that first
+seq was. Brand tiles and paragraphs-in-boxes are the thing being replaced.
+
 Every block justifies to the height it is given - the rows spread from the rule
 to the bottom of the safe box rather than stacking in the middle third. Fixed
 gaps put a compact block in the middle of the frame with air above and below,
@@ -980,12 +985,16 @@ def list_panel(im, d, x, y, w, h, T, title, note, rows, logos=None, rz=31):
         by = ry + rh // 2 + 11
         tx = x + pad
         if icon:
+            # The icon fits INSIDE the row pitch. At 52px in 47px rows the three
+            # source marks stacked into one touching column, which is the
+            # definition of cramped - the row height owns the icon, not the
+            # other way round.
+            n = max(28, min(52, rh - 14))
             p = f"{logos or LOGOS}/{icon}.png"
             if os.path.exists(p):
-                n = 52
                 im.alpha_composite(Image.open(p).convert("RGBA").resize((n, n),
                                    Image.LANCZOS), (tx, ry + (rh - n) // 2))
-            tx += 52 + 28
+            tx += n + 28
         struck = tone == "strike"
         lf = F(rz, "SemiBold")
         d.text((tx, by), left, font=lf, fill=T["meta"] if struck else T["ink"],
@@ -1016,7 +1025,7 @@ def chat(d, x, y, w, T, msgs, sz=34, measure_only=False):
     the reply in white on the left - the reply is the entire argument, because a
     personalized message is proven by what comes back, not by how it was
     worded."""
-    pad, gap = 26, 22
+    pad, gap = 26, 32
     maxw = int(w * 0.78)
     lead = round(sz * 1.32)
     for side, text in msgs:
@@ -1041,7 +1050,7 @@ def chat(d, x, y, w, T, msgs, sz=34, measure_only=False):
     return y - gap
 
 
-def seq(im, d, x, y, w, h, T, stops, logos=None, tile=104):
+def seq(im, d, x, y, w, h, T, stops, logos=None, tile=118):
     """A schedule on a spine. Day by day down the frame, each stop a tool tile
     and one line - the outreach system AS the week it runs, not as the logos of
     the two products it runs on."""
@@ -1061,9 +1070,9 @@ def seq(im, d, x, y, w, h, T, stops, logos=None, tile=104):
             nn = int(tile * 0.62)
             im.alpha_composite(Image.open(p).convert("RGBA").resize((nn, nn),
                                Image.LANCZOS), (x + (tile - nn) // 2, ty + (tile - nn) // 2))
-        by = ty + tile // 2 + 15
-        df = F(42, "Bold")
-        d.text((x + tile + 44, by), day, font=df, fill=T["ink"], anchor="ls")
-        d.text((x + tile + 44 + df.getlength(day) + 22, by), label,
-               font=F(42, "Bold" if hot else "Regular"), fill=T["ink"], anchor="ls")
+        by = ty + tile // 2 + 16
+        df = F(46, "Bold")
+        d.text((x + tile + 48, by), day, font=df, fill=T["ink"], anchor="ls")
+        d.text((x + tile + 48 + df.getlength(day) + 24, by), label,
+               font=F(46, "Bold" if hot else "Regular"), fill=T["ink"], anchor="ls")
     return y + total
