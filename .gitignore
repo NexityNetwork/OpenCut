@@ -16,3 +16,7 @@ dist/
 # global API key is full account access. They live in the scratchpad.
 .cfenv
 *.cfenv
+
+# Python bytecode caches
+__pycache__/
+*.py[cod]
