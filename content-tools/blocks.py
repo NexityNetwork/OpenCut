@@ -1242,7 +1242,7 @@ ULTRON_OS = dict(
           ("Ledger", "Invoices reconciled", "queued", "dim")])
 
 
-def stack(im, d, x, y, w, h, T, rows, logos=None, tile=88):
+def stack(im, d, x, y, w, h, T, rows, logos=None, tile=88, align="left"):
     """The tool stack as a table with an ALIGNED tile column, not label-left
     icon-right. Right-aligning one or two small marks against a 40px label put
     a canyon of nothing in the middle of every row, which read as a slide that
@@ -1255,7 +1255,8 @@ def stack(im, d, x, y, w, h, T, rows, logos=None, tile=88):
     for i, (lab, keys) in enumerate(rows):
         by = y + rh // 2
         d.text((x, by + 15), lab, font=F(42, "Bold"), fill=T["ink"], anchor="ls")
-        tx = int(x + lw)
+        tx = int(x + w - (len(keys) * tile + (len(keys) - 1) * 20)) \
+            if align == "right" else int(x + lw)
         for k in keys:
             logo_tile(im, d, tx, int(by - tile // 2), tile, k, T, logos)
             tx += tile + 20

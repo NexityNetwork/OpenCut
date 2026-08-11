@@ -116,7 +116,8 @@ def build(i, s):
         yy = top + max(0, (band - ah) // 2)
         yy = BL.alerts(im, d, LEFT, yy, MEASURE, T, s["alerts"], logos=LOGOS)
     elif kind == "stack":
-        yy = BL.stack(im, d, LEFT, top, MEASURE, band, T, s["rows"], logos=LOGOS)
+        yy = BL.stack(im, d, LEFT, top, MEASURE, band, T, s["rows"], logos=LOGOS,
+                      align="right")
     else:
         yy = ST.arrows3(d, LEFT, top, MEASURE, band, T, s["pairs"])
     return im, dict(bottom=yy)
