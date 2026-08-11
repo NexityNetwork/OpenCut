@@ -146,10 +146,13 @@ def build(s):
 
     kind = s["kind"]
     if kind == "goal":
-        # Bare hairline rows, NOT a card. A white card with rows reads as an
-        # app, and this frame has no app to show.
-        yy = BL.register(d, LEFT, top, MEASURE, band, T, s["rows"],
-                         lsz=52, rsz=38, split=0.17, cap=(64, 42),
+        # Bare hairline rows, NOT a card - and NOT justified to the band.
+        # Spreading four short rows over 700px blew the numbers up to poster
+        # size with a gap canyon after them; the block keeps a working height
+        # and centres.
+        gh = min(band, 440)
+        yy = BL.register(d, LEFT, top + max(0, (band - gh) // 2), MEASURE, gh, T,
+                         s["rows"], lsz=46, rsz=38, split=0.15, cap=(48, 40),
                          hot=None, rule_top=False)
     elif kind == "shot":
         src = f"{SHOTS}/{s['shot']}"
@@ -157,25 +160,25 @@ def build(s):
         if s.get("crop"):
             w0 = s["crop"][2] - s["crop"][0]; h0 = s["crop"][3] - s["crop"][1]
         ph = round(h0 * MEASURE / w0)
-        st = 88 + 24 if s.get("strip") else 0
+        st = (230 + 48) if s.get("stats") else 0
         yy = top + max(0, (band - ph - st) // 2)
         yy = plate(im, src, LEFT, yy, MEASURE, crop=s.get("crop"))
-        if s.get("strip"):
-            yy = strip(d, yy + 24, *s["strip"])
+        if s.get("stats"):
+            yy = BL.stat_row(d, LEFT, yy + 48, MEASURE, 230, T, s["stats"])
     elif kind == "split":
         # Copy column beside a tall workspace panel - the one two-column frame.
-        pw = s.get("pw", 380)
+        pw = s.get("pw", 340)
         src = f"{SHOTS}/{s['shot']}"
         w0, h0 = Image.open(src).size
         ph = round(h0 * pw / w0)
         ph = min(ph, band)
         cw = MEASURE - pw - 56
-        BL.checks(d, LEFT, top + 24, cw, min(560, band - 48), T, s["ticks2"],
-                  cap=40, lead=1.30, col=T["ink"])
+        BL.checks(d, LEFT, top + 24, cw, min(620, band - 48), T, s["ticks2"],
+                  cap=36, lead=1.30, col=T["ink"], rule=False)
         yy = plate(im, src, RIGHT - pw, top, pw,
                    crop=(0, 0, w0, round(band * w0 / pw)) if h0 > band * w0 / pw else None)
     elif kind == "notify":
-        nh = 250
+        nh = 280
         yy = top + max(0, (band - nh) // 2)
         yy = BL.notify(im, d, LEFT, yy, MEASURE, T, *s["notify"], h=nh, logos=LOGOS)
     elif kind == "stack":
@@ -207,7 +210,9 @@ SLIDES = [
     dict(title="PUT THE WORKFORCE ON IT", kind="shot",
          sub="Ultron is an **AI workforce** that runs sales, marketing and "
              "engineering for founders.",
-         shot="home.png", strip=("412 runs this week", "you and the fleet")),
+         shot="home.png",
+         stats=[("This week", "412 runs"), ("Founders on it", "9,000+"),
+                ("Hours handed off", "30K+")]),
 
     dict(title="VALIDATE FIRST", kind="split",
          sub="Outreach scores every lead **before you build anything** for them.",
@@ -219,9 +224,9 @@ SLIDES = [
     dict(title="CHOOSE A WINNING MODEL", kind="notify",
          sub="Start with a **subscription model** and move to service once "
              "you know the market.",
-         ticks=["One-time: $19-$197 (easy sale, no churn)",
-                "Monthly SaaS: $19-$97/month (recurring revenue)",
-                "Service + Product: $500-$3K/month (high LTV)"],
+         ticks=["One-time: $19-$197 (no churn)",
+                "Monthly SaaS: $19-$97 (recurring)",
+                "Service + Product: $500-$3K/month"],
          notify=("Stripe", "new subscription", "$97.00")),
 
     dict(title="PICK YOUR TOOL STACK", kind="stack",
@@ -236,14 +241,16 @@ SLIDES = [
 
     dict(title="TRACK THE PIPELINE", kind="shot",
          sub="Every deal has an owner and a stage. **Nothing goes quiet.**",
-         shot="win-pipeline.png", crop=(0, 0, 1512, 1100),
-         strip=("$369,000 open", "2 won this month")),
+         shot="win-pipeline.png", crop=(0, 0, 1512, 900),
+         stats=[("Open pipeline", "$369,000"), ("Won this month", "$129,000"),
+                ("Avg deal", "$45,273")]),
 
     dict(title="DISTRIBUTION", kind="shot",
          sub="Post **3-5 reels daily.** Cold outreach. LinkedIn. Instagram. "
              "Email. **Everything.**",
-         shot="win-brand-visibility.png", crop=(0, 0, 1512, 1100),
-         strip=("3-5 reels DAILY", "every channel, tracked")),
+         shot="win-brand-visibility.png", crop=(0, 0, 1512, 900),
+         stats=[("Reels", "3-5 a day"), ("Engines tracked", "4"),
+                ("Responses", "24 this week")]),
 ]
 
 # THE CTA IS ALWAYS COMMENT. The reference's own keyword.

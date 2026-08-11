@@ -1239,20 +1239,22 @@ ULTRON_OS = dict(
           ("Ledger", "Invoices reconciled", "queued", "dim")])
 
 
-def stack(im, d, x, y, w, h, T, rows, logos=None, tile=64):
-    """The tool stack as the register: role bold on the left, the actual marks
-    on the right, a hairline between rows. The reference's own structure, minus
-    its rainbow spacing - and the row height is solved from the band like every
-    other block here."""
+def stack(im, d, x, y, w, h, T, rows, logos=None, tile=88):
+    """The tool stack as a table with an ALIGNED tile column, not label-left
+    icon-right. Right-aligning one or two small marks against a 40px label put
+    a canyon of nothing in the middle of every row, which read as a slide that
+    forgot its own content. The label column is as wide as the widest label and
+    the tiles start together right after it."""
     n = len(rows)
-    rh = min(122, h // n)
+    rh = min(128, h // n)
     y += max(0, (h - rh * n) // 2)
+    lw = max(F(42, "Bold").getlength(l) for l, _ in rows) + 64
     for i, (lab, keys) in enumerate(rows):
         by = y + rh // 2
-        d.text((x, by + 14), lab, font=F(40, "Bold"), fill=T["ink"], anchor="ls")
-        tx = x + w - (len(keys) * tile + (len(keys) - 1) * 20)
+        d.text((x, by + 15), lab, font=F(42, "Bold"), fill=T["ink"], anchor="ls")
+        tx = int(x + lw)
         for k in keys:
-            logo_tile(im, d, tx, by - tile // 2, tile, k, T, logos)
+            logo_tile(im, d, tx, int(by - tile // 2), tile, k, T, logos)
             tx += tile + 20
         if i + 1 < n:
             d.line([(x, y + rh), (x + w, y + rh)], fill=T["rule"], width=1)
