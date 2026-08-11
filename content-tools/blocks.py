@@ -31,6 +31,9 @@ mechanism DRAWN down the frame, tool tiles on a spine, real records in rows,
 a reject struck out, a reply bubble - and filled a bit further than that first
 seq was. Brand tiles and paragraphs-in-boxes are the thing being replaced.
 
+BANNED: an accent bar down a card's left edge. The chip already names the
+category; a coloured stripe beside it is template decoration.
+
 Every block justifies to the height it is given - the rows spread from the rule
 to the bottom of the safe box rather than stacking in the middle third. Fixed
 gaps put a compact block in the middle of the frame with air above and below,
@@ -1158,9 +1161,7 @@ def alerts(im, d, x, y, w, T, items, logos=None):
     for kind, text, detail, tag, tone in items:
         d.rounded_rectangle([x, y, x + w, y + ch], radius=24, fill=(255, 255, 255),
                             outline=T["rule"], width=1)
-        bar = C.get(tone, T["rule"])
-        d.rounded_rectangle([x + 14, y + 20, x + 20, y + ch - 20], radius=3, fill=bar)
-        tx, ty = x + 40, y + (ch - tile) // 2
+        tx, ty = x + 32, y + (ch - tile) // 2
         if isinstance(kind, tuple):
             _tile(d, tx, ty, tile, T)
             glyph(d, tx + 9, ty + 9, tile - 18, T, kind[1])
