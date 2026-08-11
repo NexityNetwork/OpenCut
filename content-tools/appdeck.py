@@ -63,10 +63,24 @@ T = dict(ink=(18, 18, 20), dim=(96, 98, 106), meta=(150, 152, 160),
 NUM_SZ, NUM_BASE, NUM_TRACK = 27, 272, 0.13
 TILE, TILE_TOP = 132, 320
 NAME_CAP, NAME_TRACK, NAME_BASE = 108, -0.026, 566
-DESC_CAP, DESC_LEAD, DESC_BASE = 44, 1.42, 664
-SHOT_TOP, SHOT_H = 812, 444
+DESC_CAP, DESC_LEAD = 44, 1.42
+ROLE_CAP, ROLE_BASE = 40, 632
 FOOT_RULE, FOOT_BASE = SAFE_BOT - 96, SAFE_BOT - 26
 FOOT_LBL, FOOT_CAP = 33, 39
+
+# TWO LAYOUTS, BOTH PINNED. Which one a deck uses is the deck's own answer to
+# what the payload is. FOOTED carries `Best for` on a rule at the bottom, the
+# answer to whether this tool is for you. ROLED spends that room on a role line
+# under the name instead - `My cashier`, `My chief of staff` - because in a deck
+# where every tool is a job on a one person team the role IS the payload, and a
+# footer under it would be the same thought twice. Losing the footer buys the
+# capture 116 more pixels, so ROLED shows a taller card.
+FOOTED = dict(desc=664, shot_top=812, shot_h=444, role=None, foot=True)
+# 416 is the shortest the `stack` set scales to - Claude's, whose own card is
+# 68px shorter than the rest. The box is centred in the room the missing footer
+# left rather than pushed to the top of it, so the frame does not end on 130px
+# of bare paper.
+ROLED = dict(desc=718, shot_top=912, shot_h=416, role=ROLE_BASE, foot=False)
 
 
 def ground():
@@ -127,6 +141,14 @@ def solve_desc(descs):
     return 24
 
 
+def solve_role(vals):
+    for sz in range(ROLE_CAP, 20, -1):
+        f = F(sz, "Medium")
+        if all(f.getlength(v) <= MEASURE for v in vals):
+            return sz
+    return 20
+
+
 def solve_foot(vals):
     lbl = F(FOOT_LBL, "Regular").getlength("Best for")
     for sz in range(FOOT_CAP, 22, -1):
@@ -136,14 +158,16 @@ def solve_foot(vals):
     return 22
 
 
-def solve(slides):
-    return dict(tot=len(slides),
-                name=solve_name([s["name"] for s in slides]),
-                desc=solve_desc([s["desc"] for s in slides]),
-                foot=solve_foot([s["best"] for s in slides]))
+def solve(slides, lay=FOOTED):
+    L = dict(tot=len(slides),
+             name=solve_name([s["name"] for s in slides]),
+             desc=solve_desc([s["desc"] for s in slides]))
+    L["foot"] = solve_foot([s["best"] for s in slides]) if lay["foot"] else 0
+    L["role"] = solve_role([s["role"] for s in slides]) if lay["role"] else 0
+    return L
 
 
-def build(s, L, assets, shot_r=26):
+def build(s, L, assets, shot_r=26, lay=FOOTED):
     im = ground()
     d = ImageDraw.Draw(im)
 
@@ -170,8 +194,13 @@ def build(s, L, assets, shot_r=26):
     draw_tracked(d, (CX - adv(s["name"], f, tr) / 2, NAME_BASE), s["name"], f,
                  T["ink"], tr)
 
+    # the role, when the deck runs on roles
+    if lay["role"]:
+        f = F(L["role"], "Medium")
+        d.text((CX, lay["role"]), s["role"], font=f, fill=T["meta"], anchor="ms")
+
     # the description, centred line by line
-    y = DESC_BASE
+    y = lay["desc"]
     pitch = round(L["desc"] * DESC_LEAD)
     for ln in desc_lines(s["desc"], L["desc"]):
         SB.draw_line(d, CX - line_w(ln, L["desc"]) / 2, y, ln, L["desc"],
@@ -181,26 +210,29 @@ def build(s, L, assets, shot_r=26):
 
     # the capture, scaled to the measure and anchored to its top, so the
     # product's own header always survives and the bottom is what gets cut
+    top, hh = lay["shot_top"], lay["shot_h"]
     src = assets.shot(s["key"])
     k = MEASURE / src.width
     nh = round(src.height * k)
-    assert nh >= SHOT_H, f"{s['key']}: capture too short for the box"
+    assert nh >= hh, f"{s['key']}: capture too short for the box, {nh} of {hh}"
     card = src.resize((MEASURE, nh), Image.LANCZOS).crop(
-        (0, 0, MEASURE, SHOT_H)).convert("RGBA")
-    card.putalpha(mask(MEASURE, SHOT_H, shot_r))
-    shadow(im, (LEFT, SHOT_TOP, RIGHT, SHOT_TOP + SHOT_H), shot_r, 30, 58, 18)
-    im.alpha_composite(card, (LEFT, SHOT_TOP))
+        (0, 0, MEASURE, hh)).convert("RGBA")
+    card.putalpha(mask(MEASURE, hh, shot_r))
+    shadow(im, (LEFT, top, RIGHT, top + hh), shot_r, 30, 58, 18)
+    im.alpha_composite(card, (LEFT, top))
 
-    # the footer
-    d.line([(LEFT, FOOT_RULE), (RIGHT, FOOT_RULE)], fill=T["rule"], width=1)
-    d.text((LEFT, FOOT_BASE), "Best for", font=F(FOOT_LBL, "Regular"),
-           fill=T["meta"], anchor="ls")
-    d.text((RIGHT, FOOT_BASE), s["best"], font=F(L["foot"], "SemiBold"),
-           fill=T["ink"], anchor="rs")
+    if lay["foot"]:
+        d.line([(LEFT, FOOT_RULE), (RIGHT, FOOT_RULE)], fill=T["rule"], width=1)
+        d.text((LEFT, FOOT_BASE), "Best for", font=F(FOOT_LBL, "Regular"),
+               fill=T["meta"], anchor="ls")
+        d.text((RIGHT, FOOT_BASE), s["best"], font=F(L["foot"], "SemiBold"),
+               fill=T["ink"], anchor="rs")
 
-    assert desc_bot < SHOT_TOP - 24, f"{s['key']}: copy runs into the capture"
-    assert SHOT_TOP + SHOT_H < FOOT_RULE - 40, "capture runs into the footer"
-    return im, dict(bottom=SAFE_BOT, gap=SHOT_TOP - desc_bot)
+    bot = FOOT_RULE if lay["foot"] else top + hh
+    assert desc_bot < top - 24, f"{s['key']}: copy runs into the capture"
+    assert top + hh <= (FOOT_RULE - 40 if lay["foot"] else SAFE_BOT - 20), \
+        f"{s['key']}: capture runs past the bottom"
+    return im, dict(bottom=SAFE_BOT if lay["foot"] else bot, gap=top - desc_bot)
 
 
 def build_closer(c):
@@ -224,19 +256,20 @@ class Dir:
         return Image.open(f"{self.path}/shot-{key}.png").convert("RGB")
 
 
-def render(out, slides, closer, assets, shot_r=26):
+def render(out, slides, closer, assets, shot_r=26, lay=FOOTED):
     os.makedirs(out, exist_ok=True)
     for p in glob.glob(f"{out}/*.png"):
         os.remove(p)
 
-    L = solve(slides)
-    print(f"  solved   name {L['name']}   desc {L['desc']}   foot {L['foot']}\n")
+    L = solve(slides, lay)
+    print(f"  solved   name {L['name']}   desc {L['desc']}   "
+          f"role {L['role']}   foot {L['foot']}\n")
 
     made = []
     for i, s in enumerate(slides + [closer], 1):
         if isinstance(s, dict):
             s["n"] = i
-            im, m = build(s, L, assets, shot_r)
+            im, m = build(s, L, assets, shot_r, lay)
         else:
             im, m = build_closer(s)
         p = f"{out}/{i:02d}.png"
