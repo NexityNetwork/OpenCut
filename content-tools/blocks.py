@@ -246,9 +246,46 @@ BLOCKS = {"pairs": pairs, "steps": steps, "bullets": bullets,
           "spec": spec, "pricing": pricing}
 
 
-def app_surface(W=820, H=660, theme=None):
+CONTENT_OS = dict(
+    name="Content OS",
+    nav=["Home", "Inputs*", "Competitors", "Comments", "Briefs", "Playbooks", "Reports"],
+    foot=("PLATFORMS", [("TikTok", "ink"), ("Instagram", "pink"), ("YouTube", "red")]),
+    stats=[("6", "platforms"), ("20", "inputs"), ("129", "briefs"), ("42", "playbooks")],
+    title=("Content briefs", "filtered by platform"),
+    cols=("platform", "hook", "status"),
+    rows=[("TikTok", "Desk setup teardown", "done", "green"),
+          ("Instagram", "One idea, ten posts", "done", "green"),
+          ("YouTube", "The boring agent", "review", "amber"),
+          ("LinkedIn", "What nobody posts", "review", "amber"),
+          ("X", "Cost per booked call", "queued", "dim"),
+          ("Facebook", "Follow ups that fire", "queued", "dim")])
+
+# The same object, this deck's copy. A frontend dashboard for a local business:
+# where the lead came from, what it wants, whether it is booked. Nothing here is
+# a metric a client would not recognise on their own phone.
+CLIENT_OS = dict(
+    name="Client Portal",
+    nav=["Overview", "Leads*", "Bookings", "Conversations", "Invoices", "Reports", "Settings"],
+    foot=("CHANNELS", [("Instagram", "pink"), ("WhatsApp", "green"), ("Email", "blue")]),
+    stats=[("412", "leads"), ("61", "booked"), ("38", "invoices"), ("9", "open")],
+    title=("Leads", "this week"),
+    cols=("source", "asked for", "status"),
+    rows=[("Instagram", "Kitchen quote", "booked", "green"),
+          ("Google", "Consult call", "booked", "green"),
+          ("Referral", "Site visit", "replied", "amber"),
+          ("Instagram", "Price list", "replied", "amber"),
+          ("WhatsApp", "Callback", "new", "dim"),
+          ("Google", "Consult call", "new", "dim")])
+
+
+def app_surface(W=820, H=660, theme=None, spec=None):
     """The application, as a surface. What goes where the reference puts two
     product screenshots.
+
+    The copy comes in as a spec so two decks can show the same OBJECT with their
+    own words. The alternative - a second near-identical function - is how a set
+    ends up with two dashboards that are subtly different for no reason anybody
+    chose.
 
     A workflow canvas was pasted here once and it was the wrong object entirely -
     the slide is called Application OS and a canvas is the automation, not the
@@ -262,11 +299,11 @@ def app_surface(W=820, H=660, theme=None):
     as something you are meant to read word by word. The frame's own type carries
     the message; this carries the fact that a product exists.
     """
-    T = theme
+    S = spec or CONTENT_OS
     C = dict(bg=(255, 255, 255), rail=(247, 247, 249), edge=(228, 229, 233),
              ink=(24, 25, 28), dim=(126, 129, 136), faint=(196, 199, 205),
              chip=(238, 240, 244), blue=(52, 116, 240), green=(22, 158, 92),
-             amber=(226, 148, 22), pink=(226, 66, 122))
+             amber=(226, 148, 22), pink=(226, 66, 122), red=(220, 40, 40))
     im = Image.new("RGBA", (W, H), (0, 0, 0, 0))
     d = ImageDraw.Draw(im)
     d.rounded_rectangle([0, 0, W - 1, H - 1], radius=16, fill=C["bg"])
@@ -275,9 +312,8 @@ def app_surface(W=820, H=660, theme=None):
     d.rounded_rectangle([0, 0, rw, H - 1], radius=16, fill=C["rail"])
     d.rectangle([rw - 16, 0, rw, H], fill=C["rail"])
     d.line([(rw, 0), (rw, H)], fill=C["edge"], width=1)
-    d.text((22, 40), "Content OS", font=F(21, "Bold"), fill=C["ink"], anchor="ls")
-    nav = [("Home", 0), ("Inputs", 1), ("Competitors", 0), ("Comments", 0),
-           ("Briefs", 0), ("Playbooks", 0), ("Reports", 0)]
+    d.text((22, 40), S["name"], font=F(21, "Bold"), fill=C["ink"], anchor="ls")
+    nav = [(t.rstrip("*"), t.endswith("*")) for t in S["nav"]]
     for i, (t, on) in enumerate(nav):
         y = 82 + i * 40
         if on:
@@ -286,37 +322,30 @@ def app_surface(W=820, H=660, theme=None):
                             fill=C["blue"] if on else C["faint"])
         d.text((44, y + 23), t, font=F(17, "SemiBold" if on else "Regular"),
                fill=C["ink"] if on else C["dim"], anchor="ls")
-    d.text((22, H - 118), "PLATFORMS", font=F(12, "SemiBold"), fill=C["faint"], anchor="ls")
-    for i, (t, c) in enumerate([("TikTok", C["ink"]), ("Instagram", C["pink"]),
-                                ("YouTube", (220, 40, 40))]):
-        d.ellipse([22, H - 100 + i * 26, 32, H - 90 + i * 26], fill=c)
+    foot_t, foot_rows = S["foot"]
+    d.text((22, H - 118), foot_t, font=F(12, "SemiBold"), fill=C["faint"], anchor="ls")
+    for i, (t, c) in enumerate(foot_rows):
+        d.ellipse([22, H - 100 + i * 26, 32, H - 90 + i * 26], fill=C[c])
         d.text((42, H - 90 + i * 26), t, font=F(15, "Regular"), fill=C["dim"], anchor="ls")
 
     x, w = rw + 26, W - rw - 52
     cw = (w - 3 * 12) // 4
-    for i, (n, lab) in enumerate([("6", "platforms"), ("20", "inputs"),
-                                  ("129", "briefs"), ("42", "playbooks")]):
+    for i, (n, lab) in enumerate(S["stats"]):
         cx = x + i * (cw + 12)
         d.rounded_rectangle([cx, 30, cx + cw, 132], radius=10, fill=C["bg"],
                             outline=C["edge"], width=1)
         d.text((cx + 16, 78), n, font=F(38, "Bold"), fill=C["ink"], anchor="ls")
         d.text((cx + 16, 106), lab, font=F(15, "Medium"), fill=C["dim"], anchor="ls")
 
-    d.text((x, 176), "Content briefs", font=F(19, "Bold"), fill=C["ink"], anchor="ls")
-    d.text((x + w, 176), "filtered by platform", font=F(15, "Regular"),
+    d.text((x, 176), S["title"][0], font=F(19, "Bold"), fill=C["ink"], anchor="ls")
+    d.text((x + w, 176), S["title"][1], font=F(15, "Regular"),
            fill=C["dim"], anchor="rs")
-    cols = [("platform", 0.0), ("hook", 0.26), ("status", 0.74)]
     y = 206
-    for name, f in cols:
+    for name, f in zip(S["cols"], (0.0, 0.26, 0.74)):
         d.text((x + int(w * f), y), name, font=F(14, "SemiBold"), fill=C["faint"], anchor="ls")
     y += 12
     d.line([(x, y), (x + w, y)], fill=C["edge"], width=1)
-    rows = [("TikTok", "Desk setup teardown", "done", C["green"]),
-            ("Instagram", "One idea, ten posts", "done", C["green"]),
-            ("YouTube", "The boring agent", "review", C["amber"]),
-            ("LinkedIn", "What nobody posts", "review", C["amber"]),
-            ("X", "Cost per booked call", "queued", C["dim"]),
-            ("Facebook", "Follow ups that fire", "queued", C["dim"])]
+    rows = [(a, b, c, C[k]) for a, b, c, k in S["rows"]]
     rh = (H - 40 - y) // len(rows)
     for i, (plat, hook, st, col) in enumerate(rows):
         ry = y + i * rh
@@ -389,7 +418,7 @@ def iconrow(d, x, y, w, h, T, items):
                     lsz=40, rsz=36, cap=(50, 44), marks=[k for k, _ in items])
 
 
-def tiers(d, x, y, w, h, T, rows, foot=None, hot=1):
+def tiers(d, x, y, w, h, T, rows, foot=None, hot=1, rule_top=True, cap=(58, 38)):
     """Prices, as the register. Price on the left, what it buys on the right.
 
     Two wrong versions came first: three columns, which is a website's pricing
@@ -397,10 +426,10 @@ def tiers(d, x, y, w, h, T, rows, foot=None, hot=1):
     the only frame in the deck built out of boxes. A price list is a list. It
     gets the same rows and the same hairlines as the tool list, and the tier
     worth buying is the one in the accent."""
-    y = register(d, x, y, w, h - (86 if foot else 0), T, rows,
-                 lsz=46, rsz=32, split=0.26, cap=(58, 38), hot=hot)
+    y = register(d, x, y, w, h - (110 if foot else 0), T, rows,
+                 lsz=46, rsz=32, split=0.26, cap=cap, hot=hot, rule_top=rule_top)
     if foot:
-        y += 56
+        y += 68
         for ln in wrap(foot, F(30, "SemiBold"), w):
             d.text((x, y), ln, font=F(30, "SemiBold"), fill=T["ink"], anchor="ls")
             y += 40
@@ -543,3 +572,168 @@ def flow(d, x, y, w, h, T, stages, sz=40):
 
 
 BLOCKS["flow"] = flow
+
+
+# ------------------------------------------------------- the light-deck parts
+
+def tool_pair(im, d, x, y, w, T, left, right, tile=132, logos=None):
+    """Two marks and a plus, names underneath. The reference's way of saying
+    `this is built out of exactly these two things`.
+
+    ultron's mark is an orb on transparency, so it gets a drawn plate - without
+    one it floats on the paper while the other tile has an edge, and a pair whose
+    halves are different KINDS of object stops being a pair."""
+    logos = logos or LOGOS
+    gapx = 96
+    total = tile * 2 + gapx
+    sx = x + (w - total) // 2
+    for i, (name, key, dark) in enumerate((left, right)):
+        tx = sx + i * (tile + gapx)
+        d.rounded_rectangle([tx, y, tx + tile, y + tile], radius=30,
+                            fill=(20, 20, 22) if dark else (255, 255, 255),
+                            outline=None if dark else T["rule"], width=2)
+        p = f"{logos}/{key}.png"
+        if os.path.exists(p):
+            n = int(tile * 0.56)
+            im.alpha_composite(Image.open(p).convert("RGBA").resize((n, n), Image.LANCZOS),
+                               (tx + (tile - n) // 2, y + (tile - n) // 2))
+        d.text((tx + tile // 2, y + tile + 46), name, font=F(30, "SemiBold"),
+               fill=T["ink"], anchor="ms")
+    cx, cy, r = sx + tile + gapx // 2, y + tile // 2, 26
+    d.ellipse([cx - r, cy - r, cx + r, cy + r], fill=T["ink"])
+    d.line([(cx - 11, cy), (cx + 11, cy)], fill=(255, 255, 255), width=4)
+    d.line([(cx, cy - 11), (cx, cy + 11)], fill=(255, 255, 255), width=4)
+    return y + tile + 66
+
+
+def checks(d, x, y, w, h, T, items, cap=76, rule=True, col=None):
+    """A tick and a line. The tick is filled, not an outline - this list IS a
+    list of things you no longer do, so the mark should read as done rather than
+    as a bullet.
+
+    THE SIZE IS SOLVED, THE GAP IS NOT. Given a fixed type size the leftover
+    height has to go somewhere, and it goes into the gaps, so six short lines end
+    up as six islands with 130px of nothing between them. Here the largest size
+    that still fits six rows wins and the gap stays locked to it, which fills the
+    same height with type instead of air."""
+    n = len(items)
+    for sz in range(cap, 25, -1):
+        line, gap = round(sz * 1.12), round(sz * 0.66)
+        f = F(sz, "Medium")
+        if (n * line + (n - 1) * gap <= h
+                and max(f.getlength(t) for t in items) + sz * 1.65 <= w):
+            break
+    r = sz * 0.40
+    pitch = line + gap
+    y += max(0, (h - (n * line + (n - 1) * gap))) // 2 + round(sz * .78)
+    for i, t in enumerate(items):
+        cy = y - round(sz * .30)
+        d.ellipse([x, cy - r, x + r * 2, cy + r], fill=col or T["accent"])
+        d.line([(x + r * .56, cy + r * .02), (x + r * .88, cy + r * .38)],
+               fill=(255, 255, 255), width=max(3, round(sz / 12)))
+        d.line([(x + r * .84, cy + r * .38), (x + r * 1.44, cy - r * .36)],
+               fill=(255, 255, 255), width=max(3, round(sz / 12)))
+        d.text((x + r * 2 + sz * .58, y), t, font=F(sz, "Medium"),
+               fill=T["ink"], anchor="ls")
+        if rule and i < n - 1:
+            ry = y + round(gap * .52)
+            d.line([(x, ry), (x + w, ry)], fill=T["rule"], width=1)
+        y += pitch
+    return y - gap
+
+
+def notify(im, d, x, y, w, T, app, line, amount, tile=76, logos=None):
+    """A payment landing. One notification, at the size a phone draws it.
+
+    It is the one element in the deck that shows a RESULT rather than a
+    mechanism, so it carries the frame's only other job - it sits under the
+    prices and says somebody paid one. The amount is the largest thing on it
+    because the amount is the entire point.
+
+    White with a hairline, not the phone's own grey: on paper a grey card
+    disappears and the notification stops reading as a separate object that
+    arrived."""
+    h = 148
+    d.rounded_rectangle([x, y, x + w, y + h], radius=26, fill=(255, 255, 255),
+                        outline=T["rule"], width=1)
+    tx, ty = x + 26, y + (h - tile) // 2
+    p = f"{logos or LOGOS}/stripe.png"
+    if os.path.exists(p):
+        im.alpha_composite(Image.open(p).convert("RGBA").resize((tile, tile),
+                           Image.LANCZOS), (tx, ty))
+    else:
+        d.rounded_rectangle([tx, ty, tx + tile, ty + tile], radius=18, fill=(99, 91, 255))
+        d.text((tx + tile // 2, ty + tile // 2 + 13), "S", font=F(40, "Bold"),
+               fill=(255, 255, 255), anchor="ms")
+    tx += tile + 24
+    d.text((tx, y + 58), app, font=F(27, "SemiBold"), fill=T["ink"], anchor="ls")
+    d.text((x + w - 26, y + 58), "now", font=F(25, "Regular"), fill=T["meta"], anchor="rs")
+    d.text((tx, y + 106), amount, font=F(38, "Bold"), fill=T["ink"], anchor="ls")
+    d.text((tx + F(38, "Bold").getlength(amount) + 14, y + 106), line,
+           font=F(27, "Regular"), fill=T["ink"], anchor="ls")
+    return y + h
+
+
+def report_surface(W=820, H=560, theme=None, name="Client Portal"):
+    """A reporting screen: a trend, a breakdown, a total. What `the business can
+    trust and act on` looks like, drawn rather than screenshotted.
+
+    Different from app_surface on purpose - that one is the thing you work in,
+    this is the thing you show someone. A chart is the difference."""
+    C = dict(bg=(255, 255, 255), edge=(228, 229, 233), sub=(248, 249, 251),
+             ink=(24, 25, 28), dim=(126, 129, 136), line=(52, 116, 240),
+             faint=(214, 222, 240))
+    im = Image.new("RGBA", (W, H), (0, 0, 0, 0))
+    d = ImageDraw.Draw(im)
+    d.rounded_rectangle([0, 0, W - 1, H - 1], radius=18, fill=C["bg"])
+
+    # It is the SAME product as app_surface, on its reports tab - so it carries
+    # the same name. Two differently-named screens in one deck would read as two
+    # different systems, which is the opposite of the claim.
+    d.text((34, 56), name, font=F(24, "Bold"), fill=C["ink"], anchor="ls")
+    d.rounded_rectangle([W - 168, 34, W - 34, 70], radius=10, fill=C["sub"])
+    d.text((W - 101, 58), "Last 30 days", font=F(19, "Medium"), fill=C["dim"], anchor="ms")
+
+    # The chart takes whatever is left after the stat row, so the surface can be
+    # given the height the frame has rather than the frame being given the
+    # height the surface happens to be.
+    cx0, cy0, cw, chh = 34, 96, int(W * .60), H - 312
+    d.rounded_rectangle([cx0, cy0, cx0 + cw, cy0 + chh], radius=14,
+                        outline=C["edge"], width=1)
+    d.text((cx0 + 26, cy0 + 40), "Calls booked", font=F(19, "SemiBold"),
+           fill=C["dim"], anchor="ls")
+    pts = [.30, .52, .38, .64, .48, .82, .70]
+    px = [cx0 + 26 + i * ((cw - 52) / 6) for i in range(7)]
+    py = [cy0 + chh - 40 - v * (chh - 116) for v in pts]
+    d.polygon([(px[0], cy0 + chh - 40)] + list(zip(px, py)) + [(px[-1], cy0 + chh - 40)],
+              fill=C["faint"])
+    d.line(list(zip(px, py)), fill=C["line"], width=4, joint="curve")
+    for a, b in zip(px, py):
+        d.ellipse([a - 5, b - 5, a + 5, b + 5], fill=C["bg"], outline=C["line"], width=3)
+    for i, lab in enumerate(("M", "T", "W", "T", "F", "S", "S")):
+        d.text((px[i], cy0 + chh - 14), lab, font=F(17, "Medium"), fill=C["dim"], anchor="ms")
+
+    lx = cx0 + cw + 18
+    d.rounded_rectangle([lx, cy0, W - 34, cy0 + chh], radius=14, outline=C["edge"], width=1)
+    d.text((lx + 20, cy0 + 40), "Where from", font=F(19, "SemiBold"),
+           fill=C["dim"], anchor="ls")
+    src = (("Instagram", .82), ("Google", .61), ("Referral", .44), ("Walk-in", .21))
+    pitch = (chh - 140) // max(1, len(src) - 1)
+    for i, (nm, v) in enumerate(src):
+        ry = cy0 + 76 + i * pitch
+        d.text((lx + 20, ry + 18), nm, font=F(19, "Medium"), fill=C["ink"], anchor="ls")
+        d.rounded_rectangle([lx + 20, ry + 30, lx + 20 + (W - 74 - lx) * v, ry + 40],
+                            radius=5, fill=C["line"] if not i else C["faint"])
+
+    by = cy0 + chh + 22
+    for i, (lab, val) in enumerate((("Leads handled", "412"), ("Calls booked", "61"),
+                                    ("Hours saved", "74"))):
+        bw = (W - 68 - 24) // 3
+        bx = 34 + i * (bw + 12)
+        d.rounded_rectangle([bx, by, bx + bw, H - 34], radius=14, fill=C["sub"])
+        d.text((bx + 20, by + 44), lab, font=F(19, "Medium"), fill=C["dim"], anchor="ls")
+        d.text((bx + 20, by + 96), val, font=F(40, "Bold"), fill=C["ink"], anchor="ls")
+    return im
+
+
+BLOCKS["checks"] = checks
