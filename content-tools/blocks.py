@@ -1185,7 +1185,8 @@ def alerts(im, d, x, y, w, T, items, logos=None):
     return y - gap
 
 
-def brief_card(im, d, x, y, w, T, title, when, rows, logos=None, rh=66):
+def brief_card(im, d, x, y, w, T, title, when, rows, logos=None, rh=66,
+               icon="telegram"):
     """The 7am message. One card, a Telegram header, then the numbers the owner
     actually reads - the agent AS the message it sends, not an illustration of
     messaging."""
@@ -1194,18 +1195,66 @@ def brief_card(im, d, x, y, w, T, title, when, rows, logos=None, rh=66):
     h = pad + tile + 30 + len(rows) * rh + pad - 14
     d.rounded_rectangle([x, y, x + w, y + h], radius=30, fill=(255, 255, 255),
                         outline=T["rule"], width=1)
-    p = f"{logos or LOGOS}/telegram.png"
-    if os.path.exists(p):
-        im.alpha_composite(Image.open(p).convert("RGBA").resize((tile, tile),
-                           Image.LANCZOS), (x + pad, y + pad - 6))
-    d.text((x + pad + tile + 24, y + pad + tile // 2 + 5), title,
+    tx0 = x + pad
+    if icon:
+        p = f"{logos or LOGOS}/{icon}.png"
+        if os.path.exists(p):
+            im.alpha_composite(Image.open(p).convert("RGBA").resize((tile, tile),
+                               Image.LANCZOS), (x + pad, y + pad - 6))
+        tx0 += tile + 24
+    d.text((tx0, y + pad + tile // 2 + 5), title,
            font=F(32, "Bold"), fill=T["ink"], anchor="ls")
     d.text((x + w - pad, y + pad + tile // 2 + 5), when, font=F(28, "Regular"),
            fill=T["meta"], anchor="rs")
     ry = y + pad + tile + 24
     d.line([(x + pad, ry - 6), (x + w - pad, ry - 6)], fill=(238, 237, 233), width=1)
+    # The text column clears the WIDEST count - a fixed 58px put `MRR` on top
+    # of `$10K`.
+    col = max(F(34, "Bold").getlength(n) for n, _ in rows) + 26
     for i, (n, text) in enumerate(rows):
         by = ry + i * rh + rh // 2 + 12
         d.text((x + pad, by), n, font=F(34, "Bold"), fill=T["ink"], anchor="ls")
-        d.text((x + pad + 58, by), text, font=F(31, "Regular"), fill=T["ink"], anchor="ls")
+        d.text((x + pad + col, by), text, font=F(31, "Regular"), fill=T["ink"], anchor="ls")
     return y + h
+
+
+# ----------------------------------------------------- the ultron-deck parts
+
+# ultron's own OS, drawn: the surfaces its landing page names, running a
+# founder's day. Same object as every other app_surface spec.
+ULTRON_OS = dict(
+    name="ultron",
+    nav=["Control center*", "Outreach", "Pipeline", "Ledger", "Console",
+         "Techniques", "Settings"],
+    foot=("WORKERS", [("Outreach", "blue"), ("Content", "pink"), ("Support", "green")]),
+    stats=[("34", "tasks today"), ("12", "in review"), ("9", "shipped"),
+           ("3", "waiting")],
+    title=("Task feed", "live"),
+    cols=("worker", "task", "status"),
+    rows=[("Outreach", "40 prospects enriched", "done", "green"),
+          ("Content", "3 reels cut, captioned", "done", "green"),
+          ("Support", "12 tickets answered", "done", "green"),
+          ("Outreach", "Follow-ups drafted", "review", "amber"),
+          ("Engineering", "Landing page deployed", "review", "amber"),
+          ("Ledger", "Invoices reconciled", "queued", "dim")])
+
+
+def stack(im, d, x, y, w, h, T, rows, logos=None, tile=64):
+    """The tool stack as the register: role bold on the left, the actual marks
+    on the right, a hairline between rows. The reference's own structure, minus
+    its rainbow spacing - and the row height is solved from the band like every
+    other block here."""
+    n = len(rows)
+    rh = min(122, h // n)
+    y += max(0, (h - rh * n) // 2)
+    for i, (lab, keys) in enumerate(rows):
+        by = y + rh // 2
+        d.text((x, by + 14), lab, font=F(40, "Bold"), fill=T["ink"], anchor="ls")
+        tx = x + w - (len(keys) * tile + (len(keys) - 1) * 20)
+        for k in keys:
+            logo_tile(im, d, tx, by - tile // 2, tile, k, T, logos)
+            tx += tile + 20
+        if i + 1 < n:
+            d.line([(x, y + rh), (x + w, y + rh)], fill=T["rule"], width=1)
+        y += rh
+    return y
