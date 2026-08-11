@@ -20,7 +20,7 @@ import os
 import sys
 
 import numpy as np
-from PIL import Image, ImageDraw
+from PIL import Image, ImageDraw, ImageFilter
 
 
 def _load(name):
@@ -56,6 +56,34 @@ def ground():
     return Image.fromarray(np.clip(a, 0, 255).astype(np.uint8)).convert("RGBA")
 
 
+def shadow(im, box, r=22, blur=26, alpha=48, drop=14):
+    sh = Image.new("RGBA", (W, H), (0, 0, 0, 0))
+    ImageDraw.Draw(sh).rounded_rectangle(
+        [box[0] + 10, box[1] + drop, box[2] - 10, box[3] + drop],
+        radius=r, fill=(0, 0, 0, alpha))
+    im.alpha_composite(sh.filter(ImageFilter.GaussianBlur(blur)))
+
+
+def plate(im, src_path, top, w=MEASURE, crop=None):
+    """A REAL capture on a plate. The reference's format is one screenshot per
+    frame, and a deck that spent an hour capturing the product and then shipped
+    empty chips instead deserved exactly the reaction it got."""
+    SHOTS = os.environ.get("ULTRON_SHOTS", "ultron-shots")
+    src = Image.open(f"{SHOTS}/{src_path}").convert("RGB")
+    if crop:
+        src = src.crop(crop)
+    k = w / src.width
+    sw, sh_ = round(src.width * k), round(src.height * k)
+    src = src.resize((sw, sh_), Image.LANCZOS)
+    box = [LEFT, top, LEFT + sw, top + sh_]
+    shadow(im, box)
+    mask = Image.new("L", (sw, sh_), 0)
+    ImageDraw.Draw(mask).rounded_rectangle([0, 0, sw - 1, sh_ - 1],
+                                           radius=22, fill=255)
+    im.paste(src, (box[0], box[1]), mask)
+    return box[3]
+
+
 def head(d, n, title):
     y = SAFE_TOP + int(TITLE_SZ * .727)
     num = f"{n:02d}."
@@ -80,9 +108,14 @@ def build(i, s):
     band = SAFE_BOT - top
 
     kind = s["kind"]
-    if kind == "chips":
-        yy = ST.chips_grid(d, LEFT, top, MEASURE, band, T, s["ticks"],
-                           s.get("hot", -1))
+    if kind == "shot":
+        w0, h0 = Image.open(f"{os.environ.get('ULTRON_SHOTS', 'ultron-shots')}/"
+                            f"{s['shot']}").size
+        if s.get("crop"):
+            c = s["crop"]; w0, h0 = c[2] - c[0], c[3] - c[1]
+        ph = round(h0 * MEASURE / w0)
+        yy = top + max(0, (band - ph) // 2)
+        yy = plate(im, s["shot"], yy, crop=s.get("crop"))
     elif kind == "panel":
         ph = s["panel_h"]
         yy = top + max(0, (band - ph) // 2)
@@ -120,47 +153,30 @@ def build_closer(c):
 # Frames 03-05 keep the reference's steps.
 
 SLIDES = [
-    dict(title="Put Ultron On Staff", kind="chips",
-         sub="Go to **51ultron.com.** Six seats, already staffed - "
-             "**get 20 hours a week back.**",
-         ticks=["Research", "Outbound", "Deals", "Content", "Ads",
-                "Contracts"]),
+    dict(title="Don't Reinvent The Wheel", kind="shot",
+         sub="Go to **app.51ultron.com/resources** - high-converting "
+             "templates and free tools that **help you scale faster.**",
+         shot="step1.png", crop=(0, 0, 2300, 2100)),
 
-    dict(title="Buyers On The Calendar", kind="panel",
-         sub="**Your next 10 buyers, already on your calendar.** Every name "
-             "graded before it hears from you.",
-         panel_h=560, panel_rz=35,
-         panel=("Graded this morning", "4 checks each", [
-             (None, "Mara Holt - Ledgerwise", "92", "green"),
-             (None, "Devin Park - Northwind Labs", "88", "green"),
-             (None, "Sofia Almeida - Cohort", "84", "green"),
-             (None, "Below the bar", "never emailed", "strike")]),
-         panel_foot=("Above the bar earns a conversation",
-                     "industry, size, tools, interest")),
+    dict(title="Buyers On Your Calendar", kind="shot",
+         sub="Grab the **Lead Qualifier.** Every name graded before it "
+             "hears from you - **your next 10 buyers, queued.**",
+         shot="step2.png", crop=(0, 0, 2300, 2100)),
 
-    dict(title="Create A Landing Page", kind="browser",
-         sub="Build a simple landing page to **explain the offer** and "
-             "capture interest.",
-         page=("youroffer.com", "The boring work, automated",
-               "Setups for local businesses. Live in a week.",
-               "Get the setup")),
+    dict(title="Skip The Setup Months", kind="shot",
+         sub="**Working templates** in Crescendo - get to market faster "
+             "with **powerful building blocks.**",
+         shot="step3.png", crop=(0, 0, 2300, 2100)),
 
-    dict(title="Connect Payments", kind="money",
+    dict(title="Connect Payments", kind="shot",
          sub="**Connect Stripe** so people can pay the moment "
              "demand shows up.",
-         payments=[("Stripe", "first sale", "$97.00", "now"),
-                   ("Stripe", "second sale", "$97.00", "4h"),
-                   ("Stripe", "upgrade to yearly", "$970.00", "1d")]),
+         shot="step4.png", crop=(0, 0, 2300, 2100)),
 
-    dict(title="Go Viral On Short-Form", kind="alerts",
+    dict(title="Go Viral On Short-Form", kind="shot",
          sub="Create an **Instagram and TikTok** account and post "
              "short-form to **test demand.**",
-         alerts=[("tiktok", "Hook one is out", "posted at peak hour",
-                  "07:00", "green"),
-                 ("instagram", "Same reel, recut", "different first line",
-                  "07:10", "green"),
-                 ("tiktok", "Hook two: 41K views", "the numbers decide",
-                  "1d", None)]),
+         shot="win-brand-visibility.png", crop=(0, 0, 1512, 1251)),
 ]
 
 # THE CTA IS ALWAYS COMMENT. The reference's own close.
