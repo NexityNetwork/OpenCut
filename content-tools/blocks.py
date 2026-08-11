@@ -798,10 +798,20 @@ def notify(im, d, x, y, w, T, app, line, amount, h=148, logos=None, when="now"):
     d.text((x + w - int(h * .18), y + int(h * .39)), when, font=F(int(h * .17), "Regular"),
            fill=T["meta"], anchor="rs")
     d.text((tx, y + int(h * .72)), amount, font=F(bz, "Bold"), fill=T["ink"], anchor="ls")
+    # The descriptor NEVER just disappears. It shrinks to fit beside the
+    # amount, and if it still cannot it rides under the app name.
     ax = tx + F(bz, "Bold").getlength(amount) + int(h * .10)
-    if F(az, "Regular").getlength(line) <= x + w - int(h * .18) - ax:
-        d.text((ax, y + int(h * .72)), line, font=F(az, "Regular"),
+    room = x + w - int(h * .18) - ax
+    lz = az
+    while lz > 14 and F(lz, "Regular").getlength(line) > room:
+        lz -= 1
+    if lz >= az * 0.66:
+        d.text((ax, y + int(h * .72)), line, font=F(lz, "Regular"),
                fill=T["ink"], anchor="ls")
+    else:
+        d.text((tx + F(az, "SemiBold").getlength(app) + int(h * .08),
+                y + int(h * .39)), line, font=F(int(az * .82), "Regular"),
+               fill=T["meta"], anchor="ls")
     return y + h
 
 
@@ -981,13 +991,19 @@ def list_panel(im, d, x, y, w, h, T, title, note, rows, logos=None, rz=31,
     C = dict(green=(22, 158, 92), amber=(226, 148, 22), chip=(238, 240, 244))
     d.rounded_rectangle([x, y, x + w, y + h], radius=30, fill=(255, 255, 255),
                         outline=T["rule"], width=1)
-    pad = 40
-    d.text((x + pad, y + pad + 24), title, font=F(32, "Bold"), fill=T["ink"], anchor="ls")
-    d.text((x + w - pad, y + pad + 24), note, font=F(28, "Regular"), fill=T["meta"],
-           anchor="rs")
-    top = y + pad + 52
+    # THE PANEL'S CHROME SCALES WITH ITS HEIGHT. Fixed 40px padding and a 52px
+    # header ate a 250px panel alive: the rows came out 42px tall holding 45px
+    # chips, so every status badge overlapped the row under it.
+    pad = max(20, min(40, h // 7))
+    hh = max(32, min(52, h // 5))
+    d.text((x + pad, y + pad + int(hh * .46)), title, font=F(min(32, hh * .62), "Bold"),
+           fill=T["ink"], anchor="ls")
+    d.text((x + w - pad, y + pad + int(hh * .46)), note,
+           font=F(min(28, hh * .54), "Regular"), fill=T["meta"], anchor="rs")
+    top = y + pad + hh
     fh = 74 if foot else 0
     rh = (h - (top - y) - pad + 10 - fh) // len(rows)
+    rz = max(17, min(rz, rh - 16))
     for i, (icon, left, right, tone) in enumerate(rows):
         ry = top + i * rh
         by = ry + rh // 2 + 11
@@ -1005,6 +1021,16 @@ def list_panel(im, d, x, y, w, h, T, title, note, rows, logos=None, rz=31,
             tx += n + 28
         struck = tone == "strike"
         lf = F(rz, "SemiBold")
+        # THE LEFT COLUMN IS TRIMMED AGAINST WHATEVER SITS ON THE RIGHT.
+        # Unconstrained, a long row printed straight under its own status chip
+        # - `Behind the scenes of the age` + `queued` on a shipped frame.
+        if tone and not struck:
+            rw_ = F(max(14, rz - 6), "SemiBold").getlength(right) + 42
+        else:
+            rw_ = F(rz - 4, "Regular").getlength(right) + 28
+        room = x + w - pad - rw_ - tx
+        while lf.getlength(left) > room and " " in left:
+            left = left.rsplit(" ", 1)[0]
         d.text((tx, by), left, font=lf, fill=T["meta"] if struck else T["ink"],
                anchor="ls")
         if struck:
@@ -1013,11 +1039,12 @@ def list_panel(im, d, x, y, w, h, T, title, note, rows, logos=None, rz=31,
             d.text((x + w - pad, by), right, font=F(rz - 4, "Regular"),
                    fill=T["meta"], anchor="rs")
         elif tone:
-            cf = F(rz - 6, "SemiBold")
+            cf = F(max(14, rz - 6), "SemiBold")
             cw = cf.getlength(right)
             cx = x + w - pad - cw - 26
-            d.rounded_rectangle([cx, by - rz - 5, cx + cw + 26, by + 10],
-                                radius=20, fill=C["chip"])
+            ct = min(rz + 15, rh - 6)
+            d.rounded_rectangle([cx, by - ct + 10, cx + cw + 26, by + 10],
+                                radius=ct // 2, fill=C["chip"])
             d.text((cx + 13, by - 3), right, font=cf, fill=C[tone], anchor="ls")
         else:
             d.text((x + w - pad, by), right, font=F(28, "Regular"), fill=T["meta"],

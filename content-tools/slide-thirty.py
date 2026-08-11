@@ -113,7 +113,7 @@ def chips_grid(d, x, y, w, h, T, items, hot_i):
     cols, rows = 2, 3
     gap = 28
     cw = (w - gap) // 2
-    ch = min(178, (h - gap * (rows - 1)) // rows)
+    ch = min(216, (h - gap * (rows - 1)) // rows)
     y += max(0, (h - (ch * rows + gap * (rows - 1)))) // 2
     for i, t in enumerate(items):
         cx = x + (i % 2) * (cw + gap)
@@ -128,7 +128,7 @@ def chips_grid(d, x, y, w, h, T, items, hot_i):
             d.text((cx + 32, cy + ch // 2 + 11 + (k - 0.5 * (len(BL.wrap(t, f, cw - 60)) - 1)) * 40),
                    ln, font=f, fill=col, anchor="ls")
         if hot:
-            d.text((cx + cw - 30, cy + 40), "PICK ONE", font=F(20, "Bold"),
+            d.text((cx + cw - 30, cy + 46), "PICK ONE", font=F(24, "Bold"),
                    fill=(255, 255, 255), anchor="rs")
     return y + ch * rows + gap * (rows - 1)
 

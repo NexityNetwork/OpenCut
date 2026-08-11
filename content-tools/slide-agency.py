@@ -123,7 +123,7 @@ SLIDES = [
     dict(title="Identify ONE painful, expensive problem", kind="panel",
          sub="It costs them time daily, loses them money, and **bores the "
              "staff doing it.**",
-         panel_h=470, rz=34,
+         panel_h=650, rz=38,
          panel=("Problems worth fixing", "pick one", [
              (None, "DMs pile up, leads go cold", "daily", "amber"),
              (None, "Hours of outreach, 20 emails out", "daily", "amber"),
@@ -147,11 +147,11 @@ SLIDES = [
 
     dict(title="Post content to attract global clients", kind="panel",
          sub="This is how clients arrive **without a single cold email.**",
-         panel_h=470, rz=34,
+         panel_h=650, rz=38,
          panel=("This week's posts", "3 ideas that always work", [
              ("tiktok", "Sales call breakdown", "posted", "green"),
              ("instagram", "The agent I built this week", "posted", "green"),
-             ("linkedin", "Behind the scenes of the agency", "queued", "amber")]),
+             ("linkedin", "Agency behind the scenes", "queued", "amber")]),
          pfoot=("You show people why to trust you", "before they ever ask")),
 
     dict(title="Scale to $10k/month", kind="math",

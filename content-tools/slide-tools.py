@@ -51,26 +51,33 @@ def build(i, s):
     ry = y + 168
     d.line([(LEFT, ry), (RIGHT, ry)], fill=T["rule"], width=1)
 
-    # Value, uses, and PROOF - the reference has the product screenshot behind
-    # every frame and without it the composition used the top half and left
-    # 350px of dead paper under the ticks.
+    # THE BLOCK IS SOLVED AGAINST THE FOOTER, not centred and hoped for.
+    # The first version left the type's 72px ascent out of the sum, so a
+    # three-line value pushed the artifact straight through the Cost rule.
+    # The value size drops until value + uses + artifact genuinely fit.
     fy = SAFE_BOT - FOOT_H
-    lines = BL.wrap(s["value"], F(76, "Bold"), MEASURE)
-    vh = len(lines) * 96
+    avail = fy - ry - 96
     ch = len(s["uses"]) * 86
-    ah = 250
-    block = vh + 56 + ch + 60 + ah
-    vy = ry + max(48, (fy - ry - block) // 2) + 72
+    for vsz in range(76, 43, -2):
+        lines = BL.wrap(s["value"], F(vsz, "Bold"), MEASURE)
+        vh = len(lines) * round(vsz * 1.26)
+        ah = avail - vh - 56 - ch - 60
+        if 250 <= ah <= 320:
+            break
+    ah = max(250, min(ah, 320))
+    top_y = ry + max(48, (fy - ry - (vh + 56 + ch + 60 + ah)) // 2)
+    vy = top_y + int(vsz * .84)
     for ln in lines:
-        d.text((LEFT, vy), ln, font=F(76, "Bold"), fill=T["ink"], anchor="ls")
-        vy += 96
-    vy += 56 - 72
-    BL.checks(d, LEFT, vy, MEASURE, ch, T, s["uses"], cap=46, lead=1.28,
+        d.text((LEFT, vy), ln, font=F(vsz, "Bold"), fill=T["ink"], anchor="ls")
+        vy += round(vsz * 1.26)
+    cy = top_y + vh + 56
+    BL.checks(d, LEFT, cy, MEASURE, ch, T, s["uses"], cap=46, lead=1.28,
               col=T["ink"])
-    ay = vy + ch + 60
+    ay = cy + ch + 60
+    assert ay + ah <= fy - 8, f"artifact crosses the footer on {s['name']}"
     if s.get("notify"):
-        BL.notify(im, d, LEFT, ay, MEASURE, T, *s["notify"], h=ah - 40,
-                  logos=LOGOS)
+        BL.notify(im, d, LEFT, ay + (ah - 240) // 2, MEASURE, T, *s["notify"],
+                  h=240, logos=LOGOS)
     else:
         BL.list_panel(im, d, LEFT, ay, MEASURE, ah, T, *s["panel"],
                       logos=LOGOS, rz=30)

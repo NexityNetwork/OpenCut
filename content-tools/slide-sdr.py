@@ -68,19 +68,19 @@ def audience(d, x, y, w, h, T, cards):
     """Two buyers, two cards. The frame answers one question so it holds two
     answers and nothing else."""
     gap = 32
-    ch = min(300, (h - gap) // 2)
+    ch = min(360, (h - gap) // 2)
     y += max(0, (h - (ch * 2 + gap)) // 2)
     for title, body in cards:
         d.rounded_rectangle([x, y, x + w, y + ch], radius=26,
                             fill=(255, 255, 255), outline=T["rule"], width=1)
         ty = y + 84
-        for ln in BL.wrap(title, F(46, "Bold"), w - 80):
-            d.text((x + 40, ty), ln, font=F(46, "Bold"), fill=T["ink"], anchor="ls")
-            ty += 56
+        for ln in BL.wrap(title, F(50, "Bold"), w - 80):
+            d.text((x + 40, ty), ln, font=F(50, "Bold"), fill=T["ink"], anchor="ls")
+            ty += 62
         ty += 14
-        for ln in BL.wrap(body, F(31, "Regular"), w - 80):
-            d.text((x + 40, ty), ln, font=F(31, "Regular"), fill=T["ink"], anchor="ls")
-            ty += 42
+        for ln in BL.wrap(body, F(34, "Regular"), w - 80):
+            d.text((x + 40, ty), ln, font=F(34, "Regular"), fill=T["ink"], anchor="ls")
+            ty += 46
         y += ch + gap
     return y - gap
 
@@ -105,13 +105,13 @@ def build(s):
     if k == "cards":
         yy = audience(d, LEFT, top, MEASURE, band, T, s["cards"])
     elif k == "surface":
-        surf = SF.SURFACES[s["surf"]]().resize((700, 550), Image.LANCZOS)
-        ph, lh = 596, 64 + 40
+        surf = SF.SURFACES[s["surf"]]().resize((760, 598), Image.LANCZOS)
+        ph, lh = 646, 64 + 40
         yy = top + max(0, (band - ph - lh) // 2)
         shadow(im, [LEFT, yy, LEFT + MEASURE, yy + ph], r=24)
         d.rounded_rectangle([LEFT, yy, LEFT + MEASURE, yy + ph], radius=24,
                             fill=SF.PADS[s["surf"]])
-        im.alpha_composite(surf, (LEFT + (MEASURE - 700) // 2, yy + 23))
+        im.alpha_composite(surf, (LEFT + (MEASURE - 760) // 2, yy + 24))
         yy += ph + 40
         names = [n for n in s["logos"] if os.path.exists(f"{LOGOS}/{n}.png")]
         x = W // 2 - (len(names) * 64 + (len(names) - 1) * 28) // 2
