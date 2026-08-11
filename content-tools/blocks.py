@@ -34,6 +34,9 @@ seq was. Brand tiles and paragraphs-in-boxes are the thing being replaced.
 BANNED: an accent bar down a card's left edge. The chip already names the
 category; a coloured stripe beside it is template decoration.
 
+BANNED: the tall sub-* workspace captures (the phone-shaped right-panel
+crops). Used once on the sales deck and retired by instruction.
+
 Every block justifies to the height it is given - the rows spread from the rule
 to the bottom of the safe box rather than stacking in the middle third. Fixed
 gaps put a compact block in the middle of the frame with air above and below,
@@ -745,7 +748,7 @@ def checks(d, x, y, w, h, T, items, cap=76, rule=True, col=None, lead=1.12,
     return y - gap
 
 
-def notify(im, d, x, y, w, T, app, line, amount, h=148, logos=None):
+def notify(im, d, x, y, w, T, app, line, amount, h=148, logos=None, when="now"):
     """A payment landing. One notification, at the size a phone draws it.
 
     It is the one element in the deck that shows a RESULT rather than a
@@ -783,7 +786,7 @@ def notify(im, d, x, y, w, T, app, line, amount, h=148, logos=None):
             bz -= 2
         d.text((tx, y + int(h * .27)), app, font=F(az, "SemiBold"),
                fill=T["ink"], anchor="ls")
-        d.text((x + w - int(h * .18), y + int(h * .27)), "now",
+        d.text((x + w - int(h * .18), y + int(h * .27)), when,
                font=F(int(h * .12), "Regular"), fill=T["meta"], anchor="rs")
         d.text((tx, y + int(h * .60)), amount, font=F(bz, "Bold"),
                fill=T["ink"], anchor="ls")
@@ -792,7 +795,7 @@ def notify(im, d, x, y, w, T, app, line, amount, h=148, logos=None):
         return y + h
     az, bz = int(h * .18), int(h * .26)
     d.text((tx, y + int(h * .39)), app, font=F(az, "SemiBold"), fill=T["ink"], anchor="ls")
-    d.text((x + w - int(h * .18), y + int(h * .39)), "now", font=F(int(h * .17), "Regular"),
+    d.text((x + w - int(h * .18), y + int(h * .39)), when, font=F(int(h * .17), "Regular"),
            fill=T["meta"], anchor="rs")
     d.text((tx, y + int(h * .72)), amount, font=F(bz, "Bold"), fill=T["ink"], anchor="ls")
     ax = tx + F(bz, "Bold").getlength(amount) + int(h * .10)

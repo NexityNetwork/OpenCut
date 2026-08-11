@@ -133,26 +133,48 @@ def chips_grid(d, x, y, w, h, T, items, hot_i):
     return y + ch * rows + gap * (rows - 1)
 
 
-def converge(d, x, y, w, h, T, items, target):
-    """Many problems, one target - `stop trying to solve everything at once`
-    drawn as the convergence it asks for."""
+def pick_rows(d, x, y, w, h, T, items, keep):
+    """Picking one problem drawn as the act itself: the others crossed out,
+    the keeper circled in the accent. Same full-measure rhythm as the arrows
+    frame - big type on hairlines, one device."""
     n = len(items)
-    lh = min(116, h // n)
-    y0 = y + max(0, (h - lh * n) // 2)
-    tx = x + int(w * 0.62)
-    ty = y0 + (lh * n) // 2
+    rh = min(150, h // n)
+    y += max(0, (h - rh * n)) // 2
     for i, t in enumerate(items):
-        ly = y0 + i * lh + lh // 2
-        d.text((x, ly + 12), t, font=F(36, "Regular"), fill=T["ink"], anchor="ls")
-        lx = x + int(F(36, "Regular").getlength(t)) + 24
-        d.line([(min(lx, tx - 40), ly), (tx - 24, ty)], fill=T["rule"], width=3)
-    bw, bh = int(w * 0.38), 156
-    d.rounded_rectangle([tx - 20, ty - bh // 2, tx - 20 + bw, ty + bh // 2],
-                        radius=26, fill=T["accent"])
-    for k, ln in enumerate(BL.wrap(target, F(34, "Bold"), bw - 56)):
-        d.text((tx + 10, ty + 12 + (k - 0.5) * 42 + 8), ln, font=F(34, "Bold"),
-               fill=(255, 255, 255), anchor="ls")
-    return y0 + lh * n
+        hot = t == keep
+        by = y + i * rh + rh // 2 + 15
+        f = F(46, "Bold" if hot else "Regular")
+        d.text((x, by), t, font=f, fill=T["ink"], anchor="ls")
+        tw = f.getlength(t)
+        if hot:
+            d.ellipse([x - 36, by - 66, x + tw + 40, by + 30],
+                      outline=T["accent"], width=5)
+            d.text((x + tw + 64, by), "this one", font=F(30, "SemiBold"),
+                   fill=T["accent"], anchor="ls")
+        else:
+            d.line([(x - 6, by - 15), (x + tw + 8, by - 15)], fill=T["ink"], width=4)
+        if i + 1 < n:
+            d.line([(x, y + (i + 1) * rh), (x + w, y + (i + 1) * rh)],
+                   fill=T["rule"], width=1)
+    return y + rh * n
+
+
+def steps_rows(d, x, y, w, h, T, items):
+    """Three numbered moves, the arrows frame's rhythm with numerals."""
+    n = len(items)
+    rh = min(250, h // n)
+    y += max(0, (h - rh * n)) // 2
+    for i, (t, sub) in enumerate(items):
+        by = y + i * rh + rh // 2
+        d.text((x, by + 2), f"{i + 1}", font=F(84, "Bold"), fill=T["accent"],
+               anchor="ls")
+        d.text((x + 96, by - 6), t, font=F(46, "Bold"), fill=T["ink"], anchor="ls")
+        d.text((x + 96, by + 42), sub, font=F(31, "Regular"), fill=T["ink"],
+               anchor="ls")
+        if i + 1 < n:
+            d.line([(x, y + (i + 1) * rh), (x + w, y + (i + 1) * rh)],
+                   fill=T["rule"], width=1)
+    return y + rh * n
 
 
 def arrows3(d, x, y, w, h, T, pairs):
@@ -176,11 +198,10 @@ def arrows3(d, x, y, w, h, T, pairs):
     return y + rh * n
 
 
-def browser(im, d, x, y, w, T, url, headline, subline, button):
+def browser(im, d, x, y, w, T, url, headline, subline, button, h=560):
     """A landing page as the artifact - a drawn CLIENT page, not a screenshot
     of anything real, because the client's page does not exist yet. That is
     the point of the frame."""
-    h = 560
     d.rounded_rectangle([x, y, x + w, y + h], radius=26, fill=(255, 255, 255),
                         outline=T["rule"], width=1)
     for i, c in enumerate(((226, 92, 92), (232, 176, 66), (98, 186, 106))):
@@ -189,19 +210,29 @@ def browser(im, d, x, y, w, T, url, headline, subline, button):
                         fill=(240, 240, 243))
     d.text((x + 172, y + 56), url, font=F(24, "Regular"), fill=T["meta"], anchor="ls")
     d.line([(x, y + 88), (x + w, y + 88)], fill=(236, 236, 239), width=1)
-    cy = y + 88 + 96
-    for ln in BL.wrap(headline, F(52, "Bold"), w - 160):
-        d.text((x + w // 2, cy), ln, font=F(52, "Bold"), fill=T["ink"], anchor="ms")
-        cy += 66
-    cy += 18
-    for ln in BL.wrap(subline, F(30, "Regular"), w - 220):
-        d.text((x + w // 2, cy), ln, font=F(30, "Regular"), fill=T["ink"], anchor="ms")
-        cy += 44
-    bw = int(F(32, "SemiBold").getlength(button)) + 88
-    d.rounded_rectangle([x + (w - bw) // 2, cy + 26, x + (w + bw) // 2, cy + 96],
-                        radius=35, fill=T["accent"])
-    d.text((x + w // 2, cy + 72), button, font=F(32, "SemiBold"),
+    # A page, not a postage stamp: nav row, hero at display size, the button,
+    # and the reassurance line a real page ends its hero with.
+    d.ellipse([x + 56, y + 128, x + 84, y + 156], fill=T["ink"])
+    d.text((x + 100, y + 150), "Northlake Kitchens", font=F(26, "SemiBold"),
+           fill=T["ink"], anchor="ls")
+    for k, t in enumerate(("Work", "Reviews", "Contact")):
+        d.text((x + w - 56 - (2 - k) * 130, y + 150), t, font=F(24, "Regular"),
+               fill=T["meta"], anchor="rs")
+    cy = y + 300
+    for ln in BL.wrap(headline, F(64, "Bold"), w - 140):
+        d.text((x + w // 2, cy), ln, font=F(64, "Bold"), fill=T["ink"], anchor="ms")
+        cy += 80
+    cy += 16
+    for ln in BL.wrap(subline, F(32, "Regular"), w - 200):
+        d.text((x + w // 2, cy), ln, font=F(32, "Regular"), fill=T["ink"], anchor="ms")
+        cy += 46
+    bw = int(F(34, "SemiBold").getlength(button)) + 96
+    d.rounded_rectangle([x + (w - bw) // 2, cy + 34, x + (w + bw) // 2, cy + 112],
+                        radius=39, fill=T["accent"])
+    d.text((x + w // 2, cy + 84), button, font=F(34, "SemiBold"),
            fill=(255, 255, 255), anchor="ms")
+    d.text((x + w // 2, cy + 168), "Answered in under a minute, day or night",
+           font=F(26, "Regular"), fill=T["meta"], anchor="ms")
     return y + h
 
 
@@ -218,15 +249,24 @@ def build(i, s):
     kind = s["kind"]
     if kind == "chips":
         yy = chips_grid(d, LEFT, top, MEASURE, band, T, s["ticks"], s["hot"])
-    elif kind == "converge":
-        yy = converge(d, LEFT, top + 20, MEASURE, band - 40, T, s["ticks"],
-                      s["target"])
+    elif kind == "pick":
+        yy = pick_rows(d, LEFT, top, MEASURE, band, T, s["ticks"], s["keep"])
+    elif kind == "steps":
+        yy = steps_rows(d, LEFT, top, MEASURE, band, T, s["steps"])
     elif kind == "arrows":
         yy = arrows3(d, LEFT, top, MEASURE, band, T, s["pairs"])
     elif kind == "browser":
-        bh = 560
+        bh = min(band - 24, 760)
         yy = browser(im, d, LEFT, top + max(0, (band - bh) // 2), MEASURE, T,
-                     *s["page"])
+                     *s["page"], h=bh)
+    elif kind == "money":
+        nh, gp = 210, 40
+        stack = nh * 3 + gp * 2
+        yy = top + max(0, (band - stack) // 2)
+        for app, line, amount, when in s["payments"]:
+            yy = BL.notify(im, d, LEFT, yy, MEASURE, T, app, line, amount,
+                           h=nh, logos=LOGOS, when=when) + gp
+        yy -= gp
     elif kind == "split":
         src = Image.open(f"{SHOTS}/{s['shot']}").convert("RGB")
         pw = 400
@@ -290,12 +330,13 @@ SLIDES = [
                 "Coaches and consultants"],
          hot=0),
 
-    dict(title="One Painful Problem", kind="converge",
+    dict(title="One Painful Problem", kind="pick",
          sub="Pick **ONE PAINFUL PROBLEM.** Stop trying to solve "
              "everything at once.",
          ticks=["Content taking too long", "No-shows", "Manual follow-ups",
-                "Customer retention", "Quotes going out late"],
-         target="Leads not replying"),
+                "Customer retention", "Quotes going out late",
+                "Leads not replying"],
+         keep="Leads not replying"),
 
     dict(title="One AI Workflow", kind="ticks_art",
          sub="Build **ONE AI WORKFLOW.** You are selling the **result**, "
@@ -317,12 +358,12 @@ SLIDES = [
              "of building from scratch.",
          shot="home.png"),
 
-    dict(title="Grab A Playbook", kind="split",
+    dict(title="Grab A Playbook", kind="steps",
          sub="**Working templates** that skip you straight past the "
              "setup months.",
-         ticks=["Pick the playbook", "Wire your accounts",
-                "Launch this week"],
-         shot="sub-techniques.png"),
+         steps=[("Pick the playbook", "outreach, pipeline, content - built"),
+                ("Wire your accounts", "calendar, inbox, socials"),
+                ("Launch this week", "not next quarter")]),
 
     dict(title="Ship The Landing Page", kind="browser",
          sub="Explain the offer and **capture interest.** Ultron builds "
@@ -331,10 +372,12 @@ SLIDES = [
                "The AI receptionist that answers, books and follows up.",
                "Book a call")),
 
-    dict(title="Connect Payments", kind="notify",
+    dict(title="Connect Payments", kind="money",
          sub="**Connect Stripe** and start **SELLING** who your ideal "
              "clients become working with you.",
-         notify=("Stripe", "from a new client", "$8,500.00")),
+         payments=[("Stripe", "setup fee", "$3,500.00", "now"),
+                   ("Stripe", "from a new client", "$8,500.00", "2d"),
+                   ("Stripe", "monthly retainer", "$500.00", "1w")]),
 ]
 
 # THE CTA IS ALWAYS COMMENT.
