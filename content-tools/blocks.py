@@ -278,6 +278,92 @@ CLIENT_OS = dict(
           ("Google", "Consult call", "new", "dim")])
 
 
+# The six business models, each as the software you would actually sell for it.
+# The reference puts a different stock UI mockup on every frame - a Siphron
+# dashboard, a kanban, a truck configurator - which is decoration, because none
+# of them has anything to do with the model named above it. One object with six
+# sets of true words says the same thing and says something.
+MODEL_OS = [
+    dict(name="Ops Console",
+         nav=["Home", "Runs*", "Workflows", "Clients", "Errors", "Billing", "Settings"],
+         foot=("CLIENTS", [("Northlake", "blue"), ("Ardent", "green"),
+                           ("Boro Dental", "pink")]),
+         stats=[("34", "workflows"), ("1,208", "runs"), ("6", "errors"), ("9", "clients")],
+         title=("Runs", "last 24 hours"), cols=("client", "workflow", "status"),
+         rows=[("Northlake", "Invoice chase", "done", "green"),
+               ("Ardent", "Lead intake", "done", "green"),
+               ("Boro Dental", "Booking sync", "done", "green"),
+               ("Northlake", "Report build", "running", "amber"),
+               ("Ardent", "Support triage", "running", "amber"),
+               ("Boro Dental", "Payroll export", "queued", "dim")]),
+    dict(name="Growth Desk",
+         nav=["Overview", "Campaigns*", "Creatives", "Audiences", "Email", "Reports",
+              "Settings"],
+         foot=("CHANNELS", [("Paid social", "blue"), ("Search", "green"),
+                            ("Email", "pink")]),
+         stats=[("18", "campaigns"), ("4.2x", "ROAS"), ("62k", "reach"), ("311", "leads")],
+         title=("Campaigns", "this week"), cols=("channel", "campaign", "status"),
+         rows=[("Paid social", "Winter bundle", "scaling", "green"),
+               ("Search", "Brand terms", "scaling", "green"),
+               ("Email", "Win back", "testing", "amber"),
+               ("Paid social", "Creator cuts", "testing", "amber"),
+               ("Search", "Competitor", "paused", "dim"),
+               ("Email", "Abandoned cart", "paused", "dim")]),
+    dict(name="Inbox",
+         nav=["Overview", "Conversations*", "Bots", "Handoffs", "Macros", "Reports",
+              "Settings"],
+         foot=("CHANNELS", [("Website", "blue"), ("WhatsApp", "green"),
+                            ("Instagram", "pink")]),
+         stats=[("1,940", "chats"), ("82%", "self served"), ("41s", "first reply"),
+                ("12", "handoffs")],
+         title=("Conversations", "live"), cols=("channel", "asked about", "status"),
+         rows=[("Website", "Delivery time", "answered", "green"),
+               ("WhatsApp", "Return policy", "answered", "green"),
+               ("Instagram", "Price list", "answered", "green"),
+               ("Website", "Custom order", "handed off", "amber"),
+               ("WhatsApp", "Refund", "handed off", "amber"),
+               ("Instagram", "Stock check", "waiting", "dim")]),
+    dict(name="Content Engine",
+         nav=["Overview", "Queue*", "Drafts", "Published", "Keywords", "Reports",
+              "Settings"],
+         foot=("CHANNELS", [("Blog", "blue"), ("YouTube", "red"), ("Newsletter", "pink")]),
+         stats=[("129", "pieces"), ("42", "published"), ("18", "keywords"),
+                ("6", "channels")],
+         title=("Queue", "this week"), cols=("channel", "piece", "status"),
+         rows=[("Blog", "Cost per booked call", "published", "green"),
+               ("YouTube", "The boring agent", "published", "green"),
+               ("Newsletter", "One idea, ten posts", "review", "amber"),
+               ("Blog", "What nobody posts", "review", "amber"),
+               ("YouTube", "Desk setup teardown", "drafting", "dim"),
+               ("Blog", "Follow ups that fire", "drafting", "dim")]),
+    dict(name="Product",
+         nav=["Overview", "Users*", "Billing", "Feature flags", "Support", "Reports",
+              "Settings"],
+         foot=("PLANS", [("Starter", "blue"), ("Pro", "green"), ("Agency", "pink")]),
+         stats=[("412", "users"), ("61", "paid"), ("8.4k", "MRR"), ("3%", "churn")],
+         title=("Signups", "this week"), cols=("plan", "source", "status"),
+         rows=[("Pro", "Search", "paid", "green"),
+               ("Agency", "Referral", "paid", "green"),
+               ("Starter", "Instagram", "trial", "amber"),
+               ("Pro", "Search", "trial", "amber"),
+               ("Starter", "YouTube", "free", "dim"),
+               ("Starter", "Referral", "free", "dim")]),
+    dict(name="Operations",
+         nav=["Overview*", "Automations", "Incidents", "Load", "Clients", "Reports",
+              "Settings"],
+         foot=("SEVERITY", [("Failing", "red"), ("Slow", "amber"), ("Healthy", "green")]),
+         stats=[("96", "automations"), ("2", "incidents"), ("99.4%", "uptime"),
+                ("11", "products")],
+         title=("Automations", "by load"), cols=("product", "automation", "status"),
+         rows=[("Inbox", "Reply router", "healthy", "green"),
+               ("Growth", "Budget sync", "healthy", "green"),
+               ("Content", "Publish queue", "slow", "amber"),
+               ("Billing", "Invoice chase", "slow", "amber"),
+               ("Inbox", "Handoff rules", "failing", "red"),
+               ("Growth", "Creative pull", "failing", "red")]),
+]
+
+
 def app_surface(W=820, H=660, theme=None, spec=None):
     """The application, as a surface. What goes where the reference puts two
     product screenshots.
@@ -606,7 +692,8 @@ def tool_pair(im, d, x, y, w, T, left, right, tile=132, logos=None):
     return y + tile + 66
 
 
-def checks(d, x, y, w, h, T, items, cap=76, rule=True, col=None):
+def checks(d, x, y, w, h, T, items, cap=76, rule=True, col=None, lead=1.12,
+           bold=()):
     """A tick and a line. The tick is filled, not an outline - this list IS a
     list of things you no longer do, so the mark should read as done rather than
     as a bullet.
@@ -615,34 +702,42 @@ def checks(d, x, y, w, h, T, items, cap=76, rule=True, col=None):
     height has to go somewhere, and it goes into the gaps, so six short lines end
     up as six islands with 130px of nothing between them. Here the largest size
     that still fits six rows wins and the gap stays locked to it, which fills the
-    same height with type instead of air."""
+    same height with type instead of air.
+
+    A LABEL MAY WRAP. Some lists are three words a row and some are the
+    reference's own full sentences; forcing the long ones onto one line drove the
+    whole deck to 31px, which is a footnote at half a second. So `lead` is the
+    pitch INSIDE a label and the gap is the space between labels, and the tick
+    sits against the label's FIRST line rather than the middle of its block."""
     n = len(items)
-    for sz in range(cap, 25, -1):
-        line, gap = round(sz * 1.12), round(sz * 0.66)
-        f = F(sz, "Medium")
-        if (n * line + (n - 1) * gap <= h
-                and max(f.getlength(t) for t in items) + sz * 1.65 <= w):
+    faces = ["Bold" if i in bold else "Medium" for i in range(n)]
+    for sz in range(cap, 19, -1):
+        line, gap = round(sz * lead), round(sz * 0.66)
+        rows = [wrap(t, F(sz, fc), w - sz * 1.65) for t, fc in zip(items, faces)]
+        nl = sum(len(r) for r in rows)
+        if nl * line + (n - 1) * gap <= h:
             break
     r = sz * 0.40
-    pitch = line + gap
-    y += max(0, (h - (n * line + (n - 1) * gap))) // 2 + round(sz * .78)
-    for i, t in enumerate(items):
+    y += max(0, (h - (nl * line + (n - 1) * gap))) // 2 + round(sz * .78)
+    for i, ls in enumerate(rows):
         cy = y - round(sz * .30)
         d.ellipse([x, cy - r, x + r * 2, cy + r], fill=col or T["accent"])
         d.line([(x + r * .56, cy + r * .02), (x + r * .88, cy + r * .38)],
                fill=(255, 255, 255), width=max(3, round(sz / 12)))
         d.line([(x + r * .84, cy + r * .38), (x + r * 1.44, cy - r * .36)],
                fill=(255, 255, 255), width=max(3, round(sz / 12)))
-        d.text((x + r * 2 + sz * .58, y), t, font=F(sz, "Medium"),
-               fill=T["ink"], anchor="ls")
+        for k, t in enumerate(ls):
+            d.text((x + r * 2 + sz * .58, y + k * line), t, font=F(sz, faces[i]),
+                   fill=T["ink"], anchor="ls")
+        y += len(ls) * line
         if rule and i < n - 1:
-            ry = y + round(gap * .52)
+            ry = y - line + round(gap * .52)
             d.line([(x, ry), (x + w, ry)], fill=T["rule"], width=1)
-        y += pitch
+        y += gap
     return y - gap
 
 
-def notify(im, d, x, y, w, T, app, line, amount, tile=76, logos=None):
+def notify(im, d, x, y, w, T, app, line, amount, h=148, logos=None):
     """A payment landing. One notification, at the size a phone draws it.
 
     It is the one element in the deck that shows a RESULT rather than a
@@ -653,24 +748,39 @@ def notify(im, d, x, y, w, T, app, line, amount, tile=76, logos=None):
     White with a hairline, not the phone's own grey: on paper a grey card
     disappears and the notification stops reading as a separate object that
     arrived."""
-    h = 148
-    d.rounded_rectangle([x, y, x + w, y + h], radius=26, fill=(255, 255, 255),
-                        outline=T["rule"], width=1)
-    tx, ty = x + 26, y + (h - tile) // 2
+    # Everything scales off h, so the same notification can be a footnote under a
+    # price list on one deck and the payoff of a whole frame on another.
+    tile = int(h * .52)
+    d.rounded_rectangle([x, y, x + w, y + h], radius=int(h * .18),
+                        fill=(255, 255, 255), outline=T["rule"], width=1)
+    tx, ty = x + int(h * .18), y + (h - tile) // 2
     p = f"{logos or LOGOS}/stripe.png"
     if os.path.exists(p):
         im.alpha_composite(Image.open(p).convert("RGBA").resize((tile, tile),
                            Image.LANCZOS), (tx, ty))
     else:
-        d.rounded_rectangle([tx, ty, tx + tile, ty + tile], radius=18, fill=(99, 91, 255))
-        d.text((tx + tile // 2, ty + tile // 2 + 13), "S", font=F(40, "Bold"),
-               fill=(255, 255, 255), anchor="ms")
-    tx += tile + 24
-    d.text((tx, y + 58), app, font=F(27, "SemiBold"), fill=T["ink"], anchor="ls")
-    d.text((x + w - 26, y + 58), "now", font=F(25, "Regular"), fill=T["meta"], anchor="rs")
-    d.text((tx, y + 106), amount, font=F(38, "Bold"), fill=T["ink"], anchor="ls")
-    d.text((tx + F(38, "Bold").getlength(amount) + 14, y + 106), line,
-           font=F(27, "Regular"), fill=T["ink"], anchor="ls")
+        d.rounded_rectangle([tx, ty, tx + tile, ty + tile], radius=int(tile * .24),
+                            fill=(99, 91, 255))
+        d.text((tx + tile // 2, ty + tile // 2 + int(tile * .17)), "S",
+               font=F(int(tile * .52), "Bold"), fill=(255, 255, 255), anchor="ms")
+    tx += tile + int(h * .16)
+    az, bz = int(h * .18), int(h * .26)
+    d.text((tx, y + int(h * .39)), app, font=F(az, "SemiBold"), fill=T["ink"], anchor="ls")
+    d.text((x + w - int(h * .18), y + int(h * .39)), "now", font=F(int(h * .17), "Regular"),
+           fill=T["meta"], anchor="rs")
+    d.text((tx, y + int(h * .72)), amount, font=F(bz, "Bold"), fill=T["ink"], anchor="ls")
+    # The descriptor sits after the amount when there is room for it and drops to
+    # the app line when there is not. At h=258 `from a new client` beside a
+    # ten-thousand-dollar figure ran off the card, and a notification with its
+    # own text hanging over the edge is not a notification, it is a mistake.
+    ax = tx + F(bz, "Bold").getlength(amount) + int(h * .10)
+    if F(az, "Regular").getlength(line) <= x + w - int(h * .18) - ax:
+        d.text((ax, y + int(h * .72)), line, font=F(az, "Regular"),
+               fill=T["ink"], anchor="ls")
+    else:
+        sz2 = int(az * .82)
+        d.text((tx + F(az, "SemiBold").getlength(app) + int(h * .07), y + int(h * .39)),
+               line, font=F(sz2, "Regular"), fill=T["meta"], anchor="ls")
     return y + h
 
 
@@ -737,3 +847,91 @@ def report_surface(W=820, H=560, theme=None, name="Client Portal"):
 
 
 BLOCKS["checks"] = checks
+
+
+# --------------------------------------------------------- the sales-deck parts
+
+def tool_cards(d, x, y, w, h, T, items, im=None, logos=None, cap=300, gap=40):
+    """Two tools, as full-measure rows rather than two small tiles side by side.
+
+    The reference gives each tool a card the width of the frame with the mark set
+    large, and it is right to: these frames have nothing on them BUT the two
+    tools, so a pair of 140px tiles floating in the middle would be a frame that
+    ran out of things to say. The card height is solved from the space and capped,
+    same rule as every other block here."""
+    n = len(items)
+    ch = min(cap, (h - gap * (n - 1)) // n)
+    y += max(0, (h - (ch * n + gap * (n - 1)))) // 2
+    mark = int(ch * 0.46)
+    for name, key, role in items:
+        d.rounded_rectangle([x, y, x + w, y + ch], radius=26, fill=(255, 255, 255),
+                            outline=T["rule"], width=1)
+        p = f"{logos or LOGOS}/{key}.png"
+        mx, my = x + 42, y + (ch - mark) // 2
+        if im is not None and os.path.exists(p):
+            im.alpha_composite(Image.open(p).convert("RGBA").resize((mark, mark),
+                               Image.LANCZOS), (mx, my))
+        tx = mx + mark + 40
+        rz = int(ch * .115)
+        rl = wrap(role, F(rz, "Regular"), x + w - 42 - tx)
+        d.text((tx, y + ch // 2 - 6), name, font=F(int(ch * .19), "Bold"),
+               fill=T["ink"], anchor="ls")
+        ry = y + ch // 2 + int(ch * .16)
+        for r in rl:
+            d.text((tx, ry), r, font=F(rz, "Regular"), fill=T["ink"], anchor="ls")
+            ry += round(rz * 1.36)
+        y += ch + gap
+    return y - gap
+
+
+def dm_card(d, x, y, w, T, who, handle, lines, sz=34):
+    """One message, at the size a phone draws it. The frame claims the system
+    writes something personal, and the only way to make that claim is to show the
+    sentence - a bubble with grey bars in it claims nothing."""
+    lead = round(sz * 1.42)
+    body = [l for t in lines for l in wrap(t, F(sz, "Regular"), w - 96)]
+    h = 96 + len(body) * lead + 34
+    d.rounded_rectangle([x, y, x + w, y + h], radius=26, fill=(255, 255, 255),
+                        outline=T["rule"], width=1)
+    r = 30
+    d.ellipse([x + 36, y + 34, x + 36 + r * 2, y + 34 + r * 2], fill=T["ink"])
+    d.text((x + 36 + r, y + 34 + r + 10), who[0], font=F(30, "Bold"),
+           fill=(255, 255, 255), anchor="ms")
+    d.text((x + 36 + r * 2 + 22, y + 66), who, font=F(30, "SemiBold"),
+           fill=T["ink"], anchor="ls")
+    d.text((x + 36 + r * 2 + 22 + F(30, "SemiBold").getlength(who) + 16, y + 66),
+           handle, font=F(28, "Regular"), fill=T["meta"], anchor="ls")
+    yy = y + 96 + round(sz * .78)
+    for l in body:
+        d.text((x + 36, yy), l, font=F(sz, "Regular"), fill=T["ink"], anchor="ls")
+        yy += lead
+    return y + h
+
+
+def stat_row(d, x, y, w, h, T, items):
+    """Three numbers, the size the frame can afford. Same tile as the app
+    surface, drawn at frame scale instead of at interface scale."""
+    n = len(items)
+    gp = 24
+    cw = (w - gp * (n - 1)) // n
+    # ONE label size for all three tiles, solved against the longest. Sized per
+    # tile, `Calls booked` came out smaller than `Closed` beside it, and three
+    # captions at three sizes is not a row, it is three things.
+    lz = int(h * .155)
+    while lz > 14 and max(F(lz, "Medium").getlength(l) for l, _ in items) > cw - 56:
+        lz -= 1
+    vz = int(h * .34)
+    while vz > 20 and max(F(vz, "Bold").getlength(v) for _, v in items) > cw - 56:
+        vz -= 1
+    for i, (lab, val) in enumerate(items):
+        cx = x + i * (cw + gp)
+        d.rounded_rectangle([cx, y, cx + cw, y + h], radius=22, fill=(255, 255, 255),
+                            outline=T["rule"], width=1)
+        d.text((cx + 30, y + int(h * .34)), lab, font=F(lz, "Medium"),
+               fill=T["ink"], anchor="ls")
+        d.text((cx + 30, y + int(h * .78)), val, font=F(vz, "Bold"),
+               fill=T["ink"], anchor="ls")
+    return y + h
+
+
+BLOCKS["tool_cards"] = tool_cards
