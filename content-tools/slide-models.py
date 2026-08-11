@@ -45,6 +45,7 @@ def _load(name):
 
 SB = _load("slide-body")
 BL = _load("blocks")
+SF = _load("surfaces")
 F, adv, draw_tracked = SB.F, SB.adv, SB.draw_tracked
 
 W, H = 1080, 1920
@@ -63,8 +64,8 @@ T = dict(ink=(24, 26, 32), dim=(24, 26, 32), meta=(128, 130, 138),
 TITLE_SZ, TITLE_TRACK = 54, -0.020
 SUB_SZ = 34
 BULLET_CAP, BULLET_LEAD = 40, 1.32
-LIST_BAND = 300
-SURF_H = 540
+LIST_BAND = 288
+PAD_H, PAD_IN = 648, 24
 
 
 def ground():
@@ -88,17 +89,22 @@ def build(s):
 
     BL.checks(d, LEFT, y, MEASURE, LIST_BAND, T, s["bullets"],
               cap=BULLET_CAP, lead=BULLET_LEAD, col=T["ink"], bold=(2,))
-    y += LIST_BAND + 56
+    y += LIST_BAND + 44
 
-    surf = BL.app_surface(MEASURE, SURF_H, theme=T, spec=s["spec"])
-    yy = y + max(0, (SAFE_BOT - y - SURF_H) // 2)
+    # The surface sits on a tinted pad, the reference's own move - the
+    # screenshot never touches the paper directly.
+    surf = SF.SURFACES[s["surf"]]()
+    pad = SF.PADS[s["surf"]]
+    yy = y + max(0, (SAFE_BOT - y - PAD_H) // 2)
     sh = Image.new("RGBA", (W, H), (0, 0, 0, 0))
     ImageDraw.Draw(sh).rounded_rectangle(
-        [LEFT + 10, yy + 14, LEFT + MEASURE - 10, yy + SURF_H + 14],
-        radius=18, fill=(0, 0, 0, 46))
-    im.alpha_composite(sh.filter(ImageFilter.GaussianBlur(26)))
-    im.alpha_composite(surf, (LEFT, yy))
-    return im, dict(bottom=yy + SURF_H)
+        [LEFT + 10, yy + 16, LEFT + MEASURE - 10, yy + PAD_H + 16],
+        radius=24, fill=(0, 0, 0, 52))
+    im.alpha_composite(sh.filter(ImageFilter.GaussianBlur(28)))
+    d.rounded_rectangle([LEFT, yy, LEFT + MEASURE, yy + PAD_H], radius=24,
+                        fill=pad)
+    im.alpha_composite(surf, (LEFT + (MEASURE - surf.width) // 2, yy + PAD_IN))
+    return im, dict(bottom=yy + PAD_H)
 
 
 def build_closer(c):
@@ -118,38 +124,38 @@ SLIDES = [
          bullets=["Replace manual tasks with AI systems",
                   "You sell time once, they get leverage forever",
                   "Retainers scale to $3K-$10K/month per client"],
-         spec=BL.MODEL_OS[0]),
+         surf=0),
 
     dict(title="AI MARKETING OPERATIONS", sub="You make growth less random.",
          bullets=["Run ads, content, and email using AI systems",
                   "Brands pay to stop guessing what works",
                   "E-com brands pay $1K-$8K/month"],
-         spec=BL.MODEL_OS[1]),
+         surf=1),
 
     dict(title="AI CHAT & SUPPORT SYSTEMS", sub="You replace people where speed matters.",
          bullets=["Install AI bots for support, sales, lead qualification",
                   "After setup, you're mostly out of the loop",
                   "Charge $500-$2K per bot"],
-         spec=BL.MODEL_OS[2]),
+         surf=2),
 
     dict(title="AI CONTENT MACHINES", sub="You turn content into a machine.",
          bullets=["Build content engines (blogs, posts, scripts, SEO)",
                   "Output goes up without working more",
                   "Charge $50-$200+ per piece"],
-         spec=BL.MODEL_OS[3]),
+         surf=3),
 
     dict(title="AI SOFTWARE COMPANY",
          sub="You stop selling services and start owning products.",
          bullets=["Launch pre-dev software instead of building from 0",
                   "Test demand first, scale only what works",
                   "Potential: $10K/month+ recurring"],
-         spec=BL.MODEL_OS[4]),
+         surf=4),
 
     dict(title="OPERATIONS DASHBOARD", sub="Ensures systems run smoothly as you scale.",
          bullets=["Monitor automations and workflows",
                   "Identify bottlenecks and failures",
                   "Track operational load across products"],
-         spec=BL.MODEL_OS[5]),
+         surf=5),
 ]
 
 # THE CTA IS ALWAYS COMMENT.
