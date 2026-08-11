@@ -1,0 +1,129 @@
+#!/usr/bin/env python3
+"""The Tool Stack deck - 1080x1920 carousel frames on paper.
+
+Twenty-fourth family. Six tools, one frame each: the mark large, the main
+value at display size, three uses, and the cost pinned at the foot.
+
+TWO SWAPS PER INSTRUCTION: Make becomes n8n, Loveable becomes ultron. The
+reference's `free thanks to HubSpot for Startups` affiliate line is replaced
+with each tool's real starting cost.
+"""
+import glob, importlib.util, os, sys
+import numpy as np
+from PIL import Image, ImageDraw
+
+
+def _load(n):
+    s = importlib.util.spec_from_file_location(
+        n.replace("-", "_"), os.path.join(os.path.dirname(os.path.abspath(__file__)), f"{n}.py"))
+    m = importlib.util.module_from_spec(s); s.loader.exec_module(m); return m
+
+
+SB, BL = _load("slide-body"), _load("blocks")
+F, adv, draw_tracked = SB.F, SB.adv, SB.draw_tracked
+
+W, H = 1080, 1920
+SAFE_TOP, SAFE_BOT = 250, 1440
+LEFT, RIGHT = 130, 950
+MEASURE = RIGHT - LEFT
+BG = (243, 242, 238)
+T = dict(ink=(18, 18, 20), dim=(18, 18, 20), meta=(128, 130, 138),
+         rule=(212, 210, 203), accent=(52, 116, 240))
+LOGOS = os.environ.get("TOOL_LOGOS", "../apps/web/public/tools")
+FOOT_H = 118
+
+
+def ground():
+    a = np.full((H, W, 3), BG, np.float32)
+    a += np.random.default_rng(3).normal(0, 1.1, (H, W, 1))
+    return Image.fromarray(np.clip(a, 0, 255).astype(np.uint8)).convert("RGBA")
+
+
+def build(i, s):
+    im = ground(); d = ImageDraw.Draw(im)
+    tile = 132
+    BL.logo_tile(im, d, RIGHT - tile, SAFE_TOP - 6, tile, s["key"], T, LOGOS)
+
+    y = SAFE_TOP + 46
+    d.text((LEFT, y), f"{i:02d}", font=F(38, "Bold"), fill=T["accent"], anchor="ls")
+    d.text((LEFT, y + 74), s["name"], font=F(66, "Bold"), fill=T["ink"], anchor="ls")
+    d.text((LEFT, y + 122), s["what"], font=F(30, "Regular"), fill=T["meta"], anchor="ls")
+    ry = y + 168
+    d.line([(LEFT, ry), (RIGHT, ry)], fill=T["rule"], width=1)
+
+    # The value line and the uses are ONE block, centred together. Sizing the
+    # tick band to whatever was left over spread three items across 700px and
+    # put a canyon in the middle of every frame.
+    fy = SAFE_BOT - FOOT_H
+    lines = BL.wrap(s["value"], F(58, "Bold"), MEASURE)
+    vh = len(lines) * 74
+    ch = len(s["uses"]) * 96
+    vy = ry + max(56, (fy - ry - vh - 56 - ch) // 2)
+    for ln in lines:
+        d.text((LEFT, vy), ln, font=F(58, "Bold"), fill=T["ink"], anchor="ls")
+        vy += 74
+    BL.checks(d, LEFT, vy + 46, MEASURE, ch, T, s["uses"],
+              cap=42, lead=1.28, col=T["ink"])
+    d.line([(LEFT, fy), (RIGHT, fy)], fill=T["rule"], width=1)
+    d.text((LEFT, fy + 74), "Cost", font=F(32, "Regular"), fill=T["ink"], anchor="ls")
+    d.text((RIGHT, fy + 74), s["cost"], font=F(32, "Bold"), fill=T["ink"], anchor="rs")
+    return im, dict(bottom=SAFE_BOT)
+
+
+def build_closer(c):
+    im = ground()
+    y = SB.draw_closer(ImageDraw.Draw(im), c, MEASURE, SAFE_TOP, SAFE_BOT,
+                       T["ink"], T["ink"])
+    return im, dict(bottom=y)
+
+
+SLIDES = [
+    dict(name="n8n", key="n8n", what="workflow automation engine",
+         value="Your business runs without you.",
+         uses=["Lead handoffs", "Client onboarding", "Internal notifications"],
+         cost="Free self-hosted · $24/mo cloud"),
+
+    dict(name="Claude", key="claude", what="writing and thinking assistant",
+         value="Turns hours of thinking into minutes of output.",
+         uses=["Draft proposals and follow-ups", "Summarize calls and notes",
+               "Create SOPs and internal docs"],
+         cost="Free tier · $20/mo Pro"),
+
+    dict(name="Notion", key="notion", what="all-in-one workspace",
+         value="One source of truth for you and the whole team.",
+         uses=["Client delivery checklists", "Playbooks and processes",
+               "Team documentation"],
+         cost="Free for one person · $10/mo"),
+
+    dict(name="Apify", key="apify", what="scraping and data platform",
+         value="Every list you need, without buying data.",
+         uses=["Scrape prospect lists", "Enrich company records",
+               "Monitor competitors"],
+         cost="Free credits · pay per run"),
+
+    dict(name="Stripe", key="stripe", what="payments and billing",
+         value="Money lands the moment demand shows up.",
+         uses=["Setup fees and retainers", "Subscriptions and upgrades",
+               "Invoices that chase themselves"],
+         cost="No monthly fee · per transaction"),
+
+    dict(name="ultron", key="ultron", what="AI workforce and app builder",
+         value="Build working software without engineers.",
+         uses=["Simple tools and MVPs", "Internal utilities", "Test ideas fast"],
+         cost="Free to start"),
+]
+
+CLOSER = [("comment", "Medium", 0.42), ("“STACK”", "ExtraBold", 1.00),
+          ("for the full", "Medium", 0.40), ("SETUP", "ExtraBold", 0.62),
+          ("100% FREE", "ExtraBold", 0.46)]
+
+if __name__ == "__main__":
+    out = sys.argv[1] if len(sys.argv) > 1 else "brand/tools"
+    os.makedirs(out, exist_ok=True)
+    for p in glob.glob(f"{out}/*.png"): os.remove(p)
+    for i, s in enumerate(SLIDES + [CLOSER], 1):
+        im, m = build_closer(s) if isinstance(s, list) else build(i, s)
+        im.convert("RGB").save(f"{out}/{i:02d}.png")
+        nm = s["name"] if isinstance(s, dict) else "closer"
+        print(f"  {i:02d}  {nm:14} ends {m['bottom']:4d}"
+              f"{'  PAST' if m['bottom'] > SAFE_BOT else ''}")
