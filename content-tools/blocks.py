@@ -1097,19 +1097,30 @@ def seq(im, d, x, y, w, h, T, stops, logos=None, tile=118):
             meta = None
         logo_tile(im, d, x, ty, tile, icon, T, logos)
         tx = x + tile + 48
+        # THE META SITS ON THE TITLE'S BASELINE, not between the two lines.
+        # Halfway down it landed on top of the detail text - `on schedule` ran
+        # straight through `logged back to base`.
+        mw = 0
+        if meta:
+            mf = F(30, "Regular")
+            mw = mf.getlength(meta) + 28
+            d.text((x + w, ty + tile // 2 - 8), meta, font=mf, fill=T["ink"],
+                   anchor="rs")
         if detail:
             # Two lines a stop: the step bold, what it actually does under it.
-            # One bold line beside a tile was the `too basic` version.
-            d.text((tx, ty + tile // 2 - 8), step, font=F(44, "Bold"),
+            sf = F(44, "Bold")
+            # Trim by WORD, never mid-word. Clipping characters produced
+            # `Sends the personali` on a shipped frame.
+            title = step
+            while sf.getlength(title) > x + w - tx - mw and " " in title:
+                title = title.rsplit(" ", 1)[0]
+            d.text((tx, ty + tile // 2 - 8), title, font=sf,
                    fill=T["accent"] if hot else T["ink"], anchor="ls")
-            d.text((tx, ty + tile // 2 + 34), detail, font=F(30, "Regular"),
+            d.text((tx, ty + tile // 2 + 38), detail, font=F(30, "Regular"),
                    fill=T["ink"], anchor="ls")
         else:
             d.text((tx, ty + tile // 2 + 16), step,
                    font=F(46, "Bold" if hot else "Regular"), fill=T["ink"], anchor="ls")
-        if meta:
-            d.text((x + w, ty + tile // 2 + 12), meta, font=F(30, "Regular"),
-                   fill=T["ink"], anchor="rs")
     return y + total
 
 

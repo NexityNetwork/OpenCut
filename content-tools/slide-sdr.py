@@ -132,9 +132,14 @@ def build(s):
     elif k == "pairs":
         yy = BL.pairs(d, LEFT, top, MEASURE, band, T, s["rows"])
     else:
-        nh = 280
-        yy = top + max(0, (band - nh) // 2)
-        yy = BL.notify(im, d, LEFT, yy, MEASURE, T, *s["notify"], h=nh, logos=LOGOS)
+        # One card centred in 700px of paper was the void the reference's own
+        # frame had. The tiers carry the ask, the landing carries the proof.
+        th, nh = 380, 260
+        yy = top + max(0, (band - th - 56 - nh) // 2)
+        BL.tiers(d, LEFT, yy, MEASURE, th, T, s["tiers"], hot=None,
+                 rule_top=False, cap=(64, 40))
+        yy = BL.notify(im, d, LEFT, yy + th + 56, MEASURE, T, *s["notify"],
+                       h=nh, logos=LOGOS)
     return im, dict(bottom=min(yy, SAFE_BOT))
 
 
@@ -178,7 +183,7 @@ SLIDES = [
                  "2 min", False),
                 ("perplexity", "Profiles each prospect", "real-time context",
                  "4 min", False),
-                ("gmail", "Sends the personalized mail", "logged back to base",
+                ("gmail", "Sends and logs it", "personalized, then back to base",
                  "on schedule", True)]),
 
     dict(title="What It Replaces", kind="pairs",
@@ -196,6 +201,9 @@ SLIDES = [
 
     dict(title="What To Charge", kind="notify",
          sub="Start selling **who your ideal clients become** working with you.",
+         tiers=[("$8,500", ["Build and hand over", "one time"]),
+                ("$1,500", ["Run it monthly", "hosting, changes, support"]),
+                ("$500", ["Per extra client", "agencies duplicating it"])],
          notify=("Stripe", "from a new client", "$8,500.00")),
 ]
 

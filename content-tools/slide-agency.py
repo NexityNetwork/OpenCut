@@ -57,20 +57,23 @@ def head(d, n, title):
 def money_math(d, x, y, w, h, T):
     """The arithmetic, drawn. `You don't need 20 clients` struck out, then the
     equation that replaces it at display size."""
-    cy = y + h // 2
-    f = F(52, "Regular")
+    f = F(58, "Regular")
     s = "20 clients a month"
-    d.text((x, cy - 150), s, font=f, fill=T["meta"], anchor="ls")
-    d.line([(x - 6, cy - 168), (x + f.getlength(s) + 8, cy - 168)],
-           fill=T["meta"], width=4)
-    d.text((x, cy - 30), "4", font=F(150, "Bold"), fill=T["accent"], anchor="ls")
-    d.text((x + 118, cy - 66), "clients", font=F(44, "Regular"), fill=T["ink"], anchor="ls")
-    d.text((x + 118, cy - 16), "at $2,500 a month", font=F(44, "Regular"),
+    yy = y + max(84, (h - 660) // 2 + 84)
+    d.text((x, yy), s, font=f, fill=T["meta"], anchor="ls")
+    d.line([(x - 6, yy - 20), (x + f.getlength(s) + 8, yy - 20)],
+           fill=T["meta"], width=5)
+    yy += 190
+    d.text((x, yy), "4", font=F(210, "Bold"), fill=T["accent"], anchor="ls")
+    d.text((x + 160, yy - 66), "clients", font=F(54, "Bold"), fill=T["ink"], anchor="ls")
+    d.text((x + 160, yy - 4), "at $2,500 a month", font=F(54, "Regular"),
            fill=T["ink"], anchor="ls")
-    d.line([(x, cy + 40), (x + w, cy + 40)], fill=T["rule"], width=2)
-    d.text((x, cy + 150), "$10,000", font=F(104, "Bold"), fill=T["ink"], anchor="ls")
-    d.text((x + w, cy + 150), "a month", font=F(40, "Regular"), fill=T["ink"], anchor="rs")
-    return y + h
+    yy += 96
+    d.line([(x, yy), (x + w, yy)], fill=T["rule"], width=3)
+    yy += 150
+    d.text((x, yy), "$10,000", font=F(150, "Bold"), fill=T["ink"], anchor="ls")
+    d.text((x + w, yy), "a month", font=F(46, "Regular"), fill=T["ink"], anchor="rs")
+    return yy + 40
 
 
 def build(i, s):
@@ -90,12 +93,12 @@ def build(i, s):
         yy = BL.list_panel(im, d, LEFT, yy, MEASURE, ph, T, *s["panel"],
                            logos=LOGOS, rz=s.get("rz", 33), foot=s.get("pfoot"))
     elif k == "chat":
-        ch = BL.chat(d, LEFT, 0, MEASURE, T, s["chat"], measure_only=True)
-        rows = 3 * 92
+        ch = BL.chat(d, LEFT, 0, MEASURE, T, s["chat"], sz=42, measure_only=True)
+        rows = 3 * 116
         stack = ch + 56 + rows
         yy = top + max(0, (band - stack) // 2)
-        yy = BL.chat(d, LEFT, yy, MEASURE, T, s["chat"]) + 56
-        yy = BL.checks(d, LEFT, yy, MEASURE, rows, T, s["asks"], cap=40,
+        yy = BL.chat(d, LEFT, yy, MEASURE, T, s["chat"], sz=42) + 56
+        yy = BL.checks(d, LEFT, yy, MEASURE, rows, T, s["asks"], cap=54,
                        lead=1.28, col=T["ink"])
     else:
         yy = money_math(d, LEFT, top, MEASURE, band, T)

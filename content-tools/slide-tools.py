@@ -51,19 +51,29 @@ def build(i, s):
     ry = y + 168
     d.line([(LEFT, ry), (RIGHT, ry)], fill=T["rule"], width=1)
 
-    # The value line and the uses are ONE block, centred together. Sizing the
-    # tick band to whatever was left over spread three items across 700px and
-    # put a canyon in the middle of every frame.
+    # Value, uses, and PROOF - the reference has the product screenshot behind
+    # every frame and without it the composition used the top half and left
+    # 350px of dead paper under the ticks.
     fy = SAFE_BOT - FOOT_H
-    lines = BL.wrap(s["value"], F(58, "Bold"), MEASURE)
-    vh = len(lines) * 74
-    ch = len(s["uses"]) * 96
-    vy = ry + max(56, (fy - ry - vh - 56 - ch) // 2)
+    lines = BL.wrap(s["value"], F(76, "Bold"), MEASURE)
+    vh = len(lines) * 96
+    ch = len(s["uses"]) * 86
+    ah = 250
+    block = vh + 56 + ch + 60 + ah
+    vy = ry + max(48, (fy - ry - block) // 2) + 72
     for ln in lines:
-        d.text((LEFT, vy), ln, font=F(58, "Bold"), fill=T["ink"], anchor="ls")
-        vy += 74
-    BL.checks(d, LEFT, vy + 46, MEASURE, ch, T, s["uses"],
-              cap=42, lead=1.28, col=T["ink"])
+        d.text((LEFT, vy), ln, font=F(76, "Bold"), fill=T["ink"], anchor="ls")
+        vy += 96
+    vy += 56 - 72
+    BL.checks(d, LEFT, vy, MEASURE, ch, T, s["uses"], cap=46, lead=1.28,
+              col=T["ink"])
+    ay = vy + ch + 60
+    if s.get("notify"):
+        BL.notify(im, d, LEFT, ay, MEASURE, T, *s["notify"], h=ah - 40,
+                  logos=LOGOS)
+    else:
+        BL.list_panel(im, d, LEFT, ay, MEASURE, ah, T, *s["panel"],
+                      logos=LOGOS, rz=30)
     d.line([(LEFT, fy), (RIGHT, fy)], fill=T["rule"], width=1)
     d.text((LEFT, fy + 74), "Cost", font=F(32, "Regular"), fill=T["ink"], anchor="ls")
     d.text((RIGHT, fy + 74), s["cost"], font=F(32, "Bold"), fill=T["ink"], anchor="rs")
@@ -81,36 +91,57 @@ SLIDES = [
     dict(name="n8n", key="n8n", what="workflow automation engine",
          value="Your business runs without you.",
          uses=["Lead handoffs", "Client onboarding", "Internal notifications"],
-         cost="Free self-hosted · $24/mo cloud"),
+         cost="Free self-hosted · $24/mo cloud",
+         panel=("Ran today", "24 workflows", [
+             (None, "Lead handoff to CRM", "done", "green"),
+             (None, "Onboarding sequence", "done", "green"),
+             (None, "Invoice reminder", "queued", "amber")])),
 
     dict(name="Claude", key="claude", what="writing and thinking assistant",
          value="Turns hours of thinking into minutes of output.",
          uses=["Draft proposals and follow-ups", "Summarize calls and notes",
                "Create SOPs and internal docs"],
-         cost="Free tier · $20/mo Pro"),
+         cost="Free tier · $20/mo Pro",
+         panel=("Drafted this morning", "in your voice", [
+             (None, "Proposal - Northlake", "sent", "green"),
+             (None, "Call notes to summary", "done", "green"),
+             (None, "Onboarding SOP v2", "review", "amber")])),
 
     dict(name="Notion", key="notion", what="all-in-one workspace",
          value="One source of truth for you and the whole team.",
          uses=["Client delivery checklists", "Playbooks and processes",
                "Team documentation"],
-         cost="Free for one person · $10/mo"),
+         cost="Free for one person · $10/mo",
+         panel=("Client workspace", "3 active", [
+             (None, "Delivery checklist", "8 of 9", "green"),
+             (None, "Outreach playbook", "current", "green"),
+             (None, "Handover doc", "drafting", "amber")])),
 
     dict(name="Apify", key="apify", what="scraping and data platform",
          value="Every list you need, without buying data.",
          uses=["Scrape prospect lists", "Enrich company records",
                "Monitor competitors"],
-         cost="Free credits · pay per run"),
+         cost="Free credits · pay per run",
+         panel=("Last run", "412 rows", [
+             (None, "Northlake Kitchens", "verified", "green"),
+             (None, "Ardent Fitness", "verified", "green"),
+             (None, "Closed - no site", "dropped", "strike")])),
 
     dict(name="Stripe", key="stripe", what="payments and billing",
          value="Money lands the moment demand shows up.",
          uses=["Setup fees and retainers", "Subscriptions and upgrades",
                "Invoices that chase themselves"],
-         cost="No monthly fee · per transaction"),
+         cost="No monthly fee · per transaction",
+         notify=("Stripe", "setup fee, first client", "$2,500.00")),
 
     dict(name="ultron", key="ultron", what="AI workforce and app builder",
          value="Build working software without engineers.",
          uses=["Simple tools and MVPs", "Internal utilities", "Test ideas fast"],
-         cost="Free to start"),
+         cost="Free to start",
+         panel=("Shipped this week", "no engineers", [
+             (None, "Client intake form", "live", "green"),
+             (None, "Quote calculator", "live", "green"),
+             (None, "Reporting portal", "building", "amber")])),
 ]
 
 CLOSER = [("comment", "Medium", 0.42), ("“STACK”", "ExtraBold", 1.00),
