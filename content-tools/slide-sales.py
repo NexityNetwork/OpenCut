@@ -117,45 +117,48 @@ def head(d, n, title):
     return ry + GAP
 
 
-def place(top, block):
-    return max(top + GAP, top + (SAFE_BOT - top - block) // 2)
-
-
 def build(i, s):
+    """THE CONTENT BAND IS FIXED. Title pinned, then a TWO LINE band reserved
+    for the description whether it uses both or not, then the band. On the first
+    pass frame 1's one-line description started its canvas 51px above everyone
+    else's cards, and five frames whose content all begins at a different height
+    is not five variations, it is five slides from different decks."""
     im = ground()
     d = ImageDraw.Draw(im)
     y = head(d, i, s["title"])
     for ln in SB.rich_lines(s["sub"], SUB_SZ, MEASURE):
         SB.draw_line(d, LEFT, y, ln, SUB_SZ, T["ink"], T["ink"])
         y += round(SUB_SZ * SUB_LEAD)
+    top = SAFE_TOP + int(TITLE_SZ * .727) + int(TITLE_SZ * .24) + 24 + GAP \
+        + 2 * round(SUB_SZ * SUB_LEAD) + GAP
+    band = SAFE_BOT - top
 
     kind = s["kind"]
     if kind == "art":
         src = source(f"{WF_B}/{s['art']}")
         ah = round(src.height * MEASURE / (src.width - 4))
-        extra = (GAP + 74) if s.get("logos") else 0
+        stack = ah
+        if s.get("logos"):
+            stack += GAP + 96
         if s.get("dm"):
-            # Measure the bubble BEFORE placing the stack. Hanging it off the
-            # canvas after the canvas was already centred ran it 119px past the
-            # safe line - the same arithmetic slip the front deck had.
-            extra += GAP + BL.dm_card(ImageDraw.Draw(Image.new("RGBA", (1, 1))),
-                                      0, 0, MEASURE, T, *s["dm"])
-        yy = place(y, ah + extra)
+            dm_h = BL.dm_card(ImageDraw.Draw(Image.new("RGBA", (1, 1))),
+                              0, -9999, MEASURE, T, *s["dm"]) + 9999
+            stack += GAP + dm_h
+        yy = top + max(0, (band - stack) // 2)
         yy = plate(im, src, yy)
         if s.get("logos"):
-            yy = logo_row(im, s["logos"], yy + GAP)
+            yy = logo_row(im, s["logos"], yy + GAP, sz=96, gp=34)
         if s.get("dm"):
             yy = BL.dm_card(d, LEFT, yy + GAP, MEASURE, T, *s["dm"])
         return im, dict(bottom=yy)
 
     if kind == "cards":
-        band = SAFE_BOT - y - GAP
-        yy = BL.tool_cards(d, LEFT, y + GAP, MEASURE, band, T, s["cards"],
-                           im=im, logos=LOGOS, cap=406)
+        yy = BL.tool_cards(d, LEFT, top, MEASURE, band, T, s["cards"],
+                           im=im, logos=LOGOS)
         return im, dict(bottom=yy)
 
-    stats_h, note_h = 340, 258
-    yy = place(y, stats_h + GAP + note_h)
+    stats_h, note_h = 330, 300
+    yy = top + max(0, (band - stats_h - GAP - note_h) // 2)
     BL.stat_row(d, LEFT, yy, MEASURE, stats_h, T, s["stats"])
     yy = BL.notify(im, d, LEFT, yy + stats_h + GAP, MEASURE, T, *s["notify"],
                    h=note_h, logos=LOGOS)
@@ -181,23 +184,20 @@ SLIDES = [
 
     dict(title="Verify Leads", kind="cards",
          sub="Verify scraped leads before outreach to have a higher rate.",
-         cards=[("Apollo", "apollo", "Contact data, checked before you send"),
-                ("Airtable", "airtable", "The list that survives the check")]),
+         cards=[("Apollo", "apollo"), ("Airtable", "airtable")]),
 
     # Studies their business, then writes. The claim is the sentence, so the
-    # sentence is on the frame.
+    # sentence is on the frame at body size, under the canvas that wrote it.
     dict(title="Personalized DM", kind="art",
          sub="Studies their business and writes personalized messages.",
          art="Group 2147203619.png",
          dm=("Northlake Kitchens", "@northlakekitchens",
-             ["Saw you book showroom visits over the phone only.",
-              "We wired a bot to your Instagram that takes the slot "
-              "and puts it straight in the calendar."])),
+             ["Saw you take showroom bookings by phone only. We wired "
+              "your Instagram to book them straight into the calendar."])),
 
     dict(title="Outreach System", kind="cards",
          sub="Use these tools to build your outreach system that works 24/7.",
-         cards=[("Gmail", "gmail", "Sequences that run without you"),
-                ("Twilio", "twilio", "SMS and WhatsApp follow up")]),
+         cards=[("Gmail", "gmail"), ("Twilio", "twilio")]),
 
     dict(title="Set Calls & Close", kind="close",
          sub="Set the sales calls with clients and generate revenue.",

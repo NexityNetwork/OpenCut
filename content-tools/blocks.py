@@ -764,23 +764,33 @@ def notify(im, d, x, y, w, T, app, line, amount, h=148, logos=None):
         d.text((tx + tile // 2, ty + tile // 2 + int(tile * .17)), "S",
                font=F(int(tile * .52), "Bold"), fill=(255, 255, 255), anchor="ms")
     tx += tile + int(h * .16)
+    if h >= 220:
+        # Three rows: app, amount, descriptor. At payoff size the two-row layout
+        # had nowhere honest to put the descriptor - beside the amount it ran
+        # off the card, beside the app name it read as one run-on line of
+        # chrome. A real notification stacks, so this one stacks.
+        az = int(h * .145)
+        bz = int(h * .27)
+        while bz > 24 and F(bz, "Bold").getlength(amount) > x + w - int(h * .18) - tx:
+            bz -= 2
+        d.text((tx, y + int(h * .27)), app, font=F(az, "SemiBold"),
+               fill=T["ink"], anchor="ls")
+        d.text((x + w - int(h * .18), y + int(h * .27)), "now",
+               font=F(int(h * .12), "Regular"), fill=T["meta"], anchor="rs")
+        d.text((tx, y + int(h * .60)), amount, font=F(bz, "Bold"),
+               fill=T["ink"], anchor="ls")
+        d.text((tx, y + int(h * .84)), line, font=F(az, "Regular"),
+               fill=T["ink"], anchor="ls")
+        return y + h
     az, bz = int(h * .18), int(h * .26)
     d.text((tx, y + int(h * .39)), app, font=F(az, "SemiBold"), fill=T["ink"], anchor="ls")
     d.text((x + w - int(h * .18), y + int(h * .39)), "now", font=F(int(h * .17), "Regular"),
            fill=T["meta"], anchor="rs")
     d.text((tx, y + int(h * .72)), amount, font=F(bz, "Bold"), fill=T["ink"], anchor="ls")
-    # The descriptor sits after the amount when there is room for it and drops to
-    # the app line when there is not. At h=258 `from a new client` beside a
-    # ten-thousand-dollar figure ran off the card, and a notification with its
-    # own text hanging over the edge is not a notification, it is a mistake.
     ax = tx + F(bz, "Bold").getlength(amount) + int(h * .10)
     if F(az, "Regular").getlength(line) <= x + w - int(h * .18) - ax:
         d.text((ax, y + int(h * .72)), line, font=F(az, "Regular"),
                fill=T["ink"], anchor="ls")
-    else:
-        sz2 = int(az * .82)
-        d.text((tx + F(az, "SemiBold").getlength(app) + int(h * .07), y + int(h * .39)),
-               line, font=F(sz2, "Regular"), fill=T["meta"], anchor="ls")
     return y + h
 
 
@@ -851,59 +861,66 @@ BLOCKS["checks"] = checks
 
 # --------------------------------------------------------- the sales-deck parts
 
-def tool_cards(d, x, y, w, h, T, items, im=None, logos=None, cap=300, gap=40):
-    """Two tools, as full-measure rows rather than two small tiles side by side.
+def tool_cards(d, x, y, w, h, T, items, im=None, logos=None, gap=48):
+    """Two tools, each a full-measure card carrying ONE thing: the mark and the
+    name, set as a lockup and centred, at the largest size the pair can share.
 
-    The reference gives each tool a card the width of the frame with the mark set
-    large, and it is right to: these frames have nothing on them BUT the two
-    tools, so a pair of 140px tiles floating in the middle would be a frame that
-    ran out of things to say. The card height is solved from the space and capped,
-    same rule as every other block here."""
+    That is what the reference's zb / lead magic cards actually are and what the
+    first pass missed. It put a 190px mark in the corner with two small lines of
+    invented role copy beside it, which left four fifths of each card empty - a
+    template waiting for content, on a deck that is supposed to be finished. The
+    lockup fills the card or the card has no reason to be that size, and the role
+    line goes entirely: the frame's own description already says the job."""
     n = len(items)
-    ch = min(cap, (h - gap * (n - 1)) // n)
-    y += max(0, (h - (ch * n + gap * (n - 1)))) // 2
-    mark = int(ch * 0.46)
-    for name, key, role in items:
-        d.rounded_rectangle([x, y, x + w, y + ch], radius=26, fill=(255, 255, 255),
+    ch = (h - gap * (n - 1)) // n
+    mark = int(ch * 0.44)
+    nz = int(ch * 0.21)
+    while nz > 20 and max(F(nz, "Bold").getlength(nm) for nm, _ in items) \
+            + mark + int(ch * .12) > w - int(ch * .30):
+        nz -= 2
+    for name, key in items:
+        d.rounded_rectangle([x, y, x + w, y + ch], radius=30, fill=(255, 255, 255),
                             outline=T["rule"], width=1)
+        lock = mark + int(ch * .12) + F(nz, "Bold").getlength(name)
+        mx = x + int((w - lock) // 2)
+        my = y + (ch - mark) // 2
         p = f"{logos or LOGOS}/{key}.png"
-        mx, my = x + 42, y + (ch - mark) // 2
         if im is not None and os.path.exists(p):
             im.alpha_composite(Image.open(p).convert("RGBA").resize((mark, mark),
                                Image.LANCZOS), (mx, my))
-        tx = mx + mark + 40
-        rz = int(ch * .115)
-        rl = wrap(role, F(rz, "Regular"), x + w - 42 - tx)
-        d.text((tx, y + ch // 2 - 6), name, font=F(int(ch * .19), "Bold"),
-               fill=T["ink"], anchor="ls")
-        ry = y + ch // 2 + int(ch * .16)
-        for r in rl:
-            d.text((tx, ry), r, font=F(rz, "Regular"), fill=T["ink"], anchor="ls")
-            ry += round(rz * 1.36)
+        d.text((mx + mark + int(ch * .12), y + ch // 2 + nz * 0.36), name,
+               font=F(nz, "Bold"), fill=T["ink"], anchor="ls")
         y += ch + gap
     return y - gap
 
 
-def dm_card(d, x, y, w, T, who, handle, lines, sz=34):
-    """One message, at the size a phone draws it. The frame claims the system
-    writes something personal, and the only way to make that claim is to show the
-    sentence - a bubble with grey bars in it claims nothing."""
-    lead = round(sz * 1.42)
-    body = [l for t in lines for l in wrap(t, F(sz, "Regular"), w - 96)]
-    h = 96 + len(body) * lead + 34
-    d.rounded_rectangle([x, y, x + w, y + h], radius=26, fill=(255, 255, 255),
+def dm_card(d, x, y, w, T, who, handle, lines, sz=36):
+    """One message, at the size the frame can afford - NOT the size a phone
+    draws it. The first pass set the body at 34px under a 62px title and the
+    proof of the whole frame read as a footnote. The claim is the sentence, so
+    the sentence is body-copy sized.
+
+    The name line carries the name and nothing else. Name plus handle plus
+    timestamp is a screenshot's worth of chrome, and chrome is what made it read
+    as a pasted tweet instead of as this deck saying something."""
+    pad = 44
+    lead = round(sz * 1.40)
+    body = [l for t in lines for l in wrap(t, F(sz, "Regular"), w - pad * 2)]
+    av = 72
+    head_h = pad + av + 30
+    h = head_h + len(body) * lead + pad - round(sz * .35)
+    d.rounded_rectangle([x, y, x + w, y + h], radius=30, fill=(255, 255, 255),
                         outline=T["rule"], width=1)
-    r = 30
-    d.ellipse([x + 36, y + 34, x + 36 + r * 2, y + 34 + r * 2], fill=T["ink"])
-    d.text((x + 36 + r, y + 34 + r + 10), who[0], font=F(30, "Bold"),
+    d.ellipse([x + pad, y + pad, x + pad + av, y + pad + av], fill=T["ink"])
+    d.text((x + pad + av / 2, y + pad + av / 2 + 12), who[0], font=F(34, "Bold"),
            fill=(255, 255, 255), anchor="ms")
-    d.text((x + 36 + r * 2 + 22, y + 66), who, font=F(30, "SemiBold"),
+    d.text((x + pad + av + 26, y + pad + av / 2 - 6), who, font=F(34, "SemiBold"),
            fill=T["ink"], anchor="ls")
-    d.text((x + 36 + r * 2 + 22 + F(30, "SemiBold").getlength(who) + 16, y + 66),
-           handle, font=F(28, "Regular"), fill=T["meta"], anchor="ls")
-    yy = y + 96 + round(sz * .78)
+    d.text((x + pad + av + 26, y + pad + av / 2 + 32), handle, font=F(28, "Regular"),
+           fill=T["meta"], anchor="ls")
+    yy = y + head_h + round(sz * .78)
     for l in body:
-        d.text((x + 36, yy), l, font=F(sz, "Regular"), fill=T["ink"], anchor="ls")
+        d.text((x + pad, yy), l, font=F(sz, "Regular"), fill=T["ink"], anchor="ls")
         yy += lead
     return y + h
 
