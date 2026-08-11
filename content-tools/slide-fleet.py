@@ -89,6 +89,97 @@ def logo_row(im, names, y, sz=72, gp=30):
     return y + sz
 
 
+def portfolio(d, x, y, w, h, T, rows, total):
+    """OWNING ASSETS, drawn as the assets. `You go from services to owning
+    assets` is a claim about a portfolio, so the frame shows one: products you
+    own, each with its own trend and its own monthly line, one of them killed
+    because the tick above says double down on winners ONLY - and the total is
+    the target the third tick names.
+
+    Two logo tiles and a plus said none of that. They said `these are two
+    products that exist`."""
+    d.text((x, y + 34), "Products you own", font=F(32, "Bold"), fill=T["ink"],
+           anchor="ls")
+    d.text((x + w, y + 34), "recurring", font=F(28, "Regular"), fill=T["meta"],
+           anchor="rs")
+    ry = y + 62
+    d.line([(x, ry), (x + w, ry)], fill=T["rule"], width=1)
+    rh = 96
+    for i, (name, pts, mrr, dead) in enumerate(rows):
+        by = ry + i * rh + 60
+        col = T["meta"] if dead else T["ink"]
+        f = F(38, "SemiBold")
+        d.text((x, by), name, font=f, fill=col, anchor="ls")
+        if dead:
+            d.line([(x - 4, by - 13), (x + f.getlength(name) + 6, by - 13)],
+                   fill=T["meta"], width=3)
+        # the trend, small and honest: a killed product's line falls
+        sx, sw_, sh_ = x + int(w * .52), 150, 44
+        P = [(sx + int(sw_ * k / (len(pts) - 1)), by - 12 - int(sh_ * v))
+             for k, v in enumerate(pts)]
+        d.line(P, fill=T["meta"] if dead else T["accent"], width=4, joint="curve")
+        d.text((x + w, by), mrr, font=F(38, "Bold"), fill=col, anchor="rs")
+        if i + 1 < len(rows):
+            d.line([(x, ry + (i + 1) * rh), (x + w, ry + (i + 1) * rh)],
+                   fill=T["rule"], width=1)
+    ty = ry + len(rows) * rh
+    d.line([(x, ty), (x + w, ty)], fill=T["ink"], width=3)
+    d.text((x, ty + 82), "Recurring, every month", font=F(34, "Regular"),
+           fill=T["ink"], anchor="ls")
+    d.text((x + w, ty + 92), total, font=F(76, "Bold"), fill=T["ink"], anchor="rs")
+    return ty + 110
+
+
+def cycle(d, x, y, w, h, T, nodes, base):
+    """THE BLUEPRINT AS THE LOOP IT IS. Four agents handing to each other -
+    research feeds outreach, outreach feeds sales, sales feeds content,
+    content feeds research back - with the fifth sitting UNDER all of them
+    because monitoring is not a step, it is the floor.
+
+    A two-column list of five names was a staff directory. This is the
+    architecture the frame's title claims."""
+    gap = 64
+    bw = (w - gap) // 2
+    bh = 196
+    ys = [y, y + bh + gap]
+    pos = [(x, ys[0]), (x + bw + gap, ys[0]),
+           (x + bw + gap, ys[1]), (x, ys[1])]
+    for (bx, by), (name, role) in zip(pos, nodes):
+        d.rounded_rectangle([bx, by, bx + bw, by + bh], radius=22,
+                            fill=(255, 255, 255), outline=T["rule"], width=1)
+        d.text((bx + 28, by + 66), name, font=F(38, "Bold"), fill=T["ink"], anchor="ls")
+        ty = by + 112
+        for ln in BL.wrap(role, F(29, "Regular"), bw - 56):
+            d.text((bx + 28, ty), ln, font=F(29, "Regular"), fill=T["ink"], anchor="ls")
+            ty += 38
+
+    def arrow(x0, y0, x1, y1):
+        d.line([(x0, y0), (x1, y1)], fill=T["ink"], width=4)
+        dx, dy = x1 - x0, y1 - y0
+        n = max(1, (dx * dx + dy * dy) ** .5)
+        ux, uy = dx / n, dy / n
+        px, py = -uy, ux
+        d.polygon([(x1, y1), (x1 - ux * 20 + px * 11, y1 - uy * 20 + py * 11),
+                   (x1 - ux * 20 - px * 11, y1 - uy * 20 - py * 11)], fill=T["ink"])
+
+    m = 14
+    arrow(x + bw + m, ys[0] + bh // 2, x + bw + gap - m, ys[0] + bh // 2)
+    arrow(x + bw + gap + bw // 2, ys[0] + bh + m,
+          x + bw + gap + bw // 2, ys[1] - m)
+    arrow(x + bw + gap - m, ys[1] + bh // 2, x + bw + m, ys[1] + bh // 2)
+    arrow(x + bw // 2, ys[1] - m, x + bw // 2, ys[0] + bh + m)
+
+    by = ys[1] + bh + 56
+    d.rounded_rectangle([x, by, x + w, by + 128], radius=22, fill=T["ink"])
+    d.text((x + 28, by + 58), base[0], font=F(38, "Bold"), fill=(250, 250, 250),
+           anchor="ls")
+    d.text((x + 28, by + 100), base[1], font=F(29, "Regular"),
+           fill=(196, 198, 204), anchor="ls")
+    d.text((x + w - 28, by + 82), base[2], font=F(28, "SemiBold"),
+           fill=(196, 198, 204), anchor="rs")
+    return by + 128
+
+
 def build(s):
     im = ground()
     d = ImageDraw.Draw(im)
@@ -97,11 +188,13 @@ def build(s):
                  TITLE_TRACK * TITLE_SZ)
     ry = y + int(TITLE_SZ * .24) + 24
     d.line([(LEFT, ry), (RIGHT, ry)], fill=T["rule"], width=1)
-    y = ry + 52
-    for ln in BL.wrap(s["sub"], F(SUB_SZ, "Medium"), MEASURE):
-        d.text((LEFT, y + int(SUB_SZ * .727)), ln, font=F(SUB_SZ, "Medium"),
-               fill=T["ink"], anchor="ls")
+    # The subhead goes through the bold parser like every other deck. Without
+    # it the asterisks print, which is what shipped on frame 5.
+    y = ry + 52 + int(SUB_SZ * .727)
+    for ln in SB.rich_lines(s["sub"], SUB_SZ, MEASURE):
+        SB.draw_line(d, LEFT, y, ln, SUB_SZ, T["ink"], T["ink"])
         y += round(SUB_SZ * 1.40)
+    y -= int(SUB_SZ * .727)
     y += 36
     if s.get("ticks"):
         BL.checks(d, LEFT, y, MEASURE, LIST_BAND, T, s["ticks"],
@@ -133,10 +226,13 @@ def build(s):
         yy = BL.chat(d, LEFT, yy, MEASURE, T, s["chat"])
         yy = logo_row(im, s["logos"], yy + 48)
     elif kind == "pair":
-        yy = top + max(0, (band - 300) // 2)
-        yy = BL.tool_pair(im, d, LEFT, yy, MEASURE, T,
-                          ("Claude", "claude", False), ("ultron", "ultron", True),
-                          tile=190, logos=LOGOS)
+        ph = 560
+        yy = top + max(0, (band - ph) // 2)
+        yy = portfolio(d, LEFT, yy, MEASURE, ph, T, s["rows"], s["total"])
+    elif kind == "cycle":
+        ch = 196 * 2 + 64 + 56 + 128
+        yy = top + max(0, (band - ch) // 2)
+        yy = cycle(d, LEFT, yy, MEASURE, ch, T, s["nodes"], s["base"])
     else:
         # No ticks above this frame, so the register owns the whole band -
         # but the band math above still added the tick reserve; recompute.
@@ -188,15 +284,20 @@ SLIDES = [
          ticks=["Deploy software rather than coding from 0",
                 "Test markets fast, double down on winners only",
                 "Target: $10K/month+ recurring revenue"],
-         bold=(2,)),
+         bold=(2,),
+         rows=[("Intake bot", [.15, .3, .45, .62, .8], "$4,200", False),
+               ("Quote engine", [.2, .35, .4, .58, .72], "$3,100", False),
+               ("Review chaser", [.5, .38, .26, .16, .08], "killed", True),
+               ("Booking portal", [.1, .22, .38, .5, .66], "$2,700", False)],
+         total="$10,000"),
 
-    dict(title="The 5-Agent Blueprint", kind="register",
-         sub="What a fully automated founder-led business looks like.",
-         rows=[("CORTEX", "Research & Intelligence"),
-               ("SPECTER", "Outreach & Lead Gen"),
-               ("STRIKER", "Sales & Deal Tracking"),
-               ("PULSE", "Content & Social Media"),
-               ("SENTINEL", "Infrastructure & Monitoring")]),
+    dict(title="The 5-Agent Blueprint", kind="cycle",
+         sub="Four agents hand to each other. **The fifth watches all of them.**",
+         nodes=[("CORTEX", "Research & intelligence"),
+                ("SPECTER", "Outreach & lead gen"),
+                ("STRIKER", "Sales & deal tracking"),
+                ("PULSE", "Content & social media")],
+         base=("SENTINEL", "Infrastructure & monitoring", "under all four")),
 ]
 
 # THE CTA IS ALWAYS COMMENT. The reference's own close.
