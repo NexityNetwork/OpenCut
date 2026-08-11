@@ -1076,3 +1076,67 @@ def seq(im, d, x, y, w, h, T, stops, logos=None, tile=118):
         d.text((x + tile + 48 + df.getlength(day) + 24, by), label,
                font=F(46, "Bold" if hot else "Regular"), fill=T["ink"], anchor="ls")
     return y + total
+
+
+# ------------------------------------------------------- the agent-deck parts
+
+def alerts(im, d, x, y, w, T, items, logos=None):
+    """A stack of small alert cards - the lockscreen the research agent
+    produces. Each one is a REAL change with a category chip, drawn at
+    notification size, because `monitors competitors` is proven by what the
+    monitor caught."""
+    C = dict(green=(22, 158, 92), amber=(226, 148, 22), chip=(238, 240, 244))
+    ch, gap, tile = 116, 26, 64
+    for kind, text, tag, tone in items:
+        d.rounded_rectangle([x, y, x + w, y + ch], radius=24, fill=(255, 255, 255),
+                            outline=T["rule"], width=1)
+        tx, ty = x + 26, y + (ch - tile) // 2
+        if isinstance(kind, tuple):
+            _tile(d, tx, ty, tile, T)
+            glyph(d, tx + 8, ty + 8, tile - 16, T, kind[1])
+        else:
+            p = f"{logos or LOGOS}/{kind}.png"
+            if os.path.exists(p):
+                im.alpha_composite(Image.open(p).convert("RGBA").resize((tile, tile),
+                                   Image.LANCZOS), (tx, ty))
+        d.text((tx + tile + 26, y + ch // 2 + 11), text, font=F(31, "SemiBold"),
+               fill=T["ink"], anchor="ls")
+        if tone:
+            cf = F(25, "SemiBold")
+            cw = cf.getlength(tag)
+            cx = x + w - 26 - cw - 26
+            d.rounded_rectangle([cx, y + ch // 2 - 24, cx + cw + 26, y + ch // 2 + 16],
+                                radius=20, fill=C["chip"])
+            d.text((cx + 13, y + ch // 2 + 5), tag, font=cf, fill=C[tone], anchor="ls")
+        else:
+            d.text((x + w - 26, y + ch // 2 + 9), tag, font=F(27, "Regular"),
+                   fill=T["meta"], anchor="rs")
+        y += ch + gap
+    return y - gap
+
+
+def brief_card(im, d, x, y, w, T, title, when, rows, logos=None):
+    """The 7am message. One card, a Telegram header, then the numbers the owner
+    actually reads - the agent AS the message it sends, not an illustration of
+    messaging."""
+    pad = 40
+    tile = 56
+    rh = 66
+    h = pad + tile + 30 + len(rows) * rh + pad - 14
+    d.rounded_rectangle([x, y, x + w, y + h], radius=30, fill=(255, 255, 255),
+                        outline=T["rule"], width=1)
+    p = f"{logos or LOGOS}/telegram.png"
+    if os.path.exists(p):
+        im.alpha_composite(Image.open(p).convert("RGBA").resize((tile, tile),
+                           Image.LANCZOS), (x + pad, y + pad - 6))
+    d.text((x + pad + tile + 24, y + pad + tile // 2 + 5), title,
+           font=F(32, "Bold"), fill=T["ink"], anchor="ls")
+    d.text((x + w - pad, y + pad + tile // 2 + 5), when, font=F(28, "Regular"),
+           fill=T["meta"], anchor="rs")
+    ry = y + pad + tile + 24
+    d.line([(x + pad, ry - 6), (x + w - pad, ry - 6)], fill=(238, 237, 233), width=1)
+    for i, (n, text) in enumerate(rows):
+        by = ry + i * rh + rh // 2 + 12
+        d.text((x + pad, by), n, font=F(34, "Bold"), fill=T["ink"], anchor="ls")
+        d.text((x + pad + 58, by), text, font=F(31, "Regular"), fill=T["ink"], anchor="ls")
+    return y + h
