@@ -742,3 +742,100 @@ def s6_ops(w=764, h=600):
 SURFACES = [s1_agency, s2_marketing, s3_support, s4_content, s5_software, s6_ops]
 PADS = [(232, 231, 246), (236, 239, 244), (33, 32, 29),
         (238, 233, 250), (228, 241, 236), (235, 238, 246)]
+
+
+# ================================================================= 7. Haven
+# Support and retention console - teal. Ticket KPIs, response-time bars,
+# CSAT donut, SLA table with priority chips.
+
+def s7_retention(w=764, h=600):
+    C = dict(bg=(255, 255, 255), ink=(21, 30, 30), dim=(128, 142, 141),
+             faint=(184, 198, 197), edge=(232, 239, 238), soft=(245, 249, 248),
+             teal=(20, 148, 140), tint=(224, 243, 241), amber=(232, 150, 34),
+             red=(226, 88, 88), green=(34, 170, 108))
+    im, d = new(w, h, C["bg"])
+    W2, H2 = w * S, h * S
+
+    icon_sq(d, 24 * S, 18 * S, 20 * S, C["teal"], r=7 * S)
+    txt(d, 52 * S, 33 * S, "Haven", 14, "Bold", C["ink"])
+    txt(d, 118 * S, 33 * S, "Support console", 10.5, "Medium", C["dim"])
+    rr(d, W2 - 216 * S, 14 * S, 110 * S, 26 * S, 13 * S, fill=C["soft"])
+    txt(d, W2 - 161 * S, 31 * S, "This week", 9.5, "Medium", C["dim"], anchor="ms")
+    rr(d, W2 - 96 * S, 14 * S, 72 * S, 26 * S, 13 * S, fill=C["teal"])
+    txt(d, W2 - 60 * S, 31 * S, "Report", 9.5, "SemiBold", (255, 255, 255),
+        anchor="ms")
+    d.line([(0, 54 * S), (W2, 54 * S)], fill=C["edge"], width=1)
+
+    kpis = [("Open tickets", "3,464", "+3.1% vs last week", C["teal"]),
+            ("Avg resolution", "42 min", "-18% faster", C["green"]),
+            ("CSAT score", "92%", "+1.4 pts", C["green"]),
+            ("Churn risk", "11 accounts", "watching", C["amber"])]
+    cw = (W2 - 48 * S - 36 * S) // 4
+    for i, (lab, val, note, col) in enumerate(kpis):
+        kx = 24 * S + i * (cw + 12 * S)
+        rr(d, kx, 68 * S, cw, 78 * S, 10 * S, outline=C["edge"], width=1)
+        dot(d, kx + 18 * S, 88 * S, 4 * S, col)
+        txt(d, kx + 30 * S, 92 * S, lab, 9, "Medium", C["dim"])
+        txt(d, kx + 14 * S, 122 * S, val, 15, "Bold", C["ink"])
+        txt(d, kx + 14 * S, 138 * S, note, 8, "Regular", C["faint"])
+
+    rr(d, 24 * S, 160 * S, 420 * S, 190 * S, 12 * S, outline=C["edge"], width=1)
+    txt(d, 40 * S, 186 * S, "First response time", 11.5, "SemiBold", C["ink"])
+    txt(d, 424 * S, 186 * S, "by hour", 9, "Regular", C["dim"], anchor="rs")
+    bar_chart(d, 40 * S, 200 * S, 388 * S, 110 * S,
+              [.5, .34, .42, .3, .55, .4, .62, .35, .48, .3, .4, .26],
+              C["teal"], C["tint"], hot=11)
+    for i, lab in enumerate(("9a", "11a", "1p", "3p", "5p", "7p")):
+        txt(d, (40 + 16 + i * 64) * S, 326 * S, lab, 8.5, "Medium", C["faint"])
+
+    sx = 458 * S
+    sw2 = W2 - sx - 24 * S
+    rr(d, sx, 160 * S, sw2, 190 * S, 12 * S, outline=C["edge"], width=1)
+    txt(d, sx + 16 * S, 186 * S, "Satisfaction", 11.5, "SemiBold", C["ink"])
+    donut(d, sx + 62 * S, 262 * S, 34 * S, .92, C["teal"], C["edge"], width=11)
+    txt(d, sx + 62 * S, 268 * S, "92%", 12, "Bold", C["ink"], anchor="ms")
+    for i, (nm, v, col) in enumerate((("Great", "78%", C["teal"]),
+                                      ("Okay", "14%", C["amber"]),
+                                      ("Poor", "8%", C["red"]))):
+        ly = (216 + i * 26) * S
+        dot(d, sx + 128 * S, ly, 4 * S, col)
+        txt(d, sx + 140 * S, ly + 5 * S, nm, 9.5, "Medium", C["dim"])
+        txt(d, sx + sw2 - 16 * S, ly + 5 * S, v, 9.5, "SemiBold", C["ink"],
+            anchor="rs")
+    txt(d, sx + 16 * S, 330 * S, "128 responses this week", 8.5, "Regular",
+        C["faint"])
+
+    ty0 = 366 * S
+    txt(d, 24 * S, ty0 + 10 * S, "Queue", 11.5, "SemiBold", C["ink"])
+    txt(d, W2 - 24 * S, ty0 + 10 * S, "SLA monitoring on", 9, "Medium",
+        C["green"], anchor="rs")
+    heads = [("Ticket", 24), ("Account", 260), ("Priority", 430),
+             ("Assigned", 545), ("SLA", 660)]
+    for htxt, hx in heads:
+        txt(d, hx * S, ty0 + 34 * S, htxt, 8.5, "SemiBold", C["faint"])
+    rows = [("Payment failed on renewal", "Ledgerwise", "High", C["red"],
+             "Kani", "22m left"),
+            ("Login loop after reset", "Northwind", "High", C["red"],
+             "Mara", "40m left"),
+            ("Export missing columns", "Cohort", "Medium", C["amber"],
+             "Devin", "3h left"),
+            ("Feature question - API", "Stackline", "Low", C["teal"],
+             "Sofia", "8h left"),
+            ("Onboarding call request", "Relayer", "Low", C["teal"],
+             "Owen", "1d left")]
+    for i, (t, acc, pr, col, who, sla) in enumerate(rows):
+        ry = ty0 + (56 + i * 30) * S
+        if i % 2 == 0:
+            rr(d, 16 * S, ry - 16 * S, W2 - 32 * S, 27 * S, 6 * S,
+               fill=(250, 252, 252))
+        txt(d, 24 * S, ry, t, 9.5, "SemiBold", C["ink"])
+        txt(d, 260 * S, ry, acc, 9, "Regular", C["dim"])
+        chip(d, 430 * S, ry - 15 * S, pr, col, C["soft"], sz=8)
+        avatar(d, 552 * S, ry - 4 * S, 8 * S, who[0], C["teal"])
+        txt(d, 568 * S, ry, who, 9, "Regular", C["dim"])
+        txt(d, 660 * S, ry, sla, 9, "Medium", C["ink"])
+    return down(im, w, h)
+
+
+SURFACES.append(s7_retention)
+PADS.append((224, 241, 239))
