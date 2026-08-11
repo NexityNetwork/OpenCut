@@ -107,6 +107,104 @@ def head(d, n, title):
     return ry + GAP
 
 
+def chips_grid(d, x, y, w, h, T, items, hot_i):
+    """Six candidates, ONE chosen - the frame's verb is `pick`, so the picking
+    is drawn: five plain chips and the chosen one in the accent."""
+    cols, rows = 2, 3
+    gap = 28
+    cw = (w - gap) // 2
+    ch = min(178, (h - gap * (rows - 1)) // rows)
+    y += max(0, (h - (ch * rows + gap * (rows - 1)))) // 2
+    for i, t in enumerate(items):
+        cx = x + (i % 2) * (cw + gap)
+        cy = y + (i // 2) * (ch + gap)
+        hot = i == hot_i
+        d.rounded_rectangle([cx, cy, cx + cw, cy + ch], radius=26,
+                            fill=T["accent"] if hot else (255, 255, 255),
+                            outline=None if hot else T["rule"], width=1)
+        col = (255, 255, 255) if hot else T["ink"]
+        f = F(33, "Bold" if hot else "SemiBold")
+        for k, ln in enumerate(BL.wrap(t, f, cw - 60)):
+            d.text((cx + 32, cy + ch // 2 + 11 + (k - 0.5 * (len(BL.wrap(t, f, cw - 60)) - 1)) * 40),
+                   ln, font=f, fill=col, anchor="ls")
+        if hot:
+            d.text((cx + cw - 30, cy + 40), "PICK ONE", font=F(20, "Bold"),
+                   fill=(255, 255, 255), anchor="rs")
+    return y + ch * rows + gap * (rows - 1)
+
+
+def converge(d, x, y, w, h, T, items, target):
+    """Many problems, one target - `stop trying to solve everything at once`
+    drawn as the convergence it asks for."""
+    n = len(items)
+    lh = min(116, h // n)
+    y0 = y + max(0, (h - lh * n) // 2)
+    tx = x + int(w * 0.62)
+    ty = y0 + (lh * n) // 2
+    for i, t in enumerate(items):
+        ly = y0 + i * lh + lh // 2
+        d.text((x, ly + 12), t, font=F(36, "Regular"), fill=T["ink"], anchor="ls")
+        lx = x + int(F(36, "Regular").getlength(t)) + 24
+        d.line([(min(lx, tx - 40), ly), (tx - 24, ty)], fill=T["rule"], width=3)
+    bw, bh = int(w * 0.38), 156
+    d.rounded_rectangle([tx - 20, ty - bh // 2, tx - 20 + bw, ty + bh // 2],
+                        radius=26, fill=T["accent"])
+    for k, ln in enumerate(BL.wrap(target, F(34, "Bold"), bw - 56)):
+        d.text((tx + 10, ty + 12 + (k - 0.5) * 42 + 8), ln, font=F(34, "Bold"),
+               fill=(255, 255, 255), anchor="ls")
+    return y0 + lh * n
+
+
+def arrows3(d, x, y, w, h, T, pairs):
+    """The copy is three oppositions, so the frame is three transformations -
+    plain thing, arrow, bold thing."""
+    n = len(pairs)
+    rh = min(212, h // n)
+    y += max(0, (h - rh * n)) // 2
+    mid = x + int(w * 0.46)
+    for i, (a, b) in enumerate(pairs):
+        by = y + i * rh + rh // 2 + 14
+        d.text((x, by), a, font=F(42, "Regular"), fill=T["ink"], anchor="ls")
+        ax = mid + 40
+        d.line([(ax, by - 13), (ax + 64, by - 13)], fill=T["ink"], width=5)
+        d.polygon([(ax + 64, by - 25), (ax + 92, by - 13), (ax + 64, by - 1)],
+                  fill=T["ink"])
+        d.text((ax + 116, by), b, font=F(42, "Bold"), fill=T["ink"], anchor="ls")
+        if i + 1 < n:
+            d.line([(x, y + (i + 1) * rh), (x + w, y + (i + 1) * rh)],
+                   fill=T["rule"], width=1)
+    return y + rh * n
+
+
+def browser(im, d, x, y, w, T, url, headline, subline, button):
+    """A landing page as the artifact - a drawn CLIENT page, not a screenshot
+    of anything real, because the client's page does not exist yet. That is
+    the point of the frame."""
+    h = 560
+    d.rounded_rectangle([x, y, x + w, y + h], radius=26, fill=(255, 255, 255),
+                        outline=T["rule"], width=1)
+    for i, c in enumerate(((226, 92, 92), (232, 176, 66), (98, 186, 106))):
+        d.ellipse([x + 34 + i * 34, y + 34, x + 54 + i * 34, y + 54], fill=c)
+    d.rounded_rectangle([x + 150, y + 26, x + w - 34, y + 62], radius=18,
+                        fill=(240, 240, 243))
+    d.text((x + 172, y + 56), url, font=F(24, "Regular"), fill=T["meta"], anchor="ls")
+    d.line([(x, y + 88), (x + w, y + 88)], fill=(236, 236, 239), width=1)
+    cy = y + 88 + 96
+    for ln in BL.wrap(headline, F(52, "Bold"), w - 160):
+        d.text((x + w // 2, cy), ln, font=F(52, "Bold"), fill=T["ink"], anchor="ms")
+        cy += 66
+    cy += 18
+    for ln in BL.wrap(subline, F(30, "Regular"), w - 220):
+        d.text((x + w // 2, cy), ln, font=F(30, "Regular"), fill=T["ink"], anchor="ms")
+        cy += 44
+    bw = int(F(32, "SemiBold").getlength(button)) + 88
+    d.rounded_rectangle([x + (w - bw) // 2, cy + 26, x + (w + bw) // 2, cy + 96],
+                        radius=35, fill=T["accent"])
+    d.text((x + w // 2, cy + 72), button, font=F(32, "SemiBold"),
+           fill=(255, 255, 255), anchor="ms")
+    return y + h
+
+
 def build(i, s):
     im = ground()
     d = ImageDraw.Draw(im)
@@ -114,15 +212,39 @@ def build(i, s):
     for ln in SB.rich_lines(s["sub"], SUB_SZ, MEASURE):
         SB.draw_line(d, LEFT, y, ln, SUB_SZ, T["ink"], T["ink"])
         y += round(SUB_SZ * SUB_LEAD)
-    top = SAFE_TOP + int(TITLE_SZ * .727) + int(TITLE_SZ * .24) + 24 + GAP \
-        + 2 * round(SUB_SZ * SUB_LEAD) + GAP
+    top = y + GAP
     band = SAFE_BOT - top
 
     kind = s["kind"]
-    if kind == "ticks":
-        BL.checks(d, LEFT, top, MEASURE, band - 24, T, s["ticks"],
-                  cap=46, lead=1.28, col=T["ink"])
-        yy = SAFE_BOT
+    if kind == "chips":
+        yy = chips_grid(d, LEFT, top, MEASURE, band, T, s["ticks"], s["hot"])
+    elif kind == "converge":
+        yy = converge(d, LEFT, top + 20, MEASURE, band - 40, T, s["ticks"],
+                      s["target"])
+    elif kind == "arrows":
+        yy = arrows3(d, LEFT, top, MEASURE, band, T, s["pairs"])
+    elif kind == "browser":
+        bh = 560
+        yy = browser(im, d, LEFT, top + max(0, (band - bh) // 2), MEASURE, T,
+                     *s["page"])
+    elif kind == "split":
+        src = Image.open(f"{SHOTS}/{s['shot']}").convert("RGB")
+        pw = 400
+        ph = min(band, round(src.height * pw / src.width))
+        BL.checks(d, LEFT, top + 20, MEASURE - pw - 56, band - 40, T,
+                  s["ticks"], cap=36, lead=1.30, col=T["ink"], rule=False)
+        k = pw / src.width
+        if src.height * k > band:
+            src = src.crop((0, 0, src.width, int(band / k)))
+        sw, sh_ = pw, round(src.height * k)
+        src = src.resize((sw, sh_), Image.LANCZOS)
+        box = [RIGHT - pw, top, RIGHT, top + sh_]
+        shadow(im, box)
+        mask = Image.new("L", (sw, sh_), 0)
+        ImageDraw.Draw(mask).rounded_rectangle([0, 0, sw - 1, sh_ - 1],
+                                               radius=PLATE_R, fill=255)
+        im.paste(src, (box[0], box[1]), mask)
+        yy = box[3]
     elif kind == "ticks_art":
         src = source(f"{WF_C}/{s['art']}")
         ah = round(src.height * MEASURE / (src.width - 4))
@@ -160,22 +282,21 @@ def build_closer(c):
 # ---------------------------------------------------------------------- copy
 
 SLIDES = [
-    dict(title="One Customer", kind="ticks",
+    dict(title="One Customer", kind="chips",
          sub="Pick **ONE CUSTOMER.** Stop saying "
              "**“everyone is my customer”.**",
          ticks=["Local businesses", "Digital agencies", "Software companies",
                 "E-commerce brands", "Real estate companies",
-                "Coaches and consultants"]),
+                "Coaches and consultants"],
+         hot=0),
 
-    dict(title="One Painful Problem", kind="ticks",
+    dict(title="One Painful Problem", kind="converge",
          sub="Pick **ONE PAINFUL PROBLEM.** Stop trying to solve "
              "everything at once.",
-         ticks=["Leads not replying", "Content taking too long", "No-shows",
-                "Manual follow-ups", "Customer retention",
-                "Quotes going out late"]),
+         ticks=["Content taking too long", "No-shows", "Manual follow-ups",
+                "Customer retention", "Quotes going out late"],
+         target="Leads not replying"),
 
-    # Build ONE AI workflow - so the frame carries one, recycled off the
-    # twenty canvases.
     dict(title="One AI Workflow", kind="ticks_art",
          sub="Build **ONE AI WORKFLOW.** You are selling the **result**, "
              "not the tech.",
@@ -184,27 +305,31 @@ SLIDES = [
                 "24/7 support and nurturing"],
          art="Appointment Setter.png"),
 
-    dict(title="Sell It Before Ready", kind="ticks",
+    dict(title="Sell It Before Ready", kind="arrows",
          sub="Sell it **BEFORE you feel READY.** This is where most "
              "people freeze.",
-         ticks=["You don't need more time", "Action creates clarity",
-                "People don't buy perfection", "They buy relief",
-                "Stop building, start polishing"]),
+         pairs=[("More time", "Action creates clarity"),
+                ("Perfection", "They buy relief"),
+                ("Building", "Start polishing")]),
 
     dict(title="Start On Ultron", kind="shot",
          sub="Go to **51ultron.com** and put the workforce on it instead "
              "of building from scratch.",
          shot="home.png"),
 
-    dict(title="Grab A Playbook", kind="shot",
+    dict(title="Grab A Playbook", kind="split",
          sub="**Working templates** that skip you straight past the "
              "setup months.",
-         shot="win-techniques.png", crop=(0, 0, 1512, 1000)),
+         ticks=["Pick the playbook", "Wire your accounts",
+                "Launch this week"],
+         shot="sub-techniques.png"),
 
-    dict(title="Ship The Landing Page", kind="shot",
+    dict(title="Ship The Landing Page", kind="browser",
          sub="Explain the offer and **capture interest.** Ultron builds "
              "and deploys it.",
-         shot="win-control-center.png", crop=(0, 0, 1512, 1000)),
+         page=("northlake-kitchens.com", "Never miss another booking",
+               "The AI receptionist that answers, books and follows up.",
+               "Book a call")),
 
     dict(title="Connect Payments", kind="notify",
          sub="**Connect Stripe** and start **SELLING** who your ideal "
