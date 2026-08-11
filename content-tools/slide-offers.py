@@ -119,7 +119,8 @@ def build(s):
                                           measure_only=True)
         yy = top + max(0, (band - stack) // 2)
         yy = BL.list_panel(im, d, LEFT, yy, MEASURE, ph, T, *s["panel"],
-                           logos=LOGOS, rz=s.get("panel_rz", 33))
+                           logos=LOGOS, rz=s.get("panel_rz", 33),
+                           foot=s.get("panel_foot"))
         if s.get("bubble"):
             yy = BL.chat(d, LEFT, yy + GAP - 16, MEASURE, T, s["bubble"])
     elif kind == "alerts":
@@ -131,8 +132,15 @@ def build(s):
         yy = top + max(0, (band - ch) // 2)
         yy = BL.chat(d, LEFT, yy, MEASURE, T, s["chat"])
     else:
-        yy = top + max(0, (band - s["brief_h"]) // 2)
-        yy = BL.brief_card(im, d, LEFT, yy, MEASURE, T, *s["brief"], logos=LOGOS)
+        stack = s["brief_h"]
+        if s.get("reply"):
+            stack += (GAP - 16) + BL.chat(d, LEFT, 0, MEASURE, T, s["reply"],
+                                          measure_only=True)
+        yy = top + max(0, (band - stack) // 2)
+        yy = BL.brief_card(im, d, LEFT, yy, MEASURE, T, *s["brief"],
+                           logos=LOGOS, rh=s.get("brief_rh", 66))
+        if s.get("reply"):
+            yy = BL.chat(d, LEFT, yy + GAP - 16, MEASURE, T, s["reply"])
     return im, dict(bottom=yy)
 
 
@@ -152,39 +160,44 @@ SLIDES = [
                "cold emails autonomously.",
                "**Your client wakes up to booked meetings.** No SDR salary. "
                "No hiring. No management."],
-         stops=[("apollo", "Finds leads", "", False),
-                ("gmail", "Sends the email", "", False),
-                ("calendly", "Meeting booked", "", True)]),
+         stops=[("apollo", "Finds leads", "140 match the profile", "06:00", False),
+                ("gmail", "Writes and sends", "researched, one at a time", "06:40", False),
+                ("calendly", "Meeting booked", "straight into the calendar", "Thu 10:00", True)]),
 
     dict(title="Content Agent", kind="panel",
          copy=["**Scrapes viral content** in their niche, learns their "
                "voice, and posts daily across every platform.",
                "Their brand grows while they sleep."],
-         panel_h=420,
-         panel=("Posting today", "every platform", [
+         panel_h=470,
+         panel=("Posting today", "in their voice", [
              ("tiktok", "Desk setup teardown", "posted", "green"),
              ("instagram", "One idea, ten posts", "posted", "green"),
              ("youtube", "The boring agent", "12:00", None),
-             ("linkedin", "What nobody posts", "queued", "amber")])),
+             ("linkedin", "What nobody posts", "queued", "amber")]),
+         panel_foot=("129 posts this month", "4 platforms")),
 
     dict(title="Research Agent", kind="alerts",
          copy=["Monitors competitors daily. Tracks pricing changes, "
                "new features, hiring signals.",
                "**Your client always knows what is coming before it "
                "hits them.**"],
-         alerts=[(("g", "doc"), "Acme cut Pro pricing to $59", "pricing", "amber"),
-                 (("g", "grid"), "Northstar shipped a public API", "feature", "green"),
-                 (("g", "lens"), "Rival is hiring 3 SDRs", "hiring", None)]),
+         alerts=[(("g", "doc"), "Acme cut Pro pricing to $59",
+                  "was $79 yesterday", "pricing", "amber"),
+                 (("g", "grid"), "Northstar shipped a public API",
+                  "docs went live overnight", "feature", "green"),
+                 (("g", "lens"), "Rival is hiring 3 SDRs",
+                  "posted 2 hours ago", "hiring", None)]),
 
     dict(title="Pipeline Manager", kind="panel",
          copy=["Monitors every open deal. Flags anything going stale.",
                "**Drafts follow-ups before deals go cold.** A full-time "
                "account manager for the cost of a software subscription."],
-         panel_h=330,
+         panel_h=420,
          panel=("Open deals", "checked hourly", [
              (None, "Northlake  $4,500", "warm", "green"),
-             (None, "Ardent  $8,000", "stale", "amber"),
-             (None, "Boro  $12,000", "stale", "amber")]),
+             (None, "Ardent  $8,000", "quiet 6d", "amber"),
+             (None, "Boro  $12,000", "quiet 9d", "amber")]),
+         panel_foot=("$24,500 open", "3 deals"),
          bubble=[("me", "Still want the March start? Price holds till Friday.")]),
 
     dict(title="Lead Nurture Agent", kind="chat",
@@ -192,8 +205,11 @@ SLIDES = [
                "goes ignored. No deal goes cold.",
                "**Most businesses lose 60%** of deals to bad follow-up. "
                "This fixes it."],
-         chat=[("me", "Following up - still worth a chat?"),
+         chat=[("day", "DAY 2"),
+               ("me", "Following up - still worth a chat?"),
+               ("day", "DAY 6"),
                ("me", "Bumping this with new numbers."),
+               ("day", "DAY 9"),
                ("them", "Good timing. Tuesday?")]),
 
     dict(title="Morning Brief Agent", kind="brief",
@@ -201,12 +217,13 @@ SLIDES = [
                "overnight, content going out today, deals that need "
                "attention, competitor alerts.",
                "**They run their entire business** from one Telegram message."],
-         brief_h=420,
+         brief_h=376, brief_rh=58,
          brief=("Morning brief", "7:00", [
              ("3", "new leads found overnight"),
              ("2", "posts going out today"),
              ("1", "deal needs attention"),
-             ("1", "competitor changed pricing")])),
+             ("1", "competitor changed pricing")]),
+         reply=[("me", "Send the follow-up.")]),
 ]
 
 # THE CTA IS ALWAYS COMMENT.

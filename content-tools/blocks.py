@@ -961,7 +961,8 @@ BLOCKS["tool_cards"] = tool_cards
 
 # ---------------------------------------------------- artifacts, not brand cards
 
-def list_panel(im, d, x, y, w, h, T, title, note, rows, logos=None, rz=31):
+def list_panel(im, d, x, y, w, h, T, title, note, rows, logos=None, rz=31,
+               foot=None):
     """A white panel with a header and rows of REAL records. The generic shape
     behind `emails being checked`, `calls booked today`, `leads that came in` -
     every claim of the form `the system handled these`, shown as the handled
@@ -979,7 +980,8 @@ def list_panel(im, d, x, y, w, h, T, title, note, rows, logos=None, rz=31):
     d.text((x + w - pad, y + pad + 24), note, font=F(28, "Regular"), fill=T["meta"],
            anchor="rs")
     top = y + pad + 52
-    rh = (h - (top - y) - pad + 10) // len(rows)
+    fh = 74 if foot else 0
+    rh = (h - (top - y) - pad + 10 - fh) // len(rows)
     for i, (icon, left, right, tone) in enumerate(rows):
         ry = top + i * rh
         by = ry + rh // 2 + 11
@@ -1017,6 +1019,13 @@ def list_panel(im, d, x, y, w, h, T, title, note, rows, logos=None, rz=31):
         if i + 1 < len(rows):
             d.line([(x + pad, top + (i + 1) * rh), (x + w - pad, top + (i + 1) * rh)],
                    fill=(238, 237, 233), width=1)
+    if foot:
+        fy = top + len(rows) * rh + 12
+        d.line([(x + pad, fy), (x + w - pad, fy)], fill=(238, 237, 233), width=1)
+        d.text((x + pad, fy + 44), foot[0], font=F(28, "SemiBold"), fill=T["ink"],
+               anchor="ls")
+        d.text((x + w - pad, fy + 44), foot[1], font=F(26, "Regular"), fill=T["meta"],
+               anchor="rs")
     return y + h
 
 
@@ -1029,6 +1038,18 @@ def chat(d, x, y, w, T, msgs, sz=34, measure_only=False):
     maxw = int(w * 0.78)
     lead = round(sz * 1.32)
     for side, text in msgs:
+        if side == "day":
+            # A separator, not a bubble - the thread's own proof that the agent
+            # kept at it across a week rather than firing three times a minute.
+            if not measure_only:
+                df = F(24, "SemiBold")
+                tw2 = df.getlength(text)
+                cx0 = x + w // 2
+                d.text((cx0, y + 30), text, font=df, fill=T["ink"], anchor="ms")
+                d.line([(x, y + 22), (cx0 - tw2 / 2 - 24, y + 22)], fill=T["rule"], width=1)
+                d.line([(cx0 + tw2 / 2 + 24, y + 22), (x + w, y + 22)], fill=T["rule"], width=1)
+            y += 52 + gap
+            continue
         lines = wrap(text, F(sz, "Regular"), maxw - pad * 2)
         tw = max(F(sz, "Regular").getlength(l) for l in lines)
         bw = int(tw) + pad * 2
@@ -1061,21 +1082,68 @@ def seq(im, d, x, y, w, h, T, stops, logos=None, tile=118):
     cx = x + tile // 2
     d.line([(cx, y + tile), (cx, y + total - tile)],
            fill=T.get("spine", T["rule"]), width=3)
-    for i, (icon, day, label, hot) in enumerate(stops):
+    for i, stop in enumerate(stops):
         ty = y + i * (tile + gapv)
-        d.rounded_rectangle([x, ty, x + tile, ty + tile], radius=26,
-                            fill=(255, 255, 255), outline=T["rule"], width=1)
-        p = f"{logos or LOGOS}/{icon}.png"
-        if os.path.exists(p):
-            nn = int(tile * 0.62)
-            im.alpha_composite(Image.open(p).convert("RGBA").resize((nn, nn),
-                               Image.LANCZOS), (x + (tile - nn) // 2, ty + (tile - nn) // 2))
-        by = ty + tile // 2 + 16
-        df = F(46, "Bold")
-        d.text((x + tile + 48, by), day, font=df, fill=T["ink"], anchor="ls")
-        d.text((x + tile + 48 + df.getlength(day) + 24, by), label,
-               font=F(46, "Bold" if hot else "Regular"), fill=T["ink"], anchor="ls")
+        if len(stop) == 5:
+            icon, step, detail, meta, hot = stop
+        else:
+            icon, step, detail, hot = stop[0], f"{stop[1]}  {stop[2]}", None, stop[3]
+            meta = None
+        logo_tile(im, d, x, ty, tile, icon, T, logos)
+        tx = x + tile + 48
+        if detail:
+            # Two lines a stop: the step bold, what it actually does under it.
+            # One bold line beside a tile was the `too basic` version.
+            d.text((tx, ty + tile // 2 - 8), step, font=F(44, "Bold"),
+                   fill=T["accent"] if hot else T["ink"], anchor="ls")
+            d.text((tx, ty + tile // 2 + 34), detail, font=F(30, "Regular"),
+                   fill=T["ink"], anchor="ls")
+        else:
+            d.text((tx, ty + tile // 2 + 16), step,
+                   font=F(46, "Bold" if hot else "Regular"), fill=T["ink"], anchor="ls")
+        if meta:
+            d.text((x + w, ty + tile // 2 + 12), meta, font=F(30, "Regular"),
+                   fill=T["ink"], anchor="rs")
     return y + total
+
+
+_plated = {}
+
+
+def logo_tile(im, d, x, y, sz, key, T, logos=None):
+    """A tool mark at tile size, without double-plating it. Some logo files ARE
+    an app tile already - apollo.png is a white rounded square with the orbit-A
+    inside it - and drawing that inside another white tile shrinks the mark and
+    stacks plate on plate. If the file's opaque area covers most of its canvas
+    it is treated as its own tile and pasted full-bleed under a rounded mask;
+    a bare glyph gets the drawn tile and 62 percent, as before."""
+    p = f"{logos or LOGOS}/{key}.png"
+    if not os.path.exists(p):
+        d.rounded_rectangle([x, y, x + sz, y + sz], radius=int(sz * .22),
+                            fill=(255, 255, 255), outline=T["rule"], width=1)
+        return
+    if key not in _plated:
+        src = Image.open(p).convert("RGBA")
+        a = src.split()[3]
+        cover = sum(1 for v in a.getdata() if v > 30) / (src.width * src.height)
+        _plated[key] = cover >= 0.85
+    src = Image.open(p).convert("RGBA").resize((sz, sz), Image.LANCZOS)         if _plated[key] else None
+    if _plated[key]:
+        mask = Image.new("L", (sz, sz), 0)
+        ImageDraw.Draw(mask).rounded_rectangle([0, 0, sz - 1, sz - 1],
+                                               radius=int(sz * .22), fill=255)
+        im.paste(src, (x, y), mask)
+        ov = Image.new("RGBA", im.size, (0, 0, 0, 0))
+        ImageDraw.Draw(ov).rounded_rectangle([x, y, x + sz, y + sz],
+                                             radius=int(sz * .22),
+                                             outline=(*T["rule"], 255), width=1)
+        im.alpha_composite(ov)
+    else:
+        d.rounded_rectangle([x, y, x + sz, y + sz], radius=int(sz * .22),
+                            fill=(255, 255, 255), outline=T["rule"], width=1)
+        n = int(sz * 0.62)
+        im.alpha_composite(Image.open(p).convert("RGBA").resize((n, n), Image.LANCZOS),
+                           (x + (sz - n) // 2, y + (sz - n) // 2))
 
 
 # ------------------------------------------------------- the agent-deck parts
@@ -1086,21 +1154,22 @@ def alerts(im, d, x, y, w, T, items, logos=None):
     notification size, because `monitors competitors` is proven by what the
     monitor caught."""
     C = dict(green=(22, 158, 92), amber=(226, 148, 22), chip=(238, 240, 244))
-    ch, gap, tile = 116, 26, 64
-    for kind, text, tag, tone in items:
+    ch, gap, tile = 150, 26, 68
+    for kind, text, detail, tag, tone in items:
         d.rounded_rectangle([x, y, x + w, y + ch], radius=24, fill=(255, 255, 255),
                             outline=T["rule"], width=1)
-        tx, ty = x + 26, y + (ch - tile) // 2
+        bar = C.get(tone, T["rule"])
+        d.rounded_rectangle([x + 14, y + 20, x + 20, y + ch - 20], radius=3, fill=bar)
+        tx, ty = x + 40, y + (ch - tile) // 2
         if isinstance(kind, tuple):
             _tile(d, tx, ty, tile, T)
-            glyph(d, tx + 8, ty + 8, tile - 16, T, kind[1])
+            glyph(d, tx + 9, ty + 9, tile - 18, T, kind[1])
         else:
-            p = f"{logos or LOGOS}/{kind}.png"
-            if os.path.exists(p):
-                im.alpha_composite(Image.open(p).convert("RGBA").resize((tile, tile),
-                                   Image.LANCZOS), (tx, ty))
-        d.text((tx + tile + 26, y + ch // 2 + 11), text, font=F(31, "SemiBold"),
+            logo_tile(im, d, tx, ty, tile, kind, T, logos)
+        d.text((tx + tile + 26, y + ch // 2 - 8), text, font=F(32, "SemiBold"),
                fill=T["ink"], anchor="ls")
+        d.text((tx + tile + 26, y + ch // 2 + 32), detail, font=F(27, "Regular"),
+               fill=T["meta"], anchor="ls")
         if tone:
             cf = F(25, "SemiBold")
             cw = cf.getlength(tag)
@@ -1115,13 +1184,12 @@ def alerts(im, d, x, y, w, T, items, logos=None):
     return y - gap
 
 
-def brief_card(im, d, x, y, w, T, title, when, rows, logos=None):
+def brief_card(im, d, x, y, w, T, title, when, rows, logos=None, rh=66):
     """The 7am message. One card, a Telegram header, then the numbers the owner
     actually reads - the agent AS the message it sends, not an illustration of
     messaging."""
     pad = 40
     tile = 56
-    rh = 66
     h = pad + tile + 30 + len(rows) * rh + pad - 14
     d.rounded_rectangle([x, y, x + w, y + h], radius=30, fill=(255, 255, 255),
                         outline=T["rule"], width=1)
