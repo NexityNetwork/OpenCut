@@ -340,5 +340,50 @@
   "deck": null,
   "note": "first two lines are SEPARATE white boxes stacked, third is a smaller caption under both",
   "status": "raw"
+ },
+ {
+  "id": "h039",
+  "text": "11 AI Systems every | business will regret not | using in the next 6 months",
+  "kind": "number",
+  "source": "dump 7 screenshot 1",
+  "deck": null,
+  "note": "filmed over an n8n canvas",
+  "status": "raw"
+ },
+ {
+  "id": "h040",
+  "text": "10 AI Automations nobody | is talking about right now | but will explode in 2027",
+  "kind": "number",
+  "source": "dump 7 screenshot 2",
+  "deck": null,
+  "note": "same n8n canvas reel",
+  "status": "raw"
+ },
+ {
+  "id": "h041",
+  "text": "8 industries = 8 boring | AI automation",
+  "kind": "number",
+  "source": "dump 7 screenshot 3",
+  "deck": null,
+  "note": "same reel",
+  "status": "raw"
+ },
+ {
+  "id": "h042",
+  "text": "How to build a $10k/mo | AI Auomation Agency in | 30 days",
+  "kind": "howto",
+  "source": "dump 7 screenshot 4",
+  "deck": null,
+  "note": "verbatim, Auomation. 30 days variant of h010 which says 2026",
+  "status": "raw"
+ },
+ {
+  "id": "h043",
+  "text": "Ghost everyone and | master these 9 AI systems | to get 20 years ahead",
+  "kind": "callout",
+  "source": "dump 7 screenshot 5",
+  "deck": null,
+  "note": "the filled-in version of h035, where the blank is 9 AI systems",
+  "status": "raw"
  }
 ]

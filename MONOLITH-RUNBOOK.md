@@ -119,3 +119,57 @@ wrangler r2 bucket list    # ultron-reels, ultron-carousels, ...
 Cloudflare dash → My Profile → API Tokens → roll/delete, or
 `DELETE https://api.cloudflare.com/client/v4/user/tokens/<token_id>` with the
 global key.
+
+## 8. Hooks and Captions (the `snippets` table)
+
+Two owner-only tabs in the Library sidebar, **Hooks** and **Captions**, both
+reading one table. There is no table per list and no route per list: `snippets`
+carries a `bucket` column, so a third list is a query string and never another
+deploy. That is the whole reason they live in D1 instead of a JSON file in the
+repo.
+
+- **Table** `snippets` in `opencut-vault` (`VAULT_DB`):
+  `id, owner, bucket, ref, text, kind, source, deck, note, status, sort_order,
+  created_at, updated_at`.
+- **API** `apps/web/src/app/api/snippets/route.ts` — GET `?bucket=hook`, POST
+  (one object or `{snippets:[...]}` for a whole dump), PATCH, DELETE `?id=`.
+  Gated server-side to `catalin@nexitynetwork.org`, same as Guides.
+- **UI** `apps/web/src/projects/snippets-view.tsx` — one component, `bucket` is
+  a prop. `HooksView` and `CaptionsView` are two lines at the bottom of it.
+- **Marks**: `|` is a line break and `**bold**` is emphasis, the same two the
+  decks use, so a hook goes onto a frame with no translation. The view renders
+  both.
+
+### Adding rows without a deploy
+
+Straight into D1, which is the point:
+
+```sh
+S=<scratchpad>; set -a; . $S/.cfenv; set +a
+curl -s -X POST \
+  "https://api.cloudflare.com/client/v4/accounts/$ACC/d1/database/$DB/query" \
+  -H "X-Auth-Email: $CFE" -H "X-Auth-Key: $CFK" -H "Content-Type: application/json" \
+  -d '{"sql":"INSERT INTO snippets (id,owner,bucket,text,kind,source,status,sort_order,created_at,updated_at) VALUES (?,?,?,?,?,?,?,?,?,?);",
+       "params":["h-044","E6OxEK7KHZ4ZwiyXQnEoiMH8ElCpFk5B","hook","line one | line two","number","dump 8","raw",44,0,0]}'
+```
+
+Or paste into the tab's own Add box, which takes a whole dump at once: one entry
+per line, a blank line meaning that entry is two lines.
+
+The build needs eight env vars that are not in the repo. Only the two
+`NEXT_PUBLIC_` ones are inlined into the client bundle and both are recoverable:
+`NEXT_PUBLIC_SITE_URL=https://edits.51ultron.com` and
+`NEXT_PUBLIC_MARBLE_API_URL=https://api.marblecms.com`, which is also the
+fallback `src/blog/query.ts` already hardcodes. The other six can be any
+syntactically valid dummy at build time - the Worker's own secrets serve runtime.
+Grep `.open-next/` for the dummy before deploying; a hit means Next inlined it
+and the deploy would ship it.
+
+Deploy from `apps/web` with `node_modules/.bin` on PATH, or wrangler's OpenNext
+hand-off shells out to `npx opennextjs-cloudflare` and cannot find it in a bun
+workspace:
+
+```sh
+cd apps/web && export PATH="$PWD/node_modules/.bin:$PATH"
+opennextjs-cloudflare deploy
+```

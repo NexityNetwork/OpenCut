@@ -79,6 +79,8 @@ import {
 	Home as HomeIcon,
 	BarChart3,
 	ScrollText,
+	Type,
+	AlignLeft,
 	Scissors,
 	MessagesSquare,
 } from "lucide-react";
@@ -145,6 +147,7 @@ import { StudioPane } from "@/projects/studio-pane";
 import { RedditDraftsView } from "@/projects/reddit-drafts-view";
 import { GuidesView } from "@/projects/guides-view";
 import { TemplatesView } from "@/projects/templates-view";
+import { HooksView, CaptionsView } from "@/projects/snippets-view";
 import { VideoThumb } from "@/projects/video-thumb";
 import { InboxView, INBOX_TABS, type InboxTab } from "@/inbox/inbox-view";
 import { AssetDetail } from "@/projects/asset-detail";
@@ -233,6 +236,8 @@ type AppView =
 	| "reddit"
 	| "guides"
 	| "templates"
+	| "hooks"
+	| "captions"
 	| "inbox"
 	| "studio";
 const APP_VIEWS: AppView[] = [
@@ -246,6 +251,8 @@ const APP_VIEWS: AppView[] = [
 	"reddit",
 	"guides",
 	"templates",
+	"hooks",
+	"captions",
 	"inbox",
 	"studio",
 ];
@@ -1392,6 +1399,8 @@ export function VaultSection() {
 					onSelectReddit={() => setAppView("reddit")}
 					onSelectGuides={() => setAppView("guides")}
 					onSelectTemplates={() => setAppView("templates")}
+					onSelectHooks={() => setAppView("hooks")}
+					onSelectCaptions={() => setAppView("captions")}
 					inboxTab={inboxTab}
 					onSelectInboxTab={selectInboxTab}
 				navTabs={navTabs}
@@ -1460,6 +1469,8 @@ export function VaultSection() {
 					onSelectReddit={() => setAppView("reddit")}
 					onSelectGuides={() => setAppView("guides")}
 					onSelectTemplates={() => setAppView("templates")}
+					onSelectHooks={() => setAppView("hooks")}
+					onSelectCaptions={() => setAppView("captions")}
 					inboxTab={inboxTab}
 					onSelectInboxTab={selectInboxTab}
 				navTabs={navTabs}
@@ -1539,6 +1550,10 @@ export function VaultSection() {
 					<GuidesView />
 				) : appView === "templates" ? (
 					<TemplatesView />
+				) : appView === "hooks" ? (
+					<HooksView />
+				) : appView === "captions" ? (
+					<CaptionsView />
 				) : appView === "inbox" ? (
 					<InboxView owner={owner} preview={!isOwner} tab={inboxTab} />
 				) : appView === "clips" ? (
@@ -2671,6 +2686,8 @@ function LibrarySidebar({
 	onSelectReddit,
 	onSelectGuides,
 	onSelectTemplates,
+	onSelectHooks,
+	onSelectCaptions,
 	inboxTab,
 	onSelectInboxTab,
 	navTabs,
@@ -2702,6 +2719,8 @@ function LibrarySidebar({
 	onSelectReddit: () => void;
 	onSelectGuides: () => void;
 	onSelectTemplates: () => void;
+	onSelectHooks: () => void;
+	onSelectCaptions: () => void;
 	navTabs: NavTab[];
 	activeTab: string;
 	onSelectTab: (k: string) => void;
@@ -2949,6 +2968,22 @@ function LibrarySidebar({
 							label="Templates"
 							active={appView === "templates"}
 							onClick={onSelectTemplates}
+						/>
+					)}
+					{user?.email === OWNER_EMAIL && (
+						<SidebarItem
+							icon={Type}
+							label="Hooks"
+							active={appView === "hooks"}
+							onClick={onSelectHooks}
+						/>
+					)}
+					{user?.email === OWNER_EMAIL && (
+						<SidebarItem
+							icon={AlignLeft}
+							label="Captions"
+							active={appView === "captions"}
+							onClick={onSelectCaptions}
 						/>
 					)}
 				</CollapsibleGroup>
