@@ -313,5 +313,32 @@
   "deck": null,
   "note": "[SOMETHING] left blank in the dump",
   "status": "raw"
+ },
+ {
+  "id": "h036",
+  "text": "10 AI Agents that | alwyas sell",
+  "kind": "number",
+  "source": "dump 6 screenshot 1",
+  "deck": null,
+  "note": "white speech box on sky blue, typo alwyas. a 5-step lead diagram sits under it",
+  "status": "raw"
+ },
+ {
+  "id": "h037",
+  "text": "4 industries everyone’s too | embarrassed to sell AI to | (they’re loaded):",
+  "kind": "contrarian",
+  "source": "dump 6 screenshot 2",
+  "deck": null,
+  "note": "one white speech box, three lines, ends on a colon",
+  "status": "raw"
+ },
+ {
+  "id": "h038",
+  "text": "4 BORING industries to sell AI to | Billion dollar businesses no one is talking about | (It’s going to mint millionaires in 2026)",
+  "kind": "contrarian",
+  "source": "dump 6 screenshot 3",
+  "deck": null,
+  "note": "first two lines are SEPARATE white boxes stacked, third is a smaller caption under both",
+  "status": "raw"
  }
 ]
