@@ -88,7 +88,8 @@ INK = (240, 239, 236)
 HEAD_MAX, HEAD_MIN, LEAD, TRACK = 60, 42, 1.10, -0.01
 TILE, TILE_SMALL, TILE_GAP = 198, 120, 34
 ROW_TILE, ROW_GAP, GAP_ROW = 54, 14, 38
-GAP_MARKS, GAP_ASK, PARA_GAP = 47, 150, 50
+GAP_MARKS = int(os.environ.get('HOOK_GAP', 47))
+GAP_ASK, PARA_GAP = 150, 50
 # The ask is 42 Regular at -1%, not a small tracked-out label. Setting it at 28
 # with +2.4 tracking made it a caption apologising under the headline; it is
 # supposed to sit close to the copy in weight and read at a glance.
@@ -303,12 +304,22 @@ def stroked(d, xy, s, f, **kw):
            stroke_fill=STROKE_INK, **kw)
 
 
-def tracked(d, xy, s, f, track):
-    """draw_tracked from slide-body cannot carry a stroke, so this is the same
-    per-character walk with one."""
+def tracked(d, xy, s, f, track, pass_=None):
+    """Per-character walk, in TWO PASSES.
+
+    Drawing each character complete - stroke then fill - lays that character's
+    black stroke over the white ink of the one before it, so every letter gets
+    a dark notch down its left side and the word looks eroded. All the strokes
+    go down first, then all the fills on top."""
     x, y = xy
     for c in s:
-        stroked(d, (x, y), c, f, anchor="ls")
+        if pass_ == "stroke":
+            d.text((x, y), c, font=f, fill=STROKE_INK, stroke_width=STROKE,
+                   stroke_fill=STROKE_INK, anchor="ls")
+        elif pass_ == "fill":
+            d.text((x, y), c, font=f, fill=INK, anchor="ls")
+        else:
+            stroked(d, (x, y), c, f, anchor="ls")
         x += f.getlength(c) + track
     return x
 
@@ -316,11 +327,12 @@ def tracked(d, xy, s, f, track):
 def draw_line(d, ws, cx, baseline, sz, weight="Medium"):
     reg, bold = F(sz, weight), F(sz, "Bold")
     t = sz * TRACK
-    x = cx - width(ws, sz, weight) / 2
-    for i, (w, b) in enumerate(ws):
-        x = tracked(d, (x, baseline), w, bold if b else reg, t)
-        if i < len(ws) - 1:
-            x += reg.getlength(" ") + t
+    for p in ("stroke", "fill"):
+        x = cx - width(ws, sz, weight) / 2
+        for i, (w, b) in enumerate(ws):
+            x = tracked(d, (x, baseline), w, bold if b else reg, t, p)
+            if i < len(ws) - 1:
+                x += reg.getlength(" ") + t
 
 
 def rise(ws, sz):
@@ -415,7 +427,8 @@ def frame(text, marks, row=()):
     f = F(ASK_SZ, "Regular")
     t = ASK_SZ * ASK_TRACK
     s = ASK + " " + ARROW
-    tracked(d, (CX - adv(s, f, t) / 2, y), s, f, t)
+    for p in ("stroke", "fill"):
+        tracked(d, (CX - adv(s, f, t) / 2, y), s, f, t, p)
 
     assert y <= SAFE_BOT, f"ask at {y}, safe bottom {SAFE_BOT}"
     return im, sz, len(flat)
