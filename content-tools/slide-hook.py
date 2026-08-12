@@ -86,9 +86,9 @@ INK = (240, 239, 236)
 # letter spacing -1%, centred. HEAD_MAX is 60 and the solver only ever goes DOWN
 # from it when a hook genuinely will not fit.
 HEAD_MAX, HEAD_MIN, LEAD, TRACK = 60, 42, 1.10, -0.01
-TILE, TILE_SMALL, TILE_GAP = 132, 84, 28
+TILE, TILE_SMALL, TILE_GAP = 198, 120, 34
 ROW_TILE, ROW_GAP, GAP_ROW = 54, 14, 38
-GAP_MARKS, GAP_ASK, GAP_TAIL = 54, 200, 40
+GAP_MARKS, GAP_ASK, PARA_GAP = 47, 150, 50
 # The ask is 42 Regular at -1%, not a small tracked-out label. Setting it at 28
 # with +2.4 tracking made it a caption apologising under the headline; it is
 # supposed to sit close to the copy in weight and read at a glance.
@@ -102,7 +102,8 @@ ARROW = "\u27f6"
 # at 52 percent and is then clamped so it can still never cross the safe edges.
 BLOCK_CY = int(H * .52)
 
-FILL = {"n8n": .70, "claude": .66, "ultron": .74, "openai": .60, "notion": .62,
+PLATE = {"ultron": (10, 10, 10)}
+FILL = {"ultron": .68, "n8n": .70, "claude": .66, "openai": .60, "notion": .62,
         "stripe": .66, "make": .66, "telegram": .70, "instagram": .72,
         "tiktok": .68, "linkedin": .70, "supabase": .64, "airtable": .66,
         "apollo": .66, "perplexity": .64, "hubspot": .66, "apify": .66}
@@ -117,7 +118,8 @@ CARD = {
  "h007": dict(marks=["ultron"], emph=["#1 Untapped Business Model"]),
  "h009": dict(marks=["ultron"], emph=["5 Ai Agents"]),
  "h012": dict(marks=["claude", "ultron"], emph=["CLAUDE CODE"]),
- "h014": dict(marks=["ultron"], emph=["6 BORING USE CASES"]),
+ "h014": dict(marks=["ultron"],
+          text="**6 BORING USE CASES** | for **ULTRON** || you can sell for **$5K** each"),
  "h016": dict(marks=["ultron"],
           text="These **5 ULTRON** | **AGENTS** will make you | **$50,000** this year."),
  "h019": dict(marks=["ultron"], emph=["6 dashboards"]),
@@ -127,8 +129,7 @@ CARD = {
  "h025": dict(marks=["ultron"], emph=["24H"]),
  "h028": dict(marks=["ultron"], emph=["10 Boring industries"]),
  "h030": dict(marks=["ultron", "claude"],
-          text="**EVERYONE’S** telling you to build **AI INFRASTRUCTURE**",
-          tail="but they never show you how"),
+          text="**EVERYONE’S** telling you to | build **AI INFRASTRUCTURE** || but they never show you how"),
  "h026": dict(marks=["ultron", "claude"],
           text="A complete **AI STACK** | to **$10,000 a month**",
           row=["n8n", "make", "notion", "stripe", "instagram", "apollo"]),
@@ -163,15 +164,18 @@ def mask(sz, r):
 
 
 def tile(im, x, y, sz, key):
-    """Every mark gets the same white plate, ultron included. Its own file is
-    nearly black, which is right on paper and a hole in the card here."""
+    """A mark on its own plate, not a plate the deck picked. claude, n8n and
+    the rest already ARE finished white tiles and get used as they are. ultron
+    ships as a bare sphere and goes on BLACK - it is lit from the rim, so black
+    is where it reads, and it matches the reference plating its own product mark
+    dark next to a white Claude."""
     src = Image.open(f"{LOGOS}/{key}.png").convert("RGBA")
     if key not in _cover:
         _cover[key] = (np.asarray(src)[..., 3] > 30).mean()
     if _cover[key] >= .85:
         plate = src.resize((sz, sz), Image.LANCZOS)
     else:
-        plate = Image.new("RGBA", (sz, sz), (255, 255, 255, 255))
+        plate = Image.new("RGBA", (sz, sz), PLATE.get(key, (255, 255, 255)) + (255,))
         n = int(sz * FILL.get(key, .64))
         plate.alpha_composite(src.resize((n, n), Image.LANCZOS), ((sz - n) // 2,) * 2)
     plate.putalpha(mask(sz, int(sz * .24)))
@@ -286,12 +290,34 @@ def solve(blocks, measure, room, hard=False):
     return sz, [l for b in blocks for l in wrap(b, sz, measure)]
 
 
+# EVERY GLYPH CARRIES A 1px BLACK STROKE. White ink on a #1A1A1A card is fine
+# on its own, but these frames get a video laid behind them, and a headline that
+# crosses a bright patch of screen goes soft exactly where it matters. The
+# stroke is hairline on purpose - at 2px it starts thickening the letterforms.
+STROKE, STROKE_INK = 1, (0, 0, 0)
+
+
+def stroked(d, xy, s, f, **kw):
+    d.text(xy, s, font=f, fill=INK, stroke_width=STROKE,
+           stroke_fill=STROKE_INK, **kw)
+
+
+def tracked(d, xy, s, f, track):
+    """draw_tracked from slide-body cannot carry a stroke, so this is the same
+    per-character walk with one."""
+    x, y = xy
+    for c in s:
+        stroked(d, (x, y), c, f, anchor="ls")
+        x += f.getlength(c) + track
+    return x
+
+
 def draw_line(d, ws, cx, baseline, sz, weight="Medium"):
     reg, bold = F(sz, weight), F(sz, "Bold")
     t = sz * TRACK
     x = cx - width(ws, sz, weight) / 2
     for i, (w, b) in enumerate(ws):
-        x = draw_tracked(d, (x, baseline), w, bold if b else reg, INK, t)
+        x = tracked(d, (x, baseline), w, bold if b else reg, t)
         if i < len(ws) - 1:
             x += reg.getlength(" ") + t
 
@@ -307,36 +333,54 @@ def rise(ws, sz):
 
 # ---------------------------------------------------------------- frame ----
 
-def frame(text, marks, tail="", row=()):
+def paras(text):
+    """`||` is a paragraph, `|` is a line inside one. Both set at the SAME size -
+    the second block in the reference is not a smaller caption, it is the rest of
+    the sentence with air in front of it."""
+    out = []
+    for p in text.split("||"):
+        lines = [words(tokens(l.strip(), CARD_EMPH)) for l in p.split("|")]
+        lines = [l for l in lines if l]
+        if lines:
+            out.append(lines)
+    return out
+
+
+def frame(text, marks, row=()):
     im = ground()
     d = ImageDraw.Draw(im)
 
-    blocks = [words(tokens(part.strip(), CARD_EMPH)) for part in text.split("|")]
-    blocks = [b for b in blocks if b]
+    para = paras(text)
+    flat = [l for p in para for l in p]
 
     tsz = TILE if len(marks) <= 2 else TILE_SMALL
     marks_h = tsz if marks else 0
     ask_h = int(ASK_SZ * .727)
-    room = (SAFE_BOT - SAFE_TOP) - marks_h - GAP_MARKS - GAP_ASK - ask_h
-    sz, lines = solve(blocks, COPY, room, hard="|" in text)
+    gaps = PARA_GAP * (len(para) - 1)
+    room = (SAFE_BOT - SAFE_TOP) - marks_h - GAP_MARKS - GAP_ASK - ask_h - gaps
+    sz, flat = solve(flat, COPY, room, hard="|" in text)
     pitch = int(sz * LEAD)
 
-    # The tail is the half-sentence the reference sets under the headline, a
-    # step down and a weight down - the turn in the hook, not a second idea.
-    tsz2 = int(sz * .82)
-    tlines = wrap(words(tokens(tail, [])), tsz2, MEASURE) if tail else []
-    tpitch = int(tsz2 * LEAD)
-    tail_h = (GAP_TAIL + (len(tlines) - 1) * tpitch + rise(tlines[0], tsz2)) \
-        if tlines else 0
+    # Re-attach the solved lines to their paragraphs. With hard breaks the counts
+    # match one for one; without them a paragraph may have wrapped, so walk it.
+    sized, i = [], 0
+    for p in para:
+        n = len(p) if "|" in text else max(1, len(flat) - i if p is para[-1] else 1)
+        sized.append(flat[i:i + len(p)] if "|" in text else flat[i:i + n])
+        i += len(sized[-1])
+    if i < len(flat):
+        sized[-1] += flat[i:]
+    sized = [s for s in sized if s]
 
-    head_h = (len(lines) - 1) * pitch + rise(lines[0], sz)
+    head_h = sum((len(s) - 1) * pitch for s in sized) + pitch * (len(sized) - 1) \
+        + gaps + rise(sized[0][0], sz)
     row_h = (GAP_ROW + ROW_TILE) if row else 0
-    total = marks_h + GAP_MARKS + head_h + tail_h + row_h + GAP_ASK + ask_h
+    total = marks_h + GAP_MARKS + head_h + row_h + GAP_ASK + ask_h
     y = max(SAFE_TOP, min(BLOCK_CY - total // 2, SAFE_BOT - total))
 
     if marks:
-        plus = F(int(tsz * .52), "Medium")
-        gap = TILE_GAP if len(marks) > 2 else int(TILE_GAP * 1.6)
+        plus = F(int(tsz * .40), "Medium")
+        gap = TILE_GAP if len(marks) > 2 else int(TILE_GAP * 1.4)
         pw = plus.getlength("+") if len(marks) == 2 else 0
         mw = len(marks) * tsz + (len(marks) - 1) * gap + (pw + gap if pw else 0)
         x = CX - mw / 2
@@ -346,20 +390,17 @@ def frame(text, marks, tail="", row=()):
             if i < len(marks) - 1:
                 x += gap
                 if pw:
-                    d.text((x, y + tsz / 2), "+", font=plus, fill=INK, anchor="lm")
+                    stroked(d, (x, y + tsz / 2), "+", plus, anchor="lm")
                     x += pw + gap
         y += tsz + GAP_MARKS
 
-    y += rise(lines[0], sz)
-    for i, ln in enumerate(lines):
-        draw_line(d, ln, CX, y + i * pitch, sz)
-    y += (len(lines) - 1) * pitch
-
-    if tlines:
-        y += GAP_TAIL + rise(tlines[0], tsz2)
-        for i, ln in enumerate(tlines):
-            draw_line(d, ln, CX, y + i * tpitch, tsz2, weight="Regular")
-        y += (len(tlines) - 1) * tpitch
+    y += rise(sized[0][0], sz)
+    for j, block in enumerate(sized):
+        for i, ln in enumerate(block):
+            draw_line(d, ln, CX, y + i * pitch, sz)
+        y += (len(block) - 1) * pitch
+        if j < len(sized) - 1:
+            y += pitch + PARA_GAP
 
     if row:
         rw = len(row) * ROW_TILE + (len(row) - 1) * ROW_GAP
@@ -372,11 +413,11 @@ def frame(text, marks, tail="", row=()):
     y += GAP_ASK + ask_h
     f = F(ASK_SZ, "Regular")
     t = ASK_SZ * ASK_TRACK
-    aw = adv(ASK, f, t) + f.getlength(" " + ARROW) + t * 2
-    x = draw_tracked(d, (CX - aw / 2, y), ASK + " " + ARROW, f, INK, t)
+    s = ASK + " " + ARROW
+    tracked(d, (CX - adv(s, f, t) / 2, y), s, f, t)
 
     assert y <= SAFE_BOT, f"ask at {y}, safe bottom {SAFE_BOT}"
-    return im, sz, len(lines)
+    return im, sz, len(flat)
 
 
 CARD_EMPH = []
@@ -408,7 +449,7 @@ if __name__ == "__main__":
         # book itself is never touched; it is the reference, not the artwork.
         text = PLACEHOLDER.sub("ULTRON", cfg.get("text") or row["text"])
         marks = cfg.get("marks", ["ultron"])
-        im, sz, n = frame(text, marks, cfg.get("tail", ""), cfg.get("row", ()))
+        im, sz, n = frame(text, marks, cfg.get("row", ()))
         p = f"{out}/{hid}.png"
         im.convert("RGB").save(p)
         print(f"  {hid}  {sz}px x{n}  {'+'.join(marks):18} {row['text'][:58]}")
