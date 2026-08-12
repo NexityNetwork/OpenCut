@@ -186,6 +186,16 @@ def tile(im, x, y, sz, key):
 
 # ---------------------------------------------------------------- text -----
 
+# The runs that are ALWAYS the point of the line, whether or not anybody named
+# them: money, and a count with its unit. `30 days` reading as quiet body copy
+# while `9 AI SYSTEMS` shouts is the same hook set two different ways.
+AUTO = [re.compile(r"\$[\d,]+(?:\.\d+)?[KM]?(?:/(?:MO|MONTH))?"),
+        re.compile(r"\b\d+\s+(?:days?|weeks?|months?|years?|hours?)\b", re.I)]
+# And when nothing at all is named, the opening count carries the frame.
+LEAD_COUNT = re.compile(r"^\W*\d+\s+(?:AI\s+|BORING\s+|MORE\s+)*[A-Za-z]+"
+                        r"(?:\s+[A-Za-z]+){0,2}", re.I)
+
+
 def tokens(line, emph):
     """(text, bold) runs. `**x**` wins; otherwise EMPH's phrases are lifted."""
     parts, out = re.split(r"(\*\*[^*]+\*\*)", line), []
@@ -193,12 +203,19 @@ def tokens(line, emph):
         if not p:
             continue
         if p.startswith("**") and p.endswith("**"):
-            out.append((p[2:-2], True))
+            out.append((p[2:-2].upper(), True))
         else:
             out.append((p, False))
+    auto = list(emph)
+    for pat in AUTO:
+        auto += [m.group(0) for m in pat.finditer(line)]
+    if not auto and not any(b for _, b in out):
+        m = LEAD_COUNT.match(line)
+        if m:
+            auto = [m.group(0).strip()]
     if any(b for _, b in out):
         return out
-    for phrase in sorted(emph, key=len, reverse=True):
+    for phrase in sorted(set(auto), key=len, reverse=True):
         # Word boundaries, and never right before an apostrophe: lifting
         # EVERYONE out of EVERYONE'S left a bold word and a stray 'S beside it.
         pat = re.compile(rf"(?<!\w){re.escape(phrase)}(?![\w’'])")
@@ -208,7 +225,7 @@ def tokens(line, emph):
                 nxt.append((txt, bold)); continue
             last = 0
             for m in pat.finditer(txt):
-                nxt += [(txt[last:m.start()], False), (m.group(0), True)]
+                nxt += [(txt[last:m.start()], False), (m.group(0).upper(), True)]
                 last = m.end()
             nxt.append((txt[last:], False))
         out = [(t, b) for t, b in nxt if t]
@@ -438,6 +455,40 @@ CARD_EMPH = []
 
 PLACEHOLDER = re.compile(r"\[\s*(something|SOMETHING)?\s*\]", re.I)
 
+# Slips that came off the screenshots with the hooks. The hook book keeps them -
+# it is the record of what was collected - but nothing ships with them on it.
+TYPO = {"Auomation": "Automation", "alwyas": "always", "oyur": "your",
+        "busienss": "business", "that that": "that", "everyone’s": "everyone's"}
+
+# HOW A NUMBER IS SET. `$10k/mo` is three mistakes in six characters: a lowercase
+# thousand, an abbreviation nobody reads at 0.5s, and no emphasis on the only
+# part of the line anybody came for.
+UNIT = [(r"(?<=\d)k\b", "K"), (r"/\s?mo\b", "/MO"), (r"/\s?month\b", "/MONTH"),
+        (r"(?<=\d)\s?mm?\b", "M")]
+
+
+# ULTRON NEVER STANDS ALONE. A single mark on a card says "here is a product";
+# a pair says "here is a stack, and this is the part of it you do not have yet",
+# which is the whole argument. Automation-shaped hooks pair with n8n, everything
+# else with Claude, and ultron always sits on the right as the payoff.
+AUTOMATION = re.compile(r"automat|workflow|system|agenc|n8n", re.I)
+
+
+def pair(marks, text):
+    marks = [m for m in marks if m]
+    if marks and marks != ["ultron"]:
+        return marks
+    other = "n8n" if AUTOMATION.search(text) else "claude"
+    return [other, "ultron"]
+
+
+def clean(s):
+    for a, b in TYPO.items():
+        s = s.replace(a, b)
+    for pat, rep in UNIT:
+        s = re.sub(pat, rep, s)
+    return s
+
 
 def hooks():
     return {r["id"]: r for r in json.load(open(f"{HERE}/hooks.json"))}
@@ -461,8 +512,8 @@ if __name__ == "__main__":
         # `text` in CARD overrides the stored hook for RENDERING only - where
         # the break falls, which run is bold, `claude` set as Claude. The hook
         # book itself is never touched; it is the reference, not the artwork.
-        text = PLACEHOLDER.sub("ULTRON", cfg.get("text") or row["text"])
-        marks = cfg.get("marks", ["ultron"])
+        text = clean(PLACEHOLDER.sub("ULTRON", cfg.get("text") or row["text"]))
+        marks = pair(cfg.get("marks", ["ultron"]), text)
         im, sz, n = frame(text, marks, cfg.get("row", ()))
         p = f"{out}/{hid}.png"
         im.convert("RGB").save(p)
