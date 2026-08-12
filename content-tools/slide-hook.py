@@ -117,27 +117,27 @@ _cover = {}
 # left `if your business don't have these 6 AGENTS you are flying blind whatever`
 # on a frame, which is what happens when nobody reads them.
 CARD = {
- "h001": dict(text="POV: you are finally charging | **$2,370 PER CLIENT** | after watching this"),
+ "h001": dict(text="POV: you're finally charging | **$2,370 PER CLIENT** | after watching this"),
  "h002": dict(text="How to **START SELLING** | **AI INFRASTRUCTURE** | in **24H**"),
  "h003": dict(text="How to become financially free | with **AI AUTOMATION** | in the next **3 MONTHS**"),
  "h004": dict(text="I want my **FIRST CLIENT** | in the next **30 DAYS** || I got you brother"),
- "h005": dict(text="I cannot afford to start | an **AI AUTOMATION BUSINESS**"),
+ "h005": dict(text="I can't afford to start | an **AI AUTOMATION BUSINESS**"),
  "h006": dict(text="**10 AI AGENTS** I abused | last month to make **$10/MO**"),
- "h007": dict(text="The **#1 UNTAPPED** | **BUSINESS MODEL** | you have never heard of"),
+ "h007": dict(text="The **#1 UNTAPPED** | **BUSINESS MODEL** | you've never heard of"),
  "h008": dict(text="The **DUMBEST** way to make | **$1K A DAY** in 2026 || and yes, it actually works"),
  "h009": dict(text="**5 AI AGENTS** | that will make you | **RICH IN 2026**"),
  "h010": dict(text="If I had to start a **$10K/MO** | AI automation agency in 2026 || here is exactly what I would do"),
  "h011": dict(text="Making **$10,000 A MONTH** is not hard || you just need **5 ULTRON AGENTS** | generating **$330 A DAY**"),
- "h012": dict(text="Next time you cannot sleep | open **CLAUDE CODE** for **3 HOURS** || and build one automation | you can sell **2,000 TIMES**"),
+ "h012": dict(text="Next time you can't sleep | open **CLAUDE CODE** for **3 HOURS** || and build one automation | you can sell **2,000 TIMES**"),
  "h013": dict(text="How to build a **$1 MILLION** | **AI AUTOMATION BUSINESS** | in under **6 MONTHS**"),
  "h014": dict(text="**6 BORING USE CASES** | for **ULTRON** || you can sell for **$5K** each"),
  "h015": dict(text="Making **$10K A MONTH** is not hard || you just need one automation | generating **$330 A DAY**"),
  "h016": dict(text="These **5 ULTRON AGENTS** | will make you | **$50,000** this year"),
  "h017": dict(text="POV: your client made **300K** | in **29 DAYS** with one | cold email funnel"),
  "h018": dict(text="How to make **$32,000** | in just **3 MONTHS** | with **$0**"),
- "h019": dict(text="if your **BUSINESS** does not | have these **6 DASHBOARDS** | you are **FLYING BLIND**"),
- "h020": dict(text="if your **BUSINESS** does not | have these **6 AGENTS** | you are **FLYING BLIND**"),
- "h021": dict(text="**EVERYONE** is making money online | and I have no idea | where to start"),
+ "h019": dict(text="if your **BUSINESS** doesn't | have these **6 DASHBOARDS** | you are **FLYING BLIND**"),
+ "h020": dict(text="if your **BUSINESS** doesn't | have these **6 AGENTS** | you are **FLYING BLIND**"),
+ "h021": dict(text="**EVERYONE** is making money online | and I have no clue | where to start"),
  "h022": dict(text="**6 AI TOOLS** you can sell | to your clients | to hit **$10K**"),
  "h023": dict(text="How to build a **$1 MILLION** | **AI AUTOMATION BUSINESS** | just with agents"),
  "h024": dict(text="**6 MORE BORING AUTOMATIONS** | you can sell for **$3K** each"),
@@ -154,7 +154,7 @@ CARD = {
  "h034": dict(text="I built an | **AI CONTENT AGENT** | with **n8n** and **Claude**"),
  "h035": dict(text="**GHOST** everyone and master | **ULTRON AGENTS** | to get **20 YEARS AHEAD**"),
  "h036": dict(text="**10 AI AGENTS** | that always sell"),
- "h037": dict(text="**4 INDUSTRIES** everyone is too | embarrassed to sell AI to || and every one of them is loaded"),
+ "h037": dict(text="**4 INDUSTRIES** everyone's too | embarrassed to sell AI to || and every one of them is loaded"),
  "h038": dict(text="**4 BORING INDUSTRIES** | to sell AI to || billion dollar businesses | nobody is talking about"),
  "h039": dict(text="**11 AI SYSTEMS** every business | will regret not using | in the next **6 MONTHS**"),
  "h040": dict(text="**10 AI AUTOMATIONS** nobody | is talking about right now || but they explode in **2027**"),
@@ -248,12 +248,16 @@ def tokens(line, emph):
 
 
 def words(runs):
-    """Runs to (word, bold), so wrapping can break anywhere a space is."""
+    """Runs to (word, bold, run), so wrapping knows which words belong together.
+
+    A bold run is ONE THING - `$10K A MONTH`, `CLAUDE CODE`, `6 AI TOOLS`. The
+    wrap had no idea and broke straight through the middle of them, which is how
+    `Making $10K A / MONTH is not hard` and `open CLAUDE / CODE` happened."""
     out = []
-    for txt, bold in runs:
-        for i, w in enumerate(txt.split(" ")):
+    for r, (txt, bold) in enumerate(runs):
+        for w in txt.split(" "):
             if w:
-                out.append((w, bold))
+                out.append((w, bold, r if bold else -1))
     return out
 
 
@@ -263,7 +267,7 @@ def width(ws, sz, weight="Medium"):
     the same line in the file and every solved size came out one step small."""
     reg, bold = F(sz, weight), F(sz, "Bold")
     t = sz * TRACK
-    return sum(adv(w, bold if b else reg, t) for w, b in ws) + \
+    return sum(adv(w, bold if b else reg, t) for w, b, _ in ws) + \
         (reg.getlength(" ") + t) * max(0, len(ws) - 1)
 
 
@@ -289,6 +293,9 @@ def wrap(ws, sz, measure):
             if w > measure and j > i + 1:
                 break
             slack = (measure - w) ** 2
+            # Breaking inside a bold run costs more than any amount of raggedness.
+            if j < n and ws[j - 1][2] >= 0 and ws[j - 1][2] == ws[j][2]:
+                slack += measure ** 2 * 4
             if best[j] is None:
                 continue
             c = slack + best[j][0]
@@ -302,7 +309,25 @@ def wrap(ws, sz, measure):
     return lines or [ws]
 
 
-def solve(blocks, measure, room, hard=False):
+def solve(paras, measure, room):
+    """Size solved across ALL the lines, but the paragraphs keep their own.
+
+    The old version flattened every line to solve, then re-cut the flat list by
+    the ORIGINAL block count - so the moment one block wrapped, every paragraph
+    boundary after it slid by a line and the gap landed inside a sentence:
+    `Making $10K A / / MONTH is not hard`, `open CLAUDE / / CODE`."""
+    for sz in range(HEAD_MAX, HEAD_MIN - 1, -1):
+        out = [[l for b in para for l in wrap(b, sz, measure)] for para in paras]
+        lines = [l for para in out for l in para]
+        if any(width(l, sz) > measure for l in lines):
+            continue
+        if len(lines) * int(sz * LEAD) <= room:
+            return sz, out
+    sz = HEAD_MIN
+    return sz, [[l for b in para for l in wrap(b, sz, measure)] for para in paras]
+
+
+def _old_solve(blocks, measure, room, hard=False):
     """One size for the frame: the largest that fits the measure and the room.
 
     A `|` is not a hint, it is the line. When the copy carries breaks the size
@@ -360,7 +385,7 @@ def draw_line(d, ws, cx, baseline, sz, weight="Medium"):
     t = sz * TRACK
     for p in ("stroke", "fill"):
         x = cx - width(ws, sz, weight) / 2
-        for i, (w, b) in enumerate(ws):
+        for i, (w, b, _) in enumerate(ws):
             x = tracked(d, (x, baseline), w, bold if b else reg, t, p)
             if i < len(ws) - 1:
                 x += reg.getlength(" ") + t
@@ -372,7 +397,7 @@ def rise(ws, sz):
     82px that is enough to push a block off centre."""
     d = ImageDraw.Draw(Image.new("L", (8, 8)))
     return max(-d.textbbox((0, 0), w, font=F(sz, "Bold" if b else "Medium"),
-                           anchor="ls")[1] for w, b in ws)
+                           anchor="ls")[1] for w, b, _ in ws)
 
 
 # ---------------------------------------------------------------- frame ----
@@ -395,26 +420,16 @@ def frame(text, marks, row=()):
     d = ImageDraw.Draw(im)
 
     para = paras(text)
-    flat = [l for p in para for l in p]
 
     tsz = TILE if len(marks) <= 2 else TILE_SMALL
     marks_h = tsz if marks else 0
     ask_h = int(ASK_SZ * .727)
     gaps = PARA_GAP * (len(para) - 1)
     room = (SAFE_BOT - SAFE_TOP) - marks_h - GAP_MARKS - GAP_ASK - ask_h - gaps
-    sz, flat = solve(flat, COPY, room, hard="|" in text)
+    sz, sized = solve(para, COPY, room)
     pitch = int(sz * LEAD)
-
-    # Re-attach the solved lines to their paragraphs. With hard breaks the counts
-    # match one for one; without them a paragraph may have wrapped, so walk it.
-    sized, i = [], 0
-    for p in para:
-        n = len(p) if "|" in text else max(1, len(flat) - i if p is para[-1] else 1)
-        sized.append(flat[i:i + len(p)] if "|" in text else flat[i:i + n])
-        i += len(sized[-1])
-    if i < len(flat):
-        sized[-1] += flat[i:]
     sized = [s for s in sized if s]
+    flat = [l for s in sized for l in s]
 
     head_h = sum((len(s) - 1) * pitch for s in sized) + pitch * (len(sized) - 1) \
         + gaps + rise(sized[0][0], sz)
