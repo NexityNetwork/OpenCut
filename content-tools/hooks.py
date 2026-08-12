@@ -20,6 +20,15 @@ how you end up defending a bad line because you already set it nicely.
 `|` IS A LINE BREAK and `**bold**` is emphasis, the same two marks the decks
 already use, so a hook can go straight into a frame with no translation.
 
+AN EMPTY LINE IN A DUMP MEANS THE HOOK IS TWO LINES. Adjacent lines with no
+blank between them are separate hooks; a blank inside a block is the break
+between that hook's first and second line. `---` separates blocks.
+
+HOOKS GO IN VERBATIM. Typos, arrows, capitals and all. A hook that gets tidied
+on the way into the file is a hook nobody can tell apart from one that was
+written that way, and the tidying is a decision for whoever wrote it. Anything
+that looks like a slip goes in the note instead.
+
 STORAGE IS ONE JSON FILE, sorted by id, one hook per entry. It is read by eye as
 often as by code, so it stays readable and it stays in git - a hook list that
 lives in somebody's notes app is a hook list that gets lost.
@@ -33,7 +42,7 @@ HERE = os.path.dirname(os.path.abspath(__file__))
 STORE = os.path.join(HERE, "hooks.json")
 
 KINDS = ["claim", "number", "question", "contrarian", "promise", "callout",
-         "confession", "list"]
+         "confession", "list", "pov", "quote", "howto"]
 STATUS = ["raw", "picked", "used"]
 
 
