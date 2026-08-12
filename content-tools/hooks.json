@@ -43,5 +43,113 @@
   "deck": null,
   "note": "open quote, no close, verbatim",
   "status": "raw"
+ },
+ {
+  "id": "h006",
+  "text": "10 Ai Agents I Abused Last Month to Make $10/mo",
+  "kind": "number",
+  "source": "dump 3 screenshot 1",
+  "deck": null,
+  "note": "serif, dark. reads $10/mo not $10k/mo, verbatim",
+  "status": "raw"
+ },
+ {
+  "id": "h007",
+  "text": "The #1 Untapped Business Model | You’ve Never Heard Of",
+  "kind": "claim",
+  "source": "dump 3 screenshot 2",
+  "deck": null,
+  "note": "a Total $255,288 card sits between the two lines",
+  "status": "raw"
+ },
+ {
+  "id": "h008",
+  "text": "The DUMBEST way to | make $1k a day in 2026 | And yep... it actually works",
+  "kind": "contrarian",
+  "source": "dump 3 screenshot 3 · SOCIAL BUTTERFLY",
+  "deck": null,
+  "note": "three lines, last one is the kicker in blue",
+  "status": "raw"
+ },
+ {
+  "id": "h009",
+  "text": "5 Ai Agents | that will | make you | rich in 2026",
+  "kind": "number",
+  "source": "dump 3 screenshot 4 · @lvl_aiautomations",
+  "deck": null,
+  "note": "serif, last line blue. stick figure under a money avalanche",
+  "status": "raw"
+ },
+ {
+  "id": "h010",
+  "text": "If I Had To Start A | $10k/mo Ai Automation Agency in 2026 | Here Exactly What I Would Do",
+  "kind": "howto",
+  "source": "dump 3 screenshot 5 · @lvl_aiautomations",
+  "deck": null,
+  "note": "serif, middle line is the big one",
+  "status": "raw"
+ },
+ {
+  "id": "h011",
+  "text": "Making $10,000 a month is not hard.  You just need 5 [something] generating $330 a day. I can show you how, but you just keep scrolling...",
+  "kind": "claim",
+  "source": "dump 3",
+  "deck": null,
+  "note": "[something] left blank in the dump",
+  "status": "raw"
+ },
+ {
+  "id": "h012",
+  "text": "Next time you CAN’T SLEEP at night, take 3 hours open CLAUDE CODE and build an AI AUTOMATION that you can sell 2000 times for $27",
+  "kind": "callout",
+  "source": "dump 3",
+  "deck": null,
+  "note": "",
+  "status": "raw"
+ },
+ {
+  "id": "h013",
+  "text": "How to build a $1 MILLION  AI AUTOMATION BUSINESS | in under 6 months",
+  "kind": "howto",
+  "source": "dump 3",
+  "deck": null,
+  "note": "",
+  "status": "raw"
+ },
+ {
+  "id": "h014",
+  "text": "6 BORING USE CASES  for [something] | you can sell for $5K each",
+  "kind": "number",
+  "source": "dump 3",
+  "deck": null,
+  "note": "[something] left blank. break came off the raw line, not a blank line",
+  "status": "raw"
+ },
+ {
+  "id": "h015",
+  "text": "Making $10K a month is not hard. You just need 1 AI AUTOMATION business generating $330 a day. I can show you 7 but you keep scrolling...",
+  "kind": "claim",
+  "source": "dump 3",
+  "deck": null,
+  "note": "variant of the 5-agents one above",
+  "status": "raw"
+ },
+ {
+  "id": "h016",
+  "text": "These 5 [] AGENTS will make you  $50,000 this year.",
+  "kind": "number",
+  "source": "dump 3",
+  "deck": null,
+  "note": "[] left blank in the dump",
+  "status": "raw"
+ },
+ {
+  "id": "h017",
+  "text": "POV: Your client made 300K in 29 days with a simple cold email funnel",
+  "kind": "pov",
+  "source": "dump 3",
+  "deck": null,
+  "note": "",
+  "status": "raw"
  }
 ]
