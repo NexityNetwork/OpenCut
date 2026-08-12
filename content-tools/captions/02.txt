@@ -1,0 +1,25 @@
+STACK|teardown|screenshot 2, telegram
+↓ Here is how the multi-model architecture actually works:
+This is a complete breakdown of specialized AI models, moving away from relying on a single generalist model and instead assigning specific tasks to the engine best optimized for the job.
+
+Application architecture and code execution: You start by splitting your frontend and backend development between specialized models built for those exact domains.
+
+For the frontend, you route through Kimi-K3. It handles fluid UI components, modern styling logic, and complex state rendering without throwing layout errors or broken hooks.
+
+For the backend, you hand the operational logic to FABLE. It builds the database schemas, configures your API endpoints, and structures serverless functions without leaking context or breaking dependencies.
+
+When code breaks or throws silent runtime errors, you pass the stack trace to GPT-5.6 SOL. It acts as your dedicated debugging layer, isolating logical bugs and fixing race conditions instantly without rewriting existing functional code.
+
+Media generation and asset production: For visual media, you pass prompts directly to GPT for image assets. It handles product UI mockups, promo tiles, and marketing visual generation with strict adherence to composition details.
+
+For dynamic video assets and ad creatives, you route generation to Seedance 2.0. It turns static concepts into high-converting video scenes without requiring traditional video editing tools or manual timeline assembly.
+
+Cost efficiency and heavy background processing: Running high-volume tasks through flagship models burns budget fast. You route high-token, repetitive operations to dedicated cost-optimized engines.
+
+For bulk tasks, routine queries, and massive batch processing, you use DeepSeek V4 Pro. It delivers flagship-level execution at a fraction of the compute cost, keeping your overhead virtually non-existent.
+
+For continuous background execution, you hand long-running tasks to GLM-5.2. It handles asynchronous workers, queue processing, data polling, and automated log processing quietly in the background without dropping requests.
+
+The whole setup compounds: Every model plays to its specific strength. Your compute costs drop drastically by routing cheap tasks away from heavy models. Your engineering velocity scales because no single model gets overwhelmed.
+
+Comment "STACK" if you want the complete workflow setup.

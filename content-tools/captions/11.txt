@@ -1,0 +1,26 @@
+W|blueprint|dump 8
+↓Comment "W" for the full blueprint.
+
+You are posting blind. No data on what is actually working. No idea what your audience wants. Scrolling 6 platforms manually hoping something clicks.
+
+Here is how to fix it in 24 hours:
+7 AI workflows that scrape top-performing content across TikTok, Instagram, YouTube, Twitter, LinkedIn, and Facebook. Not random posts. Only content above real engagement thresholds.
+
+Each workflow fetches the top 15 comments per post and runs GPT-4o sentiment analysis on every thread. What the audience is asking. What they love. What patterns keep showing up. What emotional triggers drive engagement.
+
+Then a dedicated playbook workflow auto-generates a complete content blueprint for every top performer it finds. Viral hook. Video script. CTA. Audience avatar. Repurpose angles. Platform-specific captions. SEO intro. Pro tips.
+
+Saved to Google Drive. 
+Linked to your dashboard. 
+No manual work.
+
+Your client logs into a dashboard and sees everything. Trending content. Sentiment breakdowns. Top performer rankings. The full playbook library. They never touch a workflow.
+
+You run this for them at $29-199/month as SaaS. 
+Or $5K-12K as a done-for-you setup.
+Your infrastructure costs $200-400/month. 
+A content team doing this manually costs $1,800-2,700/month minimum.
+
+Full blueprint is live on Founder Terminal.
+
+Comment "W" and I will send it to you.

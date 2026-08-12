@@ -1,0 +1,29 @@
+W|blueprint|dump 8
+↓ Comment "W" for the full guide.
+
+Here is what you are building:
+An AI agent inside Claude Desktop that connects to any business's tools, maps their entire workspace, and generates production-ready n8n workflows they can import and run immediately.
+
+Point it at ClickUp, Airtable, Slack, whatever. It connects via MCP, reads live data, and maps everything. Project structures. Task distribution. Bottlenecks. Integration gaps.
+
+It ranks the top 5-8 automation opportunities by impact. You pick the ones to build. The agent generates complete n8n JSON.
+
+The secret is the knowledge base.
+8 production-ready n8n workflows plus 1,500 lines of compiled n8n documentation. This teaches Claude real node types, real connection patterns, and real error handling. Without it, the AI invents fake nodes and workflows break on import. With it, every output is production-ready.
+
+The architecture:
+Layer 1 is a Claude Desktop project with a master prompt running a 10-step audit. Discovery, tool research, workspace analysis, integration mapping, opportunity ranking, workflow generation, AI agent architecture, documentation, and implementation roadmap.
+
+Layer 2 is the knowledge base. 8 workflow examples teaching the AI to build master orchestrators with specialized sub-agents. Production. Customer experience. Orders. Analytics. Supply chain. Sales. Technical operations.
+MCP connections are the bridge. Claude reads and writes directly to client tools using real workspace IDs.
+
+Package all of it:
+The workflow JSONs. The knowledge base. The setup guide. The prompts. 
+
+Sell it for $27. Your cost is $60-90/month infrastructure. 
+Every copy after the first is pure margin.
+$27 x 2,000 = $54,000 from one system you built at 2am.
+
+Full blueprint and all knowledge base files are free on Founder Terminal.
+
+Comment "W" and I will send it to you.

@@ -1,0 +1,28 @@
+100|blueprint|dump 8
+↓ Here is how to build your $100K automation empire:
+
+Most automation freelancers sell one-off Zaps for $500 and wonder why they are stuck. The money is not in building single automations. The money is in auditing entire businesses and selling complete systems.
+
+This is the exact blueprint:
+--
+What you are building.
+An AI agent inside Claude Desktop that connects to a client's actual business tools, maps their entire workspace, identifies every automation opportunity, and generates production-ready n8n workflows they can import and run immediately.
+
+You point the agent at a client's ClickUp, Airtable, Slack, or whatever they use. It connects via MCP, reads their live data, and maps everything: project structures, task distribution, team assignments, bottlenecks, and integration gaps.
+
+Then it ranks the top 5-8 automation opportunities by impact and complexity. You pick the ones to build. 
+
+The secret is the knowledge base. Eight production-ready n8n workflows (the RetroFuture collection) plus 1,500 lines of compiled n8n documentation.
+
+This teaches the AI real node types, real connection patterns, and real error handling. Without it, Claude invents fake nodes and the workflows break on import. 
+
+The architecture.
+A Claude Desktop project with a master prompt that runs a 10-step audit workflow: discovery, tool research, workspace analysis, cross-tool integration mapping, opportunity identification, automation ranking, workflow generation, AI agent architecture design, documentation, and implementation roadmap.
+
+Layer 2 is the knowledge base. 8 workflow examples that teach the AI how to build master orchestrators with specialized sub-agents. Each sub-agent handles one business domain: production, customer experience, orders, analytics, supply chain, sales, and technical operations.
+
+MCP connections are the bridge. 
+Claude reads and writes data directly to client tools. 
+It uses real workspace IDs, not names, for every API operation.
+
+Comment "100" and I will send it to you.

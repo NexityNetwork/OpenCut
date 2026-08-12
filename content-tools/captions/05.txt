@@ -1,0 +1,27 @@
+W|stack|dump 8
+↓ Comment "W" to get the full breakdown.
+
+This is the exact stack I would use if I had to start from zero tomorrow with nothing but a laptop and 24 hours.
+
+Most people overcomplicate this.
+They research tools for weeks.
+Compare 47 options.
+Build spreadsheets about spreadsheets.
+
+Here is the reality:
+You need 7 tools. That is it.
+
+Claude writes your code.
+Supabase handles your backend.
+Vercel deploys it live.
+Resend sends your emails.
+Stripe collects your money.
+N8N automates everything in between.
+
+And Founder Terminal gives you the playbooks so you are not guessing on strategy. But here is where it gets interesting:
+If you do not want to build from scratch, DealMaker gives you 50 production-ready AI apps you can deploy and start selling the same day.
+
+Skip the entire development phase and go straight to revenue.
+The full stack breakdown and how to set it all up is on Founder Terminal.
+
+Comment "W" for the guide.

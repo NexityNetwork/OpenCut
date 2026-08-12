@@ -1,0 +1,31 @@
+CC|teardown|dump 8
+↓ Here is how to turn CLAUDE CODE into your Life OS.
+
+Most people use it to write Python and close it down. 
+That is leaving 90% of the value on the table.
+
+Claude Code lives in your terminal. It has access to everything on your computer. Not just code files. PDFs, documents, notes, whatever. 
+Connect it to MCP servers and it interfaces with Notion, Calendar, Gmail, Obsidian. The same apps you use to run your life.
+
+The mechanism:
+- Slash commands trigger workflows. 
+- Skills give Claude project context. 
+
+These features are more valuable for life and business ops than coding.
+I already have Notion acting as my CEO. It queries clients, leads, calendar, tasks, and decides what I focus on. 
+
+Claude Code takes this further. It can execute against all those systems simultaneously.
+
+Where this gets serious.
+Set up a slash command that scrapes relevant news from your niche, compiles a newsletter draft or script brief, and dumps it in your workspace ready to review. One command. Context gathered. Draft generated. Delivered.
+
+Use Skills for copywriting style, invoice formats, Excel manipulation. Same documentation-first approach but with execution power.
+
+The play.
+Start simple. One slash command. One skill file. Then stack.
+The unlock is recognizing that everything can be orchestrated. Calendar. Emails. Content. Finances.
+
+Do not wait for the perfect life OS app. Build it with Claude Code and MCP servers. In 7 days you can automate half your manual work.
+Start with one workflow tonight.
+
+Comment "CC" and I will send you all my setup.

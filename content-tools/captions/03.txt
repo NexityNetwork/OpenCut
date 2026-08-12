@@ -1,0 +1,32 @@
+400|teardown|dump 8
+↓ Here is how the setup actually works:
+
+This is a complete pipeline for building products and distributing them at the same time, using four tools that each own a completely different part of the process.
+
+1. Building the product:
+You start with Claude and you treat it like a technical co-founder who never sleeps and never charges equity. You dump everything into it. The full idea, every feature, every user flow, every edge case, every integration you need. 
+
+You are not asking it to write code yet. You are asking it to think through the entire system before anything gets built. Database structure, API design, how every piece connects to every other piece. Claude maps the whole thing out. No gaps, no assumptions, no wasted builds.
+
+Then you hand that architecture to Antigravity and point it at an empty project. Antigravity takes the plan and executes it. Authentication, backend logic, frontend, integrations, all of it. 
+
+It stays consistent because Claude already decided how everything should work. You are not explaining your vision over and over. You are directing a build that already knows where it is going.
+
+2. Running it autonomously:
+Once the product is built you deploy the operations with OpenClaw because it's cheaper. This is where most people stop when they should be just getting started. 
+
+OpenClaw turns your product into a set of autonomous agents that run the entire operation without you. Execution happens in the background. Delivery happens automatically. 
+
+The product does not need you present for it to work. You build it once and OpenClaw keeps it running.
+
+3. Getting customers:
+TikTok is the distribution layer and the angle most people get completely wrong. You are not posting polished marketing content. You are posting the process. You record Claude designing the system. You record Antigravity building it. You record OpenClaw spinning up the agents. 
+
+You show the real thing working in real time. That content finds the exact people who want what you built because they are watching you build it. They become your first customers and your first case studies. Those case studies become your next videos. Those videos find your next customers.
+
+The whole thing compounds:
+Every product you ship becomes content. 
+Every piece of content finds customers. 
+Every customer becomes proof for the next one. 
+
+Comment "400" if you want a complete guide.

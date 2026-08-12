@@ -1,0 +1,37 @@
+W|playbook|dump 8
+↓ Comment "W" to get started.
+
+If I had to start an AI AUTOMATION BUSINESS from scratch in 2026
+Here is EXACTLY what I would do.
+
+First, what I would NOT do.
+- Learn to code for 6 months. 
+- Hire developers with no validation. 
+- Build an MVP and pray. 
+- Waste time polishing branding. 
+- Spend months perfecting features. 
+
+Try to guess what works.
+All of that is how you burn cash and quit by month 3.
+
+Here is the actual playbook:
+Step 1: Pick a market with money.
+Launch a B2B sales OS. A real estate portal. A SaaS platform. An AI UGC platform. AI chat and support. Pick something where businesses already spend thousands per month solving the problem manually.
+
+Step 2: Start with a ready product.
+Go to DealMaker. Download launch-ready AI products instead of building from scratch. 50 apps. Source code. Viral templates. Skip the 6-month dev cycle.
+
+Step 3: Automate core operations.
+N8N for workflows. Claude for the brain. Apollo for leads. Perplexity for research. Airtable for data. Apify for scraping. These tools run your entire backend for under $100/month.
+
+Step 4: Launch multiple products fast.
+Same platform. Same source code. Different positioning. One product becomes three offers. Test demand before you build anything custom.
+
+Step 5: Push distribution daily.
+Post 3-5 Reels DAILY. Cold outreach on LinkedIn, Instagram, and email. EVERYTHING. The product does not matter if nobody sees it. Distribution is the business.
+
+This is the exact stack I used to test 11 products in 8 weeks. 
+The ones that worked became real businesses. 
+The ones that did not cost me almost nothing to test.
+
+Comment "W" to get started.
