@@ -24,9 +24,19 @@ Two marks take a `+` between them the way the reference sets them; three or more
 drop to a row at half size, because four big tiles is a stack diagram.
 
 THE HEADLINE IS SOLVED, NOT PICKED. One size for the whole frame, the largest
-that fits the measure at an acceptable line count. `|` in the stored hook is a
+that fits the measure at an acceptable line count. `|` in the copy is a
 deliberate break and is obeyed exactly; everything else is balanced so the last
 line is never a widow.
+
+THE TYPE SPEC IS COPIED OFF THE FIGMA PANEL, NOT ESTIMATED. Inter, 60, line
+height 110 percent, letter spacing MINUS ONE PERCENT, centred; the ask is 42
+Regular at the same tracking with a long arrow. Three passes were spent guessing
+these off compressed screenshots and each one was wrong in a different way - an
+84px headline running the full measure, then the right sizes at 1.24 leading,
+then 1.13 with a 28px tracked-out ask. The tracking is why: PIL has no
+letter-spacing, so untracked Inter measures wider than the same line in the file,
+every solved size came out a step small, and the rest of the layout got loosened
+to compensate. Apply the -1% and the sizes fall out on their own.
 
 BOLD COMES FROM THE HOOK, NOT FROM A GUESS. `**...**` is the stored convention.
 Where a hook has none, EMPH names the run to lift by hand - auto-bolding every
@@ -64,22 +74,27 @@ W, H = 1080, 1920
 SAFE_TOP, SAFE_BOT = 250, 1440
 LEFT, RIGHT = 130, 950
 MEASURE = RIGHT - LEFT
-# The type does NOT run to the safe edge. In the reference the block is about
-# 700px across on a 1080 frame - two thirds of the width - and the air either
-# side is what makes it read as set rather than as a paragraph that ran out of
-# room. Filling all 820 was the single thing that made these look like walls.
-COPY = 700
+# The Figma text layer is 857 wide, so the copy runs nearly the full frame and
+# the earlier 700 was me inventing a margin that was never there.
+COPY = 857
 CX = W // 2
 
 BG = (26, 26, 26)
 INK = (240, 239, 236)
 
-HEAD_MAX, HEAD_MIN, LEAD = 62, 38, 1.24
-TILE, TILE_SMALL, TILE_GAP = 176, 96, 30
-ROW_TILE, ROW_GAP, GAP_ROW = 54, 14, 46
-GAP_MARKS, GAP_ASK, GAP_TAIL = 54, 76, 44
-ASK_SZ, ASK_TRACK = 26, 2.2
+# Straight off the Figma panel, not off my eye: Inter, 60, line height 110%,
+# letter spacing -1%, centred. HEAD_MAX is 60 and the solver only ever goes DOWN
+# from it when a hook genuinely will not fit.
+HEAD_MAX, HEAD_MIN, LEAD, TRACK = 60, 42, 1.10, -0.01
+TILE, TILE_SMALL, TILE_GAP = 132, 84, 28
+ROW_TILE, ROW_GAP, GAP_ROW = 54, 14, 38
+GAP_MARKS, GAP_ASK, GAP_TAIL = 54, 200, 40
+# The ask is 42 Regular at -1%, not a small tracked-out label. Setting it at 28
+# with +2.4 tracking made it a caption apologising under the headline; it is
+# supposed to sit close to the copy in weight and read at a glance.
+ASK_SZ, ASK_TRACK = 42, -0.01
 ASK = "SAVE FOR LATER"
+ARROW = "\u27f6"
 
 # Where the block's middle sits. NOT the middle of the safe box - that is 845,
 # which is 44 percent up the frame and leaves the card looking like it slid off
@@ -205,9 +220,13 @@ def words(runs):
 
 
 def width(ws, sz, weight="Medium"):
+    """Advance with TRACKING applied per character, the way Figma's -1% does it.
+    PIL has no letter-spacing, so untracked Inter at 60px measured wider than
+    the same line in the file and every solved size came out one step small."""
     reg, bold = F(sz, weight), F(sz, "Bold")
-    return sum((bold if b else reg).getlength(w) for w, b in ws) + \
-        F(sz).getlength(" ") * max(0, len(ws) - 1)
+    t = sz * TRACK
+    return sum(adv(w, bold if b else reg, t) for w, b in ws) + \
+        (reg.getlength(" ") + t) * max(0, len(ws) - 1)
 
 
 def wrap(ws, sz, measure):
@@ -269,11 +288,12 @@ def solve(blocks, measure, room, hard=False):
 
 def draw_line(d, ws, cx, baseline, sz, weight="Medium"):
     reg, bold = F(sz, weight), F(sz, "Bold")
-    x = cx - width(ws, sz) / 2
+    t = sz * TRACK
+    x = cx - width(ws, sz, weight) / 2
     for i, (w, b) in enumerate(ws):
-        f = bold if b else reg
-        d.text((x, baseline), w, font=f, fill=INK, anchor="ls")
-        x += f.getlength(w) + (reg.getlength(" ") if i < len(ws) - 1 else 0)
+        x = draw_tracked(d, (x, baseline), w, bold if b else reg, INK, t)
+        if i < len(ws) - 1:
+            x += reg.getlength(" ") + t
 
 
 def rise(ws, sz):
@@ -350,11 +370,10 @@ def frame(text, marks, tail="", row=()):
         y += GAP_ROW + ROW_TILE
 
     y += GAP_ASK + ask_h
-    f = F(ASK_SZ, "SemiBold")
-    aw = adv(ASK, f, ASK_TRACK) + F(ASK_SZ, "Medium").getlength("  →")
-    x = draw_tracked(d, (CX - aw / 2, y), ASK, f, INK, ASK_TRACK)
-    d.text((x + ASK_SZ * .5, y), "→", font=F(ASK_SZ, "Medium"), fill=INK,
-           anchor="ls")
+    f = F(ASK_SZ, "Regular")
+    t = ASK_SZ * ASK_TRACK
+    aw = adv(ASK, f, t) + f.getlength(" " + ARROW) + t * 2
+    x = draw_tracked(d, (CX - aw / 2, y), ASK + " " + ARROW, f, INK, t)
 
     assert y <= SAFE_BOT, f"ask at {y}, safe bottom {SAFE_BOT}"
     return im, sz, len(lines)
