@@ -88,7 +88,7 @@ INK = (240, 239, 236)
 HEAD_MAX, HEAD_MIN, LEAD, TRACK = 60, 42, 1.10, -0.01
 TILE, TILE_SMALL, TILE_GAP = 198, 120, 34
 ROW_TILE, ROW_GAP, GAP_ROW = 54, 14, 38
-GAP_MARKS = int(os.environ.get('HOOK_GAP', 47))
+GAP_MARKS = int(os.environ.get('HOOK_GAP', 58))
 GAP_ASK, PARA_GAP = 150, 50
 # The ask is 42 Regular at -1%, not a small tracked-out label. Setting it at 28
 # with +2.4 tracking made it a caption apologising under the headline; it is
