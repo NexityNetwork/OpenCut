@@ -1,0 +1,36 @@
+CC|teardown|dump 9
+↓ Comment “CC” for the full workflow.
+
+Most founders are stuck choosing between two bad options: spend 6 months learning to code or pay developers $15K per feature and wait weeks for updates.
+
+The actual solution is neither. 
+It is using two AIs that do different jobs.
+
+Why most AI coding attempts fail:
+Claude alone generates code that looks perfect but breaks when you try to run it. 
+Cursor alone writes fast but has no idea how your app should actually work. 
+GitHub Copilot needs you to tell it what to do line by line.
+
+The combination that actually ships:
+Claude becomes your technical co-founder. 
+Cursor becomes your development team.
+
+Here is how it works:
+Claude builds the architecture. You dump your entire product idea. Every feature. Every user flow. Every integration you need. Claude designs the complete system before touching code. It decides the database structure, the API endpoints, the folder organization, how everything connects. No hallucinations because it is just planning. Pure strategy.
+
+Cursor executes the plan. You give it Claude's architecture and point it at an empty project folder. It writes the authentication system, builds the database, creates the API, designs the frontend, connects everything. It stays consistent because Claude already mapped the entire system.
+
+You direct and ship. Claude thinks through problems. Cursor builds solutions. You review the output and deploy. No explaining your vision 47 times. No waiting for developer availability. No surprise invoices.
+
+What this looks like in practice:
+We shipped 3 full products last week. 
+A client intake form that routes to Airtable. 
+An appointment booking system with Stripe integration. 
+A lead qualification tool that scores prospects automatically.
+
+Each took 12-14 hours from idea to deployed. Not 3 months and $20K. 
+Not 3 weeks and a nervous breakdown. 
+
+This is not about replacing technical teams. This is about founders with ideas finally being able to test them before raising capital or finding a CTO.
+
+Comment “CC” and I will send you the exact workflow we use to go from idea to shipped product in one day.

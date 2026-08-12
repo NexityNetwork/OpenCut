@@ -1,0 +1,36 @@
+CN|teardown|dump 9
+↓ Comment “CN” for the setup guide.
+
+Most people store knowledge in Notion and execution happens separately. You write the process down. 
+
+Then you manually do the process. 
+The doc just sits there.
+
+This changes that:
+You document the workflow once in Notion. 
+Claude Code reads it, understands it, and executes it autonomously.
+
+Here is what actually happens:
+You have SOPs for client onboarding, content creation, data analysis, report generation, whatever repeatable process your business runs.
+
+Instead of reading the doc and doing it manually, you point Claude Code at the Notion page. It reads the steps. It executes the workflow. It handles the task end to end.
+
+The doc becomes the instruction set. 
+Claude becomes the worker.
+
+Example workflows this handles:
+1. Client intake: Read the onboarding doc, collect information, populate templates, send welcome sequences, create project folders.
+2. Content production: Read the content brief, research topics, draft the piece, format according to style guide, export to publishing platform.
+3. Data processing: Read the analysis procedure, pull data sources, run calculations, generate visualizations, compile report.
+4. The pattern: If you can document it clearly in Notion, Claude Code can execute it reliably.
+
+Why this matters:
+Your SOPs stop being reference materials that gather dust. They become executable systems.
+You scale output without scaling headcount. The same documented process runs 10 times or 100 times with the same quality.
+
+New team members get instant capability. Point them at the Notion workspace with Claude Code access and they can execute workflows they have never done before.
+
+This is not about replacing documentation. 
+This is about making documentation executable.
+
+Comment “CN” for the setup guide.

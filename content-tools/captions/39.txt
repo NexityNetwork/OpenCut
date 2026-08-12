@@ -1,0 +1,28 @@
+W|stack|dump 9
+↓ Comment “W” for a free guide.
+
+This is the exact stack that built a $10K/month AI automation business in 24 hours:
+
+No team. No coding. No guessing what to sell.
+
+Brain: Claude handles all the thinking. Strategy, copy, workflows, customer responses. You prompt, it executes.
+
+Products: DealMaker gives you 50 ready-to-sell software products. No building. You pick what to offer and start selling today.
+
+Automation: n8n plus Make connect everything. Lead comes in, gets qualified, receives proposal, books call, all automatic.
+
+Clients: Instagram is where your buyers live. Post valuable content, DM warm leads, convert in comments. Simple distribution.
+
+Payments: Stripe processes everything. Client pays, you get notified, fulfillment starts. Clean, fast, professional.
+
+Sales: Calendly books calls. Hubspot tracks pipeline. You focus on closing, not admin work.
+
+Resources: Founder Terminal teaches the entire system. Frameworks, templates, step-by-step build guides.
+
+This is not theory. This is the actual infrastructure running right now for founders generating real revenue.
+
+You do not need a developer. 
+You do not need a big budget. 
+You need the right tools.
+
+Comment “W” for the free guide that walks through setting up this entire stack from scratch.

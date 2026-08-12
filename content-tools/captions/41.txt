@@ -1,0 +1,23 @@
+AI|list|dump 9
+↓ Comment “AI” for my FREE setups.
+
+Most founders spend 40 hours per week on tasks a bot could handle in 40 minutes.
+
+→ You are manually writing emails. 
+→ Scheduling meetings. 
+→ Chasing invoices. 
+→ Creating content. 
+→ Researching competitors. 
+→ Qualifying leads.
+
+Meanwhile your competitors automated all of it and are using that time to close deals and build products.
+
+Here are the automations printing money:
+1. Email Closer: Writes personalized cold outreach sequences based on prospect data. 
+2. Content Engine: Takes one video and turns it into Instagram captions, LinkedIn posts, Twitter threads, blog articles.
+3. Client Scraper: Finds ideal customers from LinkedIn, company databases, industry lists. 
+4. AutoInvoice Agent: Generates invoices the second work is marked complete.
+5. Appointment Setter: Books meetings based on calendar availability.
+6. SM Research Bot: Monitors what competitors post, what content is trending, what topics are getting engagement. 
+
+Comment AI and I will send you the complete N8N setup for all 6 automations.

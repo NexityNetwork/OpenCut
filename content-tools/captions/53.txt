@@ -1,0 +1,23 @@
+200|story|dump 9
+Comment “200” and I’ll send my list of agents for free
+
+I was paying a VA $800 per month to build lead lists.
+Now I pay $20 for automation tools and an AI agent does it better.
+
+Here is the breakdown:
+1. The AI Agent scrapes Google Maps based on your search parameters. Finds businesses matching your criteria in any location.
+
+2. Data Entry automatically processes and organizes everything in a Google Sheet. No manual formatting. No cleanup required.
+
+3. Lead Scoring extracts emails, social media profiles and websites through HTTPS requests. Contact info pulled in seconds.
+
+4. SDR evaluates each lead against your ideal customer profile. Then generates personalized outreach messages for qualified prospects.
+
+Total time investment from me: 10 minutes per week reviewing the output.
+
+Total cost: $20 per month in tools.
+Previous cost: $800 per month plus my time managing the VA.
+
+This is not about replacing people. This is about eliminating tasks that should never require human hours in the first place.
+
+Comment 200 for my curated list of agents.

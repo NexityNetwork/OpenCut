@@ -1,0 +1,45 @@
+96|stack|dump 9
+↓ Comment "96" for my full list of tools to grow your automation business.
+
+Most people try to start an AI automation business by learning random tools.
+
+That is backwards.
+
+The real move is building a simple stack that helps you:
+- Find problems
+- Build fast
+- Automate delivery
+- Get paid
+- Scale without hiring
+
+Here is my core stack for 2026:
+1. n8n: My main automation engine for complex workflows across any software.
+
+2. Make: Fast automation builder for clean client ready systems and quick MVPs.
+
+3. HubSpot: CRM to track leads, follow ups, pipelines, and deals without losing money in the cracks.
+
+4. Lovable: Frontend builder to ship landing pages and small products fast without waiting on developers.
+
+5. Claude: My business brain for strategy, system design, documentation, and debugging.
+
+6. Instagram: My attention engine to pull inbound leads and build trust at scale.
+
+7. Notion: My command center for SOPs, client delivery, project tracking, and knowledge.
+
+8. Figma: My clarity tool to turn messy ideas into clean visuals and system maps.
+
+9. Manychat: My conversion layer that turns comments and DMs into qualified leads and calls.
+
+10. Apify: My lead generation machine for scraping verified data and building lists on demand.
+
+11. Stripe: My payment layer so every system ends with revenue, not just busy work.
+
+12. Founder Terminal: My library of proven playbooks so I can build faster and avoid beginner mistakes.
+
+You do not need a team to start.
+
+You need a stack that lets you execute daily and deliver results.
+
+Build the system first.
+Then scale the business.

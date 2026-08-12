@@ -1,0 +1,31 @@
+n8n|teardown|dump 9
+↓ Comment “n8n” for a complete blueprint
+
+Everyone talks about AI automation but nobody explains the setup that actually works.
+
+After testing every automation tool for 3 months: you do not need one tool. You need 2 doing different jobs.
+
+→ Claude as your intelligence layer. 
+→ N8N as your execution engine.
+
+Why this beats everything else:
+1. Claude designs workflows without you learning automation platforms. 
+
+Describe what should happen in plain English. Claude maps the entire logic with error handling, data transformation, and routing. 
+No flowcharts. No node configurations.
+
+2. N8N executes like it has 10 years of experience. You give it Claude's workflow design and it handles API calls, retries, logging, and failures. It connects to 400+ services without you reading documentation. Runs 24/7 without you monitoring anything.
+
+You only use Claude for complex workflow design. Quick automation? 
+- N8N handles it directly. But when you need multi step logic with decisions, 
+- Claude designs it and N8N executes. You are not burning API credits on simple tasks.
+
+I have automated client onboarding, lead qualification, and daily operations with this in the last month.
+
+Division of labor:
+One brain thinks, one brain builds. 
+Both cost $40/month combined and work 24/7.
+
+If you are sitting on business processes but cannot automate them, save this and try it.
+
+Comment “n8n” for a free workflow blueprint.

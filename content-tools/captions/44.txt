@@ -1,0 +1,27 @@
+CG|teardown|dump 9
+↓ Comment “CG” and I’ll send you a FREE guide
+
+You do not need to learn system design to build products that scale.
+
+The gap between idea and working product is not coding skill. It is knowing what architecture decisions matter and which ones waste time.
+
+Claude and G. Antigravity split this problem in half:
+1. Antigravity becomes your technical architect. Dump your entire product idea into it with every feature you want, every integration you need, every edge case you can think of. It outputs complete system architecture showing exactly how everything connects.
+
+2. Claude becomes your senior engineer reviewer. Take that architecture and ask Claude: - What breaks first when this gets real traffic
+- Where are the security holes? 
+- What stupid mistakes am I about to make?
+
+You get 20 years of engineering experience in 10 minutes.
+
+Why this matters: 
+Bad architecture is expensive. You build for 2 months. Get your first 100 users. Everything is slow. Database cannot handle the load. You have to stop building features and spend 3 weeks rebuilding the foundation.
+
+Or you plan correctly from day one and scale smoothly to 10,000 users without touching infrastructure.
+
+The combination gives you something rare: confidence that what you are building will actually work when people use it.
+
+Stop guessing about technical decisions. 
+Let Antigravity design it. Let Claude validate it. Then build knowing you will not have to rebuild in 3 months.
+
+Comment “CG” for the architecture workflow.

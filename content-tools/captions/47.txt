@@ -1,0 +1,61 @@
+AI|teardown|dump 9
+↓ Here is how it works:
+
+I built my entire company structure in Google Drive with Claude as the operating system.
+
+Think in departments. 
+- Each folder is a department. 
+- Each file is one job. 
+- Every agent has one clear outcome.
+
+Engineering. Product. Marketing. Design. Project management. Studio operations. Testing.
+
+Inside each department you create specific agents:
+1. frontend-developer ships clean UI for new ideas
+trend-researcher tracks what changed in your market this week.
+2. content-creator turns ideas into 
+ready-to-post content.
+3. analytics-reporter explains numbers and 
+next moves.
+4. support-responder drafts replies to customers
+
+No general helper agents. 
+Every agent has one focused job.
+
+Turn repeats into playbooks. 
+If you have asked Claude for the same thing 3 times, make a file for it.
+
+Inside each file you document inputs, steps, outputs. Then reuse the chain every time.
+
+Route work like a real team:
+Feature development flows from trend-researcher to feedback-synthesizer to sprint-prioritizer to frontend developer and backend-architect to test-results-analyzer.
+
+Write the chain once. Deploy it infinitely.
+Split creative, execution, checking. 
+Marketing stack runs tiktok strategist for angles → content creator for scripts → twitter engager and reddit-community builder for distribution → experiment tracker for logs → performance benchmarker for winners versus losers.
+
+Three roles. Clear boundaries. No overlap.
+Make ops boring: 
+→ support-responder drafts replies. 
+→ analytics-reporter sends weekly summaries.
+→ infrastructure-maintainer runs checks. 
+→ finance-tracker shows cash and profit view.
+
+If you hate doing something twice, 
+assign it to an agent.
+
+Start small:
+Day one you need three agents: 
+- content-creator, 
+- support-responder, 
+- finance-tracker.
+
+Watch where work piles up. 
+Promote those piles into new agents.
+End state looks like a whole company. 
+
+But it is just you plus a set of named agents owning every repeating job that keeps the business moving.
+
+Claude handles execution. Google Workspace stores the structure. You focus on decisions.
+
+Comment “AI” for free resources to run your business on autopilot.

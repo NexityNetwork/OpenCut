@@ -1,0 +1,50 @@
+DOC|teardown|dump 9
+↓ Here's how it works:
+
+Claude Code + Notion + n8n
+The Automation Architect Stack: 
+A closed-loop system where AI builds AI.
+
+The Core Thesis
+Context → Plan → Approve → Build → Execute → Document
+
+Connecting Claude Code to Notion for memory and n8n for execution creates a self-improving loop where each automation makes the next one smarter.
+
+Phase 1: The Foundation (Notion)
+Notion serves as the operating system Claude reads to understand what to build:
+→ Central Documentation Hub
+→ Single source of truth for all procedures
+→ Maintains consistency across all automations
+→ Provides historical context for future builds
+→ Required Databases
+→ Clients: Track client information and requirements
+→ Requests: Log all incoming automation requests
+→ SOP Library: Document all standard procedures
+→ Runbooks: Store step-by-step execution guides
+
+Phase 2: The Execution Engine (n8n)
+n8n handles workflow execution and automation:
+→ Set up n8n: Choose between self-hosted or cloud
+→ Install n8n MCP: Enables Claude to read, validate, and troubleshoot workflows in real-time
+
+Phase 3: The Orchestrator (Claude Code)
+Claude Code orchestrates the entire automation flow from context to completion:
+→ Install Claude Code CLI on your system
+→ Grant Claude access to read and pull context
+→ Connect n8n MCP: Provides Claude visibility into workflows and execution status
+
+Phase 4: Running the Loop
+The complete cycle from request to documentation:
+1. Context: Claude reads relevant Notion pages, reviews existing SOPs, and analyzes past automation patterns.
+
+2. Plan: Claude generates a comprehensive automation plan with required steps, integrations, and workflow architecture.
+
+3. Approve: You review the proposed plan, request modifications if needed, and approve for build phase.
+
+4. Build: Claude generates the n8n workflow JSON with all nodes, connections, and error handling.
+
+5. Execute: n8n runs the workflow, processes data, and generates execution logs.
+
+6. Document: Results automatically logged to Notion, SOPs updated, and runbooks created or refined.
+
+Comment “DOC” for a full breakdown.
