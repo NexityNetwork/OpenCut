@@ -16,13 +16,13 @@ All of that is how you burn cash and quit by month 3.
 
 Here is the actual playbook:
 Step 1: Pick a market with money.
-Launch a B2B sales OS. A real estate portal. A SaaS platform. An AI UGC platform. AI chat and support. Pick something where businesses already spend thousands per month solving the problem manually.
+Launch a B2B sales OS. A real estate portal. A SaaS platform. An AI UGC platform. AI chat and support. Pick something where businesses are already paying people to solve the problem by hand every month.
 
 Step 2: Start with a ready product.
-Go to DealMaker. Download launch-ready AI products instead of building from scratch. 50 apps. Source code. Viral templates. Skip the 6-month dev cycle.
+Start from something that already runs instead of building from scratch. Finished apps. Source code. Viral templates. Skip the 6-month dev cycle.
 
 Step 3: Automate core operations.
-N8N for workflows. Claude for the brain. Apollo for leads. Perplexity for research. Airtable for data. Apify for scraping. These tools run your entire backend for under $100/month.
+N8N for workflows. Claude for the brain. Apollo for leads. Perplexity for research. Airtable for data. Apify for scraping. These six tools run your entire backend and not one of them needs a developer.
 
 Step 4: Launch multiple products fast.
 Same platform. Same source code. Different positioning. One product becomes three offers. Test demand before you build anything custom.

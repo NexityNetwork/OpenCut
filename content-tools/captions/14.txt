@@ -20,10 +20,10 @@ MCP connections are the bridge. Claude reads and writes directly to client tools
 Package all of it:
 The workflow JSONs. The knowledge base. The setup guide. The prompts. 
 
-Sell it for $27. Your cost is $60-90/month infrastructure. 
+Sell it as a product. Your only cost is the infrastructure it runs on. 
 Every copy after the first is pure margin.
-$27 x 2,000 = $54,000 from one system you built at 2am.
+Two thousand copies of one system, and the build only ever happened once, at 2am.
 
-Full blueprint and all knowledge base files are free on Founder Terminal.
+Full blueprint and all knowledge base files come with the guide.
 
 Comment "W" and I will send it to you.

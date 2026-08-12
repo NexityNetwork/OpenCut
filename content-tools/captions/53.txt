@@ -1,8 +1,8 @@
 200|story|dump 9
 Comment “200” and I’ll send my list of agents for free
 
-I was paying a VA $800 per month to build lead lists.
-Now I pay $20 for automation tools and an AI agent does it better.
+I was paying a VA every month to build lead lists.
+Now I pay for automation tools and an AI agent does it better.
 
 Here is the breakdown:
 1. The AI Agent scrapes Google Maps based on your search parameters. Finds businesses matching your criteria in any location.
@@ -15,8 +15,8 @@ Here is the breakdown:
 
 Total time investment from me: 10 minutes per week reviewing the output.
 
-Total cost: $20 per month in tools.
-Previous cost: $800 per month plus my time managing the VA.
+Total cost: a couple of subscriptions.
+Previous cost: a monthly VA invoice plus my time managing them.
 
 This is not about replacing people. This is about eliminating tasks that should never require human hours in the first place.
 

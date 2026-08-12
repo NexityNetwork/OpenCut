@@ -5,7 +5,7 @@ YOU DON’T NEED 6 months to launch software.
 You need 24 hours and access to products that already work.
 
 Skip the entire BUILDING PHASE. 
-Download 50 ready-made software applications from DEALMAKER BUNDLE.
+Start from ready-made software applications that already work.
 
 Pick one. Deploy it. Start selling same day.
 
@@ -17,7 +17,7 @@ But here's what actually happens:
 You build for 6 months, launch to silence, realize the market doesn't care, and start over.
 
 Or you do this instead:
-- Pick a product you can make it viral.
+- Pick a product you can make viral.
 - Deploy to Replit in 2 hours.
 - Connect Stripe for payments. 
 - Build a landing page in Framer. 

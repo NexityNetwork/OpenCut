@@ -18,7 +18,7 @@ It runs five specialized agents across every department of your business. Each o
 4. Striker manages your pipeline and surfaces the deals worth closing.
 5. Pulse creates and distributes content without you touching it.
 
-The whole thing runs on OpenClaw. Which means it is not a chatbot you prompt. It is a system that executes.
+The whole thing runs on its own execution layer. Which means it is not a chatbot you prompt. It is a system that executes.
 
 Your clients get live reports. 
 Your ops run without you. 

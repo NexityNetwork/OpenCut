@@ -13,14 +13,14 @@ Then you hand that architecture to Antigravity and point it at an empty project.
 It stays consistent because Claude already decided how everything should work. You are not explaining your vision over and over. You are directing a build that already knows where it is going.
 
 2. Running it autonomously:
-Once the product is built you deploy the operations with OpenClaw because it's cheaper. This is where most people stop when they should be just getting started. 
+Once the product is built you deploy the operations with ultron. This is where most people stop when they should be just getting started. 
 
-OpenClaw turns your product into a set of autonomous agents that run the entire operation without you. Execution happens in the background. Delivery happens automatically. 
+Ultron turns your product into a set of autonomous agents that run the entire operation without you. Execution happens in the background. Delivery happens automatically. 
 
-The product does not need you present for it to work. You build it once and OpenClaw keeps it running.
+The product does not need you present for it to work. You build it once and ultron keeps it running.
 
 3. Getting customers:
-TikTok is the distribution layer and the angle most people get completely wrong. You are not posting polished marketing content. You are posting the process. You record Claude designing the system. You record Antigravity building it. You record OpenClaw spinning up the agents. 
+TikTok is the distribution layer and the angle most people get completely wrong. You are not posting polished marketing content. You are posting the process. You record Claude designing the system. You record Antigravity building it. You record ultron spinning up the agents. 
 
 You show the real thing working in real time. That content finds the exact people who want what you built because they are watching you build it. They become your first customers and your first case studies. Those case studies become your next videos. Those videos find your next customers.
 

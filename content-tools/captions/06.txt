@@ -9,7 +9,7 @@ The context dies. The thread resets. You are back to manually feeding it informa
 That is not automation. 
 That is babysitting with extra steps.
 
-The difference with Clawdbot is the execution layer. It does not sit inside a chat window waiting for you to type. It connects to your actual business. Your CRM. Your email. Your calendar. Your databases. And it acts on them without asking you every 5 minutes.
+The difference with Ultron is the execution layer. It does not sit inside a chat window waiting for you to type. It connects to your actual business. Your CRM. Your email. Your calendar. Your databases. And it acts on them without asking you every 5 minutes.
 
 Now combine that with Claude as the brain and something clicks.
 
@@ -27,6 +27,6 @@ Most people are still on step one wondering which model to use. Meanwhile the on
 
 You do not need a bigger team. You do not need more hours. You need a system that compounds while you are not looking.
 
-Ultron runs on Clawdbot. Five agents. Every department. One chat.
+Ultron. Five agents. Every department. One chat.
 
 Comment "W" and I will send you the link.

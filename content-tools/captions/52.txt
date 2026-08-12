@@ -1,15 +1,14 @@
 W|contrarian|dump 9
 ↓ Comment “W” to get started
 
-1. Building software from scratch: 6 months, $50K in development, no customers.
+1. Building software from scratch: 6 months of development, no customers.
 
-2. Buying ready made AI products: 1 week, $0 in development, revenue day one.
+2. Starting from ready made AI products: 1 week, nothing spent on development, revenue day one.
 
 Most founders choose the first path. Smart ones choose the second.
 
-Here is what the second path looks like with.
+Here is what the second path looks like.
 
-DealMaker: 
 You start with products that already work
 Lead routing for service businesses. 
 Cold outreach agents for agencies. 
@@ -28,9 +27,9 @@ When you promote random tools, nobody cares.
 When you sell a focused AI solution to a specific problem, people buy.
 
 Subscription revenue is predictable
-- Price between $19 and $49 per month. 
-- Most DealMaker users land at $25.
-- 14 sales per day at $25 monthly equals roughly $10,000 per month.
+- You price it once and it renews without you. 
+- Most people land in the same narrow band. 
+- A handful of sales a day compounds into a real monthly number.
 
 No inventory. No shipping. No calls. No support team.
 

@@ -1,5 +1,5 @@
 69|teardown|dump 8
-↓ Here's how my $69K outreach weapon works:
+↓ Here's how my outreach weapon actually works:
 
 This is not a cold email tool. 
 This is a full AI outreach operating system that finds, enriches, personalizes, and sends without you touching anything.
@@ -16,7 +16,7 @@ One workflow. 43 nodes. 4 stages. 500 leads per batch.
 
 It validates every email through Anymail before sending. Bad addresses exit the flow. You never waste a send.
 
-GPT-4o writes every email from scratch. Not templates. Not mail-merge. Hyper-personalized messages that reference their specific career moves, company milestones, and industry challenges. 95% human touch. 5% brand mention. 150-200 words.
+Claude writes every email from scratch. Not templates. Not mail-merge. Hyper-personalized messages that reference their specific career moves, company milestones, and industry challenges. 95% human touch. 5% brand mention. 150-200 words.
 
 It routes automatically. 
 Verified email goes to Gmail. 
@@ -26,6 +26,6 @@ Neither channel available goes to manual queue.
 Every action logs to Airtable with full audit trail.
 Your client sees a clean pipeline dashboard. You see revenue.
 
-Full blueprint on Founder Terminal. All 43 nodes. All 5 prompts. The Airtable schema. Setup guides. Pricing models. 
+Full blueprint in the guide. All 43 nodes. All 5 prompts. The Airtable schema. Setup guides. Pricing models. 
 
 Comment "69" to get the blueprint for free.

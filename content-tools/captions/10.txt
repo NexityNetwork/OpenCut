@@ -17,13 +17,13 @@ I started selling software products when I was 20. No degree. No investors. No t
 My first product made almost nothing. But I kept shipping. Kept testing. 
 Kept learning what markets actually respond to.
 
-By 21 I was making more than most people make at their full-time jobs. By 25 I had built and sold enough products to know exactly what works and what does not.
+By 21 I was doing it full time. By 25 I had built and sold enough products to know exactly what works and what does not.
 
 The biggest lesson? 
 You do not need to build from scratch. 
 You need to move fast, test demand, and scale what converts.
 
-That is why I put together DealMaker. 50 production-ready AI apps you can deploy and start selling this week. Not templates. Not ideas. Finished software.
+That is why I stopped building from zero. You take a product that already works, deploy it in an afternoon, and hand the running of it to ultron. Not templates. Not ideas. Finished software from day one.
 
 If I had to start over today with nothing, this is exactly what I would do. 
 

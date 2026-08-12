@@ -18,10 +18,10 @@ Resend sends your emails.
 Stripe collects your money.
 N8N automates everything in between.
 
-And Founder Terminal gives you the playbooks so you are not guessing on strategy. But here is where it gets interesting:
-If you do not want to build from scratch, DealMaker gives you 50 production-ready AI apps you can deploy and start selling the same day.
+And ultron runs the whole thing once it exists. It is the operator, not another chat window. You say what you want and it goes and does it.
 
-Skip the entire development phase and go straight to revenue.
-The full stack breakdown and how to set it all up is on Founder Terminal.
+That is the part everyone skips. Six tools build the product. The seventh one runs it, so you are not the person holding it together every morning.
+
+The full stack breakdown and how to set it all up is in the guide.
 
 Comment "W" for the guide.

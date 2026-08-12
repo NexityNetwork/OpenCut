@@ -12,17 +12,17 @@ Workflow 5: LinkedIn scraping + audience intelligence
 Workflow 6: Facebook scraping + audience intelligence
 Workflow 7: Auto-generates a viral content playbook for every top performer
 
-Each workflow scrapes posts above real engagement thresholds. Fetches the top 15 comments per post. Runs GPT-4o sentiment analysis on every thread. Extracts what the audience is actually asking, loving, and sharing.
+Each workflow scrapes posts above real engagement thresholds. Fetches the top 15 comments per post. Runs Claude sentiment analysis on every thread. Extracts what the audience is actually asking, loving, and sharing.
 
 Workflow 7 is the moneymaker. It takes every post that crosses the Top Performer score and generates a full production-ready blueprint. Viral hook. Video script. CTA. Audience avatar. Repurpose angles. Platform captions. SEO intro. Pro tips. Saved to Google Drive automatically.
 
 Your client logs into a dashboard and sees all of it. Trending content. Sentiment breakdowns. Rankings. Playbook library. They never see n8n.
 
-Infrastructure: $200-400/month.
-Replaces: $1,800-2,700/month in content labor.
-Sell it as SaaS ($29-199/month per client).
-Sell it done-for-you ($5K-12K setup).
-Sell it as managed service (monthly retainer).
+Infrastructure: a fraction of one salary.
+Replaces: an entire content team.
+Sell it as SaaS, per client, per month.
+Sell it done-for-you as a one-time build.
+Sell it as a managed service on a retainer.
 
 Full blueprint covers all 7 workflows, the dashboard, the Airtable schema, every Apify scraper, and both pricing models.
 

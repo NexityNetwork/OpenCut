@@ -24,6 +24,6 @@ Invoices get generated and sent automatically when services are delivered or mil
 
 These are not ideas. 
 These are production-ready n8n workflows you can import and run today.
-Every blueprint is free on Founder Terminal. 
+Every blueprint comes with the guide.
 
 Comment "W" and I will send them to you.

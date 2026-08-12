@@ -1,13 +1,13 @@
 W|stack|dump 9
 ↓ Comment “W” for a free guide.
 
-This is the exact stack that built a $10K/month AI automation business in 24 hours:
+This is the exact stack that built an AI automation business in 24 hours:
 
 No team. No coding. No guessing what to sell.
 
 Brain: Claude handles all the thinking. Strategy, copy, workflows, customer responses. You prompt, it executes.
 
-Products: DealMaker gives you 50 ready-to-sell software products. No building. You pick what to offer and start selling today.
+Products: Replit turns a description into a deployed product, hosting included. No building from zero. You pick what to offer and start selling today.
 
 Automation: n8n plus Make connect everything. Lead comes in, gets qualified, receives proposal, books call, all automatic.
 
@@ -17,7 +17,7 @@ Payments: Stripe processes everything. Client pays, you get notified, fulfillmen
 
 Sales: Calendly books calls. Hubspot tracks pipeline. You focus on closing, not admin work.
 
-Resources: Founder Terminal teaches the entire system. Frameworks, templates, step-by-step build guides.
+Operator: ultron runs it all once it is live. Research, outreach, pipeline, delivery. You say what you want and it goes and does it.
 
 This is not theory. This is the actual infrastructure running right now for founders generating real revenue.
 

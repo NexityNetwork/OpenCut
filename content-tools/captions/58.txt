@@ -35,7 +35,7 @@ Here is my core stack for 2026:
 
 11. Stripe: My payment layer so every system ends with revenue, not just busy work.
 
-12. Founder Terminal: My library of proven playbooks so I can build faster and avoid beginner mistakes.
+12. ultron: My operator that runs research, outreach and delivery so the stack does not need me standing over it.
 
 You do not need a team to start.
 

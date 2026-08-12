@@ -1,7 +1,7 @@
 CC|teardown|dump 9
 ↓ Comment “CC” for the full workflow.
 
-Most founders are stuck choosing between two bad options: spend 6 months learning to code or pay developers $15K per feature and wait weeks for updates.
+Most founders are stuck choosing between two bad options: spend 6 months learning to code or pay developers per feature and wait weeks for updates.
 
 The actual solution is neither. 
 It is using two AIs that do different jobs.
@@ -28,7 +28,7 @@ A client intake form that routes to Airtable.
 An appointment booking system with Stripe integration. 
 A lead qualification tool that scores prospects automatically.
 
-Each took 12-14 hours from idea to deployed. Not 3 months and $20K. 
+Each took 12-14 hours from idea to deployed. Not 3 months and a development budget. 
 Not 3 weeks and a nervous breakdown. 
 
 This is not about replacing technical teams. This is about founders with ideas finally being able to test them before raising capital or finding a CTO.

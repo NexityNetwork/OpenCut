@@ -1,10 +1,10 @@
 100|blueprint|dump 8
-↓ Here is how to build your $100K automation empire:
+↓ Here is how to build an automation empire instead of a freelance job:
 
-Most automation freelancers sell one-off Zaps for $500 and wonder why they are stuck. The money is not in building single automations. The money is in auditing entire businesses and selling complete systems.
+Most automation freelancers sell one-off Zaps and wonder why they are stuck. The leverage is not in building single automations. It is in auditing entire businesses and selling complete systems.
 
 This is the exact blueprint:
---
+
 What you are building.
 An AI agent inside Claude Desktop that connects to a client's actual business tools, maps their entire workspace, identifies every automation opportunity, and generates production-ready n8n workflows they can import and run immediately.
 

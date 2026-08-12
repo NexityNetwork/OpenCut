@@ -6,7 +6,7 @@ Most founders are running operations manually when automation could handle it be
 Here are the 7 agents every business needs:
 1. Lead Router: distributes incoming leads instantly to the right person or system. No more missed opportunities from slow response times. Instant routing without adding headcount.
 
-2. Outreach Automation: writes and sends personalized emails automatically. Each message feels custom instead of mass blasted. Cost per meeting drops from $200 to $30.
+2. Outreach Automation: writes and sends personalized emails automatically. Each message feels custom instead of mass blasted. Cost per meeting drops to a fraction of what an SDR spends getting one.
 
 3. Reminder System: sends follow ups automatically when prospects go silent. Deals that would die from neglect get revived. Conversion rate increases 12% with consistent follow through.
 

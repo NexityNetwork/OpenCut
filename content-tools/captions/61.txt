@@ -5,7 +5,7 @@ The mistake most founders make is trying to scale before they validate.
 
 They slow down, overbuild, and lock themselves into one idea.
 
-DealMaker Bundle is designed to reach $10K/month with:
+This model is designed to scale with:
 - No team
 - No custom builds
 - No long development cycles

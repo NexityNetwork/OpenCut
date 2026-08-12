@@ -7,7 +7,7 @@ Brain:
 Claude writes your copy, builds your workflows, handles customer responses. You prompt, it executes.
 
 Products: 
-DealMaker gives you 50 production-ready software applications. Pick one. Deploy it. Start selling today.
+Replit turns a description into a deployed product with the hosting already attached. Pick the idea. Ship it. Start selling today.
 
 Automation: 
 n8n + Make connect everything. Lead comes in, gets qualified, receives demo, books call. Zero manual work.
@@ -21,8 +21,8 @@ Stripe processes everything instantly. Customer pays, you get notified, product 
 Sales: 
 Calendly books calls automatically. HubSpot tracks your entire pipeline so nothing falls through.
 
-Resources: 
-Founder Terminal teaches you the complete system. Frameworks, templates, step-by-step guides.
+Operator: 
+ultron runs the whole thing once it is live. Research, outreach, pipeline, delivery. You say what you want and it goes and does it.
 
 This is not theory. This is the actual infrastructure running right now for founders generating real revenue without writing a single line of code.
 
