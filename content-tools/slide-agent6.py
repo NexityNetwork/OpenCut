@@ -7,6 +7,10 @@ off somebody's screenshot - the strips are the actual canvases.
 
     python3 slide-agent6.py brand/agent6
 
+THERE IS NO COVER FRAME AND THERE IS NOT MEANT TO BE. The reference's first
+slide is captured for context only; it is never rebuilt. Every deck here starts
+on the first real frame - here that is Instagram - and ends on the comment ask.
+
 IT IS A BUILD, NOT A LIST. Frame two shows Instagram. Frame three shows
 Instagram AND TikTok, with Instagram in exactly the pixel it was on. By frame
 seven all six are on screen and none of them has moved once. That is the whole
@@ -56,7 +60,6 @@ BG = (26, 26, 26)
 INK = (240, 239, 236)
 
 LBL_SZ, LBL_GAP, ROW_GAP = 34, 16, 60
-TILE, TILE_GAP = 88, 22
 
 LOGOS = os.environ.get("TOOL_LOGOS", "../apps/web/public/tools")
 FLOWS = os.environ.get("N8N_FLOWS", "n8n content work")
@@ -72,10 +75,6 @@ FLOW = [
     ("LinkedIn Data Acquisition", "image (4) 1.png"),
 ]
 
-COVER = ["I built an **AI Content AGENT**", "with n8n and claude"]
-COVER_TILES = ["n8n", "claude"]
-SAVE = "SAVE FOR LATER"
-
 CLOSER = [("comment", "Medium", 0.40),
           ("“AGENT”", "ExtraBold", 1.00),
           ("and I will send you", "Medium", 0.38),
@@ -86,26 +85,6 @@ def ground():
     a = np.full((H, W, 3), BG, np.float32)
     a += np.random.default_rng(3).normal(0, .8, (H, W, 1))
     return Image.fromarray(np.clip(a, 0, 255).astype(np.uint8)).convert("RGBA")
-
-
-def mask(sz, r):
-    m = Image.new("L", (sz * 4, sz * 4), 0)
-    ImageDraw.Draw(m).rounded_rectangle([0, 0, sz * 4 - 1, sz * 4 - 1],
-                                        radius=r * 4, fill=255)
-    return m.resize((sz, sz), Image.LANCZOS)
-
-
-def tile(im, x, y, sz, key):
-    src = Image.open(f"{LOGOS}/{key}.png").convert("RGBA")
-    cover = (np.asarray(src)[..., 3] > 30).mean()
-    if cover >= .85:
-        plate = src.resize((sz, sz), Image.LANCZOS)
-    else:
-        plate = Image.new("RGBA", (sz, sz), (255, 255, 255, 255))
-        n = int(sz * .62)
-        plate.alpha_composite(src.resize((n, n), Image.LANCZOS), ((sz - n) // 2,) * 2)
-    plate.putalpha(mask(sz, int(sz * .24)))
-    im.alpha_composite(plate, (x, y))
 
 
 def strip(name):
@@ -137,51 +116,6 @@ def layout():
     return ys, y - ROW_GAP
 
 
-def build_cover():
-    im = ground()
-    d = ImageDraw.Draw(im)
-    tsz = 54
-    for sz in range(tsz, 20, -1):
-        if all(SB.line_width(l, sz) <= MEASURE if hasattr(SB, "line_width")
-               else max(F(sz, "Bold").getlength(l.replace("**", "")),
-                        F(sz, "Regular").getlength(l.replace("**", ""))) <= MEASURE
-               for l in COVER):
-            tsz = sz
-            break
-    lead = round(tsz * 1.34)
-    tw = TILE * len(COVER_TILES) + TILE_GAP * (len(COVER_TILES) - 1)
-    ssz = 30
-
-    block = TILE + 56 + int(tsz * .727) + lead + 78 + int(ssz * .727)
-    top = SAFE_TOP + (SAFE_BOT - SAFE_TOP - block) // 2
-
-    x = CX - tw // 2
-    for k in COVER_TILES:
-        tile(im, x, top, TILE, k)
-        x += TILE + TILE_GAP
-
-    y = top + TILE + 56 + int(tsz * .727)
-    for line in COVER:
-        ln = SB.rich_lines(line, tsz, MEASURE)[0]
-        wdt = sum((F(tsz, "Regular").getlength(" ") if sp else 0)
-                  + F(tsz, "Bold" if b else "Regular").getlength(wd)
-                  for wd, b, sp in ln)
-        xx = CX - wdt / 2
-        for wd, b, sp in ln:
-            if sp:
-                xx += F(tsz, "Regular").getlength(" ")
-            f = F(tsz, "Bold" if b else "Regular")
-            d.text((xx, y), wd, font=f, fill=INK, anchor="ls")
-            xx += f.getlength(wd)
-        y += lead
-
-    y = y - lead + 78 + int(ssz * .727)
-    f, tr = F(ssz, "Medium"), 0.14 * ssz
-    txt = SAVE + "  →"
-    draw_tracked(d, (CX - adv(txt, f, tr) / 2, y), txt, f, INK, tr)
-    return im
-
-
 def build_step(n, rows):
     im = ground()
     d = ImageDraw.Draw(im)
@@ -211,11 +145,9 @@ if __name__ == "__main__":
     print(f"  six rows end at {bottom}, safe bottom {SAFE_BOT}\n")
 
     made = []
-    for i in range(len(FLOW) + 2):
-        if i == 0:
-            im, name = build_cover(), "cover"
-        elif i <= len(FLOW):
-            im, name = build_step(i, rows), FLOW[i - 1][0]
+    for i in range(len(FLOW) + 1):
+        if i < len(FLOW):
+            im, name = build_step(i + 1, rows), FLOW[i][0]
         else:
             im, name = build_closer(), "closer"
         p = f"{out}/{i+1:02d}.png"
