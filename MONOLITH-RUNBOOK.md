@@ -140,6 +140,36 @@ repo.
   decks use, so a hook goes onto a frame with no translation. The view renders
   both.
 
+**The tokens are `--mono-ink`, `--mono-ink-2/3`, `--mono-app`, `--mono-panel`,
+`--mono-field`, `--mono-line`, `--mono-hover`, `--mono-active`, `--mono-strong`**
+(defined in `apps/web/src/app/globals.css`). There is no `--mono-ink-1` and no
+`--mono-bg-*`. An undefined custom property fails silently: the text simply
+inherits and a filled button loses its fill, which is exactly how the first cut
+of these tabs shipped looking unstyled.
+
+### How a caption is set
+
+The structure is in the stored text and the view reads it back rather than
+printing one grey wall. Across the 61: 54 open on `↓`, 161 bullet lines, 106
+numbered rows, 52 close on the ask.
+
+- Blank line = a block. A single newline INSIDE a block is a real break and is
+  kept - `Claude writes your code. / Supabase handles your backend.` is a list
+  of one-liners, not a paragraph.
+- A first line ending in `:` is a sub-head, but only if it is under 100 chars
+  and holds one sentence (the list number is stripped before that test, or
+  `2. Running it autonomously:` fails on its own full stop). The same head
+  written inline - `Client intake: Read the onboarding doc` - is also caught.
+- `-`, `->` and `→` are bullets; `1.`/`1)` is a numbered row and the number
+  becomes the marker. `3 months. That is all it takes` stays prose because the
+  digits are not followed by a stop or bracket.
+- `Comment <KEYWORD>` gets a chip wherever it appears, per line - plenty of
+  captions end on the ask as the last line of a paragraph rather than as their
+  own block.
+
+None of this rewrites what is stored. The chip and the arrow glyph are set, not
+saved, and Copy still hands over the exact characters that went in.
+
 ### Adding rows without a deploy
 
 Straight into D1, which is the point:
