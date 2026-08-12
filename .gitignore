@@ -23,3 +23,6 @@ __pycache__/
 
 # rendered hook frames - 43 x 1MB PNGs, they live in R2 and the vault
 content-tools/brand/hooks/
+
+# transparent hook frames - live in R2
+content-tools/brand/hooks-alpha/

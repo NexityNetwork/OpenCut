@@ -40,8 +40,9 @@ _src = open(os.path.join(HERE, "push-vault.py")).read().split('if __name__ ==')[
 exec(compile(_src, "push-vault.py", "exec"), PV.__dict__)
 
 OWNER = PV.OWNER
-FRAMES = os.path.join(HERE, "brand", "hooks")
-TAG = "Hooks"
+ALPHA = os.environ.get("HOOK_ALPHA") == "1"
+FRAMES = os.path.join(HERE, "brand", "hooks-alpha" if ALPHA else "hooks")
+TAG = "Hooks Transparent" if ALPHA else "Hooks"
 
 
 def slug(s):
@@ -65,7 +66,7 @@ def items():
             print(f"  MISSING {hid}.png - run slide-hook.py --all first")
             sys.exit(1)
         out.append(dict(id=hid, file=p, text=book[hid]["text"],
-                        key=f"imports/ultron-hook-{hid}-{slug(book[hid]['text'])}.png"))
+                        key=f"imports/ultron-hook{'-alpha' if ALPHA else ''}-{hid}-{slug(book[hid]['text'])}.png"))
     return out
 
 

@@ -166,7 +166,17 @@ CARD = {
 _cover = {}
 
 
+# ALPHA=1 drops the card and keeps only the ink. The frame stays 1080x1920 and
+# everything sits exactly where it sits on the dark version, so a transparent
+# frame can be laid straight over footage without re-positioning anything. The
+# grain goes with the card - noise over a transparent PNG is noise over whatever
+# it lands on.
+ALPHA = os.environ.get("HOOK_ALPHA") == "1"
+
+
 def ground():
+    if ALPHA:
+        return Image.new("RGBA", (W, H), (0, 0, 0, 0))
     a = np.full((H, W, 3), BG, np.float32)
     a += np.random.default_rng(7).normal(0, .8, (H, W, 1))
     return Image.fromarray(np.clip(a, 0, 255).astype(np.uint8)).convert("RGBA")
@@ -563,6 +573,6 @@ if __name__ == "__main__":
         marks = marks_for(text, cfg.get("marks"))
         im, sz, n = frame(text, marks, cfg.get("row", ()))
         p = f"{out}/{hid}.png"
-        im.convert("RGB").save(p)
+        (im if ALPHA else im.convert("RGB")).save(p)
         print(f"  {hid}  {sz}px x{n}  {'+'.join(marks):18} {row['text'][:58]}")
     print(f"\n-> {out}/")
