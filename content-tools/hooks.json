@@ -385,5 +385,32 @@
   "deck": null,
   "note": "the filled-in version of h035, where the blank is 9 AI systems",
   "status": "raw"
+ },
+ {
+  "id": "h044",
+  "text": "7 free AI apps | everyone should take advantage of in 2026",
+  "kind": "number",
+  "source": "catalin, for the three app carousels",
+  "deck": null,
+  "note": "",
+  "status": "raw"
+ },
+ {
+  "id": "h045",
+  "text": "I move like a 20-PERSON TEAM | thanks to these 9 tools",
+  "kind": "claim",
+  "source": "catalin, for the three app carousels",
+  "deck": null,
+  "note": "",
+  "status": "raw"
+ },
+ {
+  "id": "h046",
+  "text": "Top 7 Google AI TOOLS | founders are using to PRINT MONEY",
+  "kind": "number",
+  "source": "catalin, for the three app carousels",
+  "deck": null,
+  "note": "",
+  "status": "raw"
  }
 ]

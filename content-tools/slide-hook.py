@@ -161,6 +161,12 @@ CARD = {
  "h041": dict(text="**8 INDUSTRIES** | **8 BORING AI AUTOMATIONS**"),
  "h042": dict(text="How to build a **$10K/MO** | AI automation agency | in **30 DAYS**"),
  "h043": dict(text="**GHOST** everyone and master | these **9 AI SYSTEMS** | to get **20 YEARS AHEAD**"),
+# Written for a specific carousel, so the hook names what the body actually is.
+# 7 Unheard Of Apps and 7 Google AI Tools are both seven tools; My One Person
+# Company is nine, and no hook in the book said nine.
+ "h044": dict(text="**7 FREE AI APPS** | everyone should take advantage of | in **2026**"),
+ "h045": dict(text="I move like a | **20-PERSON TEAM** | thanks to these **9 TOOLS**"),
+ "h046": dict(text="Top **7 GOOGLE AI TOOLS** | founders are using | to **PRINT MONEY**"),
 }
 
 _cover = {}
