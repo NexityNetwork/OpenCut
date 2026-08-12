@@ -23,27 +23,53 @@ export type Snippet = {
 	createdAt: number;
 };
 
-// `|` is a line break and `**bold**` is emphasis - the same two marks the decks
-// use, so what is stored here goes onto a frame with no translation.
-function Rendered({ text }: { text: string }) {
+function bold(line: string) {
+	return line
+		.split(/(\*\*[^*]+\*\*)/g)
+		.filter(Boolean)
+		.map((part, j) =>
+			part.startsWith("**") && part.endsWith("**") ? (
+				<strong key={j} className="font-semibold">
+					{part.slice(2, -2)}
+				</strong>
+			) : (
+				<span key={j}>{part}</span>
+			),
+		);
+}
+
+// TWO SHAPES OF TEXT, TWO WAYS TO SET THEM.
+//
+// A hook is short and its `|` is a line break, the same mark the decks use, so
+// what is stored goes onto a frame with no translation.
+//
+// A caption is PARAGRAPHS, and its breaks are real newlines. Running it through
+// the hook renderer collapsed every one of them and printed the whole thing as
+// one grey wall - the structure was in the data the whole time, the view was
+// throwing it away. Blank lines separate paragraphs; single newlines are kept.
+function Rendered({ text, mode }: { text: string; mode: "hook" | "prose" }) {
+	if (mode === "hook") {
+		return (
+			<>
+				{text.split("|").map((line, i) => (
+					<span key={i} className="block">
+						{bold(line)}
+					</span>
+				))}
+			</>
+		);
+	}
 	return (
 		<>
-			{text.split("|").map((line, i) => (
-				<span key={i} className="block">
-					{line
-						.split(/(\*\*[^*]+\*\*)/g)
-						.filter(Boolean)
-						.map((part, j) =>
-							part.startsWith("**") && part.endsWith("**") ? (
-								<strong key={j} className="font-semibold">
-									{part.slice(2, -2)}
-								</strong>
-							) : (
-								<span key={j}>{part}</span>
-							),
-						)}
-				</span>
-			))}
+			{text
+				.split(/\n{2,}/)
+				.map((para) => para.trim())
+				.filter(Boolean)
+				.map((para, i) => (
+					<p key={i} className="mb-3 whitespace-pre-wrap last:mb-0">
+						{bold(para)}
+					</p>
+				))}
 		</>
 	);
 }
@@ -53,11 +79,13 @@ export function SnippetsView({
 	title,
 	blurb,
 	placeholder,
+	mode = "hook",
 }: {
 	bucket: string;
 	title: string;
 	blurb: string;
 	placeholder: string;
+	mode?: "hook" | "prose";
 }) {
 	const [rows, setRows] = useState<Snippet[]>([]);
 	const [loading, setLoading] = useState(true);
@@ -107,12 +135,22 @@ export function SnippetsView({
 	async function add() {
 		const text = draft.trim();
 		if (!text) return;
-		// A blank line in a paste means that entry is two lines, the same rule the
-		// dumps arrive under. Everything else is one entry per line.
-		const blocks = text.split(/\n{2,}/).map((b) => b.trim()).filter(Boolean);
+		// A blank line separates ENTRIES in the hook book, the same rule the dumps
+		// arrive under. A caption is full of blank lines, so there `---` on its
+		// own line is the separator and blanks stay inside the caption.
+		const blocks = (
+			mode === "hook" ? text.split(/\n{2,}/) : text.split(/^\s*---+\s*$/m)
+		)
+			.map((b) => b.trim())
+			.filter(Boolean);
 		const batch = blocks.map((b) => ({
 			bucket,
-			text: b.split("\n").map((l) => l.trim()).filter(Boolean).join(" | "),
+			// A hook's lines join with `|`; a caption keeps the newlines it was
+			// written with, because those breaks ARE the caption.
+			text:
+				mode === "hook"
+					? b.split("\n").map((l) => l.trim()).filter(Boolean).join(" | ")
+					: b,
 			kind: draftKind,
 			source: draftSource,
 		}));
@@ -187,7 +225,9 @@ export function SnippetsView({
 							className="w-44 rounded-lg border border-[var(--mono-line)] bg-transparent px-2 py-1.5 text-sm outline-none"
 						/>
 						<span className="text-xs text-[var(--mono-ink-3)]">
-							one per line. a blank line means that one is two lines.
+							{mode === "hook"
+								? "one per line. a blank line means that one is two lines."
+								: "line breaks are kept. --- on its own line starts another caption."}
 						</span>
 						<button
 							type="button"
@@ -249,8 +289,15 @@ export function SnippetsView({
 						>
 							<div className="flex items-start gap-3">
 								<div className="min-w-0 flex-1">
-									<div className="text-[15px] leading-snug text-[var(--mono-ink-1)]">
-										<Rendered text={r.text} />
+									<div
+										className={cn(
+											"text-[var(--mono-ink-1)]",
+											mode === "hook"
+												? "text-[15px] leading-snug"
+												: "text-[14px] leading-relaxed",
+										)}
+									>
+										<Rendered text={r.text} mode={mode} />
 									</div>
 									{(r.kind || r.source || r.note || r.deck) && (
 										<div className="mt-2 flex flex-wrap items-center gap-x-3 gap-y-1 text-[11px] text-[var(--mono-ink-3)]">
@@ -310,6 +357,9 @@ export const CaptionsView = () => (
 		bucket="caption"
 		title="Captions"
 		blurb="Caption bodies only, no posts. Opens with the keyword, no hashtags, no emoji."
-		placeholder={"One caption per entry.\n\nSeparate entries with a blank line."}
+		placeholder={
+			"Paste the caption with its own line breaks.\n\nSeparate two captions with a line containing only ---"
+		}
+		mode="prose"
 	/>
 );
