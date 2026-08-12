@@ -77,7 +77,6 @@ CX = W // 2
 
 BG = (26, 26, 26)
 INK = (244, 243, 240)
-RULE = (76, 76, 76)
 
 TITLE_CAP, TITLE_LEAD = 76, 1.10
 HEAD_GAP, CTA_GAP = 72, 72
@@ -168,6 +167,17 @@ def cap(sz):
     return int(sz * .727)
 
 
+def base(cy, sz):
+    """The baseline that puts a line's OPTICAL box - cap top down to half a
+    descender - centred on cy, so a name and the tile beside it agree.
+
+    PIL's `lm` anchor centres on the font's ascender-to-descender box instead,
+    which sits a few pixels off the ink and drifts by whether the word has a
+    descender in it: Stripe and Hubspot read low against their tiles, Claude and
+    ultron read high."""
+    return cy + (cap(sz) - int(sz * .12)) // 2
+
+
 def solve_rich(values, cap_, measure):
     """Largest size at which every one of them still sets on ONE line. Guessing
     the size and trimming the copy to match put step four over the measure twice
@@ -243,7 +253,8 @@ def var_b():
     col = LEFT + max(F(lsz, "Bold").getlength(v) for v in lab) + 60
     for i, (label, _, marks) in enumerate(ROWS):
         y = cy + i * PITCH
-        d.text((LEFT, y), f"{label}:", font=F(lsz, "Bold"), fill=INK, anchor="lm")
+        d.text((LEFT, base(y, lsz)), f"{label}:", font=F(lsz, "Bold"), fill=INK,
+               anchor="ls")
         for j, k in enumerate(marks):
             tile(im, int(col) + j * (TILE + TILE_GAP), y - TILE // 2, TILE, k)
     return im
@@ -258,7 +269,8 @@ def var_c():
                 MEASURE - marks_w(["a", "b"]) - 48)
     for i, (_, name, marks) in enumerate(ROWS):
         y = cy + i * PITCH
-        d.text((LEFT, y), name, font=F(nsz, "Regular"), fill=INK, anchor="lm")
+        d.text((LEFT, base(y, nsz)), name, font=F(nsz, "Regular"), fill=INK,
+               anchor="ls")
         x = RIGHT - marks_w(marks)
         for k in marks:
             tile(im, x, y - TILE // 2, TILE, k)
@@ -267,10 +279,14 @@ def var_c():
 
 
 def var_d():
-    """Ours: a ruled ledger. The job goes back in as a tracked label ABOVE the
-    name rather than beside it, so the name keeps the whole measure and the
-    marks still land on the rail. A hairline under every row makes the seven
-    read as one object instead of seven."""
+    """Ours: the job goes back in as a tracked label ABOVE the name rather than
+    beside it, so the name keeps the whole measure and the marks still land on
+    the rail.
+
+    IT HAD A HAIRLINE UNDER EVERY ROW AND THE HAIRLINE IS GONE. It was drawn at
+    a fixed offset off the row rather than on the midline between two of them,
+    so it sat hard under one name and nowhere near the next label - a rule that
+    is not exactly between the things it divides is worse than no rule."""
     im, d, cy, PITCH = frame(TITLE, TILE + 34)
     nsz = solve([r[1] for r in ROWS], 60, "Medium",
                 MEASURE - marks_w(["a", "b"]) - 48)
@@ -280,12 +296,17 @@ def var_d():
         draw_tracked(d, (LEFT, y - 30), label.upper(), F(lsz, "Bold"), INK,
                      0.12 * lsz)
         d.text((LEFT, y + 34), name, font=F(nsz, "Medium"), fill=INK, anchor="ls")
+        # The tile is centred on the label-plus-name unit, not on the name's
+        # own anchor. Hanging it off `y` put every tile 6 to 14px below the
+        # text it belongs to, and the amount varied with whether the name had
+        # a descender in it - so the box is the label's cap top down to the
+        # name's baseline plus half a descender, the same optical box the rest
+        # of this repo centres on.
+        mid = (y - 30 - cap(lsz) + y + 34 + int(nsz * .12)) // 2
         x = RIGHT - marks_w(marks)
         for k in marks:
-            tile(im, x, y + 6 - TILE // 2, TILE, k)
+            tile(im, x, mid - TILE // 2, TILE, k)
             x += TILE + TILE_GAP
-        d.line([(LEFT, y + PITCH - 58), (RIGHT, y + PITCH - 58)], fill=RULE,
-               width=2)
     return im
 
 
@@ -304,7 +325,8 @@ def var_e():
         for k in marks:
             tile(im, int(x), y - TILE // 2, TILE, k)
             x += TILE + TILE_GAP
-        d.text((x0 + lead, y), name, font=F(nsz, "Medium"), fill=INK, anchor="lm")
+        d.text((x0 + lead, base(y, nsz)), name, font=F(nsz, "Medium"), fill=INK,
+               anchor="ls")
     return im
 
 
