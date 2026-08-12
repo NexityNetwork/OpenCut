@@ -151,5 +151,77 @@
   "deck": null,
   "note": "",
   "status": "raw"
+ },
+ {
+  "id": "h018",
+  "text": "How to make $32,000 in just 3 MONTHS with $0",
+  "kind": "howto",
+  "source": "dump 4",
+  "deck": null,
+  "note": "",
+  "status": "raw"
+ },
+ {
+  "id": "h019",
+  "text": "if your business doesn’t have these 6 dashboards you are flying blind",
+  "kind": "contrarian",
+  "source": "dump 4",
+  "deck": null,
+  "note": "arrived paired with the agents variant below. read as two hooks, not two lines",
+  "status": "raw"
+ },
+ {
+  "id": "h020",
+  "text": "if oyur busienss don’t have these 6 agents you are flying blind whatever",
+  "kind": "contrarian",
+  "source": "dump 4",
+  "deck": null,
+  "note": "verbatim incl. oyur/busienss and the trailing whatever. agents variant of the one above",
+  "status": "raw"
+ },
+ {
+  "id": "h021",
+  "text": "“EVERYONE’S making internet money but idk where to start...”",
+  "kind": "quote",
+  "source": "dump 4",
+  "deck": null,
+  "note": "",
+  "status": "raw"
+ },
+ {
+  "id": "h022",
+  "text": "6 AI TOOLS you can SELL to your clients to hit $10K",
+  "kind": "number",
+  "source": "dump 4",
+  "deck": null,
+  "note": "",
+  "status": "raw"
+ },
+ {
+  "id": "h023",
+  "text": "HOW to build a $1 MILLION AI AUTOMATION BUSINESS just with agents",
+  "kind": "howto",
+  "source": "dump 4",
+  "deck": null,
+  "note": "variant of h013, agents angle, no time frame",
+  "status": "raw"
+ },
+ {
+  "id": "h024",
+  "text": "6 MORE BORING AUTOMATIONS you can sell for $3K each",
+  "kind": "number",
+  "source": "dump 4",
+  "deck": null,
+  "note": "variant of h014, 3K not 5K",
+  "status": "raw"
+ },
+ {
+  "id": "h025",
+  "text": "HOW TO START a business in less than 24H",
+  "kind": "howto",
+  "source": "dump 4",
+  "deck": null,
+  "note": "",
+  "status": "raw"
  }
 ]
