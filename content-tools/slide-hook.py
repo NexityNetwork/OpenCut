@@ -110,42 +110,36 @@ FILL = {"ultron": .74, "n8n": .70, "claude": .66, "openai": .60, "notion": .62,
         "apollo": .66, "perplexity": .64, "hubspot": .66, "apify": .66}
 _cover = {}
 
-# Which marks belong on which hook, and the run to set in bold where the stored
-# hook carries no `**`. Anything not named here falls back to ultron alone and
-# no emphasis, which is a legible frame rather than a wrong one.
+# Line breaks and the run to lift, per hook. NOT marks - the marks come from
+# what the hook names, and most hooks name nothing.
 CARD = {
- "h002": dict(marks=["ultron"], emph=["START SELLING"]),
- "h006": dict(marks=["ultron"], emph=["10 Ai Agents"]),
- "h007": dict(marks=["ultron"], emph=["#1 Untapped Business Model"]),
- "h009": dict(marks=["ultron"], emph=["5 Ai Agents"]),
- "h012": dict(marks=["claude", "ultron"], emph=["CLAUDE CODE"]),
- "h014": dict(marks=["ultron"],
-          text="**6 BORING USE CASES** | for **ULTRON** || you can sell for **$5K** each"),
- "h016": dict(marks=["ultron"],
-          text="These **5 ULTRON** | **AGENTS** will make you | **$50,000** this year."),
- "h019": dict(marks=["ultron"], emph=["6 dashboards"]),
- "h020": dict(marks=["ultron"], emph=["6 agents"]),
- "h022": dict(marks=["ultron"], emph=["6 AI TOOLS"]),
- "h024": dict(marks=["ultron"], emph=["6 MORE BORING AUTOMATIONS"]),
- "h025": dict(marks=["ultron"], emph=["24H"]),
- "h028": dict(marks=["ultron"], emph=["10 Boring industries"]),
- "h030": dict(marks=["ultron", "claude"],
-          text="**EVERYONE’S** telling you to | build **AI INFRASTRUCTURE** || but they never show you how"),
- "h026": dict(marks=["ultron", "claude"],
-          text="A complete **AI STACK** | to **$10,000 a month**",
+ "h002": dict(emph=["START SELLING"]),
+ "h006": dict(emph=["10 Ai Agents"]),
+ "h007": dict(emph=["#1 Untapped Business Model"]),
+ "h009": dict(emph=["5 Ai Agents"]),
+ "h012": dict(emph=["CLAUDE CODE"]),
+ "h014": dict(text="**6 BORING USE CASES** | for **ULTRON** || you can sell for **$5K** each"),
+ "h016": dict(text="These **5 ULTRON** | **AGENTS** will make you | **$50,000** this year."),
+ "h019": dict(emph=["6 dashboards"]),
+ "h020": dict(emph=["6 agents"]),
+ "h022": dict(emph=["6 AI TOOLS"]),
+ "h024": dict(emph=["6 MORE BORING AUTOMATIONS"]),
+ "h025": dict(emph=["24H"]),
+ "h028": dict(emph=["10 Boring industries"]),
+ "h030": dict(text="**EVERYONE’S** telling you to | build **AI INFRASTRUCTURE** || but they never show you how"),
+ "h026": dict(text="A complete **AI STACK** | to **$10,000 a month**",
           row=["n8n", "make", "notion", "stripe", "instagram", "apollo"]),
- "h031": dict(marks=["ultron"], emph=["$1M BUSINESS"]),
- "h032": dict(marks=["n8n", "ultron"], emph=["7 AI Automations"]),
- "h033": dict(marks=["ultron"], emph=["AI AUTOMATION BUSINESS"]),
- "h034": dict(marks=["n8n", "claude"],
-          text="I built an | **AI Content AGENT** | with **n8n** and **Claude**"),
- "h035": dict(marks=["ultron"], emph=["GHOST", "20 YEARS AHEAD"]),
- "h036": dict(marks=["ultron"], emph=["10 AI Agents"]),
- "h037": dict(marks=["ultron"], emph=["4 industries"]),
- "h039": dict(marks=["ultron"], emph=["11 AI Systems"]),
- "h040": dict(marks=["ultron"], emph=["10 AI Automations"]),
- "h041": dict(marks=["ultron"], emph=["8 industries"]),
- "h043": dict(marks=["ultron"], emph=["9 AI systems", "20 years ahead"]),
+ "h031": dict(emph=["$1M BUSINESS"]),
+ "h032": dict(emph=["7 AI Automations"]),
+ "h033": dict(emph=["AI AUTOMATION BUSINESS"]),
+ "h034": dict(text="I built an | **AI Content AGENT** | with **n8n** and **Claude**"),
+ "h035": dict(emph=["GHOST", "20 YEARS AHEAD"]),
+ "h036": dict(emph=["10 AI Agents"]),
+ "h037": dict(emph=["4 industries"]),
+ "h039": dict(emph=["11 AI Systems"]),
+ "h040": dict(emph=["10 AI Automations"]),
+ "h041": dict(emph=["8 industries"]),
+ "h043": dict(emph=["9 AI systems", "20 years ahead"]),
 }
 
 _cover = {}
@@ -295,14 +289,13 @@ def solve(blocks, measure, room, hard=False):
     on top of its own break gave `I built an AI / Content AGENT / with n8n / and
     Claude`, four lines where two were asked for."""
     for sz in range(HEAD_MAX, HEAD_MIN - 1, -1):
-        if hard:
-            lines = blocks
-            if any(width(b, sz) > measure for b in blocks):
-                continue
-        else:
-            lines = [l for b in blocks for l in wrap(b, sz, measure)]
-            if any(width(l, sz) > measure for l in lines):
-                continue
+        # A `|` is a PREFERRED break, not a licence to shrink the whole frame.
+        # Requiring every stored block to fit on one line dropped some cards to
+        # 42px while their neighbours sat at 60, and forty-three cards at nine
+        # different sizes is not a set, it is forty-three pictures.
+        lines = [l for b in blocks for l in wrap(b, sz, measure)]
+        if any(width(l, sz) > measure for l in lines):
+            continue
         if len(lines) * int(sz * LEAD) <= room:
             return sz, lines
     sz = HEAD_MIN
@@ -471,15 +464,33 @@ UNIT = [(r"(?<=\d)k\b", "K"), (r"/\s?mo\b", "/MO"), (r"/\s?month\b", "/MONTH"),
 # a pair says "here is a stack, and this is the part of it you do not have yet",
 # which is the whole argument. Automation-shaped hooks pair with n8n, everything
 # else with Claude, and ultron always sits on the right as the payoff.
-AUTOMATION = re.compile(r"automat|workflow|system|agenc|n8n", re.I)
+AUTOMATION = re.compile(r"automat|workflow|agenc|n8n", re.I)
+NAMED = [("claude", "claude"), ("n8n", "n8n"), ("ultron", "ultron"),
+         ("notion", "notion"), ("stripe", "stripe"), ("instagram", "instagram"),
+         ("tiktok", "tiktok"), ("telegram", "telegram"), ("linkedin", "linkedin"),
+         ("apollo", "apollo"), ("airtable", "airtable"), ("apify", "apify"),
+         ("perplexity", "perplexity"), ("supabase", "supabase")]
 
 
-def pair(marks, text):
-    marks = [m for m in marks if m]
-    if marks and marks != ["ultron"]:
-        return marks
-    other = "n8n" if AUTOMATION.search(text) else "claude"
-    return [other, "ultron"]
+def marks_for(text, override=None):
+    """The marks a card carries are the tools its hook NAMES. Most hooks name
+    none, and those get no mark - stamping a logo on every card to fill the space
+    above the copy is decoration, and it made forty-three cards look identical.
+
+    The one rule on top: ultron never stands alone. One mark reads as a product
+    plug; a pair reads as a stack with a missing piece."""
+    if override is not None:
+        found = list(override)
+    else:
+        hits = []
+        for word, key in NAMED:
+            m = re.search(rf"(?<![a-z]){re.escape(word)}(?![a-z])", text, re.I)
+            if m:
+                hits.append((m.start(), key))
+        found = [k for _, k in sorted(hits)]
+    if found == ["ultron"]:
+        found = ["n8n" if AUTOMATION.search(text) else "claude", "ultron"]
+    return found
 
 
 def clean(s):
@@ -513,7 +524,7 @@ if __name__ == "__main__":
         # the break falls, which run is bold, `claude` set as Claude. The hook
         # book itself is never touched; it is the reference, not the artwork.
         text = clean(PLACEHOLDER.sub("ULTRON", cfg.get("text") or row["text"]))
-        marks = pair(cfg.get("marks", ["ultron"]), text)
+        marks = marks_for(text, cfg.get("marks"))
         im, sz, n = frame(text, marks, cfg.get("row", ()))
         p = f"{out}/{hid}.png"
         im.convert("RGB").save(p)
