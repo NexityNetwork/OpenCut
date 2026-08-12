@@ -2,17 +2,36 @@
 """AI Business Automation in 24 Hours - the dark stack card, several ways.
 
 Third of the one-shots, and the first that ships as VARIATIONS rather than one
-frame. His Figma board is the same list drawn four ways - labels with words,
-labels with logos, names with logos, names with logos pushed to the rail - plus
-a step guide. This renders our version of each so the choice is made off real
-frames instead of a description.
+frame. His Figma board is the same list drawn four ways plus a step guide, so
+this renders our version of each and the choice gets made off real frames.
 
     python3 slide-stack24.py brand/stack24        # all of them
     python3 slide-stack24.py brand/stack24 c      # just that one
 
+NO SAFE BOX ON A ONE-SHOT. Every carousel here is built inside 250..1440 because
+a reel puts chrome over the rest. A single image post has no chrome, so holding
+that box leaves 480px of dead ground under the last row and the whole card reads
+as if it slid up the frame. This one uses the WHOLE 1080x1920 with an 88px
+margin, and the block - title, rows, ask - is measured and centred in it as one
+object rather than pinned top and bottom.
+
+THE TITLE IS TWO LINES OF ONE SIZE. Setting the second at 62 percent of the
+first made it a caption apologising under a headline; his are the same size, and
+`in 24 hours` only reads smaller because lowercase has a lower x-height than
+caps do. Same size, one step down in weight, and the leading closed to 1.10 so
+the two lines are a block rather than a line and an afterthought.
+
+NO GREY. Contrast comes from WEIGHT, not from turning text down. A grey label,
+grey body and a white keyword is three tones doing one job, and on a #1C1C1C
+card the grey is the first thing to disappear on a phone at arm's length.
+
+BIG AND TIGHT. The tiles are 96px on a 150 pitch, so the gap between two tiles
+is smaller than a tile. The earlier pass ran 58px marks on a 130 pitch, which is
+a list with holes in it.
+
 DARK, WHICH ALMOST NOTHING ELSE HERE IS. The reference is #1C1C1C and it should
-stay dark - the whole point of the card is that seven white tiles glow off it.
-The house paper ground would kill that in one move.
+stay dark - the whole point of the card is that the tiles glow off it. The house
+paper ground would kill that in one move.
 
 TWO OF HIS SEVEN ARE HIS OWN PRODUCTS. DealMaker and Founder Terminal are what
 he is selling, so they carry no information for anybody else and they are the
@@ -23,8 +42,7 @@ tool in a stack.
 
 EVERY MARK GETS THE SAME WHITE TILE, ultron included. Its own tile is nearly
 black, which is the right answer on paper and invisible here - a dark tile on a
-#1C1C1C card is a hole in the row. On this ground the plate is the thing that
-reads and the mark is what varies.
+#1C1C1C card is a hole in the row.
 """
 import glob
 import importlib.util
@@ -46,20 +64,19 @@ SB = _load("slide-body")
 F, adv, draw_tracked = SB.F, SB.adv, SB.draw_tracked
 
 W, H = 1080, 1920
-SAFE_TOP, SAFE_BOT = 250, 1440
-LEFT, RIGHT = 130, 950
+M = 88
+LEFT, RIGHT = M, W - M
 MEASURE = RIGHT - LEFT
 CX = W // 2
 
 BG = (26, 26, 26)
-INK = (241, 240, 237)
-DIM = (150, 150, 152)
-RULE = (58, 58, 58)
+INK = (244, 243, 240)
+RULE = (76, 76, 76)
 
-TITLE_CAP, SUB_RATIO = 62, .62
-BAND_TOP, BAND_BOT = 430, 1340
-CTA_BASE = 1408
-TILE, TILE_GAP = 58, 12
+TITLE_CAP, TITLE_LEAD = 76, 1.10
+HEAD_GAP, CTA_GAP = 112, 112
+PITCH, TILE, TILE_GAP = 150, 96, 14
+CTA_SZ = 38
 
 LOGOS = os.environ.get("TOOL_LOGOS", "../apps/web/public/tools")
 EXTRA = {"replit": os.environ.get("MTOOLS", "mtools") + "/icon-replit.png"}
@@ -85,13 +102,13 @@ ROWS = [
 
 GUIDE_TITLE = ["A STEP BY STEP GUIDE", "to $10K per month"]
 GUIDE = [
-    "Pick **one job** you do every single day",
-    "Hand it to **ultron** and watch it run once",
-    "Wrap it as a service with **one page**",
+    "Pick **one job** you do every day",
+    "Hand it to **ultron** and let it run",
+    "Wrap it as a service on **one page**",
     "Take payment with **Stripe** on day one",
-    "Post **3 to 5 reels a day** about it",
+    "Post **3 to 5 reels a day**",
     "Keep **only what books calls**",
-    "Repeat until it is **$10K a month**",
+    "Repeat to **$10K a month**",
 ]
 
 _cover = {}
@@ -99,7 +116,7 @@ _cover = {}
 
 def ground():
     a = np.full((H, W, 3), BG, np.float32)
-    a += np.random.default_rng(3).normal(0, 1.4, (H, W, 1))
+    a += np.random.default_rng(3).normal(0, .8, (H, W, 1))
     return Image.fromarray(np.clip(a, 0, 255).astype(np.uint8)).convert("RGBA")
 
 
@@ -133,84 +150,104 @@ def marks_w(marks, sz=TILE):
     return len(marks) * sz + (len(marks) - 1) * TILE_GAP
 
 
-def solve(values, cap, weight, measure):
-    for sz in range(cap, 10, -1):
+def solve(values, cap_, weight, measure):
+    for sz in range(cap_, 10, -1):
         f = F(sz, weight)
         if all(f.getlength(v) <= measure for v in values):
             return sz
     return 10
 
 
-def frame(title):
+def cap(sz):
+    return int(sz * .727)
+
+
+def solve_rich(values, cap_, measure):
+    """Largest size at which every one of them still sets on ONE line. Guessing
+    the size and trimming the copy to match put step four over the measure twice
+    - the solver is the thing that cannot get it wrong."""
+    for sz in range(cap_, 10, -1):
+        if all(len(SB.rich_lines(v, sz, measure)) == 1 for v in values):
+            return sz
+    return 10
+
+
+def frame(title, row_h):
+    """Ground, title, ask - and the y the first row sits on.
+
+    The whole block is measured before anything is drawn and centred in the FULL
+    frame. Pinning the title to a safe top and the ask to a safe bottom is what
+    left the card floating in the upper two thirds of it."""
     im = ground()
     d = ImageDraw.Draw(im)
+
     tsz = solve([title[0]], TITLE_CAP, "Bold", MEASURE)
-    f, tr = F(tsz, "Bold"), -0.012 * tsz
-    y = SAFE_TOP + int(tsz * .727)
+    lead = round(tsz * TITLE_LEAD)
+    head = cap(tsz) + lead
+    rows = PITCH * (len(ROWS) - 1) + row_h
+    block = head + HEAD_GAP + rows + CTA_GAP + cap(CTA_SZ)
+    top = (H - block) // 2
+
+    f, tr = F(tsz, "Bold"), -0.014 * tsz
+    y = top + cap(tsz)
     draw_tracked(d, (CX - adv(title[0], f, tr) / 2, y), title[0], f, INK, tr)
-    ssz = int(tsz * SUB_RATIO)
-    d.text((CX, y + int(tsz * .24) + 14 + int(ssz * .727)), title[1],
-           font=F(ssz, "Medium"), fill=INK, anchor="ms")
+    d.text((CX, y + lead), title[1], font=F(tsz, "Medium"), fill=INK, anchor="ms")
 
+    cy = top + head + HEAD_GAP + row_h // 2          # centre line of row one
+    by = top + block                                 # the ask sits on the floor
     a, b, c = CTA
-    fa, fb = F(30, "Regular"), F(30, "Bold")
-    wtot = fa.getlength(a) + fb.getlength(b) + fa.getlength(c)
-    x = CX - wtot / 2
-    d.text((x, CTA_BASE), a, font=fa, fill=DIM, anchor="ls"); x += fa.getlength(a)
-    d.text((x, CTA_BASE), b, font=fb, fill=INK, anchor="ls"); x += fb.getlength(b)
-    d.text((x, CTA_BASE), c, font=fa, fill=DIM, anchor="ls")
-    return im, d
-
-
-def rows_at():
-    """Seven rows on one pitch, the block centred in the band. Centring the
-    block and not the first row is what keeps the stack off the title when a
-    variant runs shorter."""
-    pitch = (BAND_BOT - BAND_TOP) // len(ROWS)
-    top = BAND_TOP + ((BAND_BOT - BAND_TOP) - pitch * (len(ROWS) - 1)) // 2
-    return top, pitch
+    fa, fb = F(CTA_SZ, "Regular"), F(CTA_SZ, "Bold")
+    x = CX - (fa.getlength(a) + fb.getlength(b) + fa.getlength(c)) / 2
+    for s, fn in ((a, fa), (b, fb), (c, fa)):
+        d.text((x, by), s, font=fn, fill=INK, anchor="ls")
+        x += fn.getlength(s)
+    return im, d, cy
 
 
 # ------------------------------------------------------------------- variants
 
 def var_a():
-    """His first: label bold on the left, the words ranged right."""
-    im, d = frame(TITLE)
-    top, pitch = rows_at()
+    """His first: label bold on the left, the words ranged right. One size for
+    both columns, solved so the longest label and the longest value clear each
+    other across the measure."""
+    im, d, cy = frame(TITLE, TILE)
     lab = [f"{r[0]}:" for r in ROWS]
-    lsz = solve(lab, 46, "Bold", 300)
-    vsz = solve([r[1] for r in ROWS], 46, "Regular", MEASURE - 320)
+    for sz in range(64, 20, -1):
+        lw = max(F(sz, "Bold").getlength(v) for v in lab)
+        vw = max(F(sz, "Regular").getlength(r[1]) for r in ROWS)
+        if lw + 48 + vw <= MEASURE:
+            break
     for i, (label, name, _) in enumerate(ROWS):
-        y = top + i * pitch
-        d.text((LEFT, y), f"{label}:", font=F(lsz, "Bold"), fill=INK, anchor="lm")
-        d.text((RIGHT, y), name, font=F(vsz, "Regular"), fill=INK, anchor="rm")
+        y = cy + i * PITCH
+        d.text((LEFT, y), f"{label}:", font=F(sz, "Bold"), fill=INK, anchor="lm")
+        d.text((RIGHT, y), name, font=F(sz, "Regular"), fill=INK, anchor="rm")
     return im
 
 
 def var_b():
     """His second: label bold on the left, the marks ranged left after it, so
-    the tiles start on one axis and the row reads as a set rather than a total."""
-    im, d = frame(TITLE)
-    top, pitch = rows_at()
+    every row's tiles start on one axis and the row reads as a set."""
+    im, d, cy = frame(TITLE, TILE)
     lab = [f"{r[0]}:" for r in ROWS]
-    lsz = solve(lab, 44, "Bold", 330)
+    lsz = solve(lab, 60, "Bold", MEASURE - marks_w(["a", "b"]) - 60)
+    col = LEFT + max(F(lsz, "Bold").getlength(v) for v in lab) + 60
     for i, (label, _, marks) in enumerate(ROWS):
-        y = top + i * pitch
+        y = cy + i * PITCH
         d.text((LEFT, y), f"{label}:", font=F(lsz, "Bold"), fill=INK, anchor="lm")
         for j, k in enumerate(marks):
-            tile(im, LEFT + 360 + j * (TILE + TILE_GAP), y - TILE // 2, TILE, k)
+            tile(im, int(col) + j * (TILE + TILE_GAP), y - TILE // 2, TILE, k)
     return im
 
 
 def var_c():
-    """His third: no labels at all. The name carries the row and the marks sit
-    on the right rail, which is the fastest of the four to read and the one that
-    stops looking like a form."""
-    im, d = frame(TITLE)
-    top, pitch = rows_at()
-    nsz = solve([r[1] for r in ROWS], 46, "Regular", MEASURE - 220)
+    """His third and fourth: no labels at all. The name carries the row and the
+    marks sit on the right rail - the fastest of the set to read, and the one
+    that stops looking like a form."""
+    im, d, cy = frame(TITLE, TILE)
+    nsz = solve([r[1] for r in ROWS], 66, "Regular",
+                MEASURE - marks_w(["a", "b"]) - 48)
     for i, (_, name, marks) in enumerate(ROWS):
-        y = top + i * pitch
+        y = cy + i * PITCH
         d.text((LEFT, y), name, font=F(nsz, "Regular"), fill=INK, anchor="lm")
         x = RIGHT - marks_w(marks)
         for k in marks:
@@ -220,62 +257,63 @@ def var_c():
 
 
 def var_d():
-    """Ours: a ruled ledger. The job goes back in as a small tracked label above
-    the name instead of beside it, so the name gets the whole measure and the
+    """Ours: a ruled ledger. The job goes back in as a tracked label ABOVE the
+    name rather than beside it, so the name keeps the whole measure and the
     marks still land on the rail. A hairline under every row makes the seven
-    read as one object."""
-    im, d = frame(TITLE)
-    top, pitch = rows_at()
-    nsz = solve([r[1] for r in ROWS], 44, "Medium", MEASURE - 220)
+    read as one object instead of seven."""
+    im, d, cy = frame(TITLE, TILE + 34)
+    nsz = solve([r[1] for r in ROWS], 60, "Medium",
+                MEASURE - marks_w(["a", "b"]) - 48)
+    lsz = 26
     for i, (label, name, marks) in enumerate(ROWS):
-        y = top + i * pitch
-        f = F(23, "SemiBold")
-        draw_tracked(d, (LEFT, y - 16), label.upper(), f, DIM, 0.12 * 23)
-        d.text((LEFT, y + 30), name, font=F(nsz, "Medium"), fill=INK, anchor="ls")
+        y = cy + i * PITCH
+        draw_tracked(d, (LEFT, y - 30), label.upper(), F(lsz, "Bold"), INK,
+                     0.12 * lsz)
+        d.text((LEFT, y + 34), name, font=F(nsz, "Medium"), fill=INK, anchor="ls")
         x = RIGHT - marks_w(marks)
         for k in marks:
-            tile(im, x, y + 2 - TILE // 2, TILE, k)
+            tile(im, x, y + 6 - TILE // 2, TILE, k)
             x += TILE + TILE_GAP
-        d.line([(LEFT, y + pitch - 44), (RIGHT, y + pitch - 44)], fill=RULE, width=1)
+        d.line([(LEFT, y + PITCH - 58), (RIGHT, y + PITCH - 58)], fill=RULE,
+               width=2)
     return im
 
 
 def var_e():
-    """Ours: the mark leads. Tile, then the name, all ranged left on one axis -
-    the row a phone reads without moving its eye across a gap. Rows with two
-    tools get both tiles before the name."""
-    im, d = frame(TITLE)
-    top, pitch = rows_at()
-    lead = max(marks_w(r[2]) for r in ROWS) + 28
-    nsz = solve([r[1] for r in ROWS], 46, "Medium", MEASURE - lead)
+    """Ours: the mark leads. Tile, then the name, and the pair is CENTRED on the
+    frame rather than ranged left - so the list sits under the title on the same
+    axis instead of hanging off one edge of it."""
+    im, d, cy = frame(TITLE, TILE)
+    lead = max(marks_w(r[2]) for r in ROWS) + 34
+    nsz = solve([r[1] for r in ROWS], 66, "Medium", MEASURE - lead)
+    wide = lead + max(F(nsz, "Medium").getlength(r[1]) for r in ROWS)
+    x0 = CX - wide / 2
     for i, (_, name, marks) in enumerate(ROWS):
-        y = top + i * pitch
-        x = LEFT
+        y = cy + i * PITCH
+        x = x0
         for k in marks:
-            tile(im, x, y - TILE // 2, TILE, k)
+            tile(im, int(x), y - TILE // 2, TILE, k)
             x += TILE + TILE_GAP
-        d.text((LEFT + lead, y), name, font=F(nsz, "Medium"), fill=INK, anchor="lm")
+        d.text((x0 + lead, y), name, font=F(nsz, "Medium"), fill=INK, anchor="lm")
     return im
 
 
 def var_f():
     """His guide card, our steps. His sells a bundle off his own domain; ours is
-    the seven moves somebody could actually make this week, with the payload in
-    Bold."""
-    im, d = frame(GUIDE_TITLE)
-    top, pitch = rows_at()
-    ssz = 38
+    seven moves somebody could make this week, with the payload in Bold and the
+    rest at the same weight of white - not a grey line with a bright word in it."""
+    im, d, cy = frame(GUIDE_TITLE, TILE)
+    ssz = solve_rich(GUIDE, 54, MEASURE - 118)
+    num = max(24, int(ssz * .62))
     for i, step in enumerate(GUIDE):
-        y = top + i * pitch
-        nf = F(26, "Bold")
-        draw_tracked(d, (LEFT, y + 10), f"{i+1:02d}", nf, DIM, 0.10 * 26)
-        lines = SB.rich_lines(step, ssz, MEASURE - 92)
-        # Every step is one line by construction. The loop used to print each
-        # line at the same y, so step five arrived as `Post 3 to` stamped on top
-        # of `problem` - which only showed up because one step was long enough
-        # to wrap at all.
-        assert len(lines) == 1, f"step {i+1} wraps: {step}"
-        SB.draw_line(d, LEFT + 92, y + int(ssz * .30), lines[0], ssz, INK, DIM)
+        y = cy + i * PITCH
+        draw_tracked(d, (LEFT, y + cap(num) // 2), f"{i+1:02d}", F(num, "Bold"),
+                     INK, 0.10 * num)
+        # One line each, guaranteed by the solver above. The loop used to print
+        # every line at the same y, so a step that wrapped arrived as `Post 3
+        # to` stamped on top of `problem`.
+        lines = SB.rich_lines(step, ssz, MEASURE - 118)
+        SB.draw_line(d, LEFT + 118, y + cap(ssz) // 2, lines[0], ssz, INK, INK)
     return im
 
 
