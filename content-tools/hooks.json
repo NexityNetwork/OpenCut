@@ -21,9 +21,9 @@
   "id": "h003",
   "text": "How to BECOME financially free with AI AUTOMATION | in the next 3 MONTHS",
   "kind": "howto",
-  "source": "dump 1",
+  "source": "dump 1 · dump 5 screenshot 1",
   "deck": null,
-  "note": "line break was called out explicitly",
+  "note": "reel over a desk-of-monitors shot, 01:30. bold on BECOME / AI AUTOMATION / 3 MONTHS",
   "status": "raw"
  },
  {
@@ -222,6 +222,96 @@
   "source": "dump 4",
   "deck": null,
   "note": "",
+  "status": "raw"
+ },
+ {
+  "id": "h026",
+  "text": "A complete **AI STACK** | to **$10,000 a month**",
+  "kind": "promise",
+  "source": "dump 5 screenshot 2",
+  "deck": null,
+  "note": "same reel as h003, same monitors shot",
+  "status": "raw"
+ },
+ {
+  "id": "h027",
+  "text": "**7 free AI apps** | everyone should take advantage of in **2026**",
+  "kind": "number",
+  "source": "dump 5 screenshot 3",
+  "deck": null,
+  "note": "line one sits in a black bar, 2026 underlined, hand-drawn arrow into it",
+  "status": "raw"
+ },
+ {
+  "id": "h028",
+  "text": "10 Boring industries to sell AI to",
+  "kind": "number",
+  "source": "dump 5 screenshot 4",
+  "deck": null,
+  "note": "white rounded speech box over a dark site",
+  "status": "raw"
+ },
+ {
+  "id": "h029",
+  "text": "Top 10 AI Agents that took us | from **$5k** to **$250k**",
+  "kind": "number",
+  "source": "dump 5 screenshot 5",
+  "deck": null,
+  "note": "white rounded speech box on sky blue",
+  "status": "raw"
+ },
+ {
+  "id": "h030",
+  "text": "EVERYONE’S telling you to build AI INFRASTRUCTURE but they never show you how",
+  "kind": "contrarian",
+  "source": "dump 5",
+  "deck": null,
+  "note": "",
+  "status": "raw"
+ },
+ {
+  "id": "h031",
+  "text": "How to build a $1M BUSINESS with AI and no team",
+  "kind": "howto",
+  "source": "dump 5",
+  "deck": null,
+  "note": "third variant of the million-dollar line, this one on no team",
+  "status": "raw"
+ },
+ {
+  "id": "h032",
+  "text": "7 AI Automations that that are exploding right now",
+  "kind": "number",
+  "source": "dump 5",
+  "deck": null,
+  "note": "verbatim, `that that`",
+  "status": "raw"
+ },
+ {
+  "id": "h033",
+  "text": "HOW TO START an  AI AUTOMATION BUSINESS from scratch in 2026",
+  "kind": "howto",
+  "source": "dump 5",
+  "deck": null,
+  "note": "",
+  "status": "raw"
+ },
+ {
+  "id": "h034",
+  "text": "I built an AI Content AGENT with n8n and claude",
+  "kind": "claim",
+  "source": "dump 5",
+  "deck": null,
+  "note": "opens the agent6 body",
+  "status": "raw"
+ },
+ {
+  "id": "h035",
+  "text": "GHOST everyone and master [SOMETHING] AGENTS | to get 20 YEARS AHEAD",
+  "kind": "callout",
+  "source": "dump 5",
+  "deck": null,
+  "note": "[SOMETHING] left blank in the dump",
   "status": "raw"
  }
 ]
