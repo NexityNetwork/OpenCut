@@ -102,8 +102,8 @@ ARROW = "\u27f6"
 # at 52 percent and is then clamped so it can still never cross the safe edges.
 BLOCK_CY = int(H * .52)
 
-PLATE = {"ultron": (10, 10, 10)}
-FILL = {"ultron": .68, "n8n": .70, "claude": .66, "openai": .60, "notion": .62,
+PLATE = {}
+FILL = {"ultron": .74, "n8n": .70, "claude": .66, "openai": .60, "notion": .62,
         "stripe": .66, "make": .66, "telegram": .70, "instagram": .72,
         "tiktok": .68, "linkedin": .70, "supabase": .64, "airtable": .66,
         "apollo": .66, "perplexity": .64, "hubspot": .66, "apify": .66}
@@ -164,11 +164,12 @@ def mask(sz, r):
 
 
 def tile(im, x, y, sz, key):
-    """A mark on its own plate, not a plate the deck picked. claude, n8n and
-    the rest already ARE finished white tiles and get used as they are. ultron
-    ships as a bare sphere and goes on BLACK - it is lit from the rim, so black
-    is where it reads, and it matches the reference plating its own product mark
-    dark next to a white Claude."""
+    """A mark on its plate. claude, n8n and the rest already ARE finished white
+    tiles and get used as they are; a bare mark gets plated.
+
+    The plate colour is NOT a thing this file decides on a whim. A pass of it
+    put ultron on black off my own reading of a reference, which was never
+    asked for and was not what was wrong with these frames."""
     src = Image.open(f"{LOGOS}/{key}.png").convert("RGBA")
     if key not in _cover:
         _cover[key] = (np.asarray(src)[..., 3] > 30).mean()
