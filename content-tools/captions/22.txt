@@ -1,5 +1,5 @@
-5|agents|dump 8
-↓ Comment "5" for the full setup
+MEDIA|agents|dump 8
+↓ Comment MEDIA for the full setup
 
 Most marketers are still doing this:
 → Hiring media buyers who optimize once a day
@@ -21,9 +21,9 @@ They answer questions in plain English.
 They explain WHY campaigns work, not just which ones perform.
 They catch problems before they burn budget.
 
-No salary. No sick days. No "let me get back to you tomorrow."
+No salary. No sick days. Nobody getting back to you tomorrow.
 
 Just pure marketing intelligence that scales with revenue, not headcount.
 
 Want the same 5-agent stack?
-Comment "5" and I'll send you the full setup for free.
+Comment MEDIA and I'll send you the full setup for free.

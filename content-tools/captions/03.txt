@@ -1,4 +1,4 @@
-400|teardown|dump 8
+PIPELINE|teardown|dump 8
 ↓ Here is how the setup actually works:
 
 This is a complete pipeline for building products and distributing them at the same time, using four tools that each own a completely different part of the process.
@@ -29,4 +29,4 @@ Every product you ship becomes content.
 Every piece of content finds customers. 
 Every customer becomes proof for the next one. 
 
-Comment "400" if you want a complete guide.
+Comment PIPELINE if you want a complete guide.

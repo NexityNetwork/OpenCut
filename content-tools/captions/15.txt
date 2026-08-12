@@ -1,5 +1,5 @@
-W|list|dump 8
-Comment "W" to get my AI operating systems for free.
+ENGINE|list|dump 8
+Comment ENGINE to get my AI operating systems for free.
 
 Every one of these runs 24/7 without you touching anything. 
 Each one replaces a person or an entire process.
@@ -26,4 +26,4 @@ These are not ideas.
 These are production-ready n8n workflows you can import and run today.
 Every blueprint comes with the guide.
 
-Comment "W" and I will send them to you.
+Comment ENGINE and I will send them to you.

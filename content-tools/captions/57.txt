@@ -1,5 +1,5 @@
-AI|teardown|dump 9
-↓ Comment AI to get all my setups for free
+ORDER|teardown|dump 9
+↓ Comment ORDER to get all my setups for free
 
 Most people build AI automations like a random pile of tools.
 

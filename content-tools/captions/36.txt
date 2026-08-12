@@ -1,5 +1,5 @@
-W|contrarian|dump 9
-↓ Comment “W” for a free guide.
+LAUNCH|contrarian|dump 9
+↓ Comment LAUNCH for a free guide.
 
 YOU DON’T NEED 6 months to launch software.
 You need 24 hours and access to products that already work.
@@ -30,4 +30,4 @@ One product per week means 50 market tests per year. Your competition tests one 
 
 Let’s WIN this cycle guys.
 
-Comment “W” for the complete blueprint.
+Comment LAUNCH for the complete blueprint.

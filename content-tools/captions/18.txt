@@ -1,5 +1,5 @@
-OS|list|dump 8
-↓ Comment "OS" for the full setup.
+CONTENT|list|dump 8
+↓ Comment CONTENT for the full setup.
 
 7 AI workflows that replace your entire content team.
 They run 24/7. They cover 6 platforms. Your client never touches a single one.
@@ -26,4 +26,4 @@ Sell it as a managed service on a retainer.
 
 Full blueprint covers all 7 workflows, the dashboard, the Airtable schema, every Apify scraper, and both pricing models.
 
-Comment "OS" and I will send it to you.
+Comment CONTENT and I will send it to you.

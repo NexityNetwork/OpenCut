@@ -1,5 +1,5 @@
-W|stack|dump 9
-↓ Comment “W” for a free guide.
+STACK|stack|dump 9
+↓ Comment STACK for a free guide.
 
 This is the exact stack that lets you launch software in 24 hours instead of 6 months.
 
@@ -24,10 +24,10 @@ Calendly books calls automatically. HubSpot tracks your entire pipeline so nothi
 Operator: 
 ultron runs the whole thing once it is live. Research, outreach, pipeline, delivery. You say what you want and it goes and does it.
 
-This is not theory. This is the actual infrastructure running right now for founders generating real revenue without writing a single line of code.
+This is not theory. This is the actual infrastructure running right now for founders shipping real products without writing a single line of code.
 
 You do not need a developer. 
 You do not need VC money. 
 You need the right tools.
 
-Comment “W” for the free guide that shows you how to set this up from scratch.
+Comment STACK for the free guide that shows you how to set this up from scratch.

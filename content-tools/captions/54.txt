@@ -1,5 +1,5 @@
-AI|agents|dump 9
-↓ Comment “AI” to get this blueprint for free
+TOY|agents|dump 9
+↓ Comment TOY to get this blueprint for free
 
 Most people use AI like a toy.
 I use it like a company.
@@ -26,4 +26,4 @@ This is a structured business system built to scale.
 
 If you want the full blueprint with the exact roles and setup
 
-Comment AI and I will send it to you for free.
+Comment TOY and I will send it to you for free.

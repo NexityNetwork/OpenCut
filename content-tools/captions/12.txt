@@ -1,5 +1,5 @@
-W|playbook|dump 8
-↓ Comment "W" to get started.
+SPRINT|playbook|dump 8
+↓ Comment SPRINT to get started.
 
 3 months. That is all it takes if you follow the right model.
 
@@ -10,11 +10,11 @@ Month 2 you scale the winner.
 You already know what hooks work, what pricing converts, and who your buyer is. You automate DM responses, set up email sequences, and post daily. 50-100 paying customers on one product you did not build.
 
 Month 3 you stack a second product for the same audience. 
-Your distribution is already warm. Your second launch is 3x faster than the first. Two products running means revenue compounds even when you stop posting for a week.
+Your distribution is already warm. Your second launch is 3x faster than the first. Two products running means the business keeps moving even when you stop posting for a week.
 
 This is not theory. This is the model.
 A library of finished apps. You test markets until one hits. 
-Then you scale it. Your running cost stays flat while the revenue does not. 
-Every sale after the first few is pure margin.
+Then you scale it. Your running cost stays flat while the volume does not. 
+Every sale after the first few costs you nothing extra to deliver.
 
-Comment "W" to start.
+Comment SPRINT to start.

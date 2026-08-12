@@ -1,8 +1,8 @@
-W|blueprint|dump 9
-↓ Comment W for the full blueprint
+BLUEPRINT|blueprint|dump 9
+↓ Comment BLUEPRINT for the full blueprint
 
-Businesses pay for transformation. 
-Full AI operations that run without them.
+Businesses are not buying tools. 
+They are buying operations that run without them.
 
 The problems are always the same:
 Leads sit unanswered. 
@@ -35,4 +35,4 @@ Your AI OS turns into something businesses can trust and act on. Maps your messa
 You charge for outcomes, not automations.
 Save 10 hours per week? That is a working week handed back every month. Recover 2 lost leads? That is revenue that was already gone. Speed up cash collection? Immediate ROI.
 
-Comment “W” for the full blueprint.
+Comment BLUEPRINT for the full blueprint.

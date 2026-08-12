@@ -1,5 +1,5 @@
-CC|teardown|dump 9
-↓ Comment “CC” for the full workflow.
+SHIP|teardown|dump 9
+↓ Comment SHIP for the full workflow.
 
 Most founders are stuck choosing between two bad options: spend 6 months learning to code or pay developers per feature and wait weeks for updates.
 
@@ -33,4 +33,4 @@ Not 3 weeks and a nervous breakdown.
 
 This is not about replacing technical teams. This is about founders with ideas finally being able to test them before raising capital or finding a CTO.
 
-Comment “CC” and I will send you the exact workflow we use to go from idea to shipped product in one day.
+Comment SHIP and I will send you the exact workflow we use to go from idea to shipped product in one day.

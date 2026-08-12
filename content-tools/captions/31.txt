@@ -1,5 +1,5 @@
-W|contrarian|dump 9
-Comment “W” to get started
+SIMPLE|contrarian|dump 9
+Comment SIMPLE to get started
 
 Most people fail at online business because they start with complexity.
 
@@ -27,10 +27,10 @@ It is the structure.
 Low setup cost
 Beginner friendly
 Faceless by default
-No artificial income ceiling
+No ceiling on what one person can run
 
 Most people dismiss this because it looks too simple. The ones who understand it realize simplicity is the moat.
 
-If you want to see how founders use ready made AI products to reach predictable monthly revenue, this breakdown shows the exact mechanics.
+If you want to see how founders use ready made AI products to build something predictable, this breakdown shows the exact mechanics.
 
-Comment “W” to become a CEO in 24h.
+Comment SIMPLE to become a CEO in 24h.

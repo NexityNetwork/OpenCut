@@ -1,5 +1,5 @@
-AI|agents|dump 9
-↓ Comment AI and I'll send you a FREE blueprint
+SCALE|agents|dump 9
+↓ Comment SCALE and I'll send you a FREE blueprint
 
 Most founders think they need a team of 20 people to scale.
 
@@ -7,7 +7,7 @@ Wrong. You need 10 AI agents and the ability to deploy them faster than your com
 
 Here is what changes when you build a business on agents instead of headcount:
 Sales & Partnerships: 
-Agents close deals while you sleep by scoring leads, sending follow-ups, and booking meetings automatically. No more manual pipeline management. No more deals dying from lack of follow-up.
+Agents work the pipeline around the clock by scoring leads, sending follow-ups, and booking meetings automatically. No more manual pipeline management. No more deals dying from lack of follow-up.
 
 Customer Success & Support: 
 Agents turn support tickets into solved problems in minutes while flagging churn risks before customers leave. Your retention rate climbs without hiring a CS team.
@@ -43,4 +43,4 @@ You do not need a big team.
 You do not need years of runway.
 You need 10 agents and the skill to deploy them.
 
-Comment “AI” for the complete agent blueprint
+Comment SCALE for the complete agent blueprint

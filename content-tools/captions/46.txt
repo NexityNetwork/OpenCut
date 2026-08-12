@@ -1,5 +1,5 @@
-n8n|teardown|dump 9
-↓ Comment “n8n” for a complete blueprint
+DUO|teardown|dump 9
+↓ Comment DUO for a complete blueprint
 
 Everyone talks about AI automation but nobody explains the setup that actually works.
 
@@ -28,4 +28,4 @@ Neither of them takes a salary and both work 24/7.
 
 If you are sitting on business processes but cannot automate them, save this and try it.
 
-Comment “n8n” for a free workflow blueprint.
+Comment DUO for a free workflow blueprint.

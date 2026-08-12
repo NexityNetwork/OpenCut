@@ -1,4 +1,4 @@
-CC|teardown|dump 8
+LIFE|teardown|dump 8
 ↓ Here is how to turn CLAUDE CODE into your Life OS.
 
 Most people use it to write Python and close it down. 
@@ -28,4 +28,4 @@ The unlock is recognizing that everything can be orchestrated. Calendar. Emails.
 Do not wait for the perfect life OS app. Build it with Claude Code and MCP servers. In 7 days you can automate half your manual work.
 Start with one workflow tonight.
 
-Comment "CC" and I will send you all my setup.
+Comment LIFE and I will send you all my setup.

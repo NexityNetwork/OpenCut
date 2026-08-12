@@ -1,5 +1,5 @@
-YT|list|dump 9
-↓ Comment "YT" for the links and my full list
+VIDEOS|list|dump 9
+↓ Comment VIDEOS for the links and my full list
 
 Once you understand these 7 videos, your business will run itself.
 
@@ -18,4 +18,4 @@ Y Combinator's take on software in the age of AI. The game changed. Building pro
 These aren't theory videos. They're blueprints from people who've built what you're trying to build.
 Watch them. Implement them. Your business will stop needing you for every decision.
 
-Comment "YT" for my list of 50 videos and free resources for your startup.
+Comment VIDEOS for my list of 50 videos and free resources for your startup.

@@ -1,11 +1,11 @@
-W|teardown|dump 8
-↓ Comment "W" for the full blueprint.
+COLD|teardown|dump 8
+↓ Comment COLD for the full blueprint.
 
 Your SDR team sends 50 cold emails a day. Maybe 1 person replies.
 This system sends 500 hyper-personalized emails per batch and every single one reads like someone spent 30 minutes researching the prospect. Because 4 AI models actually did.
 
 Here is what happens:
-You type something like "SaaS product managers in the United States at companies with 50-500 employees in the software industry."
+You type something like this: SaaS product managers in the United States at companies with 50-500 employees in the software industry.
 
 An AI agent converts that into a precise Apollo search URL with the correct industry IDs, location encoding, and employee range formatting. No manual Apollo filtering. No copy-pasting search parameters.
 
@@ -33,4 +33,4 @@ Your infrastructure is seven tools. n8n, Airtable, Apify, Perplexity, Anymail, G
 
 A single SDR costs a full salary every month and sends maybe 50 personalized emails per day.
 
-Comment "W" and I will send it to you.
+Comment COLD and I will send it to you.

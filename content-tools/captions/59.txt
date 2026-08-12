@@ -1,4 +1,4 @@
-DOC|teardown|dump 9
+LOOP|teardown|dump 9
 ↓ Here's how it works:
 
 Claude Code + Notion + n8n
@@ -47,4 +47,4 @@ The complete cycle from request to documentation:
 
 6. Document: Results automatically logged to Notion, SOPs updated, and runbooks created or refined.
 
-Comment “DOC” for a full breakdown.
+Comment LOOP for a full breakdown.

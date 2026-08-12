@@ -1,4 +1,4 @@
-100|blueprint|dump 8
+EMPIRE|blueprint|dump 8
 ↓ Here is how to build an automation empire instead of a freelance job:
 
 Most automation freelancers sell one-off Zaps and wonder why they are stuck. The leverage is not in building single automations. It is in auditing entire businesses and selling complete systems.
@@ -25,4 +25,4 @@ MCP connections are the bridge.
 Claude reads and writes data directly to client tools. 
 It uses real workspace IDs, not names, for every API operation.
 
-Comment "100" and I will send it to you.
+Comment EMPIRE and I will send it to you.

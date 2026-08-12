@@ -1,4 +1,4 @@
-69|teardown|dump 8
+OUTREACH|teardown|dump 8
 ↓ Here's how my outreach weapon actually works:
 
 This is not a cold email tool. 
@@ -24,8 +24,8 @@ No email but LinkedIn available goes to HeyReach.
 
 Neither channel available goes to manual queue. 
 Every action logs to Airtable with full audit trail.
-Your client sees a clean pipeline dashboard. You see revenue.
+Your client sees a clean pipeline dashboard. You see every step that produced it.
 
 Full blueprint in the guide. All 43 nodes. All 5 prompts. The Airtable schema. Setup guides. Pricing models. 
 
-Comment "69" to get the blueprint for free.
+Comment OUTREACH to get the blueprint for free.

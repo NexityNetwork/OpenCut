@@ -1,5 +1,5 @@
-W|stack|dump 9
-↓ Comment “W” for a free guide.
+TOOLKIT|stack|dump 9
+↓ Comment TOOLKIT for a free guide.
 
 This is the exact stack that built an AI automation business in 24 hours:
 
@@ -19,10 +19,10 @@ Sales: Calendly books calls. Hubspot tracks pipeline. You focus on closing, not 
 
 Operator: ultron runs it all once it is live. Research, outreach, pipeline, delivery. You say what you want and it goes and does it.
 
-This is not theory. This is the actual infrastructure running right now for founders generating real revenue.
+This is not theory. This is the actual infrastructure running right now for founders shipping real products.
 
 You do not need a developer. 
 You do not need a big budget. 
 You need the right tools.
 
-Comment “W” for the free guide that walks through setting up this entire stack from scratch.
+Comment TOOLKIT for the free guide that walks through setting up this entire stack from scratch.

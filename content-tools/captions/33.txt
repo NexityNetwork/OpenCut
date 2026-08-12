@@ -1,5 +1,5 @@
-CN|teardown|dump 9
-↓ Comment “CN” for the setup guide.
+NOTION|teardown|dump 9
+↓ Comment NOTION for the setup guide.
 
 Most people store knowledge in Notion and execution happens separately. You write the process down. 
 
@@ -33,4 +33,4 @@ New team members get instant capability. Point them at the Notion workspace with
 This is not about replacing documentation. 
 This is about making documentation executable.
 
-Comment “CN” for the setup guide.
+Comment NOTION for the setup guide.

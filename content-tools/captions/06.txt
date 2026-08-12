@@ -1,5 +1,5 @@
-W|contrarian|dump 8
- Comment "W" to try the setup for free
+MEMORY|contrarian|dump 8
+ Comment MEMORY to try the setup for free
 
 Here is what nobody tells you about AI agents.
 You can build them. You can prompt them. You can make them do one thing really well for about 3 hours. Then they forget everything. 
@@ -29,4 +29,4 @@ You do not need a bigger team. You do not need more hours. You need a system tha
 
 Ultron. Five agents. Every department. One chat.
 
-Comment "W" and I will send you the link.
+Comment MEMORY and I will send you the link.

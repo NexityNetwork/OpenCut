@@ -1,4 +1,4 @@
-AI|teardown|dump 9
+DRIVE|teardown|dump 9
 ↓ Here is how it works:
 
 I built my entire company structure in Google Drive with Claude as the operating system.
@@ -58,4 +58,4 @@ But it is just you plus a set of named agents owning every repeating job that ke
 
 Claude handles execution. Google Workspace stores the structure. You focus on decisions.
 
-Comment “AI” for free resources to run your business on autopilot.
+Comment DRIVE for free resources to run your business on autopilot.

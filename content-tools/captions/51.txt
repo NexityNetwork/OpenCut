@@ -1,5 +1,5 @@
-5|agents|dump 9
-↓ Comment “5” to get all my agents for free
+REPLACE|agents|dump 9
+↓ Comment REPLACE to get all my agents for free
 
 Most founders spend a full salary every year on tasks AI can do for the price of a subscription.
 
@@ -21,4 +21,4 @@ The work did not get smaller. The payroll did.
 
 Same quality work. Better consistency. Zero management overhead.
 
-Comment “5” to get all my agent prompts, setup guides and automation workflows.
+Comment REPLACE to get all my agent prompts, setup guides and automation workflows.

@@ -1,5 +1,5 @@
-CEO|contrarian|dump 9
-↓ Comment “CEO” to get started
+PROOF|contrarian|dump 9
+↓ Comment PROOF to get started
 
 The mistake most founders make is trying to scale before they validate.
 
@@ -26,4 +26,4 @@ They reward speed, positioning, and distribution.
 
 If a product has demand, there is room to capture a share of it. You do not need the whole market. You need a small, consistent slice.
 
-Comment “CEO” to start selling proven software.
+Comment PROOF to start selling proven software.

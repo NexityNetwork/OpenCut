@@ -1,5 +1,5 @@
-W|list|dump 9
-↓ Comment “W” for a free guide.
+IDEAS|list|dump 9
+↓ Comment IDEAS for a free guide.
 
 Something your future self will thank:
 1. Multimodal enterprise data cleanup
@@ -23,4 +23,4 @@ Something your future self will thank:
 19. Enterprise multi agent orchestration
 20. Consumer AI for self insight
 
-Comment “W” for a free guide.
+Comment IDEAS for a free guide.

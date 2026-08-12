@@ -1,11 +1,11 @@
-WORKFLOW|teardown|screenshot 1, telegram
+DIRECT|teardown|screenshot 1, telegram
 ↓ The No. 1 untapped business model you have never heard of:
 
 There is still a huge gap in the software media companies.
 
 Software businesses create products just to pay influencers to promote them instead of building their own distribution channels.
 
-They pour their whole marketing budget into ads and influencer partnerships while their competitors build audiences that print money for free.
+They pour their whole marketing budget into ads and influencer partnerships while their competitors build audiences that bring them buyers for free.
 
 Here is the exact 8 app workflow to build your product, scale your distribution, and sell direct:
 
@@ -45,4 +45,4 @@ The smart play is the exact opposite:
 Launch to people who are waiting to buy.
 Your LinkedIn account becomes your distribution engine. Your content becomes your sales team. Your DMs become your discovery calls.
 
-Comment "WORKFLOW" below and I will send the step by step setup directly to your DMs.
+Comment DIRECT below and I will send the step by step setup directly to your DMs.

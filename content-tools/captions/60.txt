@@ -1,5 +1,5 @@
-OS|contrarian|dump 9
-↓ Comment “W” for the full blueprint
+OPERATOR|contrarian|dump 9
+↓ Comment OPERATOR for the full blueprint
 
 Stop selling automations. 
 Start selling operating systems.
@@ -42,4 +42,4 @@ Do not price automations. Price outcomes.
 
 That is why AI operating systems sell as monthly retainers instead of one-off automation packages.
 
-Comment OS for the full blueprint
+Comment OPERATOR for the full blueprint

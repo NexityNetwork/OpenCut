@@ -1,5 +1,5 @@
-W|stack|dump 8
-↓ Comment "W" to get the full breakdown.
+SEVEN|stack|dump 8
+↓ Comment SEVEN to get the full breakdown.
 
 This is the exact stack I would use if I had to start from zero tomorrow with nothing but a laptop and 24 hours.
 
@@ -24,4 +24,4 @@ That is the part everyone skips. Six tools build the product. The seventh one ru
 
 The full stack breakdown and how to set it all up is in the guide.
 
-Comment "W" for the guide.
+Comment SEVEN for the guide.

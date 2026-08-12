@@ -1,4 +1,4 @@
-STACK|teardown|screenshot 2, telegram
+ROUTER|teardown|screenshot 2, telegram
 ↓ Here is how the multi-model architecture actually works:
 This is a complete breakdown of specialized AI models, moving away from relying on a single generalist model and instead assigning specific tasks to the engine best optimized for the job.
 
@@ -22,4 +22,4 @@ For continuous background execution, you hand long-running tasks to GLM-5.2. It 
 
 The whole setup compounds: Every model plays to its specific strength. Your compute costs drop drastically by routing cheap tasks away from heavy models. Your engineering velocity scales because no single model gets overwhelmed.
 
-Comment "STACK" if you want the complete workflow setup.
+Comment ROUTER if you want the complete workflow setup.

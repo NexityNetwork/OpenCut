@@ -1,4 +1,4 @@
-AI|teardown|dump 9
+MERMAID|teardown|dump 9
 Here is how to design AI workforces without coding:
 
 Most people fail at automation because they skip the DESIGN PHASE.
@@ -32,4 +32,4 @@ Division of labor. Design visually. Build with AI.
 Total cost: two subscriptions, both working 24/7.
 If you want to build AI workflows but cannot code, save this and give it a try.
 
-Comment “AI” for my FREE setup and blueprint.
+Comment MERMAID for my FREE setup and blueprint.

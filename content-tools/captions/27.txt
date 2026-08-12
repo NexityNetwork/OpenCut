@@ -1,18 +1,18 @@
-OS|list|dump 9
-↓ Comment “OS” and I'll send them to you
+BORING|list|dump 9
+↓ Comment BORING and I'll send them to you
 
 Most people sell AI chatbots as one-off builds and wonder why clients ghost them after delivery.
 
 The problem is simple: you are selling tools, not systems.
 
-These 6 automations solve expensive, recurring problems that businesses will pay every month to keep fixed.
+These 6 automations solve expensive, recurring problems that businesses need fixed every single month.
 
 1. AI Tracking Engine: 
 Turn your company brain bot into a continuous improvement system. 
 
 Logs every question employees ask, identifies documentation gaps, generates weekly update reports. 
 
-Companies pay for this every month because better docs mean faster onboarding and fewer support tickets.
+Companies keep this one running because better docs mean faster onboarding and fewer support tickets.
 
 2. AI Collection Engine: 
 Turn accounts receivable into predictable cashflow. Sends payment reminders at aging thresholds, escalates automatically, alerts owners for high-value overdue. 
@@ -27,7 +27,7 @@ Ecommerce brands renew it every month because adding 15-25% to LTV is massive RO
 4. AI Procurement System: 
 Prevent stockouts and emergency orders. Forecasts demand from sales velocity, monitors supplier pricing, generates PO drafts with approval gates. 
 
-Operations teams keep paying because one prevented stockout covers the whole year of it.
+Operations teams keep it on because one prevented stockout covers the whole year of it.
 
 5. AI Recruitment Pipeline: 
 Replace 80% of recruiter busywork. Parses CVs into structured profiles, generates screening questions, schedules interviews with calendar sync. 
@@ -39,8 +39,8 @@ Turn compliance from cost center to revenue driver. Manages consent ledgers, pro
 
 Businesses running voice or email automation keep it because one violation costs more than a year of the service.
 
-The difference between a side income and a real business is not working harder.
+The difference between a one-off build and a real business is not working harder.
 
 It is selling systems that solve expensive problems instead of selling individual automations.
 
-Comment “OS” and I'll send them to you
+Comment BORING and I'll send them to you

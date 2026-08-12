@@ -1,5 +1,5 @@
-AI|list|dump 9
-↓ Comment “AI” for my FREE setups.
+HOURS|list|dump 9
+↓ Comment HOURS for my FREE setups.
 
 Most founders spend 40 hours per week on tasks a bot could handle in 40 minutes.
 
@@ -20,4 +20,4 @@ Here are the automations printing money:
 5. Appointment Setter: Books meetings based on calendar availability.
 6. SM Research Bot: Monitors what competitors post, what content is trending, what topics are getting engagement. 
 
-Comment AI and I will send you the complete N8N setup for all 6 automations.
+Comment HOURS and I will send you the complete N8N setup for all 6 automations.

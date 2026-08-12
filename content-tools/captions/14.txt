@@ -1,5 +1,5 @@
-W|blueprint|dump 8
-↓ Comment "W" for the full guide.
+AUDIT|blueprint|dump 8
+↓ Comment AUDIT for the full guide.
 
 Here is what you are building:
 An AI agent inside Claude Desktop that connects to any business's tools, maps their entire workspace, and generates production-ready n8n workflows they can import and run immediately.
@@ -21,9 +21,9 @@ Package all of it:
 The workflow JSONs. The knowledge base. The setup guide. The prompts. 
 
 Sell it as a product. Your only cost is the infrastructure it runs on. 
-Every copy after the first is pure margin.
+Every copy after the first costs you nothing extra to deliver.
 Two thousand copies of one system, and the build only ever happened once, at 2am.
 
 Full blueprint and all knowledge base files come with the guide.
 
-Comment "W" and I will send it to you.
+Comment AUDIT and I will send it to you.

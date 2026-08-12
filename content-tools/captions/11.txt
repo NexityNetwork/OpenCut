@@ -1,5 +1,5 @@
-W|blueprint|dump 8
-↓ Comment "W" for the full blueprint.
+SIGNAL|blueprint|dump 8
+↓ Comment SIGNAL for the full blueprint.
 
 You are posting blind. No data on what is actually working. No idea what your audience wants. Scrolling 6 platforms manually hoping something clicks.
 
@@ -22,4 +22,4 @@ Your infrastructure costs a fraction of what a content team costs to do the same
 
 Full blueprint is in the guide.
 
-Comment "W" and I will send it to you.
+Comment SIGNAL and I will send it to you.

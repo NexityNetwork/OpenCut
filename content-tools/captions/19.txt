@@ -1,5 +1,5 @@
-W|playbook|dump 8
-↓ Comment "W" for a FREE guide on how to start your AI AUTOMATION BUSINESS in 24h.
+START|playbook|dump 8
+↓ Comment START for a FREE guide on how to start your AI AUTOMATION BUSINESS in 24h.
 
 Every tool you need is free to start.
 n8n is free. Make is free. Claude is free. The playbooks and blueprints are free.
@@ -25,4 +25,4 @@ You take a system that already works, put your name on it, build a page, connect
 The people charging monthly retainers for AI automation services are not smarter than you. They just started before you did.
 Today is your day to start.
 
-Comment "W" and I will send you the free guide with every step broken down.
+Comment START and I will send you the free guide with every step broken down.

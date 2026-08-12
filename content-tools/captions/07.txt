@@ -1,5 +1,5 @@
-W|contrarian|dump 8
-↓ Comment "W" to test Ultron for free
+RETAINER|contrarian|dump 8
+↓ Comment RETAINER to test Ultron for free
 
 Most founders are selling automations.
 The smart ones are selling operating systems.
@@ -35,4 +35,4 @@ If you are running an AI automation agency or a software business
 and still charging one-time project fees,
 you are leaving serious money on the table.
 
-Comment "W" and I will let you test Ultron for free.
+Comment RETAINER and I will let you test Ultron for free.

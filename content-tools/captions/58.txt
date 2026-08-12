@@ -1,5 +1,5 @@
-96|stack|dump 9
-↓ Comment "96" for my full list of tools to grow your automation business.
+TWELVE|stack|dump 9
+↓ Comment TWELVE for my full list of tools to grow your automation business.
 
 Most people try to start an AI automation business by learning random tools.
 
@@ -9,7 +9,7 @@ The real move is building a simple stack that helps you:
 - Find problems
 - Build fast
 - Automate delivery
-- Get paid
+- Take payments
 - Scale without hiring
 
 Here is my core stack for 2026:
@@ -33,7 +33,7 @@ Here is my core stack for 2026:
 
 10. Apify: My lead generation machine for scraping verified data and building lists on demand.
 
-11. Stripe: My payment layer so every system ends with revenue, not just busy work.
+11. Stripe: My payment layer so every system ends in a transaction, not just busy work.
 
 12. ultron: My operator that runs research, outreach and delivery so the stack does not need me standing over it.
 

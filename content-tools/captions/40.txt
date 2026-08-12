@@ -1,5 +1,5 @@
-W|contrarian|dump 9
-↓ Comment “W” for a free guide.
+DEMAND|contrarian|dump 9
+↓ Comment DEMAND for a free guide.
 
 You do not need to build the perfect product.
 You need to sell one that already works.
@@ -22,4 +22,4 @@ If there is demand, there is room to capture a percentage of it. You do not need
 
 The shift: stop treating software like a craft project. Treat it like inventory. Stock what sells, drop what does not, double down on what converts.
 
-Comment “W” for a free guide.
+Comment DEMAND for a free guide.

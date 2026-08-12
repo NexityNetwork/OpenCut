@@ -1,5 +1,5 @@
-W|playbook|dump 8
-↓ Comment "W" to get started.
+PLAYBOOK|playbook|dump 8
+↓ Comment PLAYBOOK to get started.
 
 If I had to start an AI AUTOMATION BUSINESS from scratch in 2026
 Here is EXACTLY what I would do.
@@ -34,4 +34,4 @@ This is the exact stack I used to test 11 products in 8 weeks.
 The ones that worked became real businesses. 
 The ones that did not cost me almost nothing to test.
 
-Comment "W" to get started.
+Comment PLAYBOOK to get started.

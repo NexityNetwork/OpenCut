@@ -1,5 +1,5 @@
-OS|list|dump 9
-↓ Comment “OS” and I’ll send them to you
+DASHBOARD|list|dump 9
+↓ Comment DASHBOARD and I’ll send them to you
 
 Running a software business without dashboards is like flying blind.
 
@@ -21,4 +21,4 @@ Most founders use 15 different tools to get this data.
 I put it all in one place.
 
 Want these exact dashboards?
-Drop “OS” below.
+Drop DASHBOARD below.

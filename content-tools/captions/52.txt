@@ -1,9 +1,9 @@
-W|contrarian|dump 9
-↓ Comment “W” to get started
+READY|contrarian|dump 9
+↓ Comment READY to get started
 
 1. Building software from scratch: 6 months of development, no customers.
 
-2. Starting from ready made AI products: 1 week, nothing spent on development, revenue day one.
+2. Starting from ready made AI products: 1 week, nothing spent on development, in market day one.
 
 Most founders choose the first path. Smart ones choose the second.
 
@@ -26,11 +26,11 @@ Automation handles everything else.
 When you promote random tools, nobody cares. 
 When you sell a focused AI solution to a specific problem, people buy.
 
-Subscription revenue is predictable
+Subscription pricing is predictable
 - You price it once and it renews without you. 
 - Most people land in the same narrow band. 
 - A handful of sales a day compounds into a real monthly number.
 
 No inventory. No shipping. No calls. No support team.
 
-Comment “W” to get started today.
+Comment READY to get started today.

@@ -116,11 +116,25 @@ BANNED = {"#": "hashtag", "—": "em dash", "–": "en dash",
           "“": "smart quote", "”": "smart quote", '"': "quote", "$": "dollar"}
 
 
+def opener(cap):
+    """The caption minus its down arrow. The arrow belongs to the frame, not the
+    sentence, and every caption in the book opens with one."""
+    return cap.lstrip("\u2193").lstrip()
+
+
+def keyword(cap):
+    return opener(cap).split()[1]
+
+
 def check(cap, kw):
     bad = [n for ch, n in BANNED.items() if ch in cap]
-    if not cap.startswith(f"Comment {kw} "):
+    if not opener(cap).startswith(f"Comment {kw} "):
         bad.append("does not open with the keyword")
-    if any(ord(c) > 0x2100 for c in cap):
+    # U+2190..U+21FF is the arrows block. The down arrow that opens a caption and
+    # the right arrow that marks a list row live there, and they are typography,
+    # not emoji - the old threshold called both of them emoji and failed 55 of 61
+    # perfectly good captions.
+    if any(ord(c) > 0x2100 and not 0x2190 <= ord(c) <= 0x21FF for c in cap):
         bad.append("emoji")
     return bad
 
@@ -134,7 +148,7 @@ if __name__ == "__main__":
         ITEMS = [{**it, "caption": open(it["caption_file"]).read().strip()} for it in spec]
     rows = []
     for it in ITEMS:
-        kw = it["caption"].split()[1]
+        kw = keyword(it["caption"])
         bad = check(it["caption"], kw)
         print(f"{it['name']}\n  keyword {kw}  {len(it['caption'])} chars  "
               f"{'CLEAN' if not bad else 'FAILS: ' + ', '.join(bad)}")

@@ -1,5 +1,5 @@
-F|story|dump 9
-Comment “F” to get all my resources 100% free.
+VAULT|story|dump 9
+Comment VAULT to get all my resources 100% free.
 
 I spent two years building business resources.
 Then I made all of them free.

@@ -1,5 +1,5 @@
-CG|teardown|dump 9
-↓ Comment “CG” and I’ll send you a FREE guide
+DESIGN|teardown|dump 9
+↓ Comment DESIGN and I’ll send you a FREE guide
 
 You do not need to learn system design to build products that scale.
 
@@ -24,4 +24,4 @@ The combination gives you something rare: confidence that what you are building 
 Stop guessing about technical decisions. 
 Let Antigravity design it. Let Claude validate it. Then build knowing you will not have to rebuild in 3 months.
 
-Comment “CG” for the architecture workflow.
+Comment DESIGN for the architecture workflow.

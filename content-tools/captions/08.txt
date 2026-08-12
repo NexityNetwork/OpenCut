@@ -1,5 +1,5 @@
-W|agents|dump 8
-↓ Comment "W" to try Ultron for free
+SQUAD|agents|dump 8
+↓ Comment SQUAD to try Ultron for free
 
 Every founder I know is drowning in the same thing.
 Not the wrong strategy. Not the wrong product. Not even the wrong market.
@@ -13,7 +13,7 @@ Ultron is the operating system that closes that gap.
 It runs five specialized agents across every department of your business. Each one trained on your company, your clients, your goals.
 
 1. Sentinel monitors your infrastructure so you never get caught off guard.
-2. Cortex researches your market, your leads, your competitors while you sleep.
+2. Cortex researches your market, your leads, your competitors around the clock.
 3. Specter handles outreach and follow up until prospects convert.
 4. Striker manages your pipeline and surfaces the deals worth closing.
 5. Pulse creates and distributes content without you touching it.
@@ -25,4 +25,4 @@ Your ops run without you.
 Your pipeline fills itself.
 You built the business. Ultron runs it.
 
-Comment "W" to try Ultron for free.
+Comment SQUAD to try Ultron for free.

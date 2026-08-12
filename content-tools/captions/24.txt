@@ -1,5 +1,5 @@
-OS|teardown|dump 9
-↓ Comment "OS" for the full blueprint
+VIRAL|teardown|dump 9
+↓ Comment VIRAL for the full blueprint
 
 This AI replaces your entire marketing team
 What used to take 100+ hours and a full team...
@@ -15,7 +15,7 @@ It reverse-engineers what is already working and turns it into viral-ready conte
 All done in seconds. On autopilot.
 
 The results?
-Content that actually drives revenue
+Content that actually converts
 10x content output
 Fully automated. No bottlenecks, no content teams
 
@@ -32,4 +32,4 @@ SEO intro + rewritten caption
 TikTok and IG captions + pro tip
 
 More blueprints dropping every week.
-Comment "OS" and I will send you the full breakdown.
+Comment VIRAL and I will send you the full breakdown.

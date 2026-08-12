@@ -1,5 +1,5 @@
-200|story|dump 9
-Comment “200” and I’ll send my list of agents for free
+LEADS|story|dump 9
+Comment LEADS and I’ll send my list of agents for free
 
 I was paying a VA every month to build lead lists.
 Now I pay for automation tools and an AI agent does it better.
@@ -20,4 +20,4 @@ Previous cost: a monthly VA invoice plus my time managing them.
 
 This is not about replacing people. This is about eliminating tasks that should never require human hours in the first place.
 
-Comment 200 for my curated list of agents.
+Comment LEADS for my curated list of agents.
