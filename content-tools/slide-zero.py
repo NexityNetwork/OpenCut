@@ -13,16 +13,16 @@ before this file did - the four 51ultron.com pages and the seven product windows
 in `ultron-shots`, the marks in `apps/web/public/tools`. The job was to look at
 what we hold and assemble it, not to shoot anything.
 
-ULTRON IS NOT ON A $0 CARD, and that is deliberate. The gag of act one is that
-the whole stack is free, and our own pricing page - the capture used on step two
-of act two - says $4,000 and $600 a month. Putting ultron behind a $0 would be
-the one claim a reader can disprove by clicking the link in the bio. Telegram
-takes the fourth slot instead, because it genuinely is free and it is the
-surface the rest of it gets run from.
+ULTRON TAKES THE FOURTH CARD, the one his own product sits on. A pass of this
+file put Telegram there on the grounds that a $0 over our name is a claim a
+reader could disprove - read off the pricing page in `step2.png`, which says
+$4,000 and $600 a month. That was the wrong page to read. The nav on every other
+capture we hold says TRY FOR FREE, so $0 is the site's own word for how it
+starts, and the fourth slot was never Telegram's.
 
-SO ULTRON CARRIES ACT TWO INSTEAD, all five frames of it, on captures of the
-real product. His act two walks you to his own storefront; ours walks the same
-five steps through ours.
+ULTRON ALSO CARRIES ACT TWO, all five frames, on captures of the real product.
+His act two walks you to his own storefront; ours walks the same five steps
+through ours.
 
 BOTH CARD TYPES FILL THE SAFE BOX. The fixed parts are measured and the GAPS
 take the slack, so a card is never a short stack floating at the top of the
@@ -64,9 +64,13 @@ SHOT_W, SHOT_H, SHOT_R = MEASURE, 620, 26
 
 LOGOS = os.environ.get("TOOL_LOGOS", "../apps/web/public/tools")
 SHOTS = os.environ.get("ULTRON_SHOTS", "ultron-shots")
+# How much of its plate a bare mark fills. The orb is a full circle rather than
+# a glyph, so at the 62 percent every other mark takes it reads as a dark dot in
+# a white square instead of an icon.
+FILL = {"ultron": .86}
 
 # ---- act one. Four things that really are free to start, described the way he
-# describes his. Ultron is not one of them; see the note at the top.
+# describes his. The fourth is ours, on his own product's slot.
 TOOLS = [
     ("n8n", "n8n", ["Automations", "Integrations", "Workflows"],
      ["Backbone for complex AI automations.",
@@ -77,9 +81,9 @@ TOOLS = [
     ("CLAUDE", "claude", ["Brain", "Strategy", "Execution"],
      ["Business brain that controls everything.",
       "Plans, reviews, writes, and thinks for the system."]),
-    ("TELEGRAM", "telegram", ["Control", "Alerts", "Approvals"],
-     ["The whole business in one thread.",
-      "Approve, reject, and redirect it from your phone."]),
+    ("ULTRON", "ultron", ["Research", "Outreach", "Pipeline"],
+     ["The operator that runs the whole thing.",
+      "You say what you want, it goes and does it."]),
 ]
 
 # ---- act two. Five steps, five captures we already hold.
@@ -133,7 +137,7 @@ def tile(im, x, y, sz, key):
         plate = src.resize((sz, sz), Image.LANCZOS)
     else:
         plate = Image.new("RGBA", (sz, sz), (255, 255, 255, 255))
-        n = int(sz * .62)
+        n = int(sz * FILL.get(key, .62))
         plate.alpha_composite(src.resize((n, n), Image.LANCZOS), ((sz - n) // 2,) * 2)
     plate.putalpha(mask(sz, sz, int(sz * .24)))
     im.alpha_composite(plate, (x, y))
