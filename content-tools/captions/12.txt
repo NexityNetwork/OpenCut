@@ -1,13 +1,13 @@
 SPRINT|playbook|dump 8
 ↓ Comment SPRINT to get started.
 
-3 months. That is all it takes if you follow the right model.
+3 months, one month at a time. Here is the shape of it.
 
 Month 1 you pick a production-ready AI app from a library of 50. 
 You do not build it. You deploy it in 2 hours, put up a landing page, connect Stripe, and start posting content the same day. By week 2 you know if people will pay for it. If they do not, you kill it and test the next one. Most founders spend 6 months to learn what this teaches you in 14 days.
 
 Month 2 you scale the winner. 
-You already know what hooks work, what pricing converts, and who your buyer is. You automate DM responses, set up email sequences, and post daily. 50-100 paying customers on one product you did not build.
+You already know what hooks work, what pricing converts, and who your buyer is. You automate DM responses, set up email sequences, and post daily. Real customers on a product you did not build.
 
 Month 3 you stack a second product for the same audience. 
 Your distribution is already warm. Your second launch is 3x faster than the first. Two products running means the business keeps moving even when you stop posting for a week.

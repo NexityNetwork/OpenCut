@@ -1,13 +1,13 @@
 TOOLKIT|stack|dump 9
 ↓ Comment TOOLKIT for a free guide.
 
-This is the exact stack that built an AI automation business in 24 hours:
+This is the exact stack behind an AI automation business:
 
 No team. No coding. No guessing what to sell.
 
 Brain: Claude handles all the thinking. Strategy, copy, workflows, customer responses. You prompt, it executes.
 
-Products: Replit turns a description into a deployed product, hosting included. No building from zero. You pick what to offer and start selling today.
+Products: Replit turns a description into a deployed product, hosting included. No building from zero. You pick what to offer and put it in front of people.
 
 Automation: n8n plus Make connect everything. Lead comes in, gets qualified, receives proposal, books call, all automatic.
 

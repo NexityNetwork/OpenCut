@@ -3,7 +3,7 @@ READY|contrarian|dump 9
 
 1. Building software from scratch: 6 months of development, no customers.
 
-2. Starting from ready made AI products: 1 week, nothing spent on development, in market day one.
+2. Starting from ready made AI products: no development, and something real in front of people.
 
 Most founders choose the first path. Smart ones choose the second.
 

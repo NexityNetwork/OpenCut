@@ -1,13 +1,13 @@
 STACK|stack|dump 9
 ↓ Comment STACK for a free guide.
 
-This is the exact stack that lets you launch software in 24 hours instead of 6 months.
+This is the exact stack that lets you launch software in days instead of months.
 
 Brain: 
 Claude writes your copy, builds your workflows, handles customer responses. You prompt, it executes.
 
 Products: 
-Replit turns a description into a deployed product with the hosting already attached. Pick the idea. Ship it. Start selling today.
+Replit turns a description into a deployed product with the hosting already attached. Pick the idea. Ship it. Put it in front of people.
 
 Automation: 
 n8n + Make connect everything. Lead comes in, gets qualified, receives demo, books call. Zero manual work.
