@@ -8,12 +8,17 @@ this renders our version of each and the choice gets made off real frames.
     python3 slide-stack24.py brand/stack24        # all of them
     python3 slide-stack24.py brand/stack24 c      # just that one
 
-NO SAFE BOX ON A ONE-SHOT. Every carousel here is built inside 250..1440 because
-a reel puts chrome over the rest. A single image post has no chrome, so holding
-that box leaves 480px of dead ground under the last row and the whole card reads
-as if it slid up the frame. This one uses the WHOLE 1080x1920 with an 88px
-margin, and the block - title, rows, ask - is measured and centred in it as one
-object rather than pinned top and bottom.
+THE SAFE BOX IS NOT OPTIONAL AND IT IS NOT DEAD SPACE. 250..1440 vertically and
+130..950 across is the only part of a 1080x1920 frame the platform does not draw
+over: below 1440 is the caption block and the audio ticker, past 950 is the like
+and comment rail, above 250 is the header. A pass of this file used the whole
+frame on the theory that a still has no chrome - it does, the same chrome - and
+it put the last two rows, the ask and every right-hand logo underneath it.
+
+THE BLOCK FILLS THAT BOX, it does not float in it. The title sits on the safe
+top, the ask sits on the safe bottom, and the row pitch is SOLVED from whatever
+is left between them rather than picked and then centred. So the card is as big
+as the box allows and there is no slack anywhere in it.
 
 THE TITLE IS TWO LINES OF ONE SIZE. Setting the second at 62 percent of the
 first made it a caption apologising under a headline; his are the same size, and
@@ -25,9 +30,9 @@ NO GREY. Contrast comes from WEIGHT, not from turning text down. A grey label,
 grey body and a white keyword is three tones doing one job, and on a #1C1C1C
 card the grey is the first thing to disappear on a phone at arm's length.
 
-BIG AND TIGHT. The tiles are 96px on a 150 pitch, so the gap between two tiles
-is smaller than a tile. The earlier pass ran 58px marks on a 130 pitch, which is
-a list with holes in it.
+BIG AND TIGHT. The tiles are 88px and the pitch comes out near 136, so the gap
+between two tiles is half a tile. The first pass ran 58px marks on a 130 pitch,
+which is a list with holes in it.
 
 DARK, WHICH ALMOST NOTHING ELSE HERE IS. The reference is #1C1C1C and it should
 stay dark - the whole point of the card is that the tiles glow off it. The house
@@ -64,9 +69,10 @@ SB = _load("slide-body")
 F, adv, draw_tracked = SB.F, SB.adv, SB.draw_tracked
 
 W, H = 1080, 1920
-M = 88
-LEFT, RIGHT = M, W - M
+SAFE_TOP, SAFE_BOT = 250, 1440
+LEFT, RIGHT = 130, 950
 MEASURE = RIGHT - LEFT
+BAND = SAFE_BOT - SAFE_TOP
 CX = W // 2
 
 BG = (26, 26, 26)
@@ -74,9 +80,9 @@ INK = (244, 243, 240)
 RULE = (76, 76, 76)
 
 TITLE_CAP, TITLE_LEAD = 76, 1.10
-HEAD_GAP, CTA_GAP = 112, 112
-PITCH, TILE, TILE_GAP = 150, 96, 14
-CTA_SZ = 38
+HEAD_GAP, CTA_GAP = 72, 72
+TILE, TILE_GAP = 88, 14
+CTA_SZ = 36
 
 LOGOS = os.environ.get("TOOL_LOGOS", "../apps/web/public/tools")
 EXTRA = {"replit": os.environ.get("MTOOLS", "mtools") + "/icon-replit.png"}
@@ -173,35 +179,39 @@ def solve_rich(values, cap_, measure):
 
 
 def frame(title, row_h):
-    """Ground, title, ask - and the y the first row sits on.
+    """Ground, title, ask - and the centre line of row one plus the pitch.
 
-    The whole block is measured before anything is drawn and centred in the FULL
-    frame. Pinning the title to a safe top and the ask to a safe bottom is what
-    left the card floating in the upper two thirds of it."""
+    Everything is pinned to the SAFE BOX and the pitch is what gives: the title
+    sits on the safe top, the ask on the safe bottom, and the rows take whatever
+    is left. Nothing here is centred in the full frame, because the bottom 480px
+    of a 1080x1920 is the caption block and the right 130 is the action rail."""
     im = ground()
     d = ImageDraw.Draw(im)
 
     tsz = solve([title[0]], TITLE_CAP, "Bold", MEASURE)
     lead = round(tsz * TITLE_LEAD)
-    head = cap(tsz) + lead
-    rows = PITCH * (len(ROWS) - 1) + row_h
-    block = head + HEAD_GAP + rows + CTA_GAP + cap(CTA_SZ)
-    top = (H - block) // 2
 
+    # Sit the title's INK on the safe top, not a baseline derived from a cap
+    # ratio. `int(sz * .727)` is two pixels short of Inter Bold's actual cap at
+    # this size, which is how every variant came back one pixel over the line.
     f, tr = F(tsz, "Bold"), -0.014 * tsz
-    y = top + cap(tsz)
+    rise = -d.textbbox((0, 0), title[0], font=f, anchor="ls")[1]
+    head = rise + lead
+    y = SAFE_TOP + rise
     draw_tracked(d, (CX - adv(title[0], f, tr) / 2, y), title[0], f, INK, tr)
     d.text((CX, y + lead), title[1], font=F(tsz, "Medium"), fill=INK, anchor="ms")
 
-    cy = top + head + HEAD_GAP + row_h // 2          # centre line of row one
-    by = top + block                                 # the ask sits on the floor
+    room = BAND - head - HEAD_GAP - CTA_GAP - cap(CTA_SZ)
+    pitch = (room - row_h) // (len(ROWS) - 1)
+    cy = SAFE_TOP + head + HEAD_GAP + row_h // 2     # centre line of row one
+    by = SAFE_BOT                                    # the ask sits on the floor
     a, b, c = CTA
     fa, fb = F(CTA_SZ, "Regular"), F(CTA_SZ, "Bold")
     x = CX - (fa.getlength(a) + fb.getlength(b) + fa.getlength(c)) / 2
     for s, fn in ((a, fa), (b, fb), (c, fa)):
         d.text((x, by), s, font=fn, fill=INK, anchor="ls")
         x += fn.getlength(s)
-    return im, d, cy
+    return im, d, cy, pitch
 
 
 # ------------------------------------------------------------------- variants
@@ -210,7 +220,7 @@ def var_a():
     """His first: label bold on the left, the words ranged right. One size for
     both columns, solved so the longest label and the longest value clear each
     other across the measure."""
-    im, d, cy = frame(TITLE, TILE)
+    im, d, cy, PITCH = frame(TITLE, TILE)
     lab = [f"{r[0]}:" for r in ROWS]
     for sz in range(64, 20, -1):
         lw = max(F(sz, "Bold").getlength(v) for v in lab)
@@ -227,7 +237,7 @@ def var_a():
 def var_b():
     """His second: label bold on the left, the marks ranged left after it, so
     every row's tiles start on one axis and the row reads as a set."""
-    im, d, cy = frame(TITLE, TILE)
+    im, d, cy, PITCH = frame(TITLE, TILE)
     lab = [f"{r[0]}:" for r in ROWS]
     lsz = solve(lab, 60, "Bold", MEASURE - marks_w(["a", "b"]) - 60)
     col = LEFT + max(F(lsz, "Bold").getlength(v) for v in lab) + 60
@@ -243,7 +253,7 @@ def var_c():
     """His third and fourth: no labels at all. The name carries the row and the
     marks sit on the right rail - the fastest of the set to read, and the one
     that stops looking like a form."""
-    im, d, cy = frame(TITLE, TILE)
+    im, d, cy, PITCH = frame(TITLE, TILE)
     nsz = solve([r[1] for r in ROWS], 66, "Regular",
                 MEASURE - marks_w(["a", "b"]) - 48)
     for i, (_, name, marks) in enumerate(ROWS):
@@ -261,7 +271,7 @@ def var_d():
     name rather than beside it, so the name keeps the whole measure and the
     marks still land on the rail. A hairline under every row makes the seven
     read as one object instead of seven."""
-    im, d, cy = frame(TITLE, TILE + 34)
+    im, d, cy, PITCH = frame(TITLE, TILE + 34)
     nsz = solve([r[1] for r in ROWS], 60, "Medium",
                 MEASURE - marks_w(["a", "b"]) - 48)
     lsz = 26
@@ -283,7 +293,7 @@ def var_e():
     """Ours: the mark leads. Tile, then the name, and the pair is CENTRED on the
     frame rather than ranged left - so the list sits under the title on the same
     axis instead of hanging off one edge of it."""
-    im, d, cy = frame(TITLE, TILE)
+    im, d, cy, PITCH = frame(TITLE, TILE)
     lead = max(marks_w(r[2]) for r in ROWS) + 34
     nsz = solve([r[1] for r in ROWS], 66, "Medium", MEASURE - lead)
     wide = lead + max(F(nsz, "Medium").getlength(r[1]) for r in ROWS)
@@ -302,7 +312,7 @@ def var_f():
     """His guide card, our steps. His sells a bundle off his own domain; ours is
     seven moves somebody could make this week, with the payload in Bold and the
     rest at the same weight of white - not a grey line with a bright word in it."""
-    im, d, cy = frame(GUIDE_TITLE, TILE)
+    im, d, cy, PITCH = frame(GUIDE_TITLE, TILE)
     ssz = solve_rich(GUIDE, 54, MEASURE - 118)
     num = max(24, int(ssz * .62))
     for i, step in enumerate(GUIDE):
