@@ -294,17 +294,23 @@ export function SnippetsView({
 		return [...m.entries()].sort((a, b) => b[1] - a[1]);
 	}, [rows]);
 
+	// SEARCH MATCHES AT WORD STARTS, not anywhere inside a word. Plain substring
+	// matching made `age` hit `manage`, `package` and `average`, so the box
+	// looked broken when it was only being literal. Terms are ANDed, so a second
+	// word narrows instead of widening, and the keyword and kind are searchable
+	// too - `agents dashboard` finds the one caption that is both.
 	const shown = useMemo(() => {
-		const needle = q.trim().toLowerCase();
-		return rows.filter(
-			(r) =>
-				(!kind || r.kind === kind) &&
-				(!needle ||
-					r.text.toLowerCase().includes(needle) ||
-					r.ref.toLowerCase().includes(needle) ||
-					r.source.toLowerCase().includes(needle) ||
-					r.note.toLowerCase().includes(needle)),
+		const terms = q.trim().toLowerCase().split(/\s+/).filter(Boolean);
+		const res = terms.map(
+			(t) => new RegExp(`(?:^|[^a-z0-9])${t.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")}`),
 		);
+		return rows.filter((r) => {
+			if (kind && r.kind !== kind) return false;
+			if (!res.length) return true;
+			const hay =
+				`${r.text} ${r.ref} ${r.kind} ${r.source} ${r.note}`.toLowerCase();
+			return res.every((re) => re.test(hay));
+		});
 	}, [rows, q, kind]);
 
 	async function add() {
@@ -436,7 +442,7 @@ export function SnippetsView({
 						!kind && "bg-[var(--mono-ink)] text-[var(--mono-app)]",
 					)}
 				>
-					all {rows.length}
+					{q.trim() || kind ? `${shown.length} of ${rows.length}` : `all ${rows.length}`}
 				</button>
 				{kinds.map(([k, n]) => (
 					<button
