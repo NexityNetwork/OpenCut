@@ -8,14 +8,17 @@ import { useEffect, useState } from "react";
 import { toast } from "sonner";
 import {
 	ArrowLeft,
+	Check,
 	ChevronLeft,
 	ChevronRight,
 	Clapperboard,
+	Copy,
 	Download,
 	FileText,
 	Frame,
 	Loader2,
 	Rocket,
+	Share,
 	Shuffle,
 } from "lucide-react";
 import { cn } from "@/utils/ui";
@@ -145,6 +148,64 @@ export function AssetDetail({
 			setZipping(false);
 		}
 	};
+	// PHONE POSTING. `<a download>` on iOS drops the file into Files, and
+	// Instagram's composer only reads Photos - which is why posting used to mean
+	// bouncing the video through a chat app just to get a Save to Gallery button.
+	// navigator.share() hands the blob to the system sheet instead, where iOS
+	// offers Save Video (straight to Photos) and Android lists Instagram itself.
+	// Needs the fetch to finish before the sheet opens, so the button spins.
+	const [sharing, setSharing] = useState(false);
+	const canShareFiles =
+		typeof navigator !== "undefined" && typeof navigator.canShare === "function";
+	const shareMedia = async () => {
+		if (sharing) return;
+		const m0 = item.media[0];
+		if (!m0) return;
+		setSharing(true);
+		try {
+			const res = await fetch(fileUrl(m0.key));
+			if (!res.ok) throw new Error("could not load the file");
+			const ext = m0.ext || (m0.type === "video" ? "mp4" : "png");
+			const file = new File([await res.blob()], `${downloadName}.${ext}`, {
+				type: res.headers.get("content-type") || `${m0.type}/${ext}`,
+			});
+			if (!navigator.canShare?.({ files: [file] })) {
+				await downloadAll();
+				return;
+			}
+			await navigator.share({ files: [file] });
+		} catch (e) {
+			// The user dismissing the share sheet throws AbortError. Not an error.
+			if (e instanceof DOMException && e.name === "AbortError") return;
+			toast.error(e instanceof Error ? e.message : "Could not share");
+		} finally {
+			setSharing(false);
+		}
+	};
+
+	// One-shot copy of the caption exactly as stored. Nothing is appended - the
+	// field holds the post copy and only the post copy.
+	const [copied, setCopied] = useState(false);
+	const copyCaption = async () => {
+		const text = caption.trim();
+		if (!text) return;
+		try {
+			await navigator.clipboard.writeText(text);
+		} catch {
+			// Safari refuses the async clipboard outside some gestures.
+			const ta = document.createElement("textarea");
+			ta.value = text;
+			ta.style.position = "fixed";
+			ta.style.opacity = "0";
+			document.body.appendChild(ta);
+			ta.select();
+			document.execCommand("copy");
+			ta.remove();
+		}
+		setCopied(true);
+		setTimeout(() => setCopied(false), 1600);
+	};
+
 	const remix = async () => {
 		if (remixing) return;
 		const key = item.media.find((m) => m.type === "video")?.key;
@@ -272,9 +333,20 @@ export function AssetDetail({
 						/>
 					</div>
 					<div>
-						<label className="mb-1.5 block text-[11px] font-semibold tracking-wide text-[var(--mono-ink-3)] uppercase">
-							Caption
-						</label>
+						<div className="mb-1.5 flex items-center justify-between gap-3">
+							<label className="block text-[11px] font-semibold tracking-wide text-[var(--mono-ink-3)] uppercase">
+								Caption
+							</label>
+							<button
+								type="button"
+								onClick={() => void copyCaption()}
+								disabled={!caption.trim()}
+								className="flex items-center gap-1.5 rounded-lg px-2 py-1 text-[11px] font-semibold tracking-wide text-[var(--mono-ink-2)] uppercase transition-colors hover:bg-[var(--mono-hover)] hover:text-[var(--mono-ink)] disabled:pointer-events-none disabled:opacity-40"
+							>
+								{copied ? <Check className="size-3.5" /> : <Copy className="size-3.5" />}
+								{copied ? "Copied" : "Copy"}
+							</button>
+						</div>
 						<textarea
 							value={caption}
 							onChange={(e) => setCaption(e.target.value)}
@@ -288,6 +360,19 @@ export function AssetDetail({
 					</Button>
 
 					<div className="space-y-2 border-t border-[var(--mono-line)] pt-5">
+						{canShareFiles && item.media.length === 1 && (
+							<ActionRow
+								icon={sharing ? <Loader2 className="size-4 animate-spin" /> : <Share className="size-4" />}
+								title={isVideo ? "Save video" : "Save file"}
+								sub={
+									isVideo
+										? "Opens the share sheet — Save Video puts it in Photos"
+										: "Opens the share sheet"
+								}
+								onClick={() => void shareMedia()}
+								disabled={sharing}
+							/>
+						)}
 						{!isPdf && (
 							<ActionRow
 								icon={busy === "editor" ? <Loader2 className="size-4 animate-spin" /> : <Clapperboard className="size-4" />}
