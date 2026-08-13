@@ -53,19 +53,17 @@ export function AssetDetail({
 	onOpenCanvas: (item: VaultItem) => Promise<void>;
 	onCompose: (item: VaultItem) => void;
 }) {
-	const [title, setTitle] = useState(item.name);
 	const [caption, setCaption] = useState(item.caption ?? "");
 	const [saving, setSaving] = useState(false);
 	const [busy, setBusy] = useState<"editor" | "canvas" | null>(null);
 	const [page, setPage] = useState(0);
 
 	useEffect(() => {
-		setTitle(item.name);
 		setCaption(item.caption ?? "");
 		setPage(0);
 	}, [item]);
 
-	const dirty = title.trim() !== item.name || caption !== (item.caption ?? "");
+	const dirty = caption !== (item.caption ?? "");
 	const isPdf = item.kind === "pdf";
 	const isVideo = item.kind === "video";
 	const images = item.media.filter((m) => m.type === "image");
@@ -79,10 +77,10 @@ export function AssetDetail({
 			const r = await fetch("/api/vault", {
 				method: "PATCH",
 				headers: { "content-type": "application/json" },
-				body: JSON.stringify({ owner, id: item.id, name: title.trim() || item.name, caption }),
+				body: JSON.stringify({ owner, id: item.id, name: item.name, caption }),
 			});
 			if (!r.ok) throw new Error("Save failed");
-			onSaved({ ...item, name: title.trim() || item.name, caption: caption.trim() ? caption : undefined });
+			onSaved({ ...item, caption: caption.trim() ? caption : undefined });
 			toast.success("Saved");
 		} catch (e) {
 			toast.error(e instanceof Error ? e.message : "Save failed");
@@ -322,20 +320,9 @@ export function AssetDetail({
 				{/* Details */}
 				<div className="flex flex-col gap-5">
 					<div>
-						<label className="mb-1.5 block text-[11px] font-semibold tracking-wide text-[var(--mono-ink-3)] uppercase">
-							Title
-						</label>
-						<input
-							value={title}
-							onChange={(e) => setTitle(e.target.value)}
-							placeholder="Add a title"
-							className="w-full rounded-xl border border-[var(--mono-line)] bg-[var(--mono-field)] px-3.5 py-2.5 text-sm text-[var(--mono-ink)] outline-none transition-colors placeholder:text-[var(--mono-ink-3)] focus:border-[var(--mono-strong)]"
-						/>
-					</div>
-					<div>
 						<div className="mb-1.5 flex items-center justify-between gap-3">
 							<label className="block text-[11px] font-semibold tracking-wide text-[var(--mono-ink-3)] uppercase">
-								Caption
+								Post caption
 							</label>
 							<button
 								type="button"
@@ -351,7 +338,7 @@ export function AssetDetail({
 							value={caption}
 							onChange={(e) => setCaption(e.target.value)}
 							placeholder="Write the caption this post will use"
-							className="min-h-40 w-full resize-none rounded-xl border border-[var(--mono-line)] bg-[var(--mono-field)] px-3.5 py-2.5 text-sm leading-relaxed text-[var(--mono-ink)] outline-none transition-colors placeholder:text-[var(--mono-ink-3)] focus:border-[var(--mono-strong)]"
+							className="min-h-[19rem] w-full resize-none rounded-xl border border-[var(--mono-line)] bg-[var(--mono-field)] px-3.5 py-2.5 text-sm leading-relaxed text-[var(--mono-ink)] outline-none transition-colors placeholder:text-[var(--mono-ink-3)] focus:border-[var(--mono-strong)]"
 						/>
 					</div>
 
