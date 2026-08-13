@@ -255,13 +255,13 @@ export function AssetDetail({
 							controls
 							autoPlay
 							playsInline
-							className="max-h-[78vh] max-w-full rounded-2xl border border-[var(--mono-line)]"
+							className="max-h-[46vh] lg:max-h-[78vh] max-w-full rounded-2xl border border-[var(--mono-line)]"
 						/>
 					) : isPdf ? (
 						<iframe
 							title={item.name}
 							src={fileUrl(item.media[0]?.key || "")}
-							className="h-[78vh] w-full max-w-[56ch] rounded-2xl border border-[var(--mono-line)] bg-white"
+							className="h-[60vh] w-full max-w-[56ch] lg:h-[78vh] rounded-2xl border border-[var(--mono-line)] bg-white"
 						/>
 					) : (
 						<div className="relative inline-flex">
@@ -269,7 +269,7 @@ export function AssetDetail({
 							<img
 								src={fileUrl(cur?.key || "")}
 								alt={item.name}
-								className="block max-h-[78vh] max-w-full rounded-2xl border border-[var(--mono-line)]"
+								className="block max-h-[46vh] lg:max-h-[78vh] max-w-full rounded-2xl border border-[var(--mono-line)]"
 							/>
 							{item.media.length > 1 && (
 								<>

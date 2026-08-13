@@ -371,7 +371,7 @@ export function SnippetsView({
 	const prose = mode === "prose";
 
 	return (
-		<div className="mx-auto w-full max-w-3xl px-4 py-8">
+		<div className="mx-auto w-full max-w-3xl px-4 pt-16 pb-8 lg:pt-8">
 			<div className="mb-6 flex items-start justify-between gap-4">
 				<div>
 					<h1 className="text-2xl font-semibold text-[var(--mono-ink)]">

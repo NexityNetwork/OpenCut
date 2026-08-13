@@ -684,6 +684,10 @@ export function VaultSection() {
 	// Instagram-style incremental rendering for big libraries.
 	const [visibleCount, setVisibleCount] = useState(24);
 	const moreRef = useRef<HTMLDivElement | null>(null);
+	// <main> is the scroller, not the window - the sentinel has to be watched
+	// against it or "am I near the bottom" is measured against a viewport the
+	// grid never moves in.
+	const mainRef = useRef<HTMLElement | null>(null);
 	// biome-ignore lint/correctness/useExhaustiveDependencies: reset on tab change
 	useEffect(() => setVisibleCount(24), [activeTab, appView]);
 	useEffect(() => {
@@ -691,11 +695,11 @@ export function VaultSection() {
 		if (!el) return;
 		const io = new IntersectionObserver(
 			(es) => es[0]?.isIntersecting && setVisibleCount((c) => c + 24),
-			{ rootMargin: "600px" },
+			{ root: mainRef.current, rootMargin: "800px" },
 		);
 		io.observe(el);
 		return () => io.disconnect();
-	});
+	}, [visibleCount, activeTab, appView]);
 
 	const [confirmAsk, setConfirmAsk] = useState<{
 		title: string;
@@ -1379,7 +1383,12 @@ export function VaultSection() {
 		.slice(0, 8);
 
 	return (
-		<div className="text-foreground flex h-screen overflow-hidden bg-[var(--mono-app)]">
+		// h-dvh, NOT h-screen. 100vh on iOS is the toolbars-hidden height, so the
+		// shell is taller than what you can see: the document itself pans by the
+		// toolbar height and swallows the first swipe, the inner scroller never
+		// engages, and the library looks like it stops after three rows.
+		// overscroll-none keeps the rubber band from handing the gesture back.
+		<div className="text-foreground flex h-[100dvh] overflow-hidden overscroll-none bg-[var(--mono-app)]">
 			{/* Desktop sidebar (inline) */}
 			<div className="hidden lg:contents">
 				<LibrarySidebar
@@ -1486,12 +1495,16 @@ export function VaultSection() {
 				onNewSection={() => setNewSectionOpen(true)}
 				recents={recents}
 				categories={categories}
+				mobile
+				onClose={() => setMobileNav(false)}
 			/>
 				</div>
 			</div>
 			<main
+				ref={mainRef}
 				className={cn(
-					"min-w-0 flex-1 overflow-y-auto transition-colors",
+					"min-w-0 flex-1 overflow-y-auto overscroll-contain transition-colors",
+					"pb-[env(safe-area-inset-bottom)]",
 					dragging && "ring-primary/40 ring-2 ring-inset",
 				)}
 				onDragOver={(e) => {
@@ -2582,6 +2595,9 @@ function SidebarItem({
 			onClick={onClick}
 			className={cn(
 				"flex w-full items-center gap-2.5 rounded-lg px-2 py-1 text-[13px] transition-colors",
+				// A 26px row is fine for a mouse and not for a thumb. Any coarse
+				// pointer gets a 44px row, which is Apple's own minimum.
+				"[@media(pointer:coarse)]:py-2.5 [@media(pointer:coarse)]:text-[15px]",
 				active
 					? "bg-[var(--mono-active)] text-[var(--mono-ink)]"
 					: "text-[var(--mono-ink-2)] hover:bg-[var(--mono-hover)] hover:text-[var(--mono-ink)]",
@@ -2700,9 +2716,14 @@ function LibrarySidebar({
 	onNewSection,
 	recents,
 	categories,
+	mobile = false,
+	onClose,
 }: {
 	collapsed: boolean;
 	onToggleCollapse: () => void;
+	/** Rendered inside the slide-over: full height, bigger targets, a close X. */
+	mobile?: boolean;
+	onClose?: () => void;
 	onOpenSearch: () => void;
 	appView: AppView;
 	inboxTab: InboxTab;
@@ -2837,8 +2858,20 @@ function LibrarySidebar({
 	}
 
 	return (
-		<aside className="m-2 flex w-72 shrink-0 flex-col rounded-2xl border border-[var(--mono-line)] bg-[var(--mono-panel)] shadow-sm">
-			<div className="flex items-center justify-between px-4 py-4">
+		// On a phone this is the whole screen, so it takes the full dvh, drops the
+		// desktop margin and rounds only the edge you can see. Everything from the
+		// logo down scrolls as ONE region: the nav alone is taller than a phone, and
+		// when only the category list scrolled, Browse was squeezed into a sliver
+		// with three rows visible and the rest unreachable.
+		<aside
+			className={cn(
+				"flex shrink-0 flex-col border-[var(--mono-line)] bg-[var(--mono-panel)] shadow-sm",
+				mobile
+					? "h-[100dvh] w-[86vw] max-w-[21rem] rounded-r-2xl border-r pt-[env(safe-area-inset-top)] pb-[env(safe-area-inset-bottom)]"
+					: "m-2 w-72 rounded-2xl border",
+			)}
+		>
+			<div className="flex shrink-0 items-center justify-between px-4 py-4">
 				<button
 					type="button"
 					onClick={onSelectHome}
@@ -2849,23 +2882,30 @@ function LibrarySidebar({
 				<div className="flex items-center gap-0.5">
 					<button
 						type="button"
-						onClick={onToggleCollapse}
-						aria-label="Collapse sidebar"
-						className="text-muted-foreground hover:text-foreground hover:bg-muted flex size-7 items-center justify-center rounded-md"
+						onClick={mobile ? onClose : onToggleCollapse}
+						aria-label={mobile ? "Close menu" : "Collapse sidebar"}
+						className={cn(
+							"text-muted-foreground hover:text-foreground hover:bg-muted flex items-center justify-center rounded-md",
+							mobile ? "size-10" : "size-7",
+						)}
 					>
-						<PanelLeft className="size-4" />
+						{mobile ? <X className="size-5" /> : <PanelLeft className="size-4" />}
 					</button>
 					<button
 						type="button"
 						onClick={onOpenSearch}
 						aria-label="Search"
-						className="text-muted-foreground hover:text-foreground hover:bg-muted flex size-7 items-center justify-center rounded-md"
+						className={cn(
+							"text-muted-foreground hover:text-foreground hover:bg-muted flex items-center justify-center rounded-md",
+							mobile ? "size-10" : "size-7",
+						)}
 					>
-						<Search className="size-4" />
+						<Search className={mobile ? "size-5" : "size-4"} />
 					</button>
 				</div>
 			</div>
 
+			<div className="flex min-h-0 flex-1 flex-col overflow-y-auto overscroll-contain">
 			<nav className="space-y-0.5 px-2">
 				<SidebarItem
 					icon={HomeIcon}
@@ -2989,7 +3029,7 @@ function LibrarySidebar({
 				</CollapsibleGroup>
 			</nav>
 
-			<div className="flex items-center justify-between px-4 pt-4 pb-1">
+			<div className="flex shrink-0 items-center justify-between px-4 pt-4 pb-1">
 				<span className="text-[11px] font-semibold tracking-wide text-[var(--mono-ink-3)] uppercase">
 					Browse
 				</span>
@@ -3004,7 +3044,7 @@ function LibrarySidebar({
 				</button>
 			</div>
 
-			<div className="min-h-0 flex-1 overflow-y-auto px-2 pb-2">
+			<div className="px-2 pb-2">
 				{navTabs.map((t) => {
 					const active = appView === "library" && activeTab === t.key;
 					return (
@@ -3015,6 +3055,7 @@ function LibrarySidebar({
 								title={t.label}
 								className={cn(
 									"flex w-full items-center gap-2.5 rounded-lg px-2 py-1 text-left transition-colors",
+									"[@media(pointer:coarse)]:py-2.5",
 									active
 										? "bg-[var(--mono-active)] text-[var(--mono-ink)]"
 										: "text-[var(--mono-ink-2)] hover:bg-[var(--mono-hover)] hover:text-[var(--mono-ink)]",
@@ -3149,8 +3190,9 @@ function LibrarySidebar({
 						</>
 					)}
 			</div>
+			</div>
 
-			<div className="p-2">
+			<div className="shrink-0 border-t border-[var(--mono-line)] p-2">
 				{user ? (
 					<DropdownMenu>
 						<DropdownMenuTrigger asChild>
