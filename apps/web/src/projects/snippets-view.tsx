@@ -270,6 +270,10 @@ export function SnippetsView({
 	const [draftKind, setDraftKind] = useState("");
 	const [draftSource, setDraftSource] = useState("");
 	const [copied, setCopied] = useState<string | null>(null);
+	// DELETE IS TWO TAPS. The first arms the row and the second commits it.
+	// A single stray tap next to Copy destroyed a finished caption once, and
+	// the row was only recoverable because a snapshot happened to exist.
+	const [armed, setArmed] = useState<string | null>(null);
 
 	const load = useCallback(async () => {
 		setLoading(true);
@@ -287,6 +291,12 @@ export function SnippetsView({
 	useEffect(() => {
 		void load();
 	}, [load]);
+
+	useEffect(() => {
+		if (!armed) return;
+		const t = setTimeout(() => setArmed(null), 4000);
+		return () => clearTimeout(t);
+	}, [armed]);
 
 	const kinds = useMemo(() => {
 		const m = new Map<string, number>();
@@ -355,10 +365,42 @@ export function SnippetsView({
 		}
 	}
 
-	async function remove(id: string) {
-		setRows((p) => p.filter((r) => r.id !== id));
-		await fetch(`/api/snippets?id=${encodeURIComponent(id)}`, {
-			method: "DELETE",
+	// Deletes the row but hands the whole record to an Undo, which re-POSTs it
+	// under its original id. INSERT OR REPLACE makes the restore exact.
+	async function remove(r: Snippet) {
+		setArmed(null);
+		setRows((p) => p.filter((x) => x.id !== r.id));
+		try {
+			const res = await fetch(`/api/snippets?id=${encodeURIComponent(r.id)}`, {
+				method: "DELETE",
+			});
+			if (!res.ok) throw new Error();
+		} catch {
+			setRows((p) => [...p, r].sort((a, b) => a.sortOrder - b.sortOrder));
+			toast.error("could not delete");
+			return;
+		}
+		toast(`${r.ref || "snippet"} deleted`, {
+			duration: 12000,
+			action: {
+				label: "Undo",
+				onClick: () => {
+					void (async () => {
+						try {
+							const res = await fetch("/api/snippets", {
+								method: "POST",
+								headers: { "Content-Type": "application/json" },
+								body: JSON.stringify({ snippets: [r] }),
+							});
+							if (!res.ok) throw new Error();
+							toast.success(`${r.ref || "snippet"} restored`);
+							void load();
+						} catch {
+							toast.error("could not restore");
+						}
+					})();
+				},
+			},
 		});
 	}
 
@@ -498,12 +540,14 @@ export function SnippetsView({
 										</div>
 									)}
 								</div>
-								<div className="flex shrink-0 items-center gap-1 opacity-0 transition group-hover:opacity-100">
+								{/* Always on a touch screen. Hover-only controls are invisible until
+								    the first tap, which makes the first tap a blind one. */}
+								<div className="flex shrink-0 items-center gap-1 opacity-0 transition group-hover:opacity-100 [@media(pointer:coarse)]:opacity-100">
 									<button
 										type="button"
 										onClick={() => void copy(r)}
 										title="Copy"
-										className="rounded-md p-1.5 text-[var(--mono-ink-3)] hover:text-[var(--mono-ink)]"
+										className="rounded-md p-2 text-[var(--mono-ink-3)] hover:text-[var(--mono-ink)]"
 									>
 										{copied === r.id ? (
 											<Check className="size-4" />
@@ -511,14 +555,37 @@ export function SnippetsView({
 											<Copy className="size-4" />
 										)}
 									</button>
-									<button
-										type="button"
-										onClick={() => void remove(r.id)}
-										title="Delete"
-										className="rounded-md p-1.5 text-[var(--mono-ink-3)] hover:text-red-500"
-									>
-										<Trash2 className="size-4" />
-									</button>
+									{/* Held off Copy so one fat finger cannot land on both. */}
+									<span className="mx-1 h-5 w-px shrink-0 bg-[var(--mono-line)]" />
+									{armed === r.id ? (
+										<span className="flex items-center gap-1">
+											<button
+												type="button"
+												onClick={() => void remove(r)}
+												title="Confirm delete"
+												className="rounded-md bg-red-500 px-2.5 py-1.5 text-[11px] font-semibold text-white"
+											>
+												Delete
+											</button>
+											<button
+												type="button"
+												onClick={() => setArmed(null)}
+												title="Keep"
+												className="rounded-md p-2 text-[var(--mono-ink-3)] hover:text-[var(--mono-ink)]"
+											>
+												<X className="size-4" />
+											</button>
+										</span>
+									) : (
+										<button
+											type="button"
+											onClick={() => setArmed(r.id)}
+											title="Delete"
+											className="rounded-md p-2 text-[var(--mono-ink-3)] hover:text-red-500"
+										>
+											<Trash2 className="size-4" />
+										</button>
+									)}
 								</div>
 							</div>
 						</li>
